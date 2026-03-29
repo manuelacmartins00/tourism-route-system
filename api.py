@@ -18,7 +18,7 @@ load_dotenv()
 app = FastAPI(title="TourismRouteSystem API")
 
 # ── Health check ──────────────────────────────────────────────────────
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok"}
 
