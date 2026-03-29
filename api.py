@@ -17,6 +17,11 @@ load_dotenv()
 
 app = FastAPI(title="TourismRouteSystem API")
 
+# ── Health check ──────────────────────────────────────────────────────
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
 # ── Inicializar sistema (uma vez ao arrancar) ─────────────────────────
 from main_system import TourismRouteSystem
 
