@@ -1,0 +1,209 @@
+# api.py
+
+import os
+import csv
+import uuid
+from pathlib import Path
+from datetime import datetime
+from typing import Optional
+
+from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = FastAPI(title="TourismRouteSystem API")
+
+# ── Inicializar sistema (uma vez ao arrancar) ─────────────────────────
+from main_system import TourismRouteSystem
+
+system = None
+
+@app.on_event("startup")
+async def startup():
+    global system
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY não configurada")
+    system = TourismRouteSystem(api_key=api_key)
+
+# ── Pastas de output ──────────────────────────────────────────────────
+Path("outputs/maps").mkdir(parents=True, exist_ok=True)
+Path("data/feedback").mkdir(parents=True, exist_ok=True)
+FEEDBACK_CSV = Path("data/feedback/responses.csv")
+
+# ── Modelos Pydantic ──────────────────────────────────────────────────
+class QueryRequest(BaseModel):
+    query: str
+
+class FeedbackRequest(BaseModel):
+    p1: int; p2: int; p3: int; p4: int; p5: int
+    p6: int; p7: int; p8: int; p9: int; p10: int
+    p11: int; p12: int; p13: int; p14: int; p15: int
+    p16_loc: Optional[int] = 0
+    p17_time: Optional[int] = 0
+    p18: Optional[str] = ""
+    p19: Optional[str] = ""
+    p20_age: Optional[str] = ""
+    p21_ai: Optional[str] = ""
+    p22_travel: Optional[str] = ""
+    p23: Optional[str] = ""
+    run_id: Optional[str] = None
+
+# ── ENDPOINT 1: GET / — serve index.html ─────────────────────────────
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    html_path = Path("index.html")
+    if not html_path.exists():
+        raise HTTPException(status_code=404, detail="index.html não encontrado")
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+
+# ── ENDPOINT 2: POST /query — processa query e devolve rota ──────────
+@app.post("/query")
+async def query_route(req: QueryRequest):
+    if not system:
+        raise HTTPException(status_code=503, detail="Sistema não inicializado")
+    if not req.query.strip():
+        raise HTTPException(status_code=400, detail="Query vazia")
+
+    import time
+    t_start = time.time()
+    try:
+        result = system.plan_route(
+            req.query,
+            use_shap=False,
+            verbose=True,
+            force_algorithm=None
+        )
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+    if "error" in result:
+        raise HTTPException(status_code=422, detail=result["error"])
+    
+    if result.get("status") == "needs_clarification":
+        return JSONResponse(content=result)
+
+    # Gerar ID único para o mapa
+    map_id = str(uuid.uuid4())[:8]
+    map_path = Path(f"outputs/maps/{map_id}.html")
+
+    # Mover mapa gerado para pasta de outputs com ID único
+    if result.get("map_file"):
+        original = Path(result["map_file"])
+        if original.exists():
+            original.rename(map_path)
+            result["map_id"] = map_id
+        else:
+            result["map_id"] = None
+    else:
+        result["map_id"] = None
+
+    # Limpar campos não serializáveis antes de devolver
+    result.pop("map_file", None)
+    result.pop("shap_explanation", None)
+    result.pop("day_plan", None)
+
+    run_id = None
+    try:
+        from scripts.log_to_hf import log_run
+        run_id = log_run(
+            query=req.query,
+            result=result,
+            elapsed_seconds=time.time() - t_start,
+            map_id=result.get("map_id"),
+        )
+    except Exception:
+        pass
+
+    result["run_id"] = run_id
+    return JSONResponse(content=result)
+
+# ── ENDPOINT 3: GET /map/{map_id} — serve mapa HTML ──────────────────
+@app.get("/map/{map_id}", response_class=HTMLResponse)
+async def get_map(map_id: str):
+    map_path = Path(f"outputs/maps/{map_id}.html")
+    if not map_path.exists():
+        raise HTTPException(status_code=404, detail="Mapa não encontrado")
+    return HTMLResponse(content=map_path.read_text(encoding="utf-8"))
+
+# ── ENDPOINT 4: POST /feedback — guarda respostas SUS ────────────────
+@app.post("/feedback")
+async def save_feedback(fb: FeedbackRequest):
+    # Calcular score SUS
+    odd  = (fb.p1-1) + (fb.p3-1) + (fb.p5-1) + (fb.p7-1) + (fb.p9-1)
+    even = (5-fb.p2) + (5-fb.p4) + (5-fb.p6) + (5-fb.p8) + (5-fb.p10)
+    sus_score = (odd + even) * 2.5
+
+    # Escrever CSV
+    write_header = not FEEDBACK_CSV.exists()
+    with open(FEEDBACK_CSV, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        if write_header:
+            writer.writerow([
+                "timestamp",
+                "p1","p2","p3","p4","p5","p6","p7","p8","p9","p10",
+                "sus_score",
+                "p11","p12","p13","p14","p15",
+                "p16_loc","p17_time",
+                "p18_open","p19_open",
+                "p20_age","p21_ai","p22_travel","p23_planeamento"
+            ])
+        writer.writerow([
+            datetime.utcnow().isoformat(),
+            fb.p1, fb.p2, fb.p3, fb.p4, fb.p5,
+            fb.p6, fb.p7, fb.p8, fb.p9, fb.p10,
+            sus_score,
+            fb.p11, fb.p12, fb.p13, fb.p14, fb.p15,
+            fb.p16_loc, fb.p17_time,
+            fb.p18, fb.p19,
+            fb.p20_age, fb.p21_ai, fb.p22_travel, fb.p23
+        ])
+
+    if fb.run_id:
+        try:
+            from scripts.log_to_hf import log_feedback
+            log_feedback(
+                run_id=fb.run_id,
+                feedback_data={
+                    "p1": fb.p1, "p2": fb.p2, "p3": fb.p3, "p4": fb.p4, "p5": fb.p5,
+                    "p6": fb.p6, "p7": fb.p7, "p8": fb.p8, "p9": fb.p9, "p10": fb.p10,
+                    "p11": fb.p11, "p12": fb.p12, "p13": fb.p13, "p14": fb.p14, "p15": fb.p15,
+                    "p16_loc": fb.p16_loc, "p17_time": fb.p17_time,
+                    "p18": fb.p18, "p19": fb.p19,
+                    "p20_age": fb.p20_age, "p21_ai": fb.p21_ai,
+                    "p22_travel": fb.p22_travel, "p23": fb.p23,
+                },
+                sus_score=sus_score
+            )
+        except Exception:
+            pass
+
+    return {"status": "ok", "sus_score": sus_score}
+
+# ── ENDPOINT 5: GET /admin — descarregar CSV (password protegido) ─────
+@app.get("/admin")
+async def download_csv(x_admin_password: Optional[str] = Header(None)):
+    admin_pw = os.getenv("ADMIN_PASSWORD", "thesis2025")
+    if x_admin_password != admin_pw:
+        raise HTTPException(status_code=401, detail="Password incorrecta")
+    if not FEEDBACK_CSV.exists():
+        raise HTTPException(status_code=404, detail="Ainda não há respostas")
+    return FileResponse(
+        path=str(FEEDBACK_CSV),
+        media_type="text/csv",
+        filename="sus_responses.csv"
+    )
+
+# ── ENDPOINT extra: GET /feedback — serve feedback.html ──────────────
+@app.get("/feedback", response_class=HTMLResponse)
+async def feedback_page():
+    html_path = Path("feedback.html")
+    if not html_path.exists():
+        raise HTTPException(status_code=404, detail="feedback.html não encontrado")
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))

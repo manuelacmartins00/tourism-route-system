@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tourism Route Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222535;
+    --border: #2e3248;
+    --accent: #4f8ef7;
+    --accent2: #34d399;
+    --text: #e8eaf0;
+    --text-muted: #7b82a0;
+    --user-bubble: #1e3a5f;
+    --bot-bubble: #1a1d27;
+    --map-btn: #2a4a2e;
+    --danger: #f87171;
+    --radius: 16px;
+    --radius-sm: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  /* CHAT SHELL */
+  .chat-shell {
+    width: 100%;
+    max-width: 720px;
+    height: 90vh;
+    max-height: 860px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.5);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .chat-header-left { display: flex; align-items: center; gap: 10px; }
+  .logo-dot {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .chat-title { font-size: 15px; font-weight: 600; }
+  .chat-subtitle { font-size: 11px; color: var(--text-muted); }
+
+  /* MESSAGES */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scroll-behavior: smooth;
+  }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 48px; }
+  .empty-title { font-size: 18px; font-weight: 600; color: var(--text); }
+  .empty-sub { font-size: 13px; line-height: 1.6; max-width: 380px; }
+  .example-chip {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--text-muted);
+  }
+  .example-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .example-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 4px; }
+
+  /* MSG ROW */
+  .msg-row { display: flex; gap: 10px; align-items: flex-end; }
+  .msg-row.user { flex-direction: row-reverse; }
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .avatar.bot { background: linear-gradient(135deg,#1e3a6e,#1e4d3a); border: 1px solid var(--border); }
+  .avatar.user { background: var(--user-bubble); border: 1px solid #2a4a7f; }
+
+  /* BUBBLES */
+  .bubble {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    position: relative;
+  }
+  .bubble.user {
+    background: var(--user-bubble);
+    border: 1px solid #2a4a7f;
+    border-bottom-right-radius: 4px;
+    color: #c8daff;
+  }
+  .bubble.bot {
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+  .bubble-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+
+  /* TYPING */
+  .typing-bubble {
+    display: flex; gap: 4px;
+    padding: 14px 18px;
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: typing 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: .2s; }
+  .typing-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes typing {
+    0%,60%,100% { transform: translateY(0); opacity:.4; }
+    30% { transform: translateY(-5px); opacity:1; }
+  }
+
+  /* PIPELINE STEPS */
+  .step-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-muted);
+    padding-left: 40px; margin-top: 4px;
+  }
+  .step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1s infinite;
+    flex-shrink: 0;
+  }
+  .step-check { color: var(--accent2); font-size: 12px; flex-shrink: 0; }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:.4; transform:scale(.7); }
+  }
+  .step-label {
+    font-size: 11px; color: var(--text-muted);
+    padding: 3px 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    border: 1px solid var(--border);
+  }
+
+  /* POI LIST */
+  .poi-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .poi-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .poi-num {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .poi-name { flex: 1; font-weight: 500; }
+  .poi-meta { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+  /* METRICS STRIP */
+  .metrics-strip { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .metric-tag {
+    padding: 3px 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .metric-tag.green { border-color: #2d5a35; color: var(--accent2); }
+  .metric-tag.blue  { border-color: #1e3a6e; color: var(--accent); }
+
+  /* ALGO BADGE */
+  .algo-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 7px;
+    background: #1e2a4a;
+    border: 1px solid #2a3a6a;
+    border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    margin-left: 6px; vertical-align: middle;
+  }
+
+  /* MAP BUTTON */
+  .map-btn-row {
+    display: flex; justify-content: flex-end;
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+    gap: 8px; align-items: center;
+  }
+  .map-hint { font-size: 11px; color: var(--text-muted); }
+  .map-open-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    background: var(--map-btn);
+    border: 1px solid #3a6b3e;
+    border-radius: 20px;
+    color: var(--accent2);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .map-open-btn:hover {
+    background: #1e4a24;
+    border-color: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  /* INPUT AREA */
+  .input-area {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex; gap: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .input-box {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    resize: none;
+    min-height: 42px;
+    max-height: 120px;
+    outline: none;
+    transition: border-color .15s;
+    line-height: 1.5;
+  }
+  .input-box:focus { border-color: var(--accent); }
+  .input-box::placeholder { color: var(--text-muted); }
+  .input-box:disabled { opacity: .5; cursor: not-allowed; }
+  .send-btn {
+    width: 42px; height: 42px;
+    background: var(--accent);
+    border: none; border-radius: 10px;
+    color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .send-btn:hover:not(:disabled) { background: #3a7ef0; transform: scale(1.05); }
+  .send-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* MAP MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    width: 100%; max-width: 780px;
+    max-height: 85vh;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 32px 96px rgba(0,0,0,.7);
+    transform: translateY(20px) scale(.97);
+    transition: transform .2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .modal-header-left { display: flex; align-items: center; gap: 10px; }
+  .modal-title { font-size: 14px; font-weight: 600; }
+  .modal-subtitle { font-size: 11px; color: var(--text-muted); }
+  .close-btn {
+    width: 28px; height: 28px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; transition: all .15s;
+  }
+  .close-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .modal-map-area {
+    flex: 1;
+    min-height: 400px;
+    background: #0d1420;
+    position: relative; overflow: hidden;
+  }
+  .modal-map-area iframe {
+    width: 100%; height: 100%;
+    border: none; position: absolute; inset: 0;
+  }
+  .modal-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .modal-footer-info { font-size: 11px; color: var(--text-muted); display: flex; gap: 16px; }
+  .footer-actions { display: flex; gap: 8px; }
+  .footer-btn {
+    padding: 5px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .footer-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .footer-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .footer-btn.primary {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: white;
+  }
+  .footer-btn.primary:hover { background: #3a7ef0; }
+
+  /* FEEDBACK BANNER */
+  .feedback-banner {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    background: linear-gradient(135deg, #1a2a1a, #1a1d27);
+    border: 1px solid #2d5a35;
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    z-index: 50;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all .3s;
+    max-width: 380px;
+  }
+  .feedback-banner.show { transform: translateY(0); opacity: 1; }
+  .feedback-banner-left { display: flex; align-items: center; gap: 10px; }
+  .feedback-icon { font-size: 22px; flex-shrink: 0; }
+  .feedback-title { font-size: 13px; font-weight: 600; color: var(--accent2); }
+  .feedback-sub { font-size: 11px; color: var(--text-muted); }
+  .feedback-cta {
+    padding: 7px 14px;
+    background: var(--accent2);
+    border: none; border-radius: 8px;
+    color: #0f1117; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .feedback-cta:hover { background: #28c47d; }
+  .feedback-dismiss {
+    position: absolute; top: 8px; right: 8px;
+    background: transparent; border: none;
+    color: var(--text-muted); font-size: 14px;
+    cursor: pointer; line-height: 1;
+  }
+</style>
+</head>
+<body>
+
+<div class="chat-shell">
+  <!-- HEADER -->
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="logo-dot">🗺️</div>
+      <div>
+        <div class="chat-title">Tourism Route Assistant</div>
+        <div class="chat-subtitle">Rotas turísticas personalizadas para Portugal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="messages" id="messages">
+    <!-- ESTADO 1: empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🇵🇹</div>
+      <div class="empty-title">Planeia a tua rota em Portugal</div>
+      <div class="empty-sub">Diz-me o que queres visitar, quanto tempo tens e o teu orçamento. O sistema gera uma rota optimizada com mapa interactivo.</div>
+      <div class="example-chips">
+        <span class="example-chip" onclick="fillExample(this)">Museus em Lisboa, 5h, 40€</span>
+        <span class="example-chip" onclick="fillExample(this)">Praias no Algarve, 2 dias, 60€/dia</span>
+        <span class="example-chip" onclick="fillExample(this)">História em Sintra, 6h, 50€</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-area">
+    <textarea
+      class="input-box"
+      id="inputBox"
+      placeholder="Descreve o que queres visitar, onde, quanto tempo e orçamento..."
+      rows="1"
+    ></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendQuery()" title="Enviar">➤</button>
+  </div>
+</div>
+
+<!-- MAP MODAL -->
+<div class="modal-overlay" id="mapModal" onclick="if(event.target===this)closeMap()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <span style="font-size:18px;">🗺️</span>
+        <div>
+          <div class="modal-title" id="modalTitle">Rota Gerada</div>
+          <div class="modal-subtitle" id="modalSubtitle"></div>
+        </div>
+      </div>
+      <button class="close-btn" onclick="closeMap()">✕</button>
+    </div>
+    <div class="modal-map-area">
+      <iframe id="mapIframe" src="about:blank"></iframe>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-info" id="modalFooterInfo"></div>
+      <div class="footer-actions">
+        <button class="footer-btn secondary" id="downloadBtn" onclick="downloadMap()">⬇ Descarregar HTML</button>
+        <button class="footer-btn primary" onclick="closeMap()">✕ Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK BANNER -->
+<div class="feedback-banner" id="feedbackBanner">
+  <button class="feedback-dismiss" onclick="dismissFeedback()" title="Fechar">✕</button>
+  <div class="feedback-banner-left">
+    <div class="feedback-icon">📋</div>
+    <div>
+      <div class="feedback-title">Ajuda a melhorar o sistema</div>
+      <div class="feedback-sub">Leva menos de 2 minutos · Questionário SUS anónimo</div>
+    </div>
+  </div>
+  <button class="feedback-cta" onclick="openFeedback()">Responder →</button>
+</div>
+
+<script>
+  // ── Estado global ────────────────────────────────────────────
+  let currentMapId = null;
+  let currentResult = null;
+  let currentRunId = null;
+  let susBannerShown = false;
+  let isLoading = false;
+
+  // ── Auto-resize textarea ─────────────────────────────────────
+  const inputBox = document.getElementById('inputBox');
+  inputBox.addEventListener('input', () => {
+    inputBox.style.height = 'auto';
+    inputBox.style.height = Math.min(inputBox.scrollHeight, 120) + 'px';
+  });
+  inputBox.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendQuery();
+    }
+  });
+
+  // ── Exemplo chips ────────────────────────────────────────────
+  function fillExample(el) {
+    inputBox.value = el.textContent;
+    inputBox.focus();
+  }
+
+  // ── Scroll para fundo ────────────────────────────────────────
+  function scrollToBottom() {
+    const msgs = document.getElementById('messages');
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  // ── Remover empty state ──────────────────────────────────────
+  function removeEmptyState() {
+    const es = document.getElementById('emptyState');
+    if (es) es.remove();
+  }
+
+  // ── Adicionar mensagem do utilizador ─────────────────────────
+  function addUserMessage(text) {
+    removeEmptyState();
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `
+      <div class="avatar user">👤</div>
+      <div class="bubble user">${escapeHtml(text)}</div>
+    `;
+    msgs.appendChild(row);
+    scrollToBottom();
+  }
+
+  // ── Mostrar typing + pipeline ─────────────────────────────────
+  function addTypingIndicator() {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.id = 'typingRow';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div>
+        <div class="typing-bubble">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+        <div id="pipelineSteps" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
+      </div>
+    `;
+    msgs.appendChild(row);
+    scrollToBottom();
+
+    // Animar passos do pipeline
+    const steps = [
+      { label: 'LLM a extrair preferências...', delay: 600 },
+      { label: 'RAG a recuperar POIs...', delay: 2500 },
+      { label: 'Algoritmo a optimizar rota...', delay: 5000 },
+    ];
+    steps.forEach(({ label, delay }) => {
+      setTimeout(() => {
+        const pipeline = document.getElementById('pipelineSteps');
+        if (!pipeline) return;
+        const stepEl = document.createElement('div');
+        stepEl.className = 'step-row';
+        stepEl.innerHTML = `<div class="step-dot"></div><span class="step-label">${label}</span>`;
+        pipeline.appendChild(stepEl);
+        scrollToBottom();
+      }, delay);
+    });
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById('typingRow');
+    if (el) el.remove();
+  }
+
+  // ── Adicionar resposta do bot ─────────────────────────────────
+  function addBotMessage(result) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+
+    const pois = result.route || [];
+    const opt = result.optimization || {};
+    const algo = result.algorithm_used || '—';
+    const mapId = result.map_id;
+
+    // POI list HTML
+    let poisHtml = '';
+    if (pois.length > 0) {
+      poisHtml = '<div class="poi-list">';
+      pois.forEach((p, i) => {
+        poisHtml += `
+          <div class="poi-item">
+            <div class="poi-num">${i + 1}</div>
+            <div class="poi-name">${escapeHtml(p.name)}</div>
+            <div class="poi-meta">${p.duration}min · €${p.cost.toFixed(2)}</div>
+          </div>`;
+      });
+      poisHtml += '</div>';
+    }
+
+    // Métricas
+    const visitMin = opt.visit_time_min || 0;
+    const totalMin = opt.total_time_min || 0;
+    const totalCost = pois.reduce((s, p) => s + (p.cost || 0), 0);
+    const maxCost = result.preferences?.max_cost || 0;
+    const fitness = (opt.fitness || 0).toFixed(1);
+
+    const metricsHtml = `
+      <div class="metrics-strip">
+        <span class="metric-tag blue">⏱ ${formatMin(visitMin)} visitas</span>
+        <span class="metric-tag blue">🚶 ${formatMin(totalMin)} total</span>
+        <span class="metric-tag green">€${totalCost.toFixed(0)} / €${maxCost}</span>
+        <span class="metric-tag">${pois.length} POIs</span>
+        <span class="metric-tag">fitness ${fitness}</span>
+        <span class="algo-badge">${algo}</span>
+      </div>`;
+
+    // Botão mapa
+    const mapBtnHtml = mapId ? `
+      <div class="map-btn-row">
+        <span class="map-hint">Rota interactiva disponível</span>
+        <button class="map-open-btn" onclick="openMap('${mapId}', '${escapeHtml(algo)}', ${pois.length}, ${visitMin}, ${totalCost.toFixed(0)})">
+          🗺️ Ver Mapa
+        </button>
+      </div>` : '';
+
+    // Explicação
+    const explanation = result.explanation
+      ? `<p style="margin-top:10px;font-size:13px;color:var(--text-muted);line-height:1.6;">${escapeHtml(result.explanation)}</p>`
+      : '';
+
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        ${poisHtml}
+        ${metricsHtml}
+        ${explanation}
+        ${mapBtnHtml}
+      </div>
+    `;
+    msgs.appendChild(row);
+    scrollToBottom();
+
+    // Guardar referência para download
+    currentMapId = mapId;
+    currentResult = result;
+
+    // Mostrar banner SUS uma vez após a primeira rota
+    if (!susBannerShown) {
+      setTimeout(showFeedbackBanner, 2000);
+      susBannerShown = true;
+    }
+  }
+
+  // ── Mensagem de erro ──────────────────────────────────────────
+  function addErrorMessage(text) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <span style="color:var(--danger);">⚠ ${escapeHtml(text)}</span>
+      </div>
+    `;
+    msgs.appendChild(row);
+    scrollToBottom();
+  }
+
+  // ── Enviar query ──────────────────────────────────────────────
+  async function sendQuery() {
+    if (isLoading) return;
+    const query = inputBox.value.trim();
+    if (!query) return;
+
+    isLoading = true;
+    inputBox.value = '';
+    inputBox.style.height = 'auto';
+    inputBox.disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    addUserMessage(query);
+    addTypingIndicator();
+
+    try {
+      const res = await fetch('/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+
+      removeTypingIndicator();
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Erro desconhecido' }));
+        addErrorMessage(err.detail || 'Ocorreu um erro ao processar a tua query.');
+      } else {
+        const result = await res.json();
+        if (result.status === 'needs_clarification') {
+          addClarificationForm(result);
+        } else {
+          currentRunId = result.run_id || null;
+          addBotMessage(result);
+        }
+      }
+    } catch (e) {
+      removeTypingIndicator();
+      addErrorMessage('Não foi possível ligar ao servidor. Tenta novamente.');
+    } finally {
+      isLoading = false;
+      inputBox.disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      inputBox.focus();
+    }
+  }
+
+  // ── Mapa modal ────────────────────────────────────────────────
+  function openMap(mapId, algo, nPois, visitMin, cost) {
+    currentMapId = mapId;
+    document.getElementById('modalTitle').textContent = 'Rota Gerada';
+    document.getElementById('modalSubtitle').textContent =
+      `${nPois} POIs · algoritmo ${algo}`;
+    document.getElementById('modalFooterInfo').innerHTML = `
+      <span>📍 ${nPois} paragens</span>
+      <span>🚶 ${formatMin(visitMin)}</span>
+      <span>💰 €${cost}</span>
+    `;
+    document.getElementById('mapIframe').src = `/map/${mapId}`;
+    document.getElementById('mapModal').classList.add('open');
+  }
+
+  function closeMap() {
+    document.getElementById('mapModal').classList.remove('open');
+    document.getElementById('mapIframe').src = 'about:blank';
+  }
+
+  function downloadMap() {
+    if (currentMapId) {
+      window.open(`/map/${currentMapId}`, '_blank');
+    }
+  }
+
+  // ── Feedback banner ───────────────────────────────────────────
+  function showFeedbackBanner() {
+    document.getElementById('feedbackBanner').classList.add('show');
+  }
+
+  function dismissFeedback() {
+    document.getElementById('feedbackBanner').classList.remove('show');
+  }
+
+  function openFeedback() {
+    window.open('/feedback', '_blank');
+    dismissFeedback();
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function formatMin(min) {
+    min = Math.round(min);
+    if (min < 60) return `${min}min`;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return m > 0 ? `${h}h${m}min` : `${h}h`;
+  }
+
+  // ── Formulário de clarificação ────────────────────────────────
+  const FIELD_LABELS = {
+    location:        { label: 'Localização', placeholder: 'Ex: Lisboa, Porto, Algarve...', type: 'text' },
+    max_time:        { label: 'Duração', placeholder: 'Ex: 3 dias, 5 horas, 1 semana...', type: 'text' },
+    max_cost:        { label: 'Orçamento', placeholder: 'Ex: 50€, 100€ por pessoa...', type: 'text' },
+    group_size:      { label: 'Número de pessoas', placeholder: 'Ex: 1, 2, grupo de 5...', type: 'text' },
+    transport_mode:  { label: 'Modo de transporte', type: 'select', options: ['A pé', 'Carro', 'Transportes públicos'] },
+    has_children:    { label: 'Viajam crianças?', type: 'select', options: ['Não', 'Sim'] },
+    mobility_issues: { label: 'Mobilidade reduzida?', type: 'select', options: ['Não', 'Sim'] },
+  };
+
+  function addClarificationForm(result) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+
+    const fields = result.missing_fields || [];
+    let fieldsHtml = '';
+    fields.forEach(f => {
+      const cfg = FIELD_LABELS[f] || { label: f, placeholder: '', type: 'text' };
+      if (cfg.type === 'select') {
+        fieldsHtml += `
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;color:var(--text-muted);">${cfg.label}</label>
+            <select id="clarif_${f}" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
+              <option value="">— Selecciona —</option>
+              ${cfg.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>
+          </div>`;
+      } else {
+        fieldsHtml += `
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;color:var(--text-muted);">${cfg.label}</label>
+            <input id="clarif_${f}" type="text" placeholder="${cfg.placeholder}"
+              style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;" />
+          </div>`;
+      }
+    });
+
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <p style="font-size:13px;margin-bottom:12px;">Para gerar a melhor rota possível, preciso de mais alguns detalhes:</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${fieldsHtml}
+        </div>
+        <div style="margin-top:14px;display:flex;justify-content:flex-end;">
+          <button onclick="submitClarification('${escapeHtml(result.query)}', ${JSON.stringify(fields).replace(/"/g, '&quot;')})"
+            style="padding:8px 16px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">
+            Continuar →
+          </button>
+        </div>
+      </div>
+    `;
+    msgs.appendChild(row);
+    scrollToBottom();
+  }
+
+  function submitClarification(originalQuery, fields) {
+    let extras = [];
+    fields.forEach(f => {
+      const el = document.getElementById(`clarif_${f}`);
+      if (el && el.value.trim()) {
+        extras.push(`${el.value.trim()}`);
+      }
+    });
+    const newQuery = originalQuery + (extras.length > 0 ? '. ' + extras.join(', ') : '');
+    inputBox.value = newQuery;
+    sendQuery();
+  }
+</script>
+</body>
+</html>
