@@ -161,8 +161,8 @@ CAMPOS A VERIFICAR PARA missing_fields:
 - "max_cost": se o utilizador não mencionou orçamento nem preço
 - "group_size": se não foi mencionado número de pessoas
 - "transport_mode": sempre incluir se não mencionado (foot, car, public_transport)
-- "has_children": SÓ incluir se não foi mencionado. Se a query contiver "sem crianças", "viajamos sem crianças", "não temos crianças", "Não" em resposta a esta pergunta → NÃO incluir em missing_fields, definir has_children=false
-- "mobility_issues": SÓ incluir se não foi mencionado. Se a query contiver "sem problemas de mobilidade", "mobilidade normal", "Não" em resposta a esta pergunta → NÃO incluir em missing_fields, definir mobility_issues=false
+- "has_children": SÓ incluir se não foi mencionado de todo. Se a query contiver "sem crianças", "viajamos sem crianças", "não temos crianças", "grupo de amigos", "casal" → NÃO incluir, assume false
+- "mobility_issues": SÓ incluir se não foi mencionado de todo. Se a query contiver "sem problemas de mobilidade", "mobilidade normal", "grupo de amigos" → NÃO incluir, assume false
 
 REGRAS:
 - Só inclui em missing_fields campos que realmente faltam e são relevantes para a query
