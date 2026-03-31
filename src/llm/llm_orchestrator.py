@@ -257,6 +257,7 @@ Responde APENAS com o JSON, sem explicações."""
 
             # Extrair campos em falta
             missing_fields = data.get("missing_fields", [])
+            missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues")]
             if missing_fields:
                 print(f"   ❓ Campos em falta: {missing_fields}")
 
