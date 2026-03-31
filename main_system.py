@@ -295,6 +295,9 @@ class TourismRouteSystem:
             "category_weights": preferences.category_weights,
             "start_location": (optimizer_pois[0].lat, optimizer_pois[0].lon),
             "start_time": preferences.start_time,
+            "center_lat": geo[0] if geo else None,
+            "center_lon": geo[1] if geo else None,
+            "max_radius_km": geo[2] if geo else 30.0,
         }
 
         evaluator = RouteEvaluator(optimizer_pois, sub_distance_matrix, user_prefs_dict)
