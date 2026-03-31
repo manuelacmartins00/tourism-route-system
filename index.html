@@ -870,17 +870,32 @@
     scrollToBottom();
   }
 
+  const FIELD_PHRASES = {
+    location:        v => `a viagem é em ${v}`,
+    max_time:        v => `a duração é ${v}`,
+    max_cost:        v => `o orçamento é ${v}`,
+    group_size:      v => `somos ${v} pessoas`,
+    transport_mode:  v => ({
+        'A pé': 'vamos a pé',
+        'Carro': 'vamos de carro',
+        'Transportes públicos': 'vamos de transportes públicos'
+    })[v] || `transporte: ${v}`,
+    has_children:    v => v === 'Sim' ? 'viajamos com crianças' : 'viajamos sem crianças',
+    mobility_issues: v => v === 'Sim' ? 'temos pessoas com mobilidade reduzida' : 'sem problemas de mobilidade',
+};
+
   function submitClarification(originalQuery, fields) {
-    let extras = [];
-    fields.forEach(f => {
-      const el = document.getElementById(`clarif_${f}`);
-      if (el && el.value.trim()) {
-        extras.push(`${el.value.trim()}`);
-      }
-    });
-    const newQuery = originalQuery + (extras.length > 0 ? '. ' + extras.join(', ') : '');
-    inputBox.value = newQuery;
-    sendQuery();
+      let extras = [];
+      fields.forEach(f => {
+          const el = document.getElementById(`clarif_${f}`);
+          if (el && el.value.trim()) {
+              const phrase = FIELD_PHRASES[f];
+              extras.push(phrase ? phrase(el.value.trim()) : el.value.trim());
+          }
+      });
+      const newQuery = originalQuery + (extras.length > 0 ? '. ' + extras.join(', ') + '.' : '');
+      inputBox.value = newQuery;
+      sendQuery();
   }
 </script>
 </body>
