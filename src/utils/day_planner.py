@@ -12,6 +12,18 @@ class DayPlanner:
     - Proximidade geográfica (clustering)
     - Fluxo lógico (manhã → tarde → noite)
     """
+    NOCTURNO_CATEGORIES = {"bares_e_discotecas", "casinos"}
+    DIURNO_CATEGORIES = {"monumentos", "museus_e_palacios", "espacos_verdes",
+                          "parques_e_reservas", "arqueologia", "grutas",
+                          "turismo_activo", "praias", "zoos_e_aquarios"}
+
+    def _reorder_by_time_of_day(self, pois: List[Dict]) -> List[Dict]:
+        """Reordena POIs dentro de um dia: diurnos primeiro, nocturnos no final."""
+        diurnos   = [p for p in pois if p.get("category") in self.DIURNO_CATEGORIES]
+        outros    = [p for p in pois if p.get("category") not in self.DIURNO_CATEGORIES
+                     and p.get("category") not in self.NOCTURNO_CATEGORIES]
+        nocturnos = [p for p in pois if p.get("category") in self.NOCTURNO_CATEGORIES]
+        return diurnos + outros + nocturnos
     
     def __init__(self, 
                  hours_per_day: int = 8,
@@ -89,6 +101,7 @@ class DayPlanner:
             
             # Se adicionar este POI ultrapassar o tempo do dia, inicia novo dia
             if current_time + poi_time > self.minutes_per_day and current_day:
+                current_day = self._reorder_by_time_of_day(current_day)
                 days.append(self._format_day(day_num, current_day, current_time))
                 current_day = []
                 current_time = 0
@@ -99,6 +112,7 @@ class DayPlanner:
         
         # Adicionar último dia
         if current_day:
+            current_day = self._reorder_by_time_of_day(current_day)
             days.append(self._format_day(day_num, current_day, current_time))
         
         return days
