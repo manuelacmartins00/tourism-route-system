@@ -25,11 +25,12 @@ class RouteEvaluator:
         self.distances = distance_matrix
         self.prefs = user_prefs
         
-        self.w_score     = 0.0759
-        self.w_distance  = 0.1573
-        self.w_category  = 0.2354
-        self.w_diversity = 0.0370
-        self.w_time      = 0.4944
+        self.w_score     = 0.0759  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_distance  = 0.1573  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_category  = 0.1854  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_diversity = 0.0370  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_time      = 0.4444  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_proximity = 0.1000  # COMFIRMAR SE PESOS FUNCIONAM AHP
         
         # ✅ Flag para debug
         self._debug_mode = False
@@ -83,15 +84,44 @@ class RouteEvaluator:
         else:
             time_efficiency = time_utilization
         
+        proximity_component = self._proximity_component(route)
+
         fitness = (
             self.w_score * score_component +
             self.w_distance * distance_penalty +
             self.w_category * category_component +
             self.w_diversity * diversity_component +
-            self.w_time * time_efficiency
+            self.w_time * time_efficiency +
+            self.w_proximity * proximity_component
         )
         
         return fitness
+    
+    def _proximity_component(self, route: List[int]) -> float:
+        """
+        Penaliza rotas com POIs muito afastados do centro ou entre si.
+        Devolve valor entre 0 e 100 (100 = todos dentro do raio ideal).
+        """
+        if not route or self.center_lat is None:
+            return 100.0  # sem info de centro, não penaliza
+
+        import math
+        def haversine_km(lat1, lon1, lat2, lon2):
+            R = 6371
+            r = math.radians
+            a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
+            return R * 2 * math.asin(math.sqrt(a))
+
+        # Penalização por distância ao centro
+        dist_scores = []
+        for i in route:
+            poi = self.pois[i]
+            d = haversine_km(self.center_lat, self.center_lon, poi.lat, poi.lon)
+            # Score decresce linearmente até max_radius_km, depois é 0
+            score = max(0.0, 1.0 - (d / self.max_radius_km))
+            dist_scores.append(score)
+
+        return (sum(dist_scores) / len(dist_scores)) * 100
     
     def _is_feasible(self, route: List[int]) -> bool:
         """Verifica se a rota respeita constraints (RELAXADO)"""
