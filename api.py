@@ -24,8 +24,10 @@ async def health():
 
 # ── Inicializar sistema (uma vez ao arrancar) ─────────────────────────
 from main_system import TourismRouteSystem
+from src.transit import TransitService
 
 system = None
+transit_service = TransitService()
 
 @app.on_event("startup")
 async def startup():
@@ -34,6 +36,7 @@ async def startup():
     if not api_key:
         raise RuntimeError("GROQ_API_KEY não configurada")
     system = TourismRouteSystem(api_key=api_key)
+    transit_service.load(use_cache=True)
 
 # ── Pastas de output ──────────────────────────────────────────────────
 Path("outputs/maps").mkdir(parents=True, exist_ok=True)
@@ -81,7 +84,8 @@ async def query_route(req: QueryRequest):
             req.query,
             use_shap=False,
             verbose=True,
-            force_algorithm=None
+            force_algorithm=None,
+            transit_service=transit_service,
         )
     except Exception as e:
         import traceback
