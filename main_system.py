@@ -124,11 +124,20 @@ class TourismRouteSystem:
 
         preferences = self.llm.extract_preferences(user_query)
 
+        mode_labels = {
+            "foot": "A pé",
+            "car": "Carro",
+            "public_transport": "Transportes públicos",
+            "fastest": "Mais rápido por segmento"
+        }
+
         if verbose:
-            print(f"   ✓ Tempo: {preferences.max_time} min")
-            print(f"   ✓ Orçamento: €{preferences.max_cost}")
-            print(f"   ✓ Categorias: {preferences.preferred_categories}")
-            print(f"   ✓ Interesses: {preferences.interests}\n")
+        label = mode_labels.get(preferences.transport_mode, preferences.transport_mode)
+        print(f"   ✓ Tempo: {preferences.max_time} min")
+        print(f"   ✓ Orçamento: €{preferences.max_cost}")
+        print(f"   ✓ Categorias: {preferences.preferred_categories}")
+        print(f"   ✓ Interesses: {preferences.interests}")
+        print(f"   ✓ Transporte: {label}\n")
 
         # ── Verificar campos em falta ─────────────────────────────────
         if preferences.missing_fields:
