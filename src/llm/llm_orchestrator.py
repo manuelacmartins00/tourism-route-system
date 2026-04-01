@@ -153,7 +153,8 @@ REGRAS PARA transport_mode:
 - "a pé", "a andar", "walking" → "foot"
 - "de carro", "carro", "car", "driving" → "car"
 - "transportes públicos", "metro", "autocarro", "comboio" → "public_transport"
-- Se não mencionado → incluir "transport_mode" em missing_fields
+- Se NÃO for mencionado EXPLICITAMENTE → OBRIGATÓRIO colocar "transport_mode" em missing_fields e deixar o campo como null
+- NUNCA assumir um modo de transporte por defeito — é SEMPRE obrigatório perguntar
 
 CAMPOS A VERIFICAR PARA missing_fields:
 - "location": se não foi mencionada nenhuma localização em Portugal
@@ -250,8 +251,10 @@ Responde APENAS com o JSON, sem explicações."""
             transport_mode = data.get("transport_mode", None)
             if not transport_mode or transport_mode not in ["foot", "car", "public_transport"]:
                 transport_mode = None
+                # Garantir que está em missing_fields independentemente do que o LLM devolveu
                 if "transport_mode" not in data.get("missing_fields", []):
                     data.setdefault("missing_fields", []).append("transport_mode")
+                print(f"   ❓ Modo de transporte não identificado — será pedido ao utilizador")
             if transport_mode:
                 print(f"   🚗 Modo de transporte: '{transport_mode}'")
 
