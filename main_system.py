@@ -95,10 +95,11 @@ class TourismRouteSystem:
         print("✅ Sistema pronto!\n")
 
     def plan_route(self,
-                   user_query: str,
-                   use_shap: bool = True,
-                   verbose: bool = True,
-                   force_algorithm: str = None) -> Dict:
+               user_query: str,
+               use_shap: bool = True,
+               verbose: bool = True,
+               force_algorithm: str = None,
+               transit_service=None) -> Dict:
         """
         Pipeline completo: LLM → RAG → Otimização → SHAP → Explicação LLM → Mapa → Day Planning
 
@@ -270,22 +271,26 @@ class TourismRouteSystem:
         if verbose:
             print(f"   ✓ POIs para otimização: {n_pois}\n")
 
-        # Sub-matriz calculada com Haversine (instantâneo)
-        from src.utils.distance_calculator import haversine
-        TRANSPORT_SPEED = {
-            "foot": 5,
-            "car": 50,
-            "public_transport": 20
-        }
-        speed_kmh = TRANSPORT_SPEED.get(preferences.transport_mode, 5)
-        if verbose:
-            print(f"   🚗 Velocidade de deslocação: {speed_kmh} km/h ({preferences.transport_mode})\n")
-        sub_distance_matrix = np.zeros((n_pois, n_pois))
-        for i, poi_i in enumerate(optimizer_pois):
-            for j, poi_j in enumerate(optimizer_pois):
-                if i != j:
-                    d_km = haversine(poi_i.lat, poi_i.lon, poi_j.lat, poi_j.lon)
-                    sub_distance_matrix[i][j] = (d_km / speed_kmh) * 60
+        # Sub-matriz de tempos reais (TransitService) ou Haversine (fallback)
+        if transit_service is not None:
+            if verbose:
+                print(f"   🚌 A construir matriz de tempos reais ({preferences.transport_mode})...\n")
+            sub_distance_matrix = transit_service.build_cost_matrix(
+                optimizer_pois,
+                mode=preferences.transport_mode
+            )
+        else:
+            from src.utils.distance_calculator import haversine
+            TRANSPORT_SPEED = {"foot": 5, "car": 50, "public_transport": 20}
+            speed_kmh = TRANSPORT_SPEED.get(preferences.transport_mode, 5)
+            if verbose:
+                print(f"   🚗 Velocidade Haversine: {speed_kmh} km/h ({preferences.transport_mode})\n")
+            sub_distance_matrix = np.zeros((n_pois, n_pois))
+            for i, poi_i in enumerate(optimizer_pois):
+                for j, poi_j in enumerate(optimizer_pois):
+                    if i != j:
+                        d_km = haversine(poi_i.lat, poi_i.lon, poi_j.lat, poi_j.lon)
+                        sub_distance_matrix[i][j] = (d_km / speed_kmh) * 60
 
         # Preferências — sem sentimento, pesos fixos no RouteEvaluator
         user_prefs_dict = {
