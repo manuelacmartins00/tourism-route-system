@@ -184,36 +184,49 @@ class TransitService:
             "segments": segments,
         }
 
-    def build_cost_matrix(self, pois: List,
-                          mode: str = "public_transport") -> np.ndarray:
-        """
-        Constrói a matriz K×K de tempos em minutos para o optimizador.
-
-        mode="public_transport" → Dijkstra no grafo GTFS
-        mode="car"/"foot"       → OSRM Table API com fallback Haversine
-        """
+    def build_cost_matrix(self, pois: List, mode: str = "public_transport") -> np.ndarray:
         k = len(pois)
         matrix = np.zeros((k, k))
 
-        if mode == "public_transport":
-            for i, poi_i in enumerate(pois):
-                for j, poi_j in enumerate(pois):
+        if mode == "fastest":
+            # Para cada par, calcula todos os modos e usa o mais rápido
+            tp_matrix   = self._build_tp_matrix(pois)
+            car_matrix  = _osrm_matrix(pois, "car")
+            foot_matrix = _osrm_matrix(pois, "foot")
+            for i in range(k):
+                for j in range(k):
                     if i == j:
                         continue
-                    result = self.get_route(
-                        (poi_i.lat, poi_i.lon),
-                        (poi_j.lat, poi_j.lon)
+                    matrix[i][j] = min(
+                        tp_matrix[i][j],
+                        car_matrix[i][j],
+                        foot_matrix[i][j]
                     )
-                    if result:
-                        matrix[i][j] = result["total_minutes"]
-                    else:
-                        # Fallback Haversine a 20km/h (estimativa TP)
-                        d = _haversine_km(poi_i.lat, poi_i.lon,
-                                          poi_j.lat, poi_j.lon)
-                        matrix[i][j] = (d / 20) * 60
+        elif mode == "public_transport":
+            matrix = self._build_tp_matrix(pois)
         else:
             matrix = _osrm_matrix(pois, mode)
 
+        return matrix
+
+    def _build_tp_matrix(self, pois: List) -> np.ndarray:
+        """Matriz K×K via Dijkstra no grafo GTFS."""
+        k = len(pois)
+        matrix = np.zeros((k, k))
+        for i, poi_i in enumerate(pois):
+            for j, poi_j in enumerate(pois):
+                if i == j:
+                    continue
+                result = self.get_route(
+                    (poi_i.lat, poi_i.lon),
+                    (poi_j.lat, poi_j.lon)
+                )
+                if result:
+                    matrix[i][j] = result["total_minutes"]
+                else:
+                    d = _haversine_km(poi_i.lat, poi_i.lon,
+                                    poi_j.lat, poi_j.lon)
+                    matrix[i][j] = (d / 20) * 60
         return matrix
 
 
