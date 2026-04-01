@@ -31,7 +31,11 @@ class RouteEvaluator:
         self.w_diversity = 0.0370  # COMFIRMAR SE PESOS FUNCIONAM AHP
         self.w_time      = 0.4444  # COMFIRMAR SE PESOS FUNCIONAM AHP
         self.w_proximity = 0.1000  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        
+
+        self.center_lat = user_prefs.get("center_lat")
+        self.center_lon = user_prefs.get("center_lon")
+        self.max_radius_km = user_prefs.get("max_radius_km", 30.0)
+            
         # ✅ Flag para debug
         self._debug_mode = False
         self._empty_warning_shown = False
