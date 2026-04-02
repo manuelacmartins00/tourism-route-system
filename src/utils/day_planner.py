@@ -85,7 +85,37 @@ class DayPlanner:
         }
         
         return result
-    
+    def _cluster_by_geography_and_time(self, route: List[Dict],
+                                    distance_matrix: np.ndarray,
+                                    n_days: int) -> List[Dict]:
+        from sklearn.cluster import KMeans
+        coords = np.array([[p["lat"], p["lon"]] for p in route])
+        n_clusters = min(n_days, len(route))
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+        labels = kmeans.fit_predict(coords)
+        clusters = {}
+        for i, poi in enumerate(route):
+            clusters.setdefault(labels[i], []).append(poi)
+        days = []
+        day_num = 1
+        for cluster_pois in clusters.values():
+            current_day = []
+            current_time = 0
+            for poi in cluster_pois:
+                if current_time + poi["duration"] > self.minutes_per_day and current_day:
+                    current_day = self._reorder_by_time_of_day(current_day)
+                    days.append(self._format_day(day_num, current_day, current_time))
+                    current_day = []
+                    current_time = 0
+                    day_num += 1
+                current_day.append(poi)
+                current_time += poi["duration"]
+            if current_day:
+                current_day = self._reorder_by_time_of_day(current_day)
+                days.append(self._format_day(day_num, current_day, current_time))
+                day_num += 1
+        return days
+
     def _split_sequential(self, route: List[Dict], n_days: int) -> List[Dict]:
         """
         Divisão sequencial simples (sem otimização geográfica)
