@@ -84,10 +84,10 @@ class TourismRouteSystem:
             raise
 
         print("📚 Carregando RAG...")
-        self.rag = POI_RAG(data_file="data/portugal_todos_pois_limpos_enriched.json")
+        self.rag = POI_RAG(data_file="data/portugal_todos_pois_final_enriched.json")
 
         print("📊 Carregando dados...")
-        self.all_pois_data = load_pois_from_json("data/portugal_todos_pois_limpos_enriched.json")
+        self.all_pois_data = load_pois_from_json("data/portugal_todos_pois_final_enriched.json")
 
         print("🗺️  Carregando resolver geográfico...")
         self.location_resolver = LocationResolver()
