@@ -29,12 +29,12 @@ class RouteEvaluator:
         self.w_distance  = 0.1573  # COMFIRMAR SE PESOS FUNCIONAM AHP
         self.w_category  = 0.1854  # COMFIRMAR SE PESOS FUNCIONAM AHP
         self.w_diversity = 0.0370  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        self.w_time      = 0.4444  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        self.w_proximity = 0.1000  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_time      = 0.4244  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_proximity = 0.1200  # COMFIRMAR SE PESOS FUNCIONAM AHP
 
         self.center_lat = user_prefs.get("center_lat")
         self.center_lon = user_prefs.get("center_lon")
-        self.max_radius_km = user_prefs.get("max_radius_km", 30.0)
+        self.max_radius_km = user_prefs.get("max_radius_km", 20.0)
             
         # ✅ Flag para debug
         self._debug_mode = False
@@ -122,7 +122,7 @@ class RouteEvaluator:
             poi = self.pois[i]
             d = haversine_km(self.center_lat, self.center_lon, poi.lat, poi.lon)
             # Score decresce linearmente até max_radius_km, depois é 0
-            score = max(0.0, 1.0 - (d / self.max_radius_km))
+            score = max(0.0, 1.0 - (d / self.max_radius_km) ** 2)
             dist_scores.append(score)
 
         return (sum(dist_scores) / len(dist_scores)) * 100
