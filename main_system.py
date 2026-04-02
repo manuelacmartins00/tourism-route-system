@@ -92,6 +92,16 @@ class TourismRouteSystem:
         print("🗺️  Carregando resolver geográfico...")
         self.location_resolver = LocationResolver()
 
+        self.transit_service = None
+        try:
+            from src.transit.transit_service import TransitService
+            ts = TransitService()
+            ts.load(use_cache=True)
+            self.transit_service = ts
+            print("🚌 TransitService carregado!\n")
+        except Exception as e:
+            print(f"⚠️  TransitService não disponível: {e}\n")
+
         print("✅ Sistema pronto!\n")
 
     def plan_route(self,
@@ -132,12 +142,12 @@ class TourismRouteSystem:
         }
 
         if verbose:
-        label = mode_labels.get(preferences.transport_mode, preferences.transport_mode)
-        print(f"   ✓ Tempo: {preferences.max_time} min")
-        print(f"   ✓ Orçamento: €{preferences.max_cost}")
-        print(f"   ✓ Categorias: {preferences.preferred_categories}")
-        print(f"   ✓ Interesses: {preferences.interests}")
-        print(f"   ✓ Transporte: {label}\n")
+            label = mode_labels.get(preferences.transport_mode, preferences.transport_mode)
+            print(f"   ✓ Tempo: {preferences.max_time} min")
+            print(f"   ✓ Orçamento: €{preferences.max_cost}")
+            print(f"   ✓ Categorias: {preferences.preferred_categories}")
+            print(f"   ✓ Interesses: {preferences.interests}")
+            print(f"   ✓ Transporte: {label}\n")
 
         # ── Verificar campos em falta ─────────────────────────────────
         if preferences.missing_fields:
@@ -436,7 +446,11 @@ class TourismRouteSystem:
                 lunch_break=60
             )
 
-            day_plan = planner.plan_days(result['route'], total_days=total_days)
+            day_plan = planner.plan_days(
+                result['route'],
+                distance_matrix=sub_distance_matrix,
+                total_days=total_days
+            )
 
             result['day_plan'] = day_plan
 
