@@ -78,7 +78,6 @@ class RouteExplainer:
                 shap_by_poi[poi.name] = {
                     'shap_value': float(shap_array[idx]),
                     'category': poi.category,
-                    'score': poi.score,
                     'cost': poi.cost,
                     'duration': poi.duration
                 }
@@ -120,8 +119,7 @@ class RouteExplainer:
             explanation += (
                 f"{i}. {name} ({data['category']})\n"
                 f"   {direction} SHAP: {val:+.4f} | "
-                f"Contribuição: {pct:.1f}% | "
-                f"Score: {data['score']:.2f}\n"
+                f"Contribuição: {pct:.1f}%\n"
             )
 
         explanation += f"\n💡 Total de POIs analisados: {len(route)}\n"

@@ -89,6 +89,14 @@ class RouteMapGenerator:
         
         print(f"\n🗺️  Gerando mapa com OSRM...")
         
+        MODE_LABELS = {
+            "foot":             ("Pedonal 🚶",              "foot"),
+            "car":              ("Carro 🚗",                "car"),
+            "public_transport": ("Transportes Públicos 🚌", "foot"),
+            "fastest":          ("Mais Rápido ⚡",           "car"),
+        }
+        mode_label, osrm_profile = MODE_LABELS.get(transport_mode, ("Pedonal 🚶", "foot"))
+        
         # Criar mapa centrado em Lisboa
         m = folium.Map(
             location=self.lisboa_center,
@@ -98,30 +106,29 @@ class RouteMapGenerator:
         
         # Cores por categoria
         colors = {
-            'museum': 'blue',
-            'monument': 'purple',
-            'restaurant': 'red',
-            'cafe': 'orange',
-            'park': 'green',
-            'viewpoint': 'lightblue',
-            'beach': 'beige',
-            'music_venue': 'pink',
-            'attraction': 'darkblue',
-            'shopping': 'gray',
-            'transport': 'black',
-            'nightlife': 'darkred',
-            'sports': 'lightgreen',
-            'religious': 'lightgray',
-            'educational': 'cadetblue',
-            'wellness': 'lightpink',
-            'family': 'darkblue'
+            'museus_e_palacios': 'blue',
+            'monumentos': 'purple',
+            'restaurantes_e_cafes': 'red',
+            'bares_e_discotecas': 'darkred',
+            'parques_e_reservas': 'green',
+            'espacos_verdes': 'lightgreen',
+            'praias': 'beige',
+            'turismo_activo': 'orange',
+            'arqueologia': 'cadetblue',
+            'grutas': 'darkpurple',
+            'zoos_e_aquarios': 'lightblue',
+            'eventos': 'pink',
+            'casinos': 'black',
+            'turismo_espaco_rural': 'darkgreen',
+            'hotelaria': 'gray',
+            'localidade': 'lightgray',
         }
         
         # Extrair coordenadas dos POIs
         poi_coordinates = [[poi['lat'], poi['lon']] for poi in route]
         
         # ✅ OBTER ROTA REAL VIA OSRM
-        osrm_route = self.get_real_route(poi_coordinates, profile=transport_mode)
+        osrm_route = self.get_real_route(poi_coordinates, profile=osrm_profile)
         
         if osrm_route and 'geometry' in osrm_route:
             # ✅ Desenhar rota REAL
@@ -131,9 +138,9 @@ class RouteMapGenerator:
                 weight=5,
                 opacity=0.8,
                 popup=f"""
-                    <b>Rota Pedonal</b><br>
+                    <b>Rota {mode_label}</b><br>
                     Distância: {osrm_route['distance']:.2f} km<br>
-                    Duração: {osrm_route['duration']:.0f} min caminhada
+                    Duração: {osrm_route['duration']:.0f} min
                 """,
                 tooltip="Rota calculada pelo OpenStreetMap"
             ).add_to(m)
@@ -232,7 +239,7 @@ class RouteMapGenerator:
         if osrm_route:
             legend_html += f'''
             <p style="margin: 5px 0;"><b>Distância:</b> {osrm_route['distance']:.1f} km</p>
-            <p style="margin: 5px 0;"><b>Caminhada:</b> {osrm_route['duration']:.0f} min</p>
+            <p style="margin: 5px 0;"><b>Deslocação:</b> {osrm_route['duration']:.0f} min</p>
             '''
         
         legend_html += '<hr style="margin: 10px 0;">'
@@ -275,11 +282,11 @@ class RouteMapGenerator:
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         ">
         <h3 style="margin: 0 0 10px 0; color: #3388ff;">
-            🗺️ Rota Turística Lisboa
+            🗺️ Rota Turística
         </h3>
         <p style="margin: 5px 0;">
             <b>Powered by:</b> OpenStreetMap + OSRM<br>
-            <b>Modo:</b> Pedonal 🚶
+            <b>Modo:</b> {mode_label}
         </p>
         </div>
         '''

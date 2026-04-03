@@ -25,12 +25,11 @@ class RouteEvaluator:
         self.distances = distance_matrix
         self.prefs = user_prefs
         
-        self.w_score     = 0.0759  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        self.w_distance  = 0.1573  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        self.w_category  = 0.1854  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        self.w_diversity = 0.0370  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        self.w_time      = 0.4244  # COMFIRMAR SE PESOS FUNCIONAM AHP
-        self.w_proximity = 0.1200  # COMFIRMAR SE PESOS FUNCIONAM AHP
+        self.w_distance  = 0.1095  # AHP 5x5 CR=0.0081
+        self.w_category  = 0.1885  # AHP 5x5 CR=0.0081
+        self.w_diversity = 0.0324  # AHP 5x5 CR=0.0081
+        self.w_time      = 0.4810  # AHP 5x5 CR=0.0081
+        self.w_proximity = 0.1885  # AHP 5x5 CR=0.0081
 
         self.center_lat = user_prefs.get("center_lat")
         self.center_lon = user_prefs.get("center_lon")
@@ -91,7 +90,6 @@ class RouteEvaluator:
         proximity_component = self._proximity_component(route)
 
         fitness = (
-            self.w_score * score_component +
             self.w_distance * distance_penalty +
             self.w_category * category_component +
             self.w_diversity * diversity_component +

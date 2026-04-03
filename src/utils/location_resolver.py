@@ -60,7 +60,7 @@ def _bbox_radius_km(bbox) -> float:
          math.cos(math.radians(min_lat)) * math.cos(math.radians(max_lat)) *
          math.sin(dlon / 2) ** 2)
     diagonal_km = R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return max(15.0, diagonal_km / 2)
+    return min(30.0, max(8.0, diagonal_km / 2))
 
 
 class LocationResolver:

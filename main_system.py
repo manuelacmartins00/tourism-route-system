@@ -214,7 +214,11 @@ class TourismRouteSystem:
                 text=rag_query,
                 n_results=50,
                 category_filter=None,
-                max_cost=preferences.max_cost
+                max_cost=preferences.max_cost,
+                lat_min=lat_min,
+                lat_max=lat_max,
+                lon_min=lon_min,
+                lon_max=lon_max
             )
             # Merge: adiciona POIs do fallback que não estão já nos candidatos
             existing_ids = {p['id'] for p in candidate_pois}
@@ -419,7 +423,12 @@ class TourismRouteSystem:
         try:
             from src.utils.map_generator import RouteMapGenerator
             map_gen = RouteMapGenerator()
-            map_path = map_gen.generate_map(result['route'], output_file=None, algorithm=selected_algo)
+            map_path = map_gen.generate_map(
+                result['route'],
+                output_file=None,
+                algorithm=selected_algo,
+                transport_mode=preferences.transport_mode
+            )   
             if map_path:
                 result['map_file'] = map_path
                 if verbose:
