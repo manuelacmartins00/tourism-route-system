@@ -35,7 +35,6 @@ class RouteEvaluator:
         self.center_lon = user_prefs.get("center_lon")
         self.max_radius_km = user_prefs.get("max_radius_km", 20.0)
             
-        # ✅ Flag para debug
         self._debug_mode = False
         self._empty_warning_shown = False
     
@@ -59,31 +58,26 @@ class RouteEvaluator:
         if not route or not self._is_feasible(route):
             return 0.0
         
-        total_score = sum(self.pois[i].score for i in route)
-        score_component = (total_score / len(route)) * 100 if route else 0
-        
         total_distance = sum(
-            self.distances[route[i]][route[i+1]] 
-            for i in range(len(route)-1)
+            self.distances[route[pos]][route[pos+1]]
+            for pos in range(len(route)-1)
         ) if len(route) > 1 else 0
         distance_penalty = max(0, 100 - (total_distance / 50) * 100)
         
         category_matches = sum(
-            self.prefs.get('category_weights', {}).get(self.pois[i].category, 0)
-            for i in route
+            self.prefs.get('category_weights', {}).get(self.pois[poi_idx].category, 0)
+            for poi_idx in route
         )
         category_component = (category_matches / len(route)) * 100 if route else 0
         
-        unique_categories = len(set(self.pois[i].category for i in route))
+        unique_categories = len(set(self.pois[poi_idx].category for poi_idx in route))
         diversity_component = (unique_categories / len(route)) * 100 if route else 0
         
         time_used = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
-        # Recompensar rotas que usam entre 70% e 100% do tempo disponível
         time_utilization = min(100, (time_used / max_time) * 100)
-        # Penalizar levemente rotas muito curtas (< 50% do tempo)
         if time_utilization < 70:
-            time_efficiency = time_utilization * 0.35            ####ATENÇÃO TESTAR, PSO E GA NÃO SE PORTAM BEM COM VALORES ALTOS (ACIMA DE 0.5) NEM COM TIME UTIL < 50
+            time_efficiency = time_utilization * 0.35
         else:
             time_efficiency = time_utilization
         
@@ -98,14 +92,14 @@ class RouteEvaluator:
         )
         
         return fitness
-    
+
     def _proximity_component(self, route: List[int]) -> float:
         """
         Penaliza rotas com POIs muito afastados do centro ou entre si.
         Devolve valor entre 0 e 100 (100 = todos dentro do raio ideal).
         """
         if not route or self.center_lat is None:
-            return 100.0  # sem info de centro, não penaliza
+            return 100.0
 
         import math
         def haversine_km(lat1, lon1, lat2, lon2):
@@ -114,17 +108,15 @@ class RouteEvaluator:
             a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
             return R * 2 * math.asin(math.sqrt(a))
 
-        # Penalização por distância ao centro
         dist_scores = []
-        for i in route:
-            poi = self.pois[i]
+        for poi_idx in route:
+            poi = self.pois[poi_idx]
             d = haversine_km(self.center_lat, self.center_lon, poi.lat, poi.lon)
-            # Score decresce linearmente até max_radius_km, depois é 0
             score = max(0.0, 1.0 - (d / self.max_radius_km) ** 2)
             dist_scores.append(score)
 
         return (sum(dist_scores) / len(dist_scores)) * 100
-    
+
     def _is_feasible(self, route: List[int]) -> bool:
         """Verifica se a rota respeita constraints (RELAXADO)"""
         
@@ -139,45 +131,36 @@ class RouteEvaluator:
             if idx > max_valid_index or idx < 0:
                 return False
         
-        # 1. Verificar tempo total
         total_time = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
-        
         if total_time > max_time:
             if self._debug_mode:
                 print(f"   ⚠️ Inviável (tempo): {total_time:.0f} > {max_time}")
             return False
         
-        # 2. Verificar orçamento
-        total_cost = sum(self.pois[i].cost for i in route)
+        total_cost = sum(self.pois[poi_idx].cost for poi_idx in route)
         max_cost = float(self.prefs.get('max_cost', 1000))
-        
         if total_cost > max_cost:
             if self._debug_mode:
                 print(f"   ⚠️ Inviável (custo): {total_cost:.2f} > {max_cost}")
             return False
         
-        # ✅ 3. HORÁRIOS REMOVIDOS (muito restritivo!)
-        # Assumir que todos os POIs estão abertos durante o horário de visita
-        # Se quiseres validar horários, adiciona aqui mas de forma mais flexível
-        
         return True
-    
+
     def _calculate_time(self, route: List[int]) -> float:
         """Calcula tempo total da rota em minutos"""
         
         if not route:
             return 0
         
-        total_time = sum(self.pois[i].duration for i in route)
+        total_time = sum(self.pois[poi_idx].duration for poi_idx in route)
         
-        # Tempo de deslocações (Haversine / 5km/h a pé)
-        for i in range(len(route)-1):
-            travel_time = self.distances[route[i]][route[i+1]]  # já em minutos
+        for pos in range(len(route)-1):
+            travel_time = self.distances[route[pos]][route[pos+1]]
             total_time += travel_time
         
         return total_time
-    
+
     def _parse_time(self, time_str: str) -> float:
         """Converte "09:30" para minutos desde meia-noite"""
         try:

@@ -228,8 +228,29 @@ class TourismRouteSystem:
                     existing_ids.add(p['id'])
             if verbose:
                 print(f"   ✓ Candidatos após fallback: {len(candidate_pois)}")
+                
+        # Hard filter geográfico pós-RAG — remove POIs fora do raio exacto
+        # (o bounding box do RAG é um quadrado; este filtro corta os cantos)
+        if geo:
+            center_lat, center_lon, radius_km = geo
+            before = len(candidate_pois)
+            candidate_pois = [
+                p for p in candidate_pois
+                if _within_radius(p['lat'], p['lon'], center_lat, center_lon, radius_km)
+            ]
+            if verbose:
+                print(f"   📍 Hard filter geográfico: {before} → {len(candidate_pois)} POIs (raio {radius_km:.0f}km)\n")
 
-        # filtro geográfico aplicado directamente no RAG via bounding box
+            if len(candidate_pois) == 0:
+                if verbose:
+                    print("   ⚠️ Hard filter removeu todos os POIs — a relaxar para bounding box\n")
+                rag_results_nogeo = self.rag.query(
+                    text=rag_query,
+                    n_results=25,
+                    category_filter=preferences.preferred_categories,
+                    max_cost=preferences.max_cost,
+                )
+                candidate_pois = rag_results_nogeo['pois']
 
         if len(candidate_pois) == 0:
             print(f"\n{'=' * 70}")
