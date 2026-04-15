@@ -444,15 +444,15 @@
   <div class="block">
     <div class="block-header">
       <div class="block-title"><span class="block-num">2</span>Qualidade da Rota</div>
-      <div class="block-instructions">Avalia a qualidade da rota que o sistema gerou para a tua query.</div>
+      <div class="block-instructions">Avalia a qualidade da rota gerada. Começa por indicar o teu grau de familiaridade com a área que pediste.</div>
     </div>
     <div class="block-body">
 
       <div class="question">
-        <div class="q-label"><span class="q-num">P11</span>A rota sugerida incluiu pontos de interesse relevantes para o que pediste?<span class="q-required">*</span></div>
+        <div class="q-label"><span class="q-num">P11</span>Conheces bem a área ou cidade que pediste na rota?<span class="q-required">*</span></div>
         <div class="likert-wrap">
-          <div class="likert-labels"><span>Nada relevantes</span><span>Muito relevantes</span></div>
-          <div class="likert-options">
+          <div class="likert-labels"><span>Não conheço nada</span><span>Conheço muito bem</span></div>
+          <div class="likert-options" id="g_p11">
             <div class="likert-option"><input type="radio" name="p11" id="p11_1" value="1"><label for="p11_1">1</label></div>
             <div class="likert-option"><input type="radio" name="p11" id="p11_2" value="2"><label for="p11_2">2</label></div>
             <div class="likert-option"><input type="radio" name="p11" id="p11_3" value="3"><label for="p11_3">3</label></div>
@@ -466,9 +466,9 @@
       <div class="q-divider"></div>
 
       <div class="question">
-        <div class="q-label"><span class="q-num">P12</span>A rota respeitou as tuas preferências (tempo disponível, orçamento, tipo de actividades)?<span class="q-required">*</span></div>
+        <div class="q-label"><span class="q-num">P12</span>Os pontos de interesse sugeridos corresponderam ao que pediste?<span class="q-required">*</span></div>
         <div class="likert-wrap">
-          <div class="likert-labels"><span>Não respeitou nada</span><span>Respeitou completamente</span></div>
+          <div class="likert-labels"><span>Não corresponderam</span><span>Corresponderam totalmente</span></div>
           <div class="likert-options">
             <div class="likert-option"><input type="radio" name="p12" id="p12_1" value="1"><label for="p12_1">1</label></div>
             <div class="likert-option"><input type="radio" name="p12" id="p12_2" value="2"><label for="p12_2">2</label></div>
@@ -483,9 +483,9 @@
       <div class="q-divider"></div>
 
       <div class="question">
-        <div class="q-label"><span class="q-num">P13</span>A explicação em texto sobre a rota foi clara e útil para compreender as escolhas feitas?<span class="q-required">*</span></div>
+        <div class="q-label"><span class="q-num">P13</span>A rota respeitou o teu tempo disponível e orçamento?<span class="q-required">*</span></div>
         <div class="likert-wrap">
-          <div class="likert-labels"><span>Nada clara</span><span>Muito clara</span></div>
+          <div class="likert-labels"><span>Não respeitou</span><span>Respeitou completamente</span></div>
           <div class="likert-options">
             <div class="likert-option"><input type="radio" name="p13" id="p13_1" value="1"><label for="p13_1">1</label></div>
             <div class="likert-option"><input type="radio" name="p13" id="p13_2" value="2"><label for="p13_2">2</label></div>
@@ -499,10 +499,10 @@
 
       <div class="q-divider"></div>
 
-      <div class="question">
-        <div class="q-label"><span class="q-num">P14</span>O mapa interactivo foi útil para visualizar e compreender a rota proposta?<span class="q-required">*</span></div>
+<div class="question">
+        <div class="q-label"><span class="q-num">P14</span>Usarias algum dos pontos de interesse sugeridos numa visita real a essa área?<span class="q-required">*</span></div>
         <div class="likert-wrap">
-          <div class="likert-labels"><span>Nada útil</span><span>Muito útil</span></div>
+          <div class="likert-labels"><span>Definitivamente não</span><span>Definitivamente sim</span></div>
           <div class="likert-options">
             <div class="likert-option"><input type="radio" name="p14" id="p14_1" value="1"><label for="p14_1">1</label></div>
             <div class="likert-option"><input type="radio" name="p14" id="p14_2" value="2"><label for="p14_2">2</label></div>
@@ -517,18 +517,35 @@
       <div class="q-divider"></div>
 
       <div class="question">
-        <div class="q-label"><span class="q-num">P15</span>Utilizarias este sistema para planear uma visita turística real em Portugal?<span class="q-required">*</span></div>
+      <div class="q-label"><span class="q-num">P15</span>A explicação em texto e o mapa foram suficientes para compreender a rota proposta?<span class="q-required">*</span></div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Nada suficientes</span><span>Completamente suficientes</span></div>
+        <div class="likert-options">
+          <div class="likert-option"><input type="radio" name="p15" id="p15_1" value="1"><label for="p15_1">1</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_2" value="2"><label for="p15_2">2</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_3" value="3"><label for="p15_3">3</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_4" value="4"><label for="p15_4">4</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_5" value="5"><label for="p15_5">5</label></div>
+        </div>
+      </div>
+      <div class="field-error" id="err_p15">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P16</span>Utilizarias este sistema para planear uma visita turística real em Portugal?<span class="q-required">*</span></div>
         <div class="likert-wrap">
           <div class="likert-labels"><span>Definitivamente não</span><span>Definitivamente sim</span></div>
           <div class="likert-options">
-            <div class="likert-option"><input type="radio" name="p15" id="p15_1" value="1"><label for="p15_1">1</label></div>
-            <div class="likert-option"><input type="radio" name="p15" id="p15_2" value="2"><label for="p15_2">2</label></div>
-            <div class="likert-option"><input type="radio" name="p15" id="p15_3" value="3"><label for="p15_3">3</label></div>
-            <div class="likert-option"><input type="radio" name="p15" id="p15_4" value="4"><label for="p15_4">4</label></div>
-            <div class="likert-option"><input type="radio" name="p15" id="p15_5" value="5"><label for="p15_5">5</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_1" value="1"><label for="p16_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_2" value="2"><label for="p16_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_3" value="3"><label for="p16_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_4" value="4"><label for="p16_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_5" value="5"><label for="p16_5">5</label></div>
           </div>
         </div>
-        <div class="field-error" id="err_p15">Por favor selecciona uma opção.</div>
+        <div class="field-error" id="err_p16">Por favor selecciona uma opção.</div>
       </div>
 
     </div>
@@ -542,11 +559,7 @@
     </div>
     <div class="block-body">
       <div class="question">
-        <div class="q-label"><span class="q-num">P16</span>O que mais gostaste no sistema? O que funcionou bem?</div>
-        <textarea class="q-textarea" name="p16" id="p16" placeholder="Escreve aqui a tua resposta..."></textarea>
-      </div>
-      <div class="question">
-        <div class="q-label"><span class="q-num">P17</span>O que mudarias ou melhorarias? O que não funcionou como esperavas?</div>
+        <div class="q-label"><span class="q-num">P17</span>O que funcionou bem e o que mudarias ou melhorarias?</div>
         <textarea class="q-textarea" name="p17" id="p17" placeholder="Escreve aqui a tua resposta..."></textarea>
       </div>
     </div>
@@ -662,7 +675,7 @@
   // Validar e submeter
   async function submitForm() {
     const required = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10',
-                      'p11','p12','p13','p14','p15'];
+                      'p11','p12','p13','p14','p15','p16'];
     let valid = true;
 
     required.forEach(name => {
@@ -698,15 +711,14 @@
     const p21vals = Array.from(document.querySelectorAll('input[name="p21"]:checked'))
       .map(el => el.value).join(';');
 
-    const payload = {
+const payload = {
       p1: getValue('p1'), p2: getValue('p2'), p3: getValue('p3'),
       p4: getValue('p4'), p5: getValue('p5'), p6: getValue('p6'),
       p7: getValue('p7'), p8: getValue('p8'), p9: getValue('p9'),
       p10: getValue('p10'),
       p11: getValue('p11'), p12: getValue('p12'), p13: getValue('p13'),
-      p14: getValue('p14'), p15: getValue('p15'),
-      p18: document.getElementById('p16').value,
-      p19: document.getElementById('p17').value,
+      p14: getValue('p14'), p15: getValue('p15'), p16: getValue('p16'),
+      p18: document.getElementById('p17').value,
       p20_age: document.getElementById('p18').value,
       p21_ai: document.getElementById('p19').value,
       p22_travel: document.getElementById('p20').value,
