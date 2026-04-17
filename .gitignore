@@ -1,10 +1,42 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Credenciais e configuração local
 .env
-outputs/
-scripts/
+*.key
+*.pem
+
+# Dados grandes / sensíveis
 data/portugal_distances.npy
 data/portugal_todos_pois_limpos_enriched_original.json
+data/portugal_todos_pois_final_enriched.json
 data/lisboa_distances.npy
 data/pois_structured_for_rag.json
+data/chroma_db/
+data/feedback/
+data/*.npy
+data/*.json
+
+# ChromaDB
+chroma_db/
+
+# Outputs e scripts locais
+outputs/
+scripts/
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
