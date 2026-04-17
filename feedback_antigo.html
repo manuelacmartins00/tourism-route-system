@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionário SUS — Tourism Route Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222535;
+    --border: #2e3248;
+    --accent: #4f8ef7;
+    --accent2: #34d399;
+    --text: #e8eaf0;
+    --text-muted: #7b82a0;
+    --danger: #f87171;
+    --radius-sm: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 16px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .form-shell {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* HEADER */
+  .form-header { text-align: center; }
+  .form-logo { font-size: 40px; margin-bottom: 12px; }
+  .form-title { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  .form-sub { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .anon-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 12px;
+    padding: 5px 12px;
+    background: #1a2a1a;
+    border: 1px solid #2d5a35;
+    border-radius: 20px;
+    font-size: 11px; color: var(--accent2);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* BLOCK */
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .block-header {
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .block-title { font-size: 13px; font-weight: 600; color: var(--accent); }
+  .block-num {
+    display: inline-block;
+    padding: 1px 7px;
+    background: #1e2a4a;
+    border: 1px solid #2a3a6a;
+    border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    margin-right: 8px;
+  }
+  .block-instructions {
+    font-size: 12px; color: var(--text-muted);
+    margin-top: 4px; line-height: 1.5;
+  }
+  .block-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* QUESTION */
+  .question { display: flex; flex-direction: column; gap: 10px; }
+  .q-label { font-size: 14px; line-height: 1.5; }
+  .q-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px; color: var(--text-muted);
+    margin-right: 6px;
+  }
+  .q-required { color: var(--danger); font-size: 12px; margin-left: 4px; }
+
+  /* LIKERT */
+  .likert {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .likert-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 4px;
+  }
+  .likert-wrap { display: flex; flex-direction: column; flex: 1; }
+  .likert-options {
+    display: flex; gap: 6px; justify-content: space-between;
+  }
+  .likert-option { flex: 1; }
+  .likert-option input[type="radio"] { display: none; }
+  .likert-option label {
+    display: flex; align-items: center; justify-content: center;
+    height: 36px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--text-muted);
+  }
+  .likert-option input:checked + label {
+    background: #1e2a4a;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .likert-option label:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* SELECT */
+  .q-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 14px; color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    outline: none; width: 100%;
+    transition: border-color .15s;
+    appearance: none;
+  }
+  .q-select:focus { border-color: var(--accent); }
+
+  /* TEXTAREA */
+  .q-textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 14px; color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    resize: vertical; min-height: 80px;
+    outline: none; width: 100%;
+    line-height: 1.5;
+    transition: border-color .15s;
+  }
+  .q-textarea:focus { border-color: var(--accent); }
+  .q-textarea::placeholder { color: var(--text-muted); }
+
+  /* CHECKBOXES (P21) */
+  .checkbox-group { display: flex; flex-direction: column; gap: 8px; }
+  .checkbox-item { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .checkbox-item input[type="checkbox"] { display: none; }
+  .checkbox-box {
+    width: 18px; height: 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 11px;
+    transition: all .15s;
+  }
+  .checkbox-item input:checked ~ .checkbox-box {
+    background: #1e2a4a;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .checkbox-label { font-size: 13px; color: var(--text); }
+
+  /* DIVIDER */
+  .q-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* OPTIONAL TAG */
+  .optional-tag {
+    font-size: 10px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    padding: 1px 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  /* SUBMIT */
+  .submit-area { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .submit-btn {
+    padding: 12px 40px;
+    background: var(--accent);
+    border: none; border-radius: 10px;
+    color: white; font-size: 15px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .submit-btn:hover { background: #3a7ef0; transform: translateY(-1px); }
+  .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+  .submit-note { font-size: 11px; color: var(--text-muted); text-align: center; }
+
+  /* SUCCESS */
+  .success-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    padding: 60px 20px;
+  }
+  .success-screen.show { display: flex; }
+  .success-icon { font-size: 56px; }
+  .success-title { font-size: 20px; font-weight: 600; }
+  .success-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; max-width: 380px; }
+  .success-score {
+    padding: 16px 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .score-label { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; font-family: 'DM Mono', monospace; }
+  .score-value { font-size: 36px; font-weight: 600; color: var(--accent2); }
+  .score-max { font-size: 14px; color: var(--text-muted); }
+  .back-btn {
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted); font-size: 13px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ERROR */
+  .field-error { font-size: 11px; color: var(--danger); margin-top: 4px; display: none; }
+  .field-error.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="form-shell" id="formShell">
+  <!-- HEADER -->
+  <div class="form-header">
+    <div class="form-logo">📋</div>
+    <div class="form-title">Questionário de Avaliação</div>
+    <div class="form-sub">Avalia a tua experiência com o Tourism Route Assistant.<br>Os seus dados ajudam a melhorar o sistema.</div>
+    <div class="anon-badge">🔒 Anónimo · Nenhum dado pessoal é recolhido</div>
+  </div>
+
+  <!-- BLOCO 1: SUS -->
+  <div class="block">
+    <div class="block-header">
+      <div class="block-title"><span class="block-num">1</span>Usabilidade do Sistema (SUS)</div>
+      <div class="block-instructions">Para cada afirmação, indica o seu grau de concordância de 1 (Discordo totalmente) a 5 (Concordo totalmente). Responde com base na tua primeira impressão.</div>
+    </div>
+    <div class="block-body">
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P1</span>Penso que gostaria de utilizar este sistema frequentemente.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options" id="g_p1">
+            <div class="likert-option"><input type="radio" name="p1" id="p1_1" value="1"><label for="p1_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p1" id="p1_2" value="2"><label for="p1_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p1" id="p1_3" value="3"><label for="p1_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p1" id="p1_4" value="4"><label for="p1_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p1" id="p1_5" value="5"><label for="p1_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p1">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P2</span>Achei o sistema desnecessariamente complexo.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options" id="g_p2">
+            <div class="likert-option"><input type="radio" name="p2" id="p2_1" value="1"><label for="p2_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p2" id="p2_2" value="2"><label for="p2_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p2" id="p2_3" value="3"><label for="p2_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p2" id="p2_4" value="4"><label for="p2_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p2" id="p2_5" value="5"><label for="p2_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p2">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P3</span>Achei o sistema fácil de utilizar.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p3" id="p3_1" value="1"><label for="p3_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p3" id="p3_2" value="2"><label for="p3_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p3" id="p3_3" value="3"><label for="p3_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p3" id="p3_4" value="4"><label for="p3_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p3" id="p3_5" value="5"><label for="p3_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p3">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P4</span>Acho que precisaria de apoio técnico para conseguir utilizar este sistema.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p4" id="p4_1" value="1"><label for="p4_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p4" id="p4_2" value="2"><label for="p4_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p4" id="p4_3" value="3"><label for="p4_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p4" id="p4_4" value="4"><label for="p4_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p4" id="p4_5" value="5"><label for="p4_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p4">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P5</span>Achei que as várias funções do sistema estavam bem integradas.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p5" id="p5_1" value="1"><label for="p5_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p5" id="p5_2" value="2"><label for="p5_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p5" id="p5_3" value="3"><label for="p5_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p5" id="p5_4" value="4"><label for="p5_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p5" id="p5_5" value="5"><label for="p5_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p5">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P6</span>Achei que havia demasiadas inconsistências neste sistema.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p6" id="p6_1" value="1"><label for="p6_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p6" id="p6_2" value="2"><label for="p6_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p6" id="p6_3" value="3"><label for="p6_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p6" id="p6_4" value="4"><label for="p6_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p6" id="p6_5" value="5"><label for="p6_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p6">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P7</span>Imagino que a maioria das pessoas aprenderia a usar este sistema rapidamente.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p7" id="p7_1" value="1"><label for="p7_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p7" id="p7_2" value="2"><label for="p7_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p7" id="p7_3" value="3"><label for="p7_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p7" id="p7_4" value="4"><label for="p7_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p7" id="p7_5" value="5"><label for="p7_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p7">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P8</span>Achei o sistema muito difícil de usar.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p8" id="p8_1" value="1"><label for="p8_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p8" id="p8_2" value="2"><label for="p8_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p8" id="p8_3" value="3"><label for="p8_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p8" id="p8_4" value="4"><label for="p8_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p8" id="p8_5" value="5"><label for="p8_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p8">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P9</span>Senti-me confiante ao usar este sistema.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p9" id="p9_1" value="1"><label for="p9_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p9" id="p9_2" value="2"><label for="p9_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p9" id="p9_3" value="3"><label for="p9_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p9" id="p9_4" value="4"><label for="p9_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p9" id="p9_5" value="5"><label for="p9_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p9">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P10</span>Precisei de aprender muitas coisas antes de conseguir usar este sistema.<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Discordo totalmente</span><span>Concordo totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p10" id="p10_1" value="1"><label for="p10_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p10" id="p10_2" value="2"><label for="p10_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p10" id="p10_3" value="3"><label for="p10_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p10" id="p10_4" value="4"><label for="p10_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p10" id="p10_5" value="5"><label for="p10_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p10">Por favor selecciona uma opção.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 2: QUALIDADE DA ROTA -->
+  <div class="block">
+    <div class="block-header">
+      <div class="block-title"><span class="block-num">2</span>Qualidade da Rota</div>
+      <div class="block-instructions">Avalia a qualidade da rota gerada. Começa por indicar o seu grau de familiaridade com a área que pediu.</div>
+    </div>
+    <div class="block-body">
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P11</span>Conhece bem a área ou cidade que pediu na rota?<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Não conheço nada</span><span>Conheço muito bem</span></div>
+          <div class="likert-options" id="g_p11">
+            <div class="likert-option"><input type="radio" name="p11" id="p11_1" value="1"><label for="p11_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p11" id="p11_2" value="2"><label for="p11_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p11" id="p11_3" value="3"><label for="p11_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p11" id="p11_4" value="4"><label for="p11_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p11" id="p11_5" value="5"><label for="p11_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p11">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P12</span>Os pontos de interesse sugeridos corresponderam ao que pediu?<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Não corresponderam</span><span>Corresponderam totalmente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p12" id="p12_1" value="1"><label for="p12_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p12" id="p12_2" value="2"><label for="p12_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p12" id="p12_3" value="3"><label for="p12_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p12" id="p12_4" value="4"><label for="p12_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p12" id="p12_5" value="5"><label for="p12_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p12">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P13</span>A rota respeitou o seu tempo disponível e orçamento?<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Não respeitou</span><span>Respeitou completamente</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p13" id="p13_1" value="1"><label for="p13_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p13" id="p13_2" value="2"><label for="p13_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p13" id="p13_3" value="3"><label for="p13_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p13" id="p13_4" value="4"><label for="p13_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p13" id="p13_5" value="5"><label for="p13_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p13">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+<div class="question">
+        <div class="q-label"><span class="q-num">P14</span>Usaria algum dos pontos de interesse sugeridos numa visita real a essa área?<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Definitivamente não</span><span>Definitivamente sim</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p14" id="p14_1" value="1"><label for="p14_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p14" id="p14_2" value="2"><label for="p14_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p14" id="p14_3" value="3"><label for="p14_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p14" id="p14_4" value="4"><label for="p14_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p14" id="p14_5" value="5"><label for="p14_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p14">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+      <div class="q-label"><span class="q-num">P15</span>A explicação em texto e o mapa foram suficientes para compreender a rota proposta?<span class="q-required">*</span></div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Nada suficientes</span><span>Completamente suficientes</span></div>
+        <div class="likert-options">
+          <div class="likert-option"><input type="radio" name="p15" id="p15_1" value="1"><label for="p15_1">1</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_2" value="2"><label for="p15_2">2</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_3" value="3"><label for="p15_3">3</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_4" value="4"><label for="p15_4">4</label></div>
+          <div class="likert-option"><input type="radio" name="p15" id="p15_5" value="5"><label for="p15_5">5</label></div>
+        </div>
+      </div>
+      <div class="field-error" id="err_p15">Por favor selecciona uma opção.</div>
+      </div>
+
+      <div class="q-divider"></div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P16</span>Utilizaria este sistema para planear uma visita turística real em Portugal?<span class="q-required">*</span></div>
+        <div class="likert-wrap">
+          <div class="likert-labels"><span>Definitivamente não</span><span>Definitivamente sim</span></div>
+          <div class="likert-options">
+            <div class="likert-option"><input type="radio" name="p16" id="p16_1" value="1"><label for="p16_1">1</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_2" value="2"><label for="p16_2">2</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_3" value="3"><label for="p16_3">3</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_4" value="4"><label for="p16_4">4</label></div>
+            <div class="likert-option"><input type="radio" name="p16" id="p16_5" value="5"><label for="p16_5">5</label></div>
+          </div>
+        </div>
+        <div class="field-error" id="err_p16">Por favor selecciona uma opção.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- BLOCO 3: PERGUNTAS ABERTAS -->
+  <div class="block">
+    <div class="block-header">
+      <div class="block-title"><span class="block-num">3</span>Feedback Qualitativo <span class="optional-tag">opcional</span></div>
+      <div class="block-instructions">Responde livremente. Não há respostas certas ou erradas.</div>
+    </div>
+    <div class="block-body">
+      <div class="question">
+        <div class="q-label"><span class="q-num">P17</span>O que funcionou bem e o que mudaria ou melhoraria?</div>
+        <textarea class="q-textarea" name="p17" id="p17" placeholder="Escreve aqui a tua resposta..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOCO 4: DEMOGRÁFICO -->
+  <div class="block">
+    <div class="block-header">
+      <div class="block-title"><span class="block-num">4</span>Perfil do Participante <span class="optional-tag">completamente opcional</span></div>
+      <div class="block-instructions">Serve apenas para caracterizar o perfil dos participantes. São completamente anónimas.</div>
+    </div>
+    <div class="block-body">
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P18</span>Faixa etária</div>
+        <select class="q-select" id="p18">
+          <option value="">— Selecciona —</option>
+          <option value="<18">Menos de 18 anos</option>
+          <option value="18-24">18 – 24 anos</option>
+          <option value="25-34">25 – 34 anos</option>
+          <option value="35-44">35 – 44 anos</option>
+          <option value="45-54">45 – 54 anos</option>
+          <option value=">=55">55 anos ou mais</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P19</span>Com que frequência utiliza assistentes de IA (ChatGPT, Gemini, etc.)?</div>
+        <select class="q-select" id="p19">
+          <option value="">— Selecciona —</option>
+          <option value="nunca">Nunca usei</option>
+          <option value="1-2x">Já usei uma ou duas vezes</option>
+          <option value="ocasional">Uso ocasionalmente</option>
+          <option value="regular">Uso regularmente</option>
+          <option value="diario">Uso diariamente</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P20</span>Com que frequência viaja dentro de Portugal?</div>
+        <select class="q-select" id="p20">
+          <option value="">— Selecciona —</option>
+          <option value="raro">Raramente (menos de 1×/ano)</option>
+          <option value="ocasional">Ocasionalmente (1–2×/ano)</option>
+          <option value="frequente">Frequentemente (3–5×/ano)</option>
+          <option value="muito_frequente">Muito frequentemente (mais de 5×/ano)</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <div class="q-label"><span class="q-num">P21</span>Como costumas planear as suas viagens? <span class="optional-tag">múltipla escolha</span></div>
+        <div class="checkbox-group">
+          <label class="checkbox-item">
+            <input type="checkbox" name="p21" value="improviso">
+            <div class="checkbox-box" id="cb_improviso"></div>
+            <span class="checkbox-label">Não planeio, improviso</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="p21" value="google">
+            <div class="checkbox-box" id="cb_google"></div>
+            <span class="checkbox-label">Pesquiso no Google</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="p21" value="apps">
+            <div class="checkbox-box" id="cb_apps"></div>
+            <span class="checkbox-label">Uso apps (TripAdvisor, Google Maps, etc.)</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="p21" value="amigos">
+            <div class="checkbox-box" id="cb_amigos"></div>
+            <span class="checkbox-label">Peço recomendações a amigos</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" name="p21" value="agencia">
+            <div class="checkbox-box" id="cb_agencia"></div>
+            <span class="checkbox-label">Uso agências de viagem</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-area">
+    <div id="submitError" style="color:var(--danger);font-size:13px;display:none;">Por favor preenche todos os campos obrigatórios (marcados com *).</div>
+    <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submeter questionário</button>
+    <div class="submit-note">Os teus dados são anónimos e usados apenas para fins académicos.</div>
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="successScreen">
+  <div class="success-icon">✅</div>
+  <div class="success-title">Obrigado pela tua participação!</div>
+  <div class="success-sub">As suas respostas foram registadas com sucesso e ajudarão a melhorar o sistema.</div>
+  <div class="success-score">
+    <div class="score-label">O seu score SUS</div>
+    <div class="score-value" id="scoreValue">—</div>
+    <div class="score-max">/ 100</div>
+  </div>
+  <button class="back-btn" onclick="window.close()">Fechar janela</button>
+</div>
+
+<script>
+  // Checkboxes visuais
+  document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const box = cb.nextElementSibling;
+      box.textContent = cb.checked ? '✓' : '';
+    });
+  });
+
+  // Validar e submeter
+  async function submitForm() {
+    const required = ['p1','p2','p3','p4','p5','p6','p7','p8','p9','p10',
+                      'p11','p12','p13','p14','p15','p16'];
+    let valid = true;
+
+    required.forEach(name => {
+      const selected = document.querySelector(`input[name="${name}"]:checked`);
+      const errEl = document.getElementById(`err_${name}`);
+      if (!selected) {
+        valid = false;
+        if (errEl) errEl.classList.add('show');
+      } else {
+        if (errEl) errEl.classList.remove('show');
+      }
+    });
+
+    if (!valid) {
+      document.getElementById('submitError').style.display = 'block';
+      // Scroll ao primeiro erro
+      const firstErr = document.querySelector('.field-error.show');
+      if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    document.getElementById('submitError').style.display = 'none';
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').textContent = 'A enviar...';
+
+    // Recolher dados
+    const getValue = name => {
+      const el = document.querySelector(`input[name="${name}"]:checked`);
+      return el ? parseInt(el.value) : 0;
+    };
+
+    // P21 múltipla escolha
+    const p21vals = Array.from(document.querySelectorAll('input[name="p21"]:checked'))
+      .map(el => el.value).join(';');
+
+const payload = {
+      p1: getValue('p1'), p2: getValue('p2'), p3: getValue('p3'),
+      p4: getValue('p4'), p5: getValue('p5'), p6: getValue('p6'),
+      p7: getValue('p7'), p8: getValue('p8'), p9: getValue('p9'),
+      p10: getValue('p10'),
+      p11: getValue('p11'), p12: getValue('p12'), p13: getValue('p13'),
+      p14: getValue('p14'), p15: getValue('p15'), p16: getValue('p16'),
+      p18: document.getElementById('p17').value,
+      p20_age: document.getElementById('p18').value,
+      p21_ai: document.getElementById('p19').value,
+      p22_travel: document.getElementById('p20').value,
+      p23: p21vals,
+      run_id: window.opener ? window.opener.currentRunId : null,
+    };
+
+    try {
+      const res = await fetch('/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('formShell').style.display = 'none';
+        document.getElementById('successScreen').classList.add('show');
+        document.getElementById('scoreValue').textContent = data.sus_score.toFixed(1);
+      } else {
+        alert('Erro ao submeter. Tenta novamente.');
+        document.getElementById('submitBtn').disabled = false;
+        document.getElementById('submitBtn').textContent = 'Submeter questionário';
+      }
+    } catch (e) {
+      alert('Erro de ligação. Tenta novamente.');
+      document.getElementById('submitBtn').disabled = false;
+      document.getElementById('submitBtn').textContent = 'Submeter questionário';
+    }
+  }
+</script>
+</body>
+</html>
