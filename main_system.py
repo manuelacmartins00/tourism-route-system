@@ -495,7 +495,7 @@ class TourismRouteSystem:
                 start_time=preferences.start_time,
                 lunch_break=60
             )
-            if geo:
+            if start_geo:
                 planner.start_lat = start_geo[0]
                 planner.start_lon = start_geo[1]
 

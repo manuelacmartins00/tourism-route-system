@@ -12,10 +12,14 @@ from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from typing import Dict, Any
 
 load_dotenv()
 
 app = FastAPI(title="TourismRouteSystem API")
+
+# Store de sessões em memória: session_id → {last_result, original_query}
+sessions: Dict[str, Dict[str, Any]] = {}
 
 # ── Health check ──────────────────────────────────────────────────────
 @app.api_route("/health", methods=["GET", "HEAD"])
@@ -51,6 +55,7 @@ FEEDBACK_CSV = Path("data/feedback/responses.csv")
 # ── Modelos Pydantic ──────────────────────────────────────────────────
 class QueryRequest(BaseModel):
     query: str
+    session_id: Optional[str] = None
 
 class FeedbackRequest(BaseModel):
     p1: int; p2: int; p3: int; p4: int; p5: int
@@ -74,6 +79,30 @@ async def root():
         raise HTTPException(status_code=404, detail="index.html não encontrado")
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
 
+# ── Aplica operação de refinamento sobre a rota existente ────────────
+def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Modifica a rota existente com base na operação devolvida pelo LLM.
+    Suporta: remove (POI específico) e filter_category (categoria inteira).
+    Devolve novo resultado com a rota modificada.
+    """
+    route = list(last_result.get("route", []))
+    op_type = operation.get("type", "fresh_query")
+
+    if op_type == "remove":
+        nomes = [n.lower() for n in operation.get("poi_names", [])]
+        route = [p for p in route if p.get("name", "").lower() not in nomes]
+
+    elif op_type == "filter_category":
+        excluir = [c.lower() for c in operation.get("exclude_categories", [])]
+        route = [p for p in route if p.get("category", "").lower() not in excluir]
+
+    modified = dict(last_result)
+    modified["route"] = route
+    modified["refinement_applied"] = op_type
+    return modified
+
+
 # ── ENDPOINT 2: POST /query — processa query e devolve rota ──────────
 @app.post("/query")
 async def query_route(req: QueryRequest):
@@ -84,39 +113,62 @@ async def query_route(req: QueryRequest):
 
     import time
     t_start = time.time()
-    try:
-        result = system.plan_route(
-            req.query,
-            use_shap=False,
-            verbose=True,
-            force_algorithm=None,
-            transit_service=system.transit_service
-        )
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
+
+    # Detectar refinamento: sessão existente com resultado anterior
+    session_id = req.session_id
+    is_refinement = session_id and session_id in sessions and sessions[session_id].get("last_result")
+
+    result = None
+
+    if is_refinement:
+        last_result = sessions[session_id]["last_result"]
+        try:
+            operation = system.llm.interpret_refinement(req.query, last_result.get("route", []))
+            print(f"   🔄 Operação de refinamento: {operation}")
+            if operation.get("type") == "fresh_query":
+                # O LLM decidiu que é uma query nova — tratar como tal
+                is_refinement = False
+            else:
+                result = apply_refinement(operation, last_result)
+                result["is_refinement"] = True
+        except Exception as e:
+            print(f"⚠️ Erro no refinamento: {e} — a processar como query nova")
+            is_refinement = False
+
+    if not is_refinement:
+        try:
+            result = system.plan_route(
+                req.query,
+                use_shap=False,
+                verbose=True,
+                force_algorithm=None,
+                transit_service=system.transit_service
+            )
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=str(e))
 
     if "error" in result:
         raise HTTPException(status_code=422, detail=result["error"])
-    
+
     if result.get("status") == "needs_clarification":
+        result["session_id"] = session_id or str(uuid.uuid4())[:8]
         return JSONResponse(content=result)
 
-    # Gerar ID único para o mapa
-    map_id = str(uuid.uuid4())[:8]
-    map_path = Path(f"outputs/maps/{map_id}.html")
-
-    # Mover mapa gerado para pasta de outputs com ID único
-    if result.get("map_file"):
-        original = Path(result["map_file"])
-        if original.exists():
-            original.rename(map_path)
-            result["map_id"] = map_id
+    # Gerar ID único para o mapa (apenas em rotas novas)
+    if not is_refinement:
+        map_id = str(uuid.uuid4())[:8]
+        map_path = Path(f"outputs/maps/{map_id}.html")
+        if result.get("map_file"):
+            original = Path(result["map_file"])
+            if original.exists():
+                original.rename(map_path)
+                result["map_id"] = map_id
+            else:
+                result["map_id"] = None
         else:
             result["map_id"] = None
-    else:
-        result["map_id"] = None
 
     # Limpar campos não serializáveis antes de devolver
     result.pop("map_file", None)
@@ -124,18 +176,25 @@ async def query_route(req: QueryRequest):
     result.pop("day_plan", None)
 
     run_id = None
-    try:
-        from scripts.log_to_hf import log_run
-        run_id = log_run(
-            query=req.query,
-            result=result,
-            elapsed_seconds=time.time() - t_start,
-            map_id=result.get("map_id"),
-        )
-    except Exception:
-        pass
-
+    if not is_refinement:
+        try:
+            from scripts.log_to_hf import log_run
+            run_id = log_run(
+                query=req.query,
+                result=result,
+                elapsed_seconds=time.time() - t_start,
+                map_id=result.get("map_id"),
+            )
+        except Exception:
+            pass
     result["run_id"] = run_id
+
+    # Guardar sessão para possíveis refinamentos futuros
+    if not session_id:
+        session_id = str(uuid.uuid4())[:8]
+    sessions[session_id] = {"last_result": dict(result), "original_query": req.query}
+    result["session_id"] = session_id
+
     return JSONResponse(content=result)
 
 # ── ENDPOINT 3: GET /map/{map_id} — serve mapa HTML ──────────────────
