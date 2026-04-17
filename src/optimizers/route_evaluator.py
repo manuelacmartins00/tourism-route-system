@@ -34,6 +34,9 @@ class RouteEvaluator:
         self.center_lat = user_prefs.get("center_lat")
         self.center_lon = user_prefs.get("center_lon")
         self.max_radius_km = user_prefs.get("max_radius_km", 20.0)
+        self.mobility_issues = user_prefs.get("mobility_issues", False)
+        self.elevation_matrix = user_prefs.get("elevation_matrix", None)
+        self.w_elevation = 0.15
             
         self._debug_mode = False
         self._empty_warning_shown = False
@@ -82,14 +85,26 @@ class RouteEvaluator:
             time_efficiency = time_utilization
         
         proximity_component = self._proximity_component(route)
+        elevation_penalty = self._elevation_component(route) if self.mobility_issues else 100.0
 
-        fitness = (
-            self.w_distance * distance_penalty +
-            self.w_category * category_component +
-            self.w_diversity * diversity_component +
-            self.w_time * time_efficiency +
-            self.w_proximity * proximity_component
-        )
+        if self.mobility_issues:
+            scale = 1 - self.w_elevation
+            fitness = (
+                self.w_distance  * scale * distance_penalty +
+                self.w_category  * scale * category_component +
+                self.w_diversity * scale * diversity_component +
+                self.w_time      * scale * time_efficiency +
+                self.w_proximity * scale * proximity_component +
+                self.w_elevation * elevation_penalty
+            )
+        else:
+            fitness = (
+                self.w_distance * distance_penalty +
+                self.w_category * category_component +
+                self.w_diversity * diversity_component +
+                self.w_time * time_efficiency +
+                self.w_proximity * proximity_component
+            )
         
         return fitness
 
@@ -161,6 +176,28 @@ class RouteEvaluator:
         
         return total_time
 
+    def _elevation_component(self, route: List[int]) -> float:
+        """
+        Penaliza rotas com elevado ganho de elevação acumulado entre POIs consecutivos.
+        Só activado se mobility_issues=True e elevation_matrix disponível.
+        Devolve 0-100 (100 = rota plana, 0 = rota muito inclinada).
+        """
+        if self.elevation_matrix is None or len(route) < 2:
+            return 100.0
+
+        THRESHOLD_M = 50
+        MAX_GAIN_M  = 200
+
+        total_gain = sum(
+            self.elevation_matrix[route[i]][route[i+1]]
+            for i in range(len(route) - 1)
+        )
+
+        if total_gain <= THRESHOLD_M:
+            return 100.0
+        score = max(0.0, 1.0 - (total_gain - THRESHOLD_M) / (MAX_GAIN_M - THRESHOLD_M))
+        return score * 100
+    
     def _parse_time(self, time_str: str) -> float:
         """Converte "09:30" para minutos desde meia-noite"""
         try:

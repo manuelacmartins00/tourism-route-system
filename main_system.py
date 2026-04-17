@@ -346,6 +346,15 @@ class TourismRouteSystem:
                         sub_distance_matrix[i][j] = (d_km / speed_kmh) * 60
 
         # Preferências — sem sentimento, pesos fixos no RouteEvaluator
+        mobility_issues = getattr(preferences, 'mobility_issues', False) or False
+
+        # Matriz de elevação — só calculada se mobilidade reduzida
+        elevation_matrix = None
+        if mobility_issues:
+            if verbose:
+                print("   🏔️  A calcular perfis de elevação (mobilidade reduzida)...\n")
+            elevation_matrix = self._build_elevation_matrix(optimizer_pois, verbose)
+
         user_prefs_dict = {
             "max_time": preferences.max_time,
             "max_cost": preferences.max_cost,
@@ -356,6 +365,8 @@ class TourismRouteSystem:
             "center_lat": geo[0] if geo else None,
             "center_lon": geo[1] if geo else None,
             "max_radius_km": geo[2] if geo else 30.0,
+            "mobility_issues": mobility_issues,
+            "elevation_matrix": elevation_matrix,
         }
 
         evaluator = RouteEvaluator(optimizer_pois, sub_distance_matrix, user_prefs_dict)
@@ -508,6 +519,55 @@ class TourismRouteSystem:
             self._print_result(result)
 
         return result
+
+    def _build_elevation_matrix(self, pois, verbose=False) -> np.ndarray:
+        """
+        Constrói matriz K×K com ganho de elevação acumulado (em metros)
+        entre cada par de POIs, usando OpenTopoData SRTM30m.
+        """
+        import requests, math
+
+        def haversine_m(lat1, lon1, lat2, lon2):
+            R = 6371000
+            r = math.radians
+            a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
+            return R * 2 * math.asin(math.sqrt(a))
+
+        def elevation_gain(lat1, lon1, lat2, lon2):
+            dist_m = haversine_m(lat1, lon1, lat2, lon2)
+            sample_m = max(50, int(dist_m / 99))
+            n = max(2, min(100, int(dist_m / sample_m) + 1))
+            points = [
+                (lat1 + i*(lat2-lat1)/(n-1), lon1 + i*(lon2-lon1)/(n-1))
+                for i in range(n)
+            ]
+            locations = "|".join(f"{lat},{lon}" for lat, lon in points)
+            try:
+                r = requests.get(
+                    f"https://api.opentopodata.org/v1/srtm30m?locations={locations}",
+                    timeout=10
+                )
+                elevs = [e["elevation"] for e in r.json().get("results", [])
+                         if e.get("elevation") is not None]
+                gain = sum(max(0, elevs[i+1]-elevs[i]) for i in range(len(elevs)-1))
+                return gain
+            except Exception:
+                return 0.0
+
+        n = len(pois)
+        matrix = np.zeros((n, n))
+        pairs_done = 0
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    matrix[i][j] = elevation_gain(
+                        pois[i].lat, pois[i].lon,
+                        pois[j].lat, pois[j].lon
+                    )
+                    pairs_done += 1
+                    if verbose and pairs_done % 10 == 0:
+                        print(f"   🏔️  Elevação: {pairs_done}/{n*(n-1)} pares calculados...")
+        return matrix
 
     def _print_result(self, result: Dict):
         """Imprime resultado formatado no terminal"""
