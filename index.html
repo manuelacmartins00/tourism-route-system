@@ -451,7 +451,7 @@
     <!-- ESTADO 1: empty state -->
     <div class="empty-state" id="emptyState">
       <div class="empty-icon">🇵🇹</div>
-      <div class="empty-title">Planeia a tua rota em Portugal</div>
+      <div class="empty-title">Planeie a sua rota em Portugal</div>
       <div style="margin-top:12px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:left;font-size:13px;color:var(--text);line-height:2.2;">
         Grupo de <span style="color:var(--accent);">X pessoas</span> quer visitar
         <span style="color:var(--accent);">cidade(s)</span> durante
@@ -459,7 +459,7 @@
         <span style="color:var(--accent);">X euros</span>
         <span style="color:var(--text-muted);font-size:12px;">(total, /dia ou /pessoa)</span>, com preferência por
         <span style="color:var(--accent);">actividade A, B e C</span>.<br>
-        <span style="color:var(--text-muted);font-size:12px;">Para uma melhor experiência, indica também: modo de transporte preferencial, mobilidade reduzida, faixa etária, local de hospedagem.</span>
+        <span style="color:var(--text-muted);font-size:12px;">Para uma melhor experiência, indique também: modo de transporte preferencial, mobilidade reduzida, faixa etária, local de hospedagem.</span>
       </div>
     </div>
   </div>
@@ -469,7 +469,7 @@
     <textarea
       class="input-box"
       id="inputBox"
-      placeholder="Descreve o que queres visitar, onde, quanto tempo e orçamento..."
+      placeholder="Descreve o que quere visitar, onde, quanto tempo e orçamento..."
       rows="1"
     ></textarea>
     <button class="send-btn" id="sendBtn" onclick="sendQuery()" title="Enviar">➤</button>
@@ -735,7 +735,7 @@
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: 'Erro desconhecido' }));
-        addErrorMessage(err.detail || 'Ocorreu um erro ao processar a tua query.');
+        addErrorMessage(err.detail || 'Ocorreu um erro ao processar a sua query.');
       } else {
         const result = await res.json();
         if (result.status === 'needs_clarification') {

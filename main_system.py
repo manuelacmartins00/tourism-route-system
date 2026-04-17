@@ -171,6 +171,15 @@ class TourismRouteSystem:
                 lat_c, lon_c, radius_c = geo
                 print(f"   📍 '{preferences.location}' → "
                       f"({lat_c:.4f}, {lon_c:.4f}), raio {radius_c:.0f}km\n")
+        
+        # ── Resolução do ponto de partida ───
+        start_geo = None
+        if hasattr(preferences, 'start_location') and preferences.start_location:
+            start_geo = self.location_resolver.resolve(preferences.start_location)
+            if start_geo and verbose:
+                print(f"   🏨 Ponto de partida: '{preferences.start_location}' → ({start_geo[0]:.4f}, {start_geo[1]:.4f})\n")
+        if not start_geo and geo:
+            start_geo = geo  # fallback: centro da cidade
                 
         # ========== PASSO 2: RAG BUSCA POIs ==========
         if verbose:
@@ -475,6 +484,9 @@ class TourismRouteSystem:
                 start_time=preferences.start_time,
                 lunch_break=60
             )
+            if geo:
+                planner.start_lat = start_geo[0]
+                planner.start_lon = start_geo[1]
 
             day_plan = planner.plan_days(
                 result['route'],
