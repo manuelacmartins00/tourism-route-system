@@ -35,6 +35,8 @@ class DayPlanner:
             start_time: Hora de início diária (padrão: 09:00)
             lunch_break: Minutos de pausa para almoço (padrão: 60)
         """
+        self.start_lat = None
+        self.start_lon = None
         self.hours_per_day = hours_per_day
         self.minutes_per_day = hours_per_day * 60
         self.start_time = start_time
@@ -98,7 +100,12 @@ class DayPlanner:
             clusters.setdefault(labels[i], []).append(poi)
         days = []
         day_num = 1
+        start_lat = self.start_lat if hasattr(self, 'start_lat') else None
+        start_lon = self.start_lon if hasattr(self, 'start_lon') else None
+
         for cluster_pois in clusters.values():
+            if start_lat and len(cluster_pois) > 1:
+                cluster_pois = self._nearest_neighbor_order(cluster_pois, start_lat, start_lon)
             current_day = []
             current_time = 0
             for poi in cluster_pois:
@@ -116,6 +123,23 @@ class DayPlanner:
                 day_num += 1
         return days
 
+    def _nearest_neighbor_order(self, pois, start_lat, start_lon):
+        import math
+        def hav(lat1, lon1, lat2, lon2):
+            R = 6371
+            r = math.radians
+            a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
+            return R * 2 * math.asin(math.sqrt(a))
+        remaining = list(pois)
+        ordered = []
+        cur_lat, cur_lon = start_lat, start_lon
+        while remaining:
+            nearest = min(remaining, key=lambda p: hav(cur_lat, cur_lon, p['lat'], p['lon']))
+            ordered.append(nearest)
+            cur_lat, cur_lon = nearest['lat'], nearest['lon']
+            remaining.remove(nearest)
+        return ordered
+    
     def _split_sequential(self, route: List[Dict], n_days: int) -> List[Dict]:
         """
         Divisão sequencial simples (sem otimização geográfica)
