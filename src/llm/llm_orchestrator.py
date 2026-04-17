@@ -18,6 +18,8 @@ class UserPreferences:
     location: str = None
     missing_fields: List[str] = None
     transport_mode: str = "foot"
+    start_location: str = None
+    mobility_issues: bool = False
 
 class LlamaOrchestrator:
     """
@@ -146,6 +148,8 @@ Devolve APENAS JSON (sem texto adicional):
   "start_time": "09:00",
   "location": "Lisboa",
   "transport_mode": "foot",
+  "start_location": null,
+  "mobility_issues": false,
   "missing_fields": ["group_size"]
 }}
 
@@ -164,8 +168,11 @@ CAMPOS A VERIFICAR PARA missing_fields:
 - "group_size": se não foi mencionado número de pessoas
 - "transport_mode": sempre incluir se não mencionado (foot, car, public_transport)
 - "has_children": SÓ incluir se não foi mencionado de todo. Se a query contiver "sem crianças", "viajamos sem crianças", "não temos crianças", "grupo de amigos", "casal" → NÃO incluir, assume false
-- "mobility_issues": SÓ incluir se não foi mencionado de todo. Se a query contiver "sem problemas de mobilidade", "mobilidade normal", "grupo de amigos" → NÃO incluir, assume false
-
+- "mobility_issues": NUNCA incluir em missing_fields. Extrair como campo booleano separado:
+  * true se o utilizador mencionar cadeira de rodas, mobilidade reduzida, dificuldades a andar, problemas de locomoção, idoso com mobilidade limitada, bengala, andarilho
+  * false em todos os outros casos (incluindo "sem problemas de mobilidade", "mobilidade normal", "grupo de amigos")
+- "start_location": extrair se o utilizador mencionar onde está hospedado, o hotel, a residência ou o ponto de partida diário (ex: "estou hospedado no centro do Porto", "hotel em Alfama"). NUNCA obrigatório — NUNCA incluir em missing_fields. Se não mencionado, devolver null.
+  
 REGRAS:
 - Só inclui em missing_fields campos que realmente faltam e são relevantes para a query
 - Se a query for muito curta ou vaga, inclui mais campos
@@ -259,6 +266,18 @@ Responde APENAS com o JSON, sem explicações."""
             if transport_mode:
                 print(f"   🚗 Modo de transporte: '{transport_mode}'")
 
+            # Extrair problemas de mobilidade
+            mobility_issues = bool(data.get("mobility_issues", False))
+            if mobility_issues:
+                print(f"   ♿ Mobilidade reduzida identificada — pipeline de elevação activado")
+
+            # Extrair ponto de partida (opcional)
+            start_location = data.get("start_location", None)
+            if start_location and not isinstance(start_location, str):
+                start_location = None
+            if start_location:
+                print(f"   🏨 Ponto de partida: '{start_location}'")
+            
             # Extrair campos em falta
             missing_fields = data.get("missing_fields", [])
             missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues")]
@@ -279,7 +298,9 @@ Responde APENAS com o JSON, sem explicações."""
                 secondary_tags=secondary_tags,
                 location=extracted_location,
                 missing_fields=missing_fields,
-                transport_mode=transport_mode or "foot"
+                transport_mode=transport_mode or "foot",
+                start_location=start_location,
+                mobility_issues=mobility_issues
             )
         
         except Exception as e:
@@ -359,8 +380,51 @@ Responde APENAS com o texto da explicação, sem introduções."""
         except Exception as e:
             print(f"⚠️ Erro ao gerar explicação: {e}")
             return f"Esta rota foi otimizada com o algoritmo {algorithm_used} para incluir {len(route)} POIs que correspondem aos teus interesses em {', '.join(preferences.interests)}. O percurso tem uma duração total de {total_duration} minutos e custa €{total_cost:.2f}."
-        
-        
+
+    def interpret_refinement(self, instruction: str, current_route: List[Dict]) -> Dict:
+        """
+        Interpreta uma instrução de refinamento sobre a rota existente.
+        Devolve um dict com o tipo de operação a aplicar:
+          {"type": "remove",          "poi_names": [...]}
+          {"type": "filter_category", "exclude_categories": [...]}
+          {"type": "fresh_query"}
+        """
+        poi_list = "\n".join(
+            f"- {p['name']} ({p.get('category', '?')})" for p in current_route
+        )
+
+        prompt = f"""Tens uma rota turística com os seguintes POIs:
+{poi_list}
+
+O utilizador diz: "{instruction}"
+
+Classifica a instrução e devolve APENAS JSON (sem texto adicional):
+
+Se o utilizador quer REMOVER um ou mais POIs específicos:
+{{"type": "remove", "poi_names": ["nome exacto do POI"]}}
+
+Se o utilizador quer EXCLUIR uma categoria inteira (ex: sem restaurantes, sem museus):
+{{"type": "filter_category", "exclude_categories": ["categoria"]}}
+Categorias válidas: restaurantes_e_cafes, museus_e_palacios, monumentos, espacos_verdes, praias, turismo_activo, bares_e_discotecas, parques_e_reservas, arqueologia, eventos
+
+Se a instrução é complexa demais para modificação directa (nova zona, novo tema, regenerar tudo):
+{{"type": "fresh_query"}}
+
+Responde APENAS com o JSON."""
+
+        try:
+            content = self._call_llm(prompt, max_tokens=200, temperature=0.1)
+            content = re.sub(r'```json\s*|\s*```', '', content).strip()
+            start = content.find('{')
+            end = content.rfind('}') + 1
+            if start != -1 and end > start:
+                content = content[start:end]
+            return json.loads(content)
+        except Exception as e:
+            print(f"⚠️ Erro ao interpretar refinamento: {e}")
+            return {"type": "fresh_query"}
+
+
 def select_algorithm_deterministic(n_candidates: int, max_time: int) -> str:
     """
     Thresholds derivados empiricamente do benchmark 16 queries × 4 algoritmos.

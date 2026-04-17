@@ -520,6 +520,7 @@
   let currentMapId = null;
   let currentResult = null;
   let currentRunId = null;
+  let currentSessionId = null;
   let susBannerShown = false;
   let isLoading = false;
 
@@ -728,7 +729,7 @@
       const res = await fetch('/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query, session_id: currentSessionId })
       });
 
       removeTypingIndicator();
@@ -742,7 +743,11 @@
           addClarificationForm(result);
         } else {
           currentRunId = result.run_id || null;
+          currentSessionId = result.session_id || null;
           addBotMessage(result);
+          if (currentSessionId) {
+            showRefinementHint();
+          }
         }
       }
     } catch (e) {
@@ -783,6 +788,18 @@
   }
 
   // ── Feedback banner ───────────────────────────────────────────
+  // Mostra dica de refinamento após receber uma rota
+  function showRefinementHint() {
+    const existing = document.getElementById('refinementHint');
+    if (existing) existing.remove();
+    const hint = document.createElement('div');
+    hint.id = 'refinementHint';
+    hint.style.cssText = 'font-size:0.82rem;color:#888;text-align:center;margin:6px 0 2px;';
+    hint.textContent = '💬 Podes refinar esta rota — ex: "remove o museu", "sem restaurantes", "substitui por algo ao ar livre"';
+    document.getElementById('messages').appendChild(hint);
+    hint.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
   function showFeedbackBanner() {
     document.getElementById('feedbackBanner').classList.add('show');
   }
