@@ -82,14 +82,18 @@ class TransitService:
         # Adicionar arestas de transbordo a pé entre operadores próximos
         self._add_transfer_edges()
 
+        n_nodes = self.graph.number_of_nodes()
+        n_edges = self.graph.number_of_edges()
+        print(f"[TransitService] Grafo unificado: {n_nodes} nós, {n_edges} arestas")
+
+        if n_nodes == 0:
+            print("[TransitService] Grafo vazio — cache não guardada (GTFS ausentes).")
+            return
+
         # Guardar cache
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(CACHE_PATH, "wb") as f:
             pickle.dump({"graph": self.graph, "stops": self._stops}, f)
-
-        print(f"[TransitService] Grafo unificado: "
-              f"{self.graph.number_of_nodes()} nós, "
-              f"{self.graph.number_of_edges()} arestas")
 
     def _add_transfer_edges(self):
         """
