@@ -68,28 +68,10 @@ def resolve_stcp(gtfs_dir: Path, query_date: date) -> Set[str]:
 def resolve_carris(gtfs_dir: Path, query_date: date) -> Set[str]:
     date_str = query_date.strftime("%Y%m%d")
 
-    # 1. Determinar day_type e period a partir do dates.txt
-    day_type, period = None, None
-    for row in _load_csv(gtfs_dir / "dates.txt"):
-        if row["date"] == date_str:
-            day_type = row["day_type"]   # 1=DU, 2=SAB, 3=DOM
-            period = row["period"]       # 1=ESC, 2=FER, 3=VER
-            break
-
-    if not day_type:
-        # Fallback: inferir pelo dia da semana, assumir período escolar
-        wd = query_date.weekday()  # 0=Mon ... 6=Sun
-        day_type = "1" if wd < 5 else ("2" if wd == 5 else "3")
-        period = "1"
-
-    period_map = {"1": "ESC", "2": "FER", "3": "VER"}
-    day_map = {"1": "DU", "2": "SAB", "3": "DOM"}
-    target_pattern = f"{period_map[period]}_{day_map[day_type]}"
-
-    # 2. Encontrar service_ids activos com esse pattern
-    active = set()
-    
-    # Carregar plans activos para esta data
+    # calendar_dates.txt already encodes which services run on each date —
+    # both named-period services (e.g. [KFULM]ESC_DU) and numeric ones
+    # (e.g. [89CJD]11). Just trust those explicit entries and filter by
+    # whether the service's plan is currently active.
     active_plans = set()
     for row in _load_csv(gtfs_dir / "plans.txt"):
         start = datetime.strptime(row["plan_start_date"], "%Y%m%d").date()
@@ -97,15 +79,13 @@ def resolve_carris(gtfs_dir: Path, query_date: date) -> Set[str]:
         if start <= query_date <= end:
             active_plans.add(row["plan_id"])
 
-    # service_id formato: [PLAN_ID]PATTERN
+    active = set()
     for row in _load_csv(gtfs_dir / "calendar_dates.txt"):
-        sid = row["service_id"]
         if row["date"] == date_str and row["exception_type"] == "1":
-            # Verificar se pertence a um plan activo e tem o pattern certo
+            sid = row["service_id"]
             if sid.startswith("[") and "]" in sid:
                 plan_id = sid[1:sid.index("]")]
-                pattern = sid[sid.index("]") + 1:]
-                if plan_id in active_plans and pattern == target_pattern:
+                if plan_id in active_plans:
                     active.add(sid)
 
     return active
