@@ -1,16 +1,14 @@
 # src/transit/gtfs_loader.py
 import csv
 import math
-import pickle
 import networkx as nx
 from datetime import date
 from pathlib import Path
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional
 from .calendar_resolver import get_active_services
 
 
 def _haversine_minutes(lat1, lon1, lat2, lon2, speed_kmh=4.5) -> float:
-    """Distância a pé entre duas paragens em minutos."""
     R = 6371
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
@@ -22,24 +20,23 @@ def _haversine_minutes(lat1, lon1, lat2, lon2, speed_kmh=4.5) -> float:
 
 class GTFSLoader:
     """
-    Carrega um feed GTFS e constrói um DiGraph NetworkX.
-    
+    Carrega um feed GTFS e constrói um MultiDiGraph NetworkX.
+
     Nós:  stop_id prefixado (ex: "ML_BC", "CP_94_2006")
     Atributos do nó: lat, lon, name, operator, zone_id
-    
-    Arestas: stop_i → stop_j
-    Atributos da aresta: weight (minutos), route_id, operator
+
+    Arestas: stop_i → stop_j  (uma por trip — preserva service_id e departure_time)
+    Atributos da aresta: weight (minutos), route_id, service_id, operator, departure_min
     """
 
     def __init__(self, operator: str, gtfs_dir: Path, prefix: str):
         self.operator = operator
         self.gtfs_dir = Path(gtfs_dir)
-        self.prefix = prefix          # ex: "ML", "CP", "MP", "STCP", "CM"
-        self.stops: Dict[str, dict] = {}   # stop_id → {lat, lon, name, zone_id}
-        self.graph = nx.DiGraph()
+        self.prefix = prefix
+        self.stops: Dict[str, dict] = {}
+        self.graph = nx.MultiDiGraph()
 
     def _pid(self, stop_id: str) -> str:
-        """Adiciona prefixo ao stop_id para evitar colisões entre operadores."""
         return f"{self.prefix}_{stop_id}"
 
     def _load_stops(self):
@@ -47,9 +44,8 @@ class GTFSLoader:
             sid = row.get("stop_id", "").strip()
             if not sid or sid == ".":
                 continue
-            # Metro Lisboa tem parent_station — usar só stops filho (location_type=0 ou vazio)
             lt = row.get("location_type", "0").strip()
-            if lt == "1":   # estação pai — não é uma paragem real
+            if lt == "1":
                 continue
             try:
                 lat = float(row["stop_lat"])
@@ -70,29 +66,26 @@ class GTFSLoader:
                 operator=self.operator,
             )
 
-    def _load_edges(self, query_date: date):
+    def _load_edges(self):
         """
-        Para cada trip activo hoje, adiciona arestas stop_i → stop_i+1
-        com peso = tempo de viagem em minutos.
+        Carrega TODOS os trips do feed.
+        Cada aresta guarda service_id para que o routing possa filtrar
+        por data em tempo de consulta via calendar_resolver.
+        Por par de paragens e service_id guarda apenas a aresta mais rápida
+        para manter o grafo compacto.
         """
-        active_services = get_active_services(
-            self.operator, self.gtfs_dir, query_date
-        )
-
-        # trip_id → route_id (para os metadados da aresta)
+        trip_to_service: Dict[str, str] = {}
         trip_to_route: Dict[str, str] = {}
-        active_trips: set = set()
         for row in self._read("trips.txt"):
-            if row.get("service_id", "") in active_services:
-                tid = row["trip_id"]
-                active_trips.add(tid)
-                trip_to_route[tid] = row.get("route_id", "")
+            tid = row["trip_id"]
+            trip_to_service[tid] = row.get("service_id", "")
+            trip_to_route[tid] = row.get("route_id", "")
 
         # Agrupar stop_times por trip
         trip_stops: Dict[str, list] = {}
         for row in self._read("stop_times.txt"):
             tid = row.get("trip_id", "")
-            if tid not in active_trips:
+            if tid not in trip_to_service:
                 continue
             sid = row.get("stop_id", "").strip()
             if sid not in self.stops:
@@ -104,40 +97,54 @@ class GTFSLoader:
             dep = row.get("departure_time", row.get("arrival_time", ""))
             trip_stops.setdefault(tid, []).append((seq, sid, dep))
 
-        # Adicionar arestas
+        # Uma aresta por (pa, pb, service_id) — guarda a mais rápida
+        best: Dict[tuple, float] = {}
+
         for tid, stops_seq in trip_stops.items():
             stops_seq.sort(key=lambda x: x[0])
-            route_id = trip_to_route.get(tid, "")
+            service_id = trip_to_service[tid]
+            route_id = trip_to_route[tid]
             for i in range(len(stops_seq) - 1):
                 _, sid_a, dep_a = stops_seq[i]
                 _, sid_b, dep_b = stops_seq[i + 1]
                 weight = self._time_diff_minutes(dep_a, dep_b)
                 if weight <= 0:
-                    # Fallback: Haversine a pé entre paragens consecutivas
                     sa, sb = self.stops[sid_a], self.stops[sid_b]
                     weight = _haversine_minutes(sa["lat"], sa["lon"],
-                                                sb["lat"], sb["lon"])
+                                               sb["lat"], sb["lon"])
                 pa, pb = self._pid(sid_a), self._pid(sid_b)
-                # Guardar a aresta mais rápida se já existir
-                if self.graph.has_edge(pa, pb):
-                    if self.graph[pa][pb]["weight"] <= weight:
-                        continue
-                self.graph.add_edge(pa, pb,
-                                    weight=weight,
-                                    route_id=route_id,
-                                    operator=self.operator)
+                key = (pa, pb, service_id)
+                if key in best and best[key] <= weight:
+                    continue
+                best[key] = weight
+                dep_min = self._to_minutes(dep_a)
+                self.graph.add_edge(
+                    pa, pb,
+                    weight=weight,
+                    route_id=route_id,
+                    service_id=service_id,
+                    operator=self.operator,
+                    departure_min=dep_min,
+                )
 
     @staticmethod
     def _time_diff_minutes(t1: str, t2: str) -> float:
-        """Diferença entre dois tempos HH:MM:SS em minutos. Suporta >24h (CP)."""
-        def to_minutes(t):
+        def to_m(t):
             parts = t.strip().split(":")
             if len(parts) < 2:
                 return 0
             return int(parts[0]) * 60 + int(parts[1])
         try:
-            diff = to_minutes(t2) - to_minutes(t1)
+            diff = to_m(t2) - to_m(t1)
             return diff if diff > 0 else 0
+        except Exception:
+            return 0
+
+    @staticmethod
+    def _to_minutes(t: str) -> int:
+        try:
+            parts = t.strip().split(":")
+            return int(parts[0]) * 60 + int(parts[1])
         except Exception:
             return 0
 
@@ -148,7 +155,7 @@ class GTFSLoader:
         with open(path, encoding="utf-8-sig") as f:
             return list(csv.DictReader(f))
 
-    def build(self, query_date: date) -> nx.DiGraph:
+    def build(self) -> nx.MultiDiGraph:
         self._load_stops()
-        self._load_edges(query_date)
+        self._load_edges()
         return self.graph

@@ -11,7 +11,6 @@ from typing import List, Tuple, Optional, Dict
 from .gtfs_loader import GTFSLoader, _haversine_minutes
 from .calendar_resolver import get_active_services
 
-# Operadores e respectivos prefixos e pastas
 OPERATORS = {
     "metro_lisboa":          ("ML", "data/gtfs/metro_lisboa"),
     "metro_porto":           ("MP", "data/gtfs/metro_porto"),
@@ -20,7 +19,6 @@ OPERATORS = {
     "cp":                    ("CP", "data/gtfs/cp"),
 }
 
-# Distância máxima a pé para considerar transbordo entre operadores (metros)
 TRANSFER_WALK_METERS = 300
 TRANSFER_WALK_SPEED_KMH = 4.5
 
@@ -30,23 +28,19 @@ CACHE_PATH = Path("data/gtfs/unified_graph.pkl")
 class TransitService:
     """
     Interface pública para routing de transportes públicos.
-    Carregada uma vez no arranque do FastAPI e mantida em memória.
+    O grafo contém TODOS os trips de todos os operadores.
+    Ao fazer routing, filtra as arestas pelos serviços activos na data pedida.
     """
 
     def __init__(self):
-        self.graph: Optional[nx.DiGraph] = None
-        self._stops: Dict[str, dict] = {}  # node_id → {lat, lon, name, operator}
+        self.graph: Optional[nx.MultiDiGraph] = None
+        self._stops: Dict[str, dict] = {}
 
     # ──────────────────────────────────────────
     # Inicialização
     # ──────────────────────────────────────────
 
-    def load(self, query_date: Optional[date] = None, use_cache: bool = True):
-        """
-        Carrega o grafo unificado.
-        Se existir cache e use_cache=True, usa o pickle.
-        Caso contrário, reconstrói a partir dos GTFS.
-        """
+    def load(self, use_cache: bool = True):
         if use_cache and CACHE_PATH.exists():
             with open(CACHE_PATH, "rb") as f:
                 data = pickle.load(f)
@@ -57,13 +51,9 @@ class TransitService:
                   f"{self.graph.number_of_edges()} arestas")
             return
 
-        if query_date is None:
-            query_date = date.today()
-
-        self.graph = nx.DiGraph()
+        self.graph = nx.MultiDiGraph()
         self._stops = {}
 
-        # Carregar cada operador
         for operator, (prefix, gtfs_path) in OPERATORS.items():
             path = Path(gtfs_path)
             if not path.exists():
@@ -71,15 +61,13 @@ class TransitService:
                 continue
             print(f"[TransitService] A carregar {operator}...")
             loader = GTFSLoader(operator, path, prefix)
-            sub_graph = loader.build(query_date)
-            # Merge no grafo unificado
+            sub_graph = loader.build()
             self.graph = nx.compose(self.graph, sub_graph)
             self._stops.update({
-                nid: self.graph.nodes[nid]
+                nid: dict(self.graph.nodes[nid])
                 for nid in sub_graph.nodes
             })
 
-        # Adicionar arestas de transbordo a pé entre operadores próximos
         self._add_transfer_edges()
 
         n_nodes = self.graph.number_of_nodes()
@@ -87,53 +75,84 @@ class TransitService:
         print(f"[TransitService] Grafo unificado: {n_nodes} nós, {n_edges} arestas")
 
         if n_nodes == 0:
-            print("[TransitService] Grafo vazio — cache não guardada (GTFS ausentes).")
+            print("[TransitService] Grafo vazio — cache não guardada.")
             return
 
-        # Guardar cache
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(CACHE_PATH, "wb") as f:
             pickle.dump({"graph": self.graph, "stops": self._stops}, f)
 
     def _add_transfer_edges(self):
-        """
-        Liga paragens de operadores diferentes que estão a <300m a pé.
-        Exemplo: Metro Lisboa Cais do Sodré ↔ CP Cais do Sodré
-        """
+        """Liga paragens de operadores diferentes que estão a <300m a pé."""
         nodes = list(self.graph.nodes(data=True))
         threshold_km = TRANSFER_WALK_METERS / 1000
 
         for i, (nid_a, data_a) in enumerate(nodes):
             for nid_b, data_b in nodes[i+1:]:
                 if data_a.get("operator") == data_b.get("operator"):
-                    continue  # mesmo operador — transbordos já no GTFS
+                    continue
                 d = _haversine_km(
                     data_a["lat"], data_a["lon"],
                     data_b["lat"], data_b["lon"]
                 )
                 if d <= threshold_km:
                     walk_min = (d / TRANSFER_WALK_SPEED_KMH) * 60
-                    # Bidireccional
                     self.graph.add_edge(nid_a, nid_b,
                                         weight=walk_min,
                                         route_id="WALK",
-                                        operator="walk")
+                                        service_id="WALK",
+                                        operator="walk",
+                                        departure_min=0)
                     self.graph.add_edge(nid_b, nid_a,
                                         weight=walk_min,
                                         route_id="WALK",
-                                        operator="walk")
+                                        service_id="WALK",
+                                        operator="walk",
+                                        departure_min=0)
 
     # ──────────────────────────────────────────
     # Interface pública
     # ──────────────────────────────────────────
 
+    def _active_subgraph(self, query_date: Optional[date]) -> nx.DiGraph:
+        """
+        Devolve um DiGraph simples com apenas as arestas activas na data pedida.
+        Se query_date=None, usa todas as arestas (fallback para planeamento
+        sem data específica).
+        """
+        if query_date is None:
+            # Sem data: usar a aresta mais rápida por par de paragens
+            simple = nx.DiGraph()
+            simple.add_nodes_from(self.graph.nodes(data=True))
+            for u, v, data in self.graph.edges(data=True):
+                if not simple.has_edge(u, v) or simple[u][v]["weight"] > data["weight"]:
+                    simple.add_edge(u, v, **data)
+            return simple
+
+        # Determinar serviços activos por operador
+        active_services: set = {"WALK"}
+        for operator, (_, gtfs_path) in OPERATORS.items():
+            path = Path(gtfs_path)
+            if not path.exists():
+                continue
+            try:
+                active_services |= get_active_services(operator, path, query_date)
+            except Exception:
+                pass
+
+        # Construir subgrafo simples com apenas essas arestas
+        simple = nx.DiGraph()
+        simple.add_nodes_from(self.graph.nodes(data=True))
+        for u, v, data in self.graph.edges(data=True):
+            if data.get("service_id") not in active_services:
+                continue
+            if not simple.has_edge(u, v) or simple[u][v]["weight"] > data["weight"]:
+                simple.add_edge(u, v, **data)
+        return simple
+
     def nearest_stop(self, lat: float, lon: float,
                      operator: Optional[str] = None,
                      max_dist_km: float = 1.0) -> Optional[str]:
-        """
-        Devolve o node_id da paragem mais próxima de (lat, lon).
-        Se operator especificado, filtra por operador.
-        """
         best_node, best_dist = None, float("inf")
         for nid, data in self.graph.nodes(data=True):
             if operator and data.get("operator") != operator:
@@ -147,11 +166,8 @@ class TransitService:
         return best_node
 
     def get_route(self, origin_coords: Tuple[float, float],
-                  dest_coords: Tuple[float, float]) -> Optional[Dict]:
-        """
-        Devolve o itinerário mais rápido de transportes públicos
-        entre dois pontos geográficos.
-        """
+                  dest_coords: Tuple[float, float],
+                  query_date: Optional[date] = None) -> Optional[Dict]:
         if self.graph is None:
             return None
 
@@ -161,60 +177,54 @@ class TransitService:
         if not stop_a or not stop_b or stop_a == stop_b:
             return None
 
+        subgraph = self._active_subgraph(query_date)
+
         try:
-            path = nx.dijkstra_path(self.graph, stop_a, stop_b, weight="weight")
-            total_min = nx.dijkstra_path_length(
-                self.graph, stop_a, stop_b, weight="weight"
-            )
+            path = nx.dijkstra_path(subgraph, stop_a, stop_b, weight="weight")
+            total_min = nx.dijkstra_path_length(subgraph, stop_a, stop_b, weight="weight")
         except nx.NetworkXNoPath:
             return None
 
-        # Construir itinerário legível
         segments = []
         for i in range(len(path) - 1):
-            edge_data = self.graph[path[i]][path[i+1]]
+            edge_data = subgraph[path[i]][path[i+1]]
             segments.append({
-                "from": self.graph.nodes[path[i]].get("name", path[i]),
-                "to": self.graph.nodes[path[i+1]].get("name", path[i+1]),
+                "from": subgraph.nodes[path[i]].get("name", path[i]),
+                "to": subgraph.nodes[path[i+1]].get("name", path[i+1]),
                 "route": edge_data.get("route_id", ""),
                 "operator": edge_data.get("operator", ""),
                 "minutes": round(edge_data["weight"], 1),
             })
 
         return {
-            "origin_stop": self.graph.nodes[stop_a].get("name", stop_a),
-            "dest_stop": self.graph.nodes[stop_b].get("name", stop_b),
+            "origin_stop": subgraph.nodes[stop_a].get("name", stop_a),
+            "dest_stop": subgraph.nodes[stop_b].get("name", stop_b),
             "total_minutes": round(total_min, 1),
             "segments": segments,
         }
 
-    def build_cost_matrix(self, pois: List, mode: str = "public_transport") -> np.ndarray:
+    def build_cost_matrix(self, pois: List, mode: str = "public_transport",
+                          query_date: Optional[date] = None) -> np.ndarray:
         k = len(pois)
         matrix = np.zeros((k, k))
 
         if mode == "fastest":
-            # Para cada par, calcula todos os modos e usa o mais rápido
-            tp_matrix   = self._build_tp_matrix(pois)
+            tp_matrix   = self._build_tp_matrix(pois, query_date)
             car_matrix  = _osrm_matrix(pois, "car")
             foot_matrix = _osrm_matrix(pois, "foot")
             for i in range(k):
                 for j in range(k):
                     if i == j:
                         continue
-                    matrix[i][j] = min(
-                        tp_matrix[i][j],
-                        car_matrix[i][j],
-                        foot_matrix[i][j]
-                    )
+                    matrix[i][j] = min(tp_matrix[i][j], car_matrix[i][j], foot_matrix[i][j])
         elif mode == "public_transport":
-            matrix = self._build_tp_matrix(pois)
+            matrix = self._build_tp_matrix(pois, query_date)
         else:
             matrix = _osrm_matrix(pois, mode)
 
         return matrix
 
-    def _build_tp_matrix(self, pois: List) -> np.ndarray:
-        """Matriz K×K via Dijkstra no grafo GTFS."""
+    def _build_tp_matrix(self, pois: List, query_date: Optional[date] = None) -> np.ndarray:
         k = len(pois)
         matrix = np.zeros((k, k))
         for i, poi_i in enumerate(pois):
@@ -223,13 +233,13 @@ class TransitService:
                     continue
                 result = self.get_route(
                     (poi_i.lat, poi_i.lon),
-                    (poi_j.lat, poi_j.lon)
+                    (poi_j.lat, poi_j.lon),
+                    query_date=query_date,
                 )
                 if result:
                     matrix[i][j] = result["total_minutes"]
                 else:
-                    d = _haversine_km(poi_i.lat, poi_i.lon,
-                                    poi_j.lat, poi_j.lon)
+                    d = _haversine_km(poi_i.lat, poi_i.lon, poi_j.lat, poi_j.lon)
                     matrix[i][j] = (d / 20) * 60
         return matrix
 
@@ -249,10 +259,6 @@ def _haversine_km(lat1, lon1, lat2, lon2) -> float:
 
 
 def _osrm_matrix(pois: List, mode: str) -> np.ndarray:
-    """
-    OSRM Table API — 1 chamada HTTP para a matriz completa.
-    Fallback para Haversine se falhar.
-    """
     osrm_profile = {"car": "driving", "foot": "walking",
                     "bicycle": "cycling"}.get(mode, "driving")
     coords_str = ";".join(f"{p.lon},{p.lat}" for p in pois)
@@ -265,12 +271,11 @@ def _osrm_matrix(pois: List, mode: str) -> np.ndarray:
         if data.get("code") == "Ok":
             durations = data["durations"]
             matrix = np.array(durations, dtype=float)
-            matrix /= 60  # segundos → minutos
+            matrix /= 60
             return matrix
     except Exception as e:
         print(f"[TransitService] OSRM falhou ({e}), a usar Haversine.")
 
-    # Fallback Haversine
     speed = {"car": 50, "foot": 5, "bicycle": 15}.get(mode, 5)
     matrix = np.zeros((k, k))
     for i, pi in enumerate(pois):
