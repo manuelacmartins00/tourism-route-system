@@ -23,10 +23,11 @@ data/feedback/
 data/*.npy
 data/*.json
 
-# GTFS — shapes.txt não é usado pelo código (só geometria visual)
+# GTFS — large files not needed at runtime (graph already built)
 data/gtfs/*/shapes.txt
-# Cache do grafo unificado (gerado em runtime)
-data/gtfs/unified_graph.pkl
+data/gtfs/*/stop_times.txt
+# Cache do grafo unificado — committed so deployed instances skip the build step
+# data/gtfs/unified_graph.pkl
 
 # ChromaDB
 chroma_db/

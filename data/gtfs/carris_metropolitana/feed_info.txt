@@ -1,0 +1,2 @@
+feed_version,feed_start_date,feed_end_date,feed_publisher_name,feed_publisher_url,feed_contact_email,feed_contact_url,feed_lang,default_lang
+20260328-0240-15,20260327,20261231,TML - Transportes Metropolitanos de Lisboa,https://tmlmobilidade.pt,iso@tmlmobilidade.pt,https://tmlmobilidade.pt,pt,pt
