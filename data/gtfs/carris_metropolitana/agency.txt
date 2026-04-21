@@ -1,0 +1,5 @@
+agency_id,agency_name,agency_email,agency_phone,agency_url,agency_fare_url,agency_lang,agency_timezone,cemv_support
+41,Viação Alvorada,contacto@carrismetropolitana.pt,+351210410400,https://carrismetropolitana.pt,https://carrismetropolitana.pt/tarifarios,pt,Europe/Lisbon,0
+42,Rodoviária de Lisboa,contacto@carrismetropolitana.pt,+351210410400,https://carrismetropolitana.pt,https://carrismetropolitana.pt/tarifarios,pt,Europe/Lisbon,0
+43,Transportes Sul do Tejo,contacto@carrismetropolitana.pt,+351210410400,https://carrismetropolitana.pt,https://carrismetropolitana.pt/tarifarios,pt,Europe/Lisbon,0
+44,Alsa Todi,contacto@carrismetropolitana.pt,+351210410400,https://carrismetropolitana.pt,https://carrismetropolitana.pt/tarifarios,pt,Europe/Lisbon,0

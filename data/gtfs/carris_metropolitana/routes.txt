@@ -1,0 +1,951 @@
+agency_id,line_id,line_short_name,line_long_name,route_id,route_short_name,route_long_name,route_type,route_color,route_text_color,path_type,circular,school
+41,1001,1001,Alfragide (Estr Seminario) - Reboleira (Estação),1001_0,1001,Alfragide (Estr Seminario) - Reboleira (Estação),3,C61D23,FFFFFF,1,0,0
+41,1002,1002,Reboleira (Estação) | Circular via Alfragide (Centro comercial ) e Amadora (Estação Sul),1002_0,1002,Reboleira (Estação) | Circular via Alfragide (Centro comercial ) e Amadora (Estação Sul),3,C61D23,FFFFFF,1,1,0
+41,1003,1003,Amadora (Estação Norte) - Amadora Este (Metro),1003_0,1003,Amadora (Estação Norte) - Amadora Este (Metro),3,C61D23,FFFFFF,1,0,0
+41,1004,1004,Amadora (Estação Norte) | Circular via Moinhos da Funcheira,1004_0,1004,Amadora (Estação Norte) via Moinhos da Funcheira | Circular,3,C61D23,FFFFFF,1,1,0
+41,1005,1005,Amadora (Estação Norte) - UBBO,1005_0,1005,Amadora (Estação Norte) - UBBO,3,C61D23,FFFFFF,1,0,0
+41,1005,1005,Amadora (Estação Norte) - UBBO,1005_1,1005,Casal São Brás - Amadora (Estação Norte),3,C61D23,FFFFFF,3,0,0
+41,1005,1005,Amadora (Estação Norte) - UBBO,1005_2,1005,Amadora (Estação Norte) | Circular madrugada,3,C61D23,FFFFFF,3,1,0
+41,1006,1006,Amadora (Estação Norte) - UBBO | Noturna,1006_0,1006,Amadora (Estação Norte) - UBBO | Noturna,3,C61D23,FFFFFF,1,0,0
+41,1006,1006,Amadora (Estação Norte) - UBBO | Noturna,1006_1,1006,Amadora (Estação Norte) - Moinhos Funcheira (Rotunda) | Noturna,3,C61D23,FFFFFF,3,0,0
+41,1008,1008,Amadora Este (Metro) | Circular,1008_0,1008,Amadora Este (Metro) | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1009,1009,Amadora (Hospital) | Circular Via Mina e Venteira,1009_0,1009,Amadora (Hospital) Via Mina e Venteira | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1010,1010,Alfornelos (Metro) - Casal da Mira,1010_0,1010,Alfornelos (Metro) - Casal da Mira,3,C61D23,FFFFFF,1,0,0
+41,1011,1011,Brandoa (Largo) - Reboleira (Metro),1011_0,1011,Brandoa (Largo) - Reboleira (Metro),3,C61D23,FFFFFF,1,0,0
+41,1011,1011,Brandoa (Largo) - Reboleira (Metro),1011_1,1011,Brandoa (Largo) - Reboleira (Metro) | Circular,3,C61D23,FFFFFF,3,1,0
+41,1012,1012,Alfornelos Metro | Circular via Brandoa,1012_0,1012,Alfornelos Metro via Brandoa | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1013,1013,Reboleira (Estação) - Urbanização Sky City via Casas do Lago,1013_0,1013,Reboleira (Estação) - Urbanização Sky City via Casas do Lago,3,C61D23,FFFFFF,1,0,0
+41,1014,1014,Amadora (Cemitério) - Vila Chã via Casas do Lago,1014_0,1014,Amadora (Cemitério) - Vila Chã via Casas do Lago,3,C61D23,FFFFFF,1,0,0
+41,1015,1015,Reboleira (Estação) | Circular via Damaia,1015_0,1015,Reboleira (Estação) via Damaia | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1101,1101,Alfragide (Centro Comercial) - Algés (Estação),1101_0,1101,Alfragide (Centro Comercial) - Algés (Estação),3,C61D23,FFFFFF,1,0,0
+41,1101,1101,Alfragide (Centro Comercial) - Algés (Estação),1101_1,1101,Alfragide (Centro Comercial) - Algés (Estação) via Carnaxide Esc. Sec,3,C61D23,FFFFFF,3,0,0
+41,1103,1103,Algés (Estação) - Queijas (PSP),1103_0,1103,Algés (Estação) - Queijas (PSP),3,C61D23,FFFFFF,1,0,0
+41,1104,1104,Algés | Circular via Centro Histórico,1104_0,1104,Algés | Circular via Centro Histórico,3,3D85C6,FFFFFF,1,1,0
+41,1105,1105,Algés (Estação) - Queluz Baixo (Centro Comercial),1105_0,1105,Algés (Estação) - Queluz Baixo (Centro Comercial),3,C61D23,FFFFFF,1,0,0
+41,1105,1105,Algés (Estação) - Queluz Baixo (Centro Comercial),1105_1,1105,Carnaxide (Escola Secundária) - Queluz Baixo (Centro Comercial),3,C61D23,FFFFFF,3,0,0
+41,1106,1106,Queluz Baixo (Centro Comercial) - Algés (Estação),1106_0,1106,Queluz Baixo (Centro Comercial) - Algés (Estação),3,C61D23,FFFFFF,1,0,0
+41,1106,1106,Queluz Baixo (Centro Comercial) - Algés (Estação),1106_1,1106,Algés (Estação) - Queijas (PSP),3,C61D23,FFFFFF,3,0,0
+41,1107,1107,Algés (Estação) - Queluz Baixo via Queijas,1107_0,1107,Algés (Estação) - Queluz Baixo via Queijas,3,C61D23,FFFFFF,1,0,0
+41,1108,1108,Algés - Carnaxide (Parque Suécia) via WTC,1108_0,1108,Algés - Carnaxide (Parque Suécia) via WTC,3,C61D23,FFFFFF,1,0,0
+41,1109,1109,Carnaxide | Circular via Outurela,1109_0,1109,Carnaxide via Outurela | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1110,1110,Carnaxide | Circular via Queijas,1110_0,1110,Carnaxide via Queijas | Circular,3,C61D23,FFFFFF,1,1,0
+41,1111,1111,Massamá-Barcarena (Estação Sul) - Barcarena (Fábrica Pólvora),1111_0,1111,Massamá-Barcarena (Estação Sul) - Barcarena (Fábrica Pólvora),3,C61D23,FFFFFF,1,0,0
+41,1113,1113,Algés (Estação) | Circular via Cruz Quebrada e Linda-a-Velha,1113_0,1113,Algés (Estação) via Cruz Quebrada e Linda-a-Velha | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1114,1114,Algés (Estação) | Circular via Linda-a-Velha e Miraflores,1114_0,1114,Algés (Estação) via Linda-a-Velha e Miraflores | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1115,1115,Caxias (Ped Italiana) - Lage (Centro),1115_0,1115,Caxias (Ped Italiana) - Lage (Centro),3,C61D23,FFFFFF,1,0,0
+41,1115,1115,Caxias (Ped Italiana) - Lage (Centro),1115_1,1115,Caxias (Ped Italiana) - Lage (Centro) via Escolas,3,C61D23,FFFFFF,3,0,0
+41,1115,1115,Caxias (Ped Italiana) - Lage (Centro),1115_2,1115,Caxias (Estação) - Paço de Arcos (Estação Norte),3,C61D23,FFFFFF,3,0,0
+41,1115,1115,Caxias (Ped Italiana) - Lage (Centro),1115_3,1115,Caxias (Ped Italiana) - Paço de Arcos (Estação Norte),3,C61D23,FFFFFF,3,0,0
+41,1115,1115,Caxias (Ped Italiana) - Lage (Centro),1115_4,1115,Paço de Arcos (Estação Norte) - Qta Torneiro,3,C61D23,FFFFFF,3,0,0
+41,1117,1117,Caxias (Qta Moura) - Lage (Centro),1117_0,1117,Caxias (Qta Moura) - Lage (Centro),3,C61D23,FFFFFF,1,0,0
+41,1117,1117,Caxias (Qta Moura) - Lage (Centro),1117_1,1117,Caxias (Qta Moura) - Lage (Centro) via Escolas,3,C61D23,FFFFFF,3,0,0
+41,1117,1117,Caxias (Qta Moura) - Lage (Centro),1117_2,1117,Paço de Arcos (Estação Norte) - Lage (Centro),3,C61D23,FFFFFF,3,0,0
+41,1117,1117,Caxias (Qta Moura) - Lage (Centro),1117_3,1117,Caxias (Qta Moura) - Paço de Arcos (Estação Norte),3,C61D23,FFFFFF,3,0,0
+41,1119,1119,Leceia (Rotunda) - Paço De Arcos (Estação Norte),1119_1,1119,Leceia (Rotunda) - Paço De Arcos (Estação Norte),3,C61D23,FFFFFF,3,0,0
+41,1120,1120,Oeiras (Estação Norte) - Paço De Arcos (Estação Norte),1120_0,1120,Oeiras (Estação Norte) - Paço De Arcos (Estação Norte),3,3D85C6,FFFFFF,1,0,0
+41,1121,1121,Oeiras | Circular via Piscina Oceânica,1121_0,1121,Oeiras via Piscina Oceânica | Circular,3,C61D23,FFFFFF,1,1,0
+41,1122,1122,Bº Joaquim Matias - Caxias (Ped Italiana),1122_0,1122,Bº Joaquim Matias - Caxias (Ped Italiana),3,C61D23,FFFFFF,1,0,0
+41,1123,1123,Paço De Arcos (Estação Norte) - Porto Salvo (Lagoas Park),1123_0,1123,Paço De Arcos (Estação Norte) - Porto Salvo (Lagoas Park),3,C61D23,FFFFFF,1,0,0
+41,1123,1123,Paço De Arcos (Estação Norte) - Porto Salvo (Lagoas Park),1123_1,1123,Porto Salvo (Lagoas Park) - Paço De Arcos (Estação Norte),3,C61D23,FFFFFF,3,0,0
+41,1124,1124,Paço de Arcos | Circular,1124_0,1124,Paço de Arcos | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1125,1125,Porto Salvo | Circular via Leião e Lage,1125_0,1125,Porto Salvo via Leião e Lage | Circular,3,C61D23,FFFFFF,1,1,0
+41,1201,1201,Terrugem (Escola) | Circular,1201_0,1201,Terrugem (Escola) | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1203,1203,Escola Secundária Mem Martins | Circular via Mem Martins (Estação),1203_0,1203,Escola Secundária Mem Martins | Circular via Mem Martins (Estação),3,3D85C6,FFFFFF,1,1,0
+41,1204,1204,Alto do Forte (Alegro Sintra) | Circular,1204_0,1204,Alto do Forte (Alegro Sintra) | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1204,1204,Alto do Forte (Alegro Sintra) | Circular,1204_1,1204,Rio de Mouro (Estação Norte) | Circular,3,3D85C6,FFFFFF,3,1,0
+41,1204,1204,Alto do Forte (Alegro Sintra) | Circular,1204_2,1204,Alto do Forte (Alegro Sintra) - Rio de Mouro (Estação Norte),3,3D85C6,FFFFFF,3,0,0
+41,1205,1205,Escola Secundária Mem Martins | Circular via Algueirão (Estação),1205_0,1205,Escola Secundária Mem Martins | Circular via Algueirão (Estação),3,3D85C6,FFFFFF,1,1,0
+41,1206,1206,Algueirão-Mem Martins (Estação) - Portela de Sintra (Estação Norte) via Tribunal e Hospital,1206_0,1206,Algueirão-Mem Martins (Estação) - Portela de Sintra (Estação) via Tribunal e Hospital,3,C61D23,FFFFFF,1,0,0
+41,1206,1206,Algueirão-Mem Martins (Estação) - Portela de Sintra (Estação Norte) via Tribunal e Hospital,1206_1,1206,Algueirão (Estação) - Portela de Sintra (Estação Norte) via Hospital,3,C61D23,FFFFFF,3,0,0
+41,1208,1208,Almargem Bispo (Cemitério) - Portela de Sintra (Estação Norte),1208_0,1208,Almargem Bispo (Cemitério) - Portela de Sintra (Estação Norte) via Hospital,3,C61D23,FFFFFF,1,0,0
+41,1209,1209,Bairro da Felosa - Mira Sintra (Mercado) via Cemitério,1209_0,1209,Bairro da Felosa - Mira Sintra (Mercado) via Cemitério,3,C61D23,FFFFFF,1,0,0
+41,1209,1209,Bairro da Felosa - Mira Sintra (Mercado) via Cemitério,1209_1,1209,Bairro da Felosa - Mira Sintra (Mercado),3,C61D23,FFFFFF,3,0,0
+41,1210,1210,Bairro Fitares - Mem Martins (Esc Secundária),1210_0,1210,Bairro Fitares - Mem Martins (Esc Secundária),3,3D85C6,FFFFFF,1,0,0
+41,1211,1211,Belas (Samaritana) - Agualva-Cacém (Estação),1211_0,1211,Belas (Samaritana) - Agualva-Cacém (Estação),3,C61D23,FFFFFF,1,0,0
+41,1212,1212,Venda Seca - Queluz (Estação),1212_0,1212,Venda Seca - Queluz (Estação),3,C61D23,FFFFFF,1,0,0
+41,1213,1213,Bº Joaquim Fontes (Centro Comercial) - Agualva-Cacém (Estação),1213_0,1213,Bº Joaquim Fontes (Centro Comercial) - Agualva-Cacém (Estação),3,C61D23,FFFFFF,1,0,0
+41,1215,1215,Agualva-Cacém (Estação) | Circular via Encosta S. Marcos,1215_0,1215,Agualva-Cacém (Estação) via Encosta S. Marcos | Circular,3,C61D23,FFFFFF,1,1,0
+41,1216,1216,Tercena (Estação) | Circular via São Marcos Taguspark (Novo Banco) e Casal do Cotão,1216_0,1216,Tercena (Estação) via São Marcos Taguspark (Novo Banco) e Casal do Cotão | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1216,1216,Tercena (Estação) | Circular via São Marcos Taguspark (Novo Banco) e Casal do Cotão,1216_1,1216,Tercena (Estação) via São Marcos e Casal do Cotão | Circular,3,3D85C6,FFFFFF,3,1,0
+41,1217,1217,Agualva-Cacém (Estação) - Massamá (Urbanização Norte),1217_0,1217,Agualva-Cacém (Estação) - Massamá (Urbanização Norte),3,C61D23,FFFFFF,1,0,0
+41,1218,1218,Agualva-Cacém (Estação) - Mira Sintra (Mercado) via Av Bomb Vol,1218_0,1218,Agualva-Cacém (Estação) - Mira Sintra (Mercado) via Av Bomb Vol,3,C61D23,FFFFFF,1,0,0
+41,1219,1219,Agualva-Cacém (Estação) - Mira Sintra (Mercado) via Av Santa Maria,1219_0,1219,Agualva-Cacém (Estação) - Mira Sintra (Mercado) via Av Santa Maria,3,C61D23,FFFFFF,1,0,0
+41,1220,1220,Agualva-Cacém (Estação) | Circular via S. Marcos (Largo),1220_0,1220,Agualva-Cacém (Estação) via S. Marcos (Largo) | Circular,3,C61D23,FFFFFF,1,1,0
+41,1221,1221,Agualva-Cacém (Estação) | Circular via Lopas,1221_0,1221,Agualva-Cacém (Estação) via Lopas | Circular,3,3D85C6,FFFFFF,1,0,0
+41,1222,1222,Agualva-Cacém (Estação) | Circular via Bairro Joaquim Fontes,1222_0,1222,Agualva-Cacém (Estação) via Bairro Joaquim Fontes | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1223,1223,Agualva-Cacém (Estação) - Portela Sintra (Estação Sul),1223_0,1223,Agualva-Cacém (Estação) - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1223,1223,Agualva-Cacém (Estação) - Portela Sintra (Estação Sul),1223_1,1223,Agualva-Cacém (Estação) - Portela Sintra (Estação Sul) via Vale Flores,3,C61D23,FFFFFF,3,0,0
+41,1223,1223,Agualva-Cacém (Estação) - Portela Sintra (Estação Sul),1223_2,1223,Agualva-Cacém (Estação) - Alto Do Forte (Alegro Sintra),3,C61D23,FFFFFF,3,0,0
+41,1224,1224,Belas Clube Campo - Monte Abraão (Estação) via Carregueira (Estabelecimento Prisional),1224_0,1224,Belas Clube Campo - Monte Abraão (Estação) via Carregueira (Estabelecimento Prisional),3,C61D23,FFFFFF,1,0,0
+41,1225,1225,Agualva-Cacém (Estação) | Circular Via Enc. S. Marcos Univ Católica e Bela Vista,1225_0,1225,Agualva-Cacém (Estação) Via Enc. S. Marcos Univ Católica e Bela Vista | Circular,3,C61D23,FFFFFF,1,1,0
+41,1226,1226,Massamá (Casal Olival) - Queluz - Belas (Estação),1226_0,1226,Massamá (Casal Olival) - Queluz - Belas (Estação),3,3D85C6,FFFFFF,1,0,0
+41,1228,1228,Massamá-Barcarena (Estação Norte) | Circular via Belas,1228_0,1228,Massamá-Barcarena (Estação Norte) via Belas | Circular,3,C61D23,FFFFFF,1,1,0
+41,1229,1229,Massamá-Barcarena (Estação Norte) | Circular via Quinta das Flores,1229_0,1229,Massamá-Barcarena (Estação Norte) via Quinta das Flores | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1230,1230,Monte Abraão (Estação) | Circular,1230_0,1230,Monte Abraão (Estação) | Circular,3,3D85C6,FFFFFF,1,0,0
+41,1231,1231,Mem Martins (Esc. Ferreira Castro) - Coutinho Afonso,1231_0,1231,Mem Martins (Esc. Ferreira Castro) - Coutinho Afonso,3,C61D23,FFFFFF,1,0,0
+41,1232,1232,Rio de Mouro (Estação Sul) | Circular via Mem Martins,1232_0,1232,Rio de Mouro (Estação Sul) via Mem Martins | Circular,3,C61D23,FFFFFF,1,1,0
+41,1233,1233,Agualva-Cacém (Estação) | Circular via Bela Vista Univ Católica e Enc. S. Marcos,1233_0,1233,Agualva-Cacém (Estação) | Circular via Bela Vista Univ Católica e Enc. S. Marcos,3,C61D23,FFFFFF,1,1,0
+41,1234,1234,Portela de Sintra (Estação Sul) - Mira Sintra (Junta Freguesia),1234_0,1234,Portela de Sintra (Estação Sul) - Mira Sintra (Junta Freguesia),3,C61D23,FFFFFF,1,0,0
+41,1235,1235,Covas Ferro - Mercês (Estação Norte),1235_0,1235,Covas Ferro - Mercês (Estação Norte),3,C61D23,FFFFFF,1,0,0
+41,1236,1236,Alto do Forte (Alegro Sintra) - Queluz - Belas (Estação),1236_0,1236,Alto do Forte (Alegro Sintra) - Queluz - Belas (Estação),3,C61D23,FFFFFF,1,0,0
+41,1240,1240,Negrais (Soc Recreativa) - Portela Sintra (Estação Norte),1240_0,1240,Negrais (Soc Recreativa) - Portela Sintra (Estação Norte),3,C61D23,FFFFFF,1,0,0
+41,1241,1241,Almoçageme (Mercado) - Hospital de Sintra,1241_0,1241,Almoçageme (Mercado) - Hospital de Sintra,3,C61D23,FFFFFF,1,0,0
+41,1242,1242,Casais Cabrela (Largo) - Almoçageme (Mercado),1242_0,1242,Casais Cabrela (Largo) - Almoçageme (Mercado),3,C61D23,FFFFFF,1,0,0
+41,1244,1244,Casal de Cambra (Escola) - Portela de Sintra (Estação Norte) via Hospital,1244_0,1244,Casal de Cambra (Escola) - Portela de Sintra (Estação Norte) via Hospital,3,C61D23,FFFFFF,1,0,0
+41,1245,1245,Catribana (Largo) - Portela Sintra (Estação Norte),1245_0,1245,Catribana (Largo) - Portela Sintra (Estação Norte),3,C61D23,FFFFFF,1,0,0
+41,1247,1247,Fontanelas - Portela de Sintra (Estação) via Janas,1247_0,1247,Fontanelas - Portela de Sintra (Estação) via Janas,3,C61D23,FFFFFF,1,0,0
+41,1248,1248,Portela Sintra (Estação Norte) - Praia Maçãs (Mercado),1248_0,1248,Portela Sintra (Estação Norte) - Praia Maçãs (Mercado),3,C61D23,FFFFFF,1,0,0
+41,1248,1248,Portela Sintra (Estação Norte) - Praia Maçãs (Mercado),1248_1,1248,Portela de Sintra (Estação Norte) - Fontanelas via Casal da Granja,3,C61D23,FFFFFF,3,0,0
+41,1249,1249,Portela Sintra (Estação Norte) - Magoito (Praia),1249_0,1249,Portela Sintra (Estação Norte) - Magoito (Praia),3,C61D23,FFFFFF,1,0,0
+41,1250,1250,Portela Sintra (Estação Norte) - Praia Grande,1250_0,1250,Portela Sintra (Estação Norte) - Praia Grande,3,C61D23,FFFFFF,1,0,0
+41,1251,1251,Portela de Sintra (Estação Sul) - Rio De Mouro (Estação Sul),1251_0,1251,Portela Sintra (Estação Sul) - Rio De Mouro (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1251,1251,Portela de Sintra (Estação Sul) - Rio De Mouro (Estação Sul),1251_1,1251,Alto Do Forte (Alegro Sintra) - Rio De Mouro (Estação Sul),3,C61D23,FFFFFF,3,0,0
+41,1251,1251,Portela de Sintra (Estação Sul) - Rio De Mouro (Estação Sul),1251_2,1251,Mem Martins (Estação) - Rio De Mouro (Estação Sul),3,C61D23,FFFFFF,3,0,0
+41,1251,1251,Portela de Sintra (Estação Sul) - Rio De Mouro (Estação Sul),1251_3,1251,Alto do Forte (Alegro Sintra) via Mem Martins | Circular,3,C61D23,FFFFFF,3,1,0
+41,1252,1252,Portela Sintra (Estação Sul) | Circular via Ranholas,1252_0,1252,Portela Sintra (Estação Sul) via Ranholas | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1253,1253,Sintra (Estação) via Cabo da Roca | Circular,1253_0,1253,Sintra (Estação) via Cabo da Roca | Circular,3,C61D23,FFFFFF,1,1,0
+41,1254,1254,Portela Sintra (Estação Norte) - Magoito (Praia),1254_0,1254,Portela Sintra (Estação Norte) - Magoito (Praia),3,C61D23,FFFFFF,1,0,0
+41,1255,1255,Rebanque - Portela Sintra (Estação Norte),1255_0,1255,Rebanque - Portela Sintra (Estação Norte),3,C61D23,FFFFFF,1,0,0
+41,1501,1501,Reboleira (Estação) | Circular via Alfragide (Zona Industrial e Centro comercial),1501_0,1501,Reboleira (Estação) | Circular via Alfragide (Zona Industrial e Centro comercial),3,3D85C6,FFFFFF,1,1,0
+41,1502,1502,Algés (Estação) - Amadora (Estação Sul) via Linda-a-Velha,1502_0,1502,Algés (Estação) - Amadora (Estação Sul) via Linda-a-Velha,3,C61D23,FFFFFF,1,0,0
+41,1503,1503,Algés (Estação) - Bº Zambujal via Miraflores,1503_0,1503,Algés (Estação) - Bº Zambujal,3,C61D23,FFFFFF,1,0,0
+41,1503,1503,Algés (Estação) - Bº Zambujal via Miraflores,1503_1,1503,Algés (Estação) - Alfragide (Zona Industrial) via Miraflores,3,C61D23,FFFFFF,3,0,0
+41,1504,1504,Algés (Estação) - Bº Zambujal,1504_0,1504,Algés (Estação) - Bº Zambujal,3,C61D23,FFFFFF,1,0,0
+41,1506,1506,Amadora (Hospital) via | Circular Alfragide e Damaia,1506_0,1506,Amadora (Hospital) via Alfragide e Damaia| Circular,3,C61D23,FFFFFF,1,1,0
+41,1507,1507,Caxias (Estação) - Reboleira (Metro),1507_0,1507,Caxias (Estação) - Reboleira (Metro),3,C61D23,FFFFFF,1,0,0
+41,1507,1507,Caxias (Estação) - Reboleira (Metro),1507_1,1507,Caxias (Estação) - Queijas (PSP),3,C61D23,FFFFFF,3,0,0
+41,1508,1508,Almargem Bispo (Centro Saúde) - Amadora Este (Metro),1508_0,1508,Almargem Bispo (Centro Saúde) - Amadora Este (Metro),3,C61D23,FFFFFF,1,0,0
+41,1509,1509,Amadora (Hospital) - Casal de Cambra (C. Saúde),1509_0,1509,Amadora (Hospital) - Casal de Cambra (C. Saúde),3,C61D23,FFFFFF,1,0,0
+41,1510,1510,Amadora (Hospital) - Damaia De Baixo (Pavilhão Desportivo),1510_0,1510,Amadora (Hospital) - Damaia De Baixo (Pavilhão Desportivo),3,3D85C6,FFFFFF,1,0,0
+41,1511,1511,Monte Abraão (Estação) | Circular via Amadora (Hospital),1511_0,1511,Monte Abraão (Estação) via Amadora (Hospital) | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1511,1511,Monte Abraão (Estação) | Circular via Amadora (Hospital),1511_1,1511,Monte Abraão (Estação) via Cemitério e Amadora (Hospital) | Circular,3,3D85C6,FFFFFF,3,1,0
+41,1512,1512,Amadora (Hospital) - Montelavar (Largo),1512_0,1512,Amadora (Hospital) - Montelavar (Largo),3,C61D23,FFFFFF,1,0,0
+41,1512,1512,Amadora (Hospital) - Montelavar (Largo),1512_1,1512,Monte Abraão (Estação) - Montelavar (Largo),3,C61D23,FFFFFF,3,0,0
+41,1513,1513,Amadora (Hospital) | Circular,1513_0,1513,Amadora (Hospital) | Circular,3,3D85C6,FFFFFF,1,1,0
+41,1513,1513,Amadora (Hospital) | Circular,1513_1,1513,Amadora (Hospital) - Queluz-Belas (Estação),3,3D85C6,FFFFFF,3,0,0
+41,1513,1513,Amadora (Hospital) | Circular,1513_2,1513,Amadora (Hospital) via Escola Padre Alberto Neto | Circular,3,3D85C6,FFFFFF,3,1,0
+41,1513,1513,Amadora (Hospital) | Circular,1513_3,1513,Amadora (Hospital) via Escola Padre Alberto Neto quando sai do Hospital | Circular,3,3D85C6,FFFFFF,3,1,0
+41,1513,1513,Amadora (Hospital) | Circular,1513_4,1513,Amadora (Hospital) via Escola Padre Alberto Neto quando vai para o Hospital | Circular,3,3D85C6,FFFFFF,3,1,0
+41,1514,1514,Amadora (Hospital) | Circular via Alfornelos,1514_0,1514,Amadora (Hospital) via Alfornelos| Circular,3,C61D23,FFFFFF,1,0,0
+41,1515,1515,Amadora Este (Metro) - Casal de Cambra via Queluz-Belas (Estação),1515_0,1515,Amadora Este (Metro) - Casal Cambra via Queluz-Belas (Estação),3,C61D23,FFFFFF,1,0,0
+41,1515,1515,Amadora Este (Metro) - Casal de Cambra via Queluz-Belas (Estação),1515_1,1515,A-da-Beja - Amadora Este (Metro),3,C61D23,FFFFFF,3,0,0
+41,1516,1516,Casal Cambra (Igreja) - Monte Abraão (Estação),1516_0,1516,Casal Cambra (Igreja) - Monte Abraão (Estação),3,C61D23,FFFFFF,1,0,0
+41,1517,1517,Casal de Cambra (C Rebentão) - Reboleira (Metro),1517_0,1517,Casal de Cambra (C Rebentão) - Reboleira (Metro),3,C61D23,FFFFFF,1,0,0
+41,1518,1518,Monte Abraão - Reboleira (Metro),1518_0,1518,Monte Abraão - Reboleira (Metro),3,C61D23,FFFFFF,1,0,0
+41,1518,1518,Monte Abraão - Reboleira (Metro),1518_1,1518,Monte Abraão - Queluz (4 Caminhos),3,C61D23,FFFFFF,3,0,0
+41,1519,1519,Queluz (Palácio) - Serra Silveira,1519_0,1519,Queluz (Palácio) - Serra Silveira,3,C61D23,FFFFFF,1,0,0
+41,1520,1520,Algés (Estação) - Agualva-Cacém (Estação),1520_0,1520,Algés (Estação) - Agualva-Cacém (Estação),3,C61D23,FFFFFF,1,0,0
+41,1521,1521,Algés (Estação) - Agualva-Cacém (Estação) via A5,1521_0,1521,Algés (Estação) - Agualva-Cacém (Estação) via A5,3,C61D23,FFFFFF,1,0,0
+41,1522,1522,Algés (Estação) - Monte Abraão (Estação),1522_0,1522,Algés (Estação) - Monte Abraão (Estação),3,C61D23,FFFFFF,1,0,0
+41,1523,1523,Agualva-Cacém (Estação) - Oeiras (Estação),1523_0,1523,Agualva-Cacém (Estação) - Oeiras (Estação),3,C61D23,FFFFFF,1,0,0
+41,1524,1524,Tercena (Estação) | Circular via Casal do Cotão – Taguspark,1524_0,1524,Tercena (Estação) | Circular via Casal do Cotão – Taguspark,3,3D85C6,FFFFFF,1,0,0
+41,1525,1525,Caxias (Est. Prisional) - Monte Abraão (Estação),1525_0,1525,Caxias (Est. Prisional) - Monte Abraão (Estação),3,C61D23,FFFFFF,1,0,0
+41,1525,1525,Caxias (Est. Prisional) - Monte Abraão (Estação),1525_1,1525,Caxias (Estação) - Monte Abraão (Estação),3,C61D23,FFFFFF,3,0,0
+41,1525,1525,Caxias (Est. Prisional) - Monte Abraão (Estação),1525_2,1525,Caxias (Estação) - Massamá-Barcarena (Estação Sul),3,C61D23,FFFFFF,3,0,0
+41,1525,1525,Caxias (Est. Prisional) - Monte Abraão (Estação),1525_4,1525,Escola S Bruno - Leceia (Igreja),3,C61D23,FFFFFF,3,0,0
+41,1527,1527,Cruz Quebrada (Estação) - Queluz (Estação),1527_0,1527,Cruz Quebrada (Estação) - Queluz (Estação),3,C61D23,FFFFFF,1,0,0
+41,1527,1527,Cruz Quebrada (Estação) - Queluz (Estação),1527_1,1527,Cruz Quebrada (Estação) - Queluz Baixo (Centro Comercial),3,C61D23,FFFFFF,3,0,0
+41,1528,1528,Linda-a-Velha (Esc Secundária) - Queluz - Belas (Estação),1528_0,1528,Linda-a-Velha (Esc Secundária) - Queluz - Belas (Estação),3,C61D23,FFFFFF,1,0,0
+41,1529,1529,Oeiras (Estação Norte) - Barcarena (Fábrica da Pólvora) via Taguspark (Novo Banco),1529_0,1529,Oeiras (Estação Norte) - Barcarena (Fábrica da Pólvora) via Taguspark (Novo Banco),3,C61D23,FFFFFF,1,0,0
+41,1529,1529,Oeiras (Estação Norte) - Barcarena (Fábrica da Pólvora) via Taguspark (Novo Banco),1529_1,1529,Oeiras (Estação Norte) - Barcarena (Fábrica da Pólvora),3,C61D23,FFFFFF,3,0,0
+41,1530,1530,Oeiras (Estação Norte) - Queluz (4 Caminhos),1530_0,1530,Oeiras (Estação Norte) - Queluz (4 Caminhos),3,C61D23,FFFFFF,1,0,0
+41,1531,1531,Paço De Arcos (Estação Norte) - São Marcos (Rotunda),1531_0,1531,Paço De Arcos (Estação Norte) - São Marcos (Rotunda),3,C61D23,FFFFFF,1,0,0
+41,1601,1601,Amadora Este (Metro) - Carcavelos (Praia),1601_0,1601,Amadora Este (Metro) – Carcavelos (Praia),3,C61D23,FFFFFF,1,0,0
+41,1601,1601,Amadora Este (Metro) - Carcavelos (Praia),1601_1,1601,Amadora Este (Metro) - Carcavelos (Praia) via Rotunda C. Comercial,3,C61D23,FFFFFF,3,0,0
+41,1601,1601,Amadora Este (Metro) - Carcavelos (Praia),1601_4,1601,Porto Salvo (Centro) - Amadora Este (Metro),3,C61D23,FFFFFF,3,0,0
+41,1601,1601,Amadora Este (Metro) - Carcavelos (Praia),1601_5,1601,Carcavelos (Praia) - Queluz (4 Caminhos),3,C61D23,FFFFFF,3,0,0
+41,1603,1603,Amadora (Estação Norte) - Caneças (Largo Vieira Caldas),1603_0,1603,Amadora (Estação Norte) - Caneças (Largo Vieira Caldas),3,C61D23,FFFFFF,1,0,0
+41,1604,1604,Carcavelos (Estação) | Circular via Oeiras Parque,1604_0,1604,Carcavelos (Estação) | Circular via Oeiras Parque,3,C61D23,FFFFFF,1,1,0
+41,1605,1605,Carnaxide (Av. João Paulo II) - Carcavelos (Nova SBE) via A5,1605_0,1605,Carnaxide (Av. João Paulo II) - Carcavelos (Nova SBE) via A5,3,C61D23,FFFFFF,1,0,0
+41,1606,1606,Carnaxide (Av. João Paulo II) - Carcavelos (Nova SBE) via Terrugem,1606_0,1606,Carnaxide (Av. João Paulo II) - Carcavelos (Nova SBE) via Terrugem,3,C61D23,FFFFFF,1,0,0
+41,1607,1607,Oeiras Parque - Parede (Terminal),1607_0,1607,Oeiras Parque - Parede (Terminal),3,C61D23,FFFFFF,1,0,0
+41,1608,1608,Oeiras (Estação Norte) - Taguspark (Rotunda Sef),1608_0,1608,Oeiras (Estação Norte) - Taguspark (Rotunda Sef),3,C61D23,FFFFFF,1,0,0
+41,1608,1608,Oeiras (Estação Norte) - Taguspark (Rotunda Sef),1608_1,1608,Oeiras (Estação Norte) - Conceição Abóboda (Rotunda),3,C61D23,FFFFFF,3,0,0
+41,1610,1610,Paço De Arcos (Estação Norte) - Talaíde (Campo Futebol),1610_0,1610,Paço De Arcos (Estação Norte) - Talaíde (Campo Futebol),3,C61D23,FFFFFF,1,0,0
+41,1610,1610,Paço De Arcos (Estação Norte) - Talaíde (Campo Futebol),1610_1,1610,Paço De Arcos (Estação Norte) - Talaíde (Campo Futebol) via Leião,3,C61D23,FFFFFF,3,0,0
+41,1611,1611,Paço de Arcos (Estação Norte) - Talaíde (Campo Futebol) via Vila Fria,1611_0,1611,Paço de Arcos (Estação Norte) - Talaíde (Campo Futebol) via Vila Fria,3,C61D23,FFFFFF,1,0,0
+41,1612,1612,Agualva-Cacém (Estação) - Carcavelos (Estação) via Taguspark (Novo Banco),1612_0,1612,Agualva-Cacém (Estação) - Carcavelos (Estação) via Taguspark (Novo Banco),3,C61D23,FFFFFF,1,0,0
+41,1612,1612,Agualva-Cacém (Estação) - Carcavelos (Estação) via Taguspark (Novo Banco),1612_1,1612,Agualva Cacém (Estação) - Carcavelos (Estação),3,C61D23,FFFFFF,3,0,0
+41,1613,1613,Agualva-Cacém (Estação) - Oeiras (Estação Sul) via Trajouce,1613_0,1613,Agualva-Cacém (Estação) - Oeiras (Estação Sul) via Trajouce,3,C61D23,FFFFFF,1,0,0
+41,1613,1613,Agualva-Cacém (Estação) - Oeiras (Estação Sul) via Trajouce,1613_1,1613,Agualva-Cacém (Estação) - Abóboda,3,C61D23,FFFFFF,3,0,0
+41,1614,1614,Carcavelos (Estação) - Portela Sintra (Estação Sul) via Abóboda,1614_0,1614,Carcavelos (Estação) - Portela Sintra (Estação Sul) via Abóboda,3,C61D23,FFFFFF,1,0,0
+41,1614,1614,Carcavelos (Estação) - Portela Sintra (Estação Sul) via Abóboda,1614_2,1614,Abóboda - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,3,0,0
+41,1615,1615,Carcavelos (Estação) - Rio de Mouro (Estação Sul) via Abóboda,1615_0,1615,Carcavelos (Estação) - Rio de Mouro (Estação Sul) via Abóboda,3,C61D23,FFFFFF,1,0,0
+41,1615,1615,Carcavelos (Estação) - Rio de Mouro (Estação Sul) via Abóboda,1615_2,1615,Abóboda - Rio De Mouro (Estação Sul),3,C61D23,FFFFFF,3,0,0
+41,1616,1616,Paço de Arcos (Estação Norte) - Taguspark (Rotunda SEF) via Bº Navegadores,1616_0,1616,Paço de Arcos (Estação Norte) – Taguspark (Rotunda SEF) via Bº Navegadores,3,C61D23,FFFFFF,1,0,0
+41,1616,1616,Paço de Arcos (Estação Norte) - Taguspark (Rotunda SEF) via Bº Navegadores,1616_1,1616,Paço de Arcos (Estação Norte) – Taguspark (Rotunda SEF) via Esc. Prep. Paço de Arcos e Leião (X Talaíde),3,C61D23,FFFFFF,3,0,0
+41,1616,1616,Paço de Arcos (Estação Norte) - Taguspark (Rotunda SEF) via Bº Navegadores,1616_2,1616,Paço de Arcos (Estação Norte) – Taguspark (Rotunda SEF) via Esc. Prep. Paço de Arcos,3,C61D23,FFFFFF,3,0,0
+41,1616,1616,Paço de Arcos (Estação Norte) - Taguspark (Rotunda SEF) via Bº Navegadores,1616_3,1616,Paço de Arcos (Estação Norte) – Talaíde (Campo Futebol) via Esc. Prep. Paço de Arcos,3,C61D23,FFFFFF,3,0,0
+41,1617,1617,Paço De Arcos (Estação Norte) - Talaíde (Igreja),1617_0,1617,Paço De Arcos (Estação Norte) - Talaíde (Igreja),3,C61D23,FFFFFF,1,0,0
+41,1617,1617,Paço De Arcos (Estação Norte) - Talaíde (Igreja),1617_1,1617,Paço De Arcos (Estação Norte) - Talaíde (Igreja) via Esc. Prep. Paço de Arcos,3,C61D23,FFFFFF,3,0,0
+41,1618,1618,Carcavelos (Estação) - Portela Sintra (Estação Sul),1618_0,1618,Carcavelos (Estação) - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1619,1619,Carcavelos (Estação) - Rio de Mouro (Estação Sul),1619_0,1619,Carcavelos (Estação) - Rio de Mouro (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1620,1620,Cascais (Terminal) - Portela Sintra (Estação Sul),1620_0,1620,Cascais (Terminal) - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1621,1621,Cascais (Terminal) - Portela de Sintra (Estação Sul) | via CascaiShopping (Terminal),1621_0,1621,Cascais (Terminal) - Portela de Sintra (Estação Sul) | via CascaiShopping (Terminal),3,C61D23,FFFFFF,1,0,0
+41,1622,1622,Agualva-Cacém (Estação) - Carcavelos (Estação) via Trajouce,1622_0,1622,Agualva-Cacém (Estação) - Carcavelos (Estação) via Trajouce,3,C61D23,FFFFFF,1,0,0
+41,1622,1622,Agualva-Cacém (Estação) - Carcavelos (Estação) via Trajouce,1622_1,1622,Rio de Mouro Velho | Circular via Paiões,3,C61D23,FFFFFF,3,1,0
+41,1623,1623,Cascais (Terminal) - Portela Sintra (Estação Sul) via Alvide,1623_0,1623,Cascais (Terminal) - Portela Sintra (Estação Sul) via Alvide,3,C61D23,FFFFFF,1,0,0
+41,1624,1624,Cascais (Terminal) - Portela Sintra (Estação Norte) via Cabo da Roca,1624_0,1624,Cascais (Terminal) - Portela de Sintra (Estação Norte) via Azóia e Almoçageme,3,C61D23,FFFFFF,1,0,0
+41,1624,1624,Cascais (Terminal) - Portela Sintra (Estação Norte) via Cabo da Roca,1624_1,1624,Cascais (Terminal) - Portela Sintra (Estação Norte) via Cabo Roca,3,C61D23,FFFFFF,3,0,0
+41,1625,1625,Cascais (Terminal) - Rio De Mouro (Estação Sul) via Rua das Fisgas,1625_0,1625,Cascais (Terminal) - Rio De Mouro (Estação Sul) via Rua das Fisgas,3,C61D23,FFFFFF,1,0,0
+41,1626,1626,CascaiShopping (Terminal) - Portela Sintra (Estação Sul),1626_0,1626,CascaiShopping (Terminal) - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1627,1627,CascaiShopping (Terminal) - Rio De Mouro (Estação Sul),1627_0,1627,CascaiShopping (Terminal) - Rio De Mouro (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1628,1628,Estoril (Estação) - Rio De Mouro (Estação Sul) via Amoreira,1628_0,1628,Estoril (Estação) - Rio De Mouro (Estação Sul) via Amoreira,3,C61D23,FFFFFF,1,0,0
+41,1629,1629,Estoril (Estação) - Portela Sintra (Estação Sul),1629_0,1629,Estoril (Estação) - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1630,1630,Estoril (Estação) - Portela Sintra (Estação Sul) via Monte Estoril,1630_0,1630,Estoril (Estação) - Portela Sintra (Estação Sul) via Monte Estoril,3,C61D23,FFFFFF,1,0,0
+41,1630,1630,Estoril (Estação) - Portela Sintra (Estação Sul) via Monte Estoril,1630_1,1630,Linhó - Estoril (Estação),3,C61D23,FFFFFF,3,0,0
+41,1630,1630,Estoril (Estação) - Portela Sintra (Estação Sul) via Monte Estoril,1630_2,1630,Bº Cruz Vermelha - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,3,0,0
+41,1630,1630,Estoril (Estação) - Portela Sintra (Estação Sul) via Monte Estoril,1630_3,1630,Alcabideche (GNR) - Portela Sintra (Estação Sul),3,C61D23,FFFFFF,3,0,0
+41,1630,1630,Estoril (Estação) - Portela Sintra (Estação Sul) via Monte Estoril,1630_4,1630,Portela Sintra (Estação Sul) - CascaiShopping (Terminal),3,C61D23,FFFFFF,3,0,0
+41,1631,1631,Estoril (Estação) - Rio De Mouro (Estação Sul),1631_0,1631,Estoril (Estação) - Rio De Mouro (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1632,1632,Carvalhal (Largo) - Portela Sintra (Estação Norte),1632_0,1632,Carvalhal (Largo) - Portela Sintra (Estação Norte),3,C61D23,FFFFFF,1,0,0
+41,1632,1632,Carvalhal (Largo) - Portela Sintra (Estação Norte),1632_1,1632,Casais Cabrela (Largo) - Terrugem (Igreja),3,C61D23,FFFFFF,3,0,0
+41,1632,1632,Carvalhal (Largo) - Portela Sintra (Estação Norte),1632_2,1632,Terrugem (Igreja) - Carvalhal (Largo),3,C61D23,FFFFFF,3,0,0
+41,1632,1632,Carvalhal (Largo) - Portela Sintra (Estação Norte),1632_3,1632,Casais Cabrela (Largo) - Portela Sintra (Estação Norte),3,C61D23,FFFFFF,3,0,0
+41,1633,1633,Ericeira (Terminal) - Portela de Sintra (Estação Norte),1633_0,1633,Ericeira (Terminal) - Portela de Sintra (Estação Norte),3,C61D23,FFFFFF,1,0,0
+41,1633,1633,Ericeira (Terminal) - Portela de Sintra (Estação Norte),1633_1,1633,Ericeira (Terminal Rodoviário) - Portela Sintra (Estação Norte) via Praia S. Julião,3,C61D23,FFFFFF,3,0,0
+41,1634,1634,Fonte Da Aranha - Montelavar (Largo),1634_0,1634,Fonte Da Aranha - Montelavar (Largo),3,C61D23,FFFFFF,1,0,0
+41,1635,1635,Almargem Bispo (Largo) - Caneças (Largo Vieira Caldas),1635_0,1635,Almargem Bispo (Largo) - Caneças (Largo Vieira Caldas),3,C61D23,FFFFFF,1,0,0
+41,1635,1635,Almargem Bispo (Largo) - Caneças (Largo Vieira Caldas),1635_1,1635,Almargem Bispo (Largo) - Caneças (Largo Vieira Caldas) via Covas Ferro,3,C61D23,FFFFFF,3,0,0
+41,1636,1636,Caneças (B Maria Teresa) - D Maria (Igreja),1636_0,1636,Caneças (B Maria Teresa) - D Maria (Igreja),3,C61D23,FFFFFF,1,0,0
+41,1636,1636,Caneças (B Maria Teresa) - D Maria (Igreja),1636_1,1636,Caneças (Largo Vieira Caldas) - D Maria (Igreja),3,C61D23,FFFFFF,3,0,0
+41,1637,1637,Casal Cambra - Vale Lobos (Largo),1637_0,1637,Casal Cambra - Vale Lobos (Largo),3,C61D23,FFFFFF,1,0,0
+41,1638,1638,Oeiras (Estação Norte) - Parede (Terminal),1638_0,1638,Oeiras (Estação Norte) - Parede (Terminal),3,C61D23,FFFFFF,1,0,0
+41,1638,1638,Oeiras (Estação Norte) - Parede (Terminal),1638_1,1638,Aboboda (Sociedade) - Parede (Terminal),3,C61D23,FFFFFF,3,0,0
+41,1638,1638,Oeiras (Estação Norte) - Parede (Terminal),1638_2,1638,Oeiras (Estação Norte) - Parede (Terminal) via Escola,3,C61D23,FFFFFF,3,0,0
+41,1638,1638,Oeiras (Estação Norte) - Parede (Terminal),1638_3,1638,Oeiras (Estação Norte) - Parede (Terminal) via Mercado,3,C61D23,FFFFFF,3,0,0
+41,1639,1639,Cascais (Terminal) - Rio De Mouro (Estação Sul),1639_0,1639,Cascais (Terminal) - Rio De Mouro (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1701,1701,Algés (Estação) - Colégio Militar (Metro),1701_0,1701,Algés (Estação) - Colégio Militar (Metro),3,C61D23,FFFFFF,1,0,0
+41,1703,1703,Amadora (Estação Norte) - Pontinha (Metro),1703_0,1703,Amadora (Estação Norte) - Pontinha (Metro),3,C61D23,FFFFFF,1,0,0
+41,1704,1704,Marquês Pombal (Metro) - Amadora (Hospital),1704_0,1704,Amadora (Hospital) - Marquês Pombal (Metro),3,C61D23,FFFFFF,1,0,0
+41,1706,1706,Colégio Militar (Metro) - UBBO via Brandoa,1706_0,1706,Colégio Militar (Metro) - UBBO via Brandoa,3,C61D23,FFFFFF,1,0,0
+41,1706,1706,Colégio Militar (Metro) - UBBO via Brandoa,1706_1,1706,Benfica (R Pereira Bernardes) - Brandoa (Alto),3,C61D23,FFFFFF,3,0,0
+41,1706,1706,Colégio Militar (Metro) - UBBO via Brandoa,1706_2,1706,Colégio Militar (Metro) - Brandoa (Alto),3,C61D23,FFFFFF,3,0,0
+41,1707,1707,Colégio Militar (Metro) – Casal Mira (UBBO) via Amadora Este (Metro),1707_0,1707,Colégio Militar (Metro) – Casal Mira (UBBO) via Amadora Este (Metro),3,C61D23,FFFFFF,1,0,0
+41,1707,1707,Colégio Militar (Metro) – Casal Mira (UBBO) via Amadora Este (Metro),1707_1,1707,Casal Mira (Escola Primária) - Colégio Militar (Metro) via Amadora Este (Metro),3,C61D23,FFFFFF,3,0,0
+41,1708,1708,Casal Mira (Centro Comercial) | Circular,1708_0,1708,Casal Mira (Centro Comercial) | Circular,3,C61D23,FFFFFF,1,1,0
+41,1708,1708,Casal Mira (Centro Comercial) | Circular,1708_1,1708,Brandoa (Alto) – Circular,3,C61D23,FFFFFF,3,1,0
+41,1708,1708,Casal Mira (Centro Comercial) | Circular,1708_2,1708,Casal Mira (Centro Comercial) – Brandoa (Alto) via Colégio Militar,3,C61D23,FFFFFF,3,0,0
+41,1709,1709,Caneças (Largo Jardim) - Colégio Militar (Metro),1709_0,1709,Caneças (Largo Jardim) - Colégio Militar (Metro),3,C61D23,FFFFFF,1,0,0
+41,1709,1709,Caneças (Largo Jardim) - Colégio Militar (Metro),1709_1,1709,Caneças (Largo Jardim) - Pontinha (Metro),3,C61D23,FFFFFF,3,0,0
+41,1710,1710,Caneças (Qtª São Carlos) - Pontinha (Metro),1710_3,1710,Caneças (Qtª São Carlos) - Pontinha (Metro),3,C61D23,FFFFFF,3,0,0
+41,1711,1711,Caneças (Esc. Secundária) - Pontinha (Metro),1711_0,1711,Caneças (Esc. Secundária) - Pontinha (Metro),3,C61D23,FFFFFF,1,0,0
+41,1712,1712,Algés (Estação) - Amadora (Estação Sul),1712_0,1712,Algés (Estação) - Amadora (Estação Sul),3,C61D23,FFFFFF,1,0,0
+41,1713,1713,Algés (Estação) - Amadora Este (Metro),1713_0,1713,Algés (Estação) - Amadora Este (Metro),3,C61D23,FFFFFF,1,0,0
+41,1714,1714,Amadora (Estação Sul) - Belém (Estação),1714_0,1714,Amadora (Estação Sul) - Belém (Estação),3,C61D23,FFFFFF,1,0,0
+41,1715,1715,Belém (Estação) - Mira Sintra (Mercado),1715_0,1715,Belém (Estação) - Mira Sintra (Mercado),3,C61D23,FFFFFF,1,0,0
+41,1715,1715,Belém (Estação) - Mira Sintra (Mercado),1715_1,1715,Belém (Estação) - Agualva-Cacém (Estação),3,C61D23,FFFFFF,3,0,0
+41,1716,1716,Idanha (Urb Campinas) - Marquês Pombal (Metro),1716_0,1716,Idanha (Urb Campinas) - Marquês Pombal (Metro),3,C61D23,FFFFFF,1,0,0
+41,1716,1716,Idanha (Urb Campinas) - Marquês Pombal (Metro),1716_1,1716,Idanha (Urb Campinas) - Queluz - Belas (Estação),3,C61D23,FFFFFF,3,0,0
+41,1717,1717,Colégio Militar (Metro) -Massamá-Barcarena (Estação Sul) via Amadora Este (Metro),1717_0,1717,Colégio Militar (Metro) - Massamá-Barcarena (Estação Sul) via Amadora Este (Metro),3,C61D23,FFFFFF,1,0,0
+41,1718,1718,Grajal - Belém (Estação),1718_0,1718,Grajal - Belém (Estação),3,C61D23,FFFFFF,1,0,0
+41,1719,1719,Casal de Cambra - Colégio Militar (Metro),1719_0,1719,Casal de Cambra - Colégio Militar (Metro),3,C61D23,FFFFFF,1,0,0
+41,1720,1720,Casal de Cambra - Colégio Militar (Metro) via Queluz-Belas (Estação),1720_0,1720,Casal de Cambra - Colégio Militar (Metro) via Queluz-Belas (Estação),3,C61D23,FFFFFF,1,0,0
+41,1720,1720,Casal de Cambra - Colégio Militar (Metro) via Queluz-Belas (Estação),1720_1,1720,A-da-Beja - Colégio Militar (Metro),3,C61D23,FFFFFF,3,0,0
+41,1721,1721,Colégio Militar (Metro) - Massamá (Casal Olival) via Amadora Este (Metro),1721_0,1721,Colégio Militar (Metro) - Massamá (Casal do Olival) via Amadora Este (Metro),3,C61D23,FFFFFF,1,0,0
+41,1721,1721,Colégio Militar (Metro) - Massamá (Casal Olival) via Amadora Este (Metro),1721_2,1721,Massamá (Casal Olival) - Queluz (4 Caminhos),3,C61D23,FFFFFF,3,0,0
+41,1722,1722,Alfragide (Centro Comercial) - Hospital São Francisco Xavier,1722_0,1722,Alfragide (Centro Comercial) - Hospital São Francisco Xavier,3,C61D23,FFFFFF,1,0,0
+41,1723,1723,Carnaxide (Av Portugal) - Marquês Pombal (Metro),1723_0,1723,Carnaxide (Av Portugal) - Marquês Pombal (Metro),3,C61D23,FFFFFF,1,0,0
+41,1724,1724,Linda-a-Velha – Marquês Pombal (Metro) via Alto Sta Catarina,1724_0,1724,Linda-a-Velha – Marquês Pombal (Metro) via Alto Sta Catarina,3,C61D23,FFFFFF,1,0,0
+41,1724,1724,Linda-a-Velha – Marquês Pombal (Metro) via Alto Sta Catarina,1724_1,1724,Linda-a-Velha (Alto Sta Catarina) – Marquês Pombal (Metro),3,C61D23,FFFFFF,3,0,0
+41,1724,1724,Linda-a-Velha – Marquês Pombal (Metro) via Alto Sta Catarina,1724_2,1724,Marquês Pombal (Metro) via Linda-a-Velha | Circular,3,C61D23,FFFFFF,3,1,0
+41,1724,1724,Linda-a-Velha – Marquês Pombal (Metro) via Alto Sta Catarina,1724_3,1724,Linda-a-Velha – Marquês Pombal (Metro),3,C61D23,FFFFFF,3,0,0
+41,1725,1725,Marquês Pombal (Metro) - Oeiras (Estação Norte),1725_0,1725,Marquês Pombal (Metro) - Oeiras (Estação Norte),3,C61D23,FFFFFF,1,0,0
+41,1726,1726,Marquês Pombal (Metro) - Queijas (PSP),1726_0,1726,Marquês Pombal (Metro) - Queijas (PSP),3,C61D23,FFFFFF,1,0,0
+41,1726,1726,Marquês Pombal (Metro) - Queijas (PSP),1726_1,1726,Marquês Pombal (Metro) - Queijas (PSP) via Carnaxide Esc. Sec,3,C61D23,FFFFFF,3,0,0
+41,1726,1726,Marquês Pombal (Metro) - Queijas (PSP),1726_2,1726,Marquês Pombal (Metro) - Carnaxide (Escola Secundária),3,C61D23,FFFFFF,3,0,0
+41,1728,1728,Marquês Pombal (Metro) - Queijas (PSP) via Alto Sta Catarina,1728_0,1728,Marquês Pombal (Metro) - Queijas (PSP) via Alto Sta Catarina,3,C61D23,FFFFFF,1,0,0
+41,1728,1728,Marquês Pombal (Metro) - Queijas (PSP) via Alto Sta Catarina,1728_1,1728,Marquês Pombal (Metro) - Queijas (PSP) via Linda-a-Velha,3,C61D23,FFFFFF,3,0,0
+41,1729,1729,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial),1729_0,1729,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial),3,C61D23,FFFFFF,1,0,0
+41,1729,1729,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial),1729_1,1729,Marquês Pombal (Metro) - Queijas (PSP),3,C61D23,FFFFFF,3,0,0
+41,1730,1730,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial) via Linda-a-Velha,1730_0,1730,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial) via Linda-a-Velha,3,C61D23,FFFFFF,1,0,0
+41,1730,1730,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial) via Linda-a-Velha,1730_1,1730,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial) via Linda-a-Velha e Alto Sta Catarina,3,C61D23,FFFFFF,3,0,0
+41,1730,1730,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial) via Linda-a-Velha,1730_2,1730,Queluz Baixo (Centro Comercial) - Marquês Pombal (Metro) via Carnaxide Esc. Sec,3,C61D23,FFFFFF,3,0,0
+41,1730,1730,Marquês Pombal (Metro) - Queluz Baixo (Centro Comercial) via Linda-a-Velha,1730_3,1730,Queluz Baixo (Centro Comercial) - Marquês Pombal (Metro),3,C61D23,FFFFFF,3,0,0
+41,1731,1731,Agualva-Cacém (Estação) - Hospital São Francisco Xavier,1731_0,1731,Agualva-Cacém (Estação) - Hospital São Francisco Xavier,3,C61D23,FFFFFF,1,0,0
+41,1733,1733,Marquês Pombal (Metro) - São Marcos via Queijas (Rotunda) e Taguspark,1733_0,1733,Marquês Pombal (Metro) - São Marcos via Queijas (Rotunda) e Taguspark,3,C61D23,FFFFFF,1,0,0
+41,1733,1733,Marquês Pombal (Metro) - São Marcos via Queijas (Rotunda) e Taguspark,1733_1,1733,Marquês Pombal (Metro) - São Marcos via Queijas e TagusPark,3,C61D23,FFFFFF,3,0,0
+41,1733,1733,Marquês Pombal (Metro) - São Marcos via Queijas (Rotunda) e Taguspark,1733_2,1733,São Marcos - Marquês Pombal (Metro),3,C61D23,FFFFFF,3,0,0
+41,1740,1740,Marquês de Pombal (Metro)- Algueirão-Mem Martins (Estação),1740_0,1740,Marquês de Pombal (Metro) - Algueirão-Mem Martins (Estação),3,C61D23,FFFFFF,1,0,0
+41,1741,1741,Marquês de Pombal (Metro)- Monte Abraão (Estação) via Algés,1741_0,1741,Marquês de Pombal (Metro) -Monte Abraão (Estação) via Algés,3,C61D23,FFFFFF,1,0,0
+41,1997,1997,Cascais - Caxias,1997_0,1997,Cascais - Caxias,3,2A9057,FFFFFF,3,0,0
+41,1997,1997,Caxias - Cascais,1997_1,1997,Caxias - Cascais,3,2A9057,FFFFFF,3,0,0
+41,1998,1998,Cascais - Oeiras,1998_0,1998,Cascais - Oeiras,3,2A9057,FFFFFF,3,0,0
+41,1998,1998,Cascais - Oeiras,1998_1,1998,Cascais - Oeiras,3,2A9057,FFFFFF,3,0,0
+42,2002,2002,A-dos-Cãos - Loures (Centro Saúde),2002_0,2002,A-dos-Cãos - Loures (Centro Saude),3,C61D23,FFFFFF,1,0,0
+42,2003,2003,Guerreiros - Guerreiros,2003_0,2003,Guerreiros - Guerreiros,3,C61D23,FFFFFF,1,1,0
+42,2003,2003,Guerreiros - Guerreiros,2003_1,2003,Guerreiros - Guerreiros via Bolores,3,C61D23,FFFFFF,3,1,0
+42,2004,2004,Bairro de Santa Maria - Loures (Centro Saúde),2004_0,2004,Bairro de Santa Maria - Loures (Centro Saude),3,3D85C6,FFFFFF,1,0,0
+42,2006,2006,Bucelas | Circular via Vila Nova,2006_0,2006,Bucelas | Circular via Vila Nova,3,3D85C6,FFFFFF,1,1,0
+42,2008,2008,Bucelas - Mato da Cruz | Circular via Solcasa,2008_0,2008,Bucelas - Mato da Cruz | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2011,2011,Cabeço de Montachique - Loures (C Saúde) via Bairro Novo de Palhais e Murteira,2011_0,2011,Cabeço de Montachique - Loures (Centro Saude) via Murteira,3,C61D23,FFFFFF,1,0,0
+42,2011,2011,Cabeço de Montachique - Loures (C Saúde) via Bairro Novo de Palhais e Murteira,2011_1,2011,Tocadelos - Loures (Centro Saude) via Murteira,3,C61D23,FFFFFF,3,0,0
+42,2014,2014,Frielas - Torres da Bela Vista via Santo António dos Cavaleiros,2014_0,2014,Frielas - Torres da Bela Vista via Santo António dos Cavaleiros,3,C61D23,FFFFFF,1,0,0
+42,2016,2016,Torre dos Trotes - Hospital Beatriz Ângelo,2016_0,2016,Guerreiros - Hospital Beatriz Angelo,3,3D85C6,FFFFFF,1,0,0
+42,2016,2016,Guerreiros - Hospital Beatriz Ângelo,2016_1,2016,Torre dos Trotes - Hospital Beatriz Angelo,3,3D85C6,FFFFFF,2,0,0
+42,2017,2017,Guerreiros - Loures (Centro Saúde),2017_0,2017,Guerreiros - Loures Loures (Centro Saude),3,C61D23,FFFFFF,1,0,0
+42,2020,2020,Santo António dos Cavaleiros | Circular via Paradela,2020_0,2020,Santo António dos Cavaleiros | Circular via Paradela,3,3D85C6,FFFFFF,1,1,0
+42,2021,2021,Santo Antão do Tojal | Circular via Loures,2021_0,2021,Santo Antão do Tojal - Loures | Circular Sete Casas,3,C61D23,FFFFFF,1,1,0
+42,2024,2024,Santo António dos Cavaleiros | Circular via Cidade Nova,2024_0,2024,Santo António dos Cavaleiros | Circular via Cidade Nova,3,3D85C6,FFFFFF,1,1,0
+42,2026,2026,Loures | Circular via Rua da República,2026_0,2026,Loures | Circular via Rua República,3,3D85C6,FFFFFF,1,1,0
+42,2028,2028,Loures | Circular via Santo António dos Cavaleiros,2028_0,2028,Loures | Circular via Santo António dos Cavaleiros,3,C61D23,FFFFFF,1,1,0
+42,2029,2029,Moscavide (Urbanização Jardins do Cristo Rei) | Circular via Portela,2029_0,2029,Moscavide (Urbanização Jardins do Cristo Rei) | Circular via Portela,3,3D85C6,FFFFFF,1,1,0
+42,2030,2030,Sacavém (Centro Saúde) | Circular via Fetais,2030_0,2030,Sacavém (Centro Saúde) | Circular via Fetais,3,3D85C6,FFFFFF,1,1,0
+42,2031,2031,Sacavém (Centro Saúde) | Circular,2031_0,2031,Sacavém (Centro Saúde) | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2032,2032,Sacavém (Estação) | Circular via São João da Talha,2032_0,2032,Sacavém (Estação) | Circular via São João da Talha,3,C61D23,FFFFFF,1,1,0
+42,2034,2034,Santa Iria da Azóia (Estação) | Circular,2034_0,2034,Santa Iria da Azóia (Estação) | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2035,2035,Tojal (Jardim) - Santo Antão do Tojal via MARL,2035_0,2035,Tojal (Jardim) - Santo Antão do Tojal via MARL,3,C61D23,FFFFFF,1,1,0
+42,2036,2036,Camarate | Circular,2036_0,2036,Urbana de Camarate | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2037,2037,Zambujal | Circular via Infantado,2037_0,2037,Zambujal | Circular via Infantado,3,C61D23,FFFFFF,1,1,0
+42,2038,2038,Bucelas | Circular via Loures,2038_0,2038,Bucelas | Circular via Loures,3,C61D23,FFFFFF,1,1,0
+42,2039,2039,Bucelas - Zambujal via Sete Casas e Loures,2039_0,2039,Bucelas - Zambujal via Sete Casas e loures,3,C61D23,FFFFFF,1,0,0
+42,2040,2040,Loures | Circular via Urmeira,2040_0,2040,Loures | Circular via Urmeira,3,3D85C6,FFFFFF,1,1,0
+42,2101,2101,Achada - Lagoa (Colégio Miramar),2101_0,2101,Achada - Lagoa (Colegio Miramar),3,C61D23,FFFFFF,1,0,0
+42,2102,2102,Salgados - Lagoa (Colégio Miramar),2102_0,2102,Salgados - Lagoa (Colegio Miramar),3,C61D23,FFFFFF,1,0,0
+42,2103,2103,Antas - Mafra (Parque Desportivo),2103_0,2103,Antas - Mafra (Parque Desportivo),3,C61D23,FFFFFF,1,0,0
+42,2103,2103,Antas - Mafra (Parque Desportivo),2103_1,2103,Antas - Mafra (Parque Desportivo) via Casais Monte Bom,3,C61D23,FFFFFF,3,0,0
+42,2104,2104,Avessada - Malveira (Terminal),2104_0,2104,Avessada - Malveira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2105,2105,Barreiralva - Mafra (Parque Desportivo),2105_0,2105,Barreiralva - Mafra (Parque Desportivo),3,C61D23,FFFFFF,1,0,0
+42,2106,2106,Bocal - Mafra (Parque Desportivo),2106_0,2106,Bocal - Mafra (Parque Desportivo),3,C61D23,FFFFFF,1,0,0
+42,2106,2106,Bocal - Mafra (Parque Desportivo),2106_1,2106,Bocal - Mafra (Parque Desportivo),3,C61D23,FFFFFF,2,0,0
+42,2106,2106,Bocal - Mafra (Parque Desportivo),2106_2,2106,Venda do Pinheiro - Bocal,3,C61D23,FFFFFF,2,0,0
+42,2107,2107,Bocal - Malveira (Terminal) via Avessada e Portela,2107_0,2107,Bocal - Malveira (Terminal) via Avessada e Portela,3,C61D23,FFFFFF,1,0,0
+42,2107,2107,Bocal - Malveira (Terminal) via Avessada e Portela,2107_1,2107,Bocal - Malveira (Terminal) via Avessada e Portela,3,C61D23,FFFFFF,2,0,0
+42,2108,2108,Cachoeira - Malveira,2108_0,2108,Cachoeira - Malveira,3,C61D23,FFFFFF,1,0,0
+42,2109,2109,Cachoeira - Venda do Pinheiro (Terminal),2109_0,2109,Cachoeira - Venda do Pinheiro (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2110,2110,Carvalhal - Mafra (Parque Desportivo) via Mata Grande e Valverde,2110_0,2110,Carvalhal - Mafra (Parque Desportivo) via Mata Grande e Valverde,3,C61D23,FFFFFF,1,0,0
+42,2110,2110,Carvalhal - Mafra (Parque Desportivo),2110_1,2110,Carvalhal - Mafra (Parque Desportivo),3,C61D23,FFFFFF,2,0,0
+42,2110,2110,Carvalhal - Mafra (Parque Desportivo) via Mata Grande e Valverde,2110_2,2110,Carvalhal - Mafra (Parque Desportivo) via Valverde,3,C61D23,FFFFFF,3,0,0
+42,2111,2111,Casais da Areia - Lagoa (Colégio Miramar),2111_0,2111,Casais da Areia - Lagoa (Colegio Miramar),3,C61D23,FFFFFF,1,0,0
+42,2112,2112,Casais de São Lourenço - Ericeira (Terminal),2112_0,2112,Casais de São Lourenço - Ericeira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2113,2113,Ericeira (Terminal) - Casais de São Lourenço via Feiteira,2113_0,2113,Ericeira (Terminal) - Casais de São Lourenço via Feiteira,3,C61D23,FFFFFF,1,0,0
+42,2113,2113,Ericeira (Terminal) - Casais de São Lourenço via Feiteira,2113_1,2113,Ribamar - Ericeira (Terminal) via Feiteira,3,C61D23,FFFFFF,3,0,0
+42,2114,2114,Charneca - Lagoa (Colégio Miramar),2114_0,2114,Charneca - Lagoa (Colegio Miramar),3,C61D23,FFFFFF,1,0,0
+42,2115,2115,CodeÃ§al (Tapada Nacional) - Lagoa (Colégio Miramar),2115_0,2115,CodeÃ§al (Tapada Nacional) - Lagoa (Colegio Miramar),3,C61D23,FFFFFF,1,0,0
+42,2116,2116,Encarnação - Mafra (Parque Desportivo),2116_0,2116,Encarnação - Mafra (Parque Desportivo),3,C61D23,FFFFFF,1,0,0
+42,2117,2117,Encarnação (Cemitério) - Ericeira (Terminal) via Ribamar,2117_0,2117,Encarnação (Cemiterio) - Ericeira (Terminal) via Ribamar,3,C61D23,FFFFFF,1,0,0
+42,2117,2117,Encarnação (Cemitério) - Ericeira (Terminal) via Ribamar,2117_1,2117,Encarnação (Cemiterio) - Ericeira (Terminal) via Ribamar e Valongo,3,C61D23,FFFFFF,3,0,0
+42,2117,2117,Encarnação (Cemitério) - Ericeira (Terminal) via Ribamar,2117_2,2117,Talefe - Encarnação Cruz,3,C61D23,FFFFFF,2,0,0
+42,2118,2118,Encarnação (Cemitério) - Ericeira (Terminal) via Santo Isidoro e Monte Godel,2118_0,2118,Encarnação (Cemiterio) - Ericeira (Terminal) via Santo Isidoro e Monte Godel,3,C61D23,FFFFFF,1,0,0
+42,2118,2118,Encarnação (Cemitério) - Ericeira (Terminal) via Santo Isidoro e Monte Godel,2118_1,2118,Monte Bom Cruz - Ericeira (Terminal) via Santo Isidoro e Monte Godel,3,C61D23,FFFFFF,2,0,0
+42,2118,2118,Encarnação (Cemitério) - Ericeira (Terminal) via Santo Isidoro e Monte Godel,2118_2,2118,Encarnação (Cemitério) - Ericeira (Terminal) via Santo Isidoro,3,C61D23,FFFFFF,3,0,0
+42,2118,2118,Encarnação (Cemitério) - Ericeira (Terminal) via Santo Isidoro e Monte Godel,2118_3,2118,Ericeira (Terminal) - Achada (Cabeça Alta),3,C61D23,FFFFFF,2,0,0
+42,2118,2118,Encarnação (Cemitério) - Ericeira (Terminal) via Santo Isidoro e Monte Godel,2118_4,2118,Ericeira (Terminal) - Monte Bom Cruz via Monte Godel,3,C61D23,FFFFFF,3,0,0
+42,2119,2119,Encarnação (Cemitério) - Lagoa (Colégio Miramar),2119_0,2119,Encarnação (Cemiterio) - Lagoa (Colegio Miramar),3,C61D23,FFFFFF,1,0,0
+42,2119,2119,Encarnação (Cemitério) - Lagoa (Colégio Miramar),2119_1,2119,Encarnação - Lagoa (Colegio Miramar),3,C61D23,FFFFFF,2,0,0
+42,2120,2120,Enxara do Bispo - Ericeira (Terminal),2120_0,2120,Enxara do Bispo - Ericeira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2121,2121,Enxara do Bispo - Gradil,2121_0,2121,Gradil - Enxara do Bispo,3,C61D23,FFFFFF,1,0,0
+42,2123,2123,Praia da Foz do Lizandro - Praia de Ribeira d'Ilhas,2123_0,2123,Praia da Foz do Lizandro - Praia de Ribeira d'Ilhas,3,C61D23,FFFFFF,1,0,0
+42,2123,2123,Praia da Foz do Lizandro - Praia de Ribeira d'Ilhas,2123_1,2123,Ericeira (Terminal) - Praia da Foz do Lizandro,3,C61D23,FFFFFF,2,0,0
+42,2123,2123,Praia da Foz do Lizandro - Praia de Ribeira d'Ilhas,2123_2,2123,Praia da Foz do Lizandro - Ericeira (Terminal),3,C61D23,FFFFFF,2,0,0
+42,2124,2124,Urbana da Ericeira 1 | Circular via Colinas do Atlantico,2124_0,2124,Urbana da Ericeira 1 | Circular via Colinas Atlantico,3,3D85C6,FFFFFF,1,1,0
+42,2125,2125,Urbana da Ericeira 2 | Circular via Outeirinho e Fonte Boa da Brincosa,2125_0,2125,Urbana da Ericeira 2 | Circular via Outeirinho e Fonte Boa da Brincosa,3,3D85C6,FFFFFF,3,1,0
+42,2125,2125,Urbana da Ericeira 2 | Circular via Outeirinho e Fonte Boa da Brincosa,2125_1,2125,Urbana da Ericeira 2 | Circular via Fonte Boa da Brincosa,3,3D85C6,FFFFFF,2,1,0
+42,2125,2125,Urbana da Ericeira 2 | Circular via Outeirinho e Fonte Boa da Brincosa,2125_2,2125,Urbana da Ericeira 2 | Circular via Vale Carneiro,3,3D85C6,FFFFFF,3,1,0
+42,2126,2126,Ericeira | Circular,2126_0,2126,Ericeira | Circular,3,C61D23,FFFFFF,1,1,0
+42,2127,2127,Ericeira (Terminal) - Barril,2127_0,2127,Ericeira (Terminal) - Barril,3,C61D23,FFFFFF,1,0,0
+42,2128,2128,Ericeira (Terminal) - Fonte Boa da Brincosa,2128_0,2128,Ericeira (Terminal) - Fonte Boa da Brincosa,3,C61D23,FFFFFF,1,0,0
+42,2129,2129,Lagoa (Colégio Miramar) - Ericeira (Terminal),2129_0,2129,Lagoa (Colégio Miramar) - Ericeira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2130,2130,Ericeira (Terminal) - Lagoa (Colégio Miramar) via Ribamar,2130_0,2130,Ericeira (Terminal) - Lagoa (Colegio Miramar) via Ribamar,3,C61D23,FFFFFF,1,0,0
+42,2130,2130,Ericeira (Terminal) - Lagoa (Colégio Miramar) via Ribamar,2130_1,2130,Lagoa (Colégio Miramar) - Ribamar,3,C61D23,FFFFFF,2,0,0
+42,2131,2131,Lagoa (Colégio Miramar) - Ericeira (Terminal) via Santo Isidoro,2131_0,2131,Lagoa (Colegio Miramar) - Ericeira (Terminal) via Santo Isidoro,3,C61D23,FFFFFF,1,0,0
+42,2131,2131,Lagoa (Colégio Miramar) - Ericeira (Terminal) via Santo Isidoro,2131_1,2131,Lagoa (Coegio Miramar) - Ericeira (Terminal) via Santo Isidoro,3,C61D23,FFFFFF,2,0,0
+42,2132,2132,Ericeira (Terminal) - Mafra (Terminal),2132_0,2132,Ericeira (Terminal) - Mafra (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2132,2132,Ericeira (Terminal) - Mafra (Terminal),2132_1,2132,Ericeira (Terminal) - Mafra (Palácio),3,C61D23,FFFFFF,2,0,0
+42,2133,2133,Ericeira (Terminal) - Mafra (Palácio) via Carvoeira Montesouros e Av. Portugal,2133_0,2133,Ericeira (Terminal) - Mafra (Palácio) via Carvoeira Montesouros e Av. Portugal,3,C61D23,FFFFFF,1,0,0
+42,2133,2133,Ericeira (Terminal) - Mafra (Palácio) via Carvoeira Montesouros e Av. Portugal,2133_1,2133,Ericeira (Terminal) - Mafra (Palácio) via Carvoeira,3,C61D23,FFFFFF,2,0,0
+42,2133,2133,Ericeira (Terminal) - Mafra (Palácio) via Carvoeira Montesouros e Av. Portugal,2133_2,2133,Mafra (Palácio) - Carvoeira via  Montesouros e Av. Portugal,3,C61D23,FFFFFF,2,0,0
+42,2133,2133,Ericeira (Terminal) - Mafra (Palácio) via Carvoeira Montesouros e Av. Portugal,2133_3,2133,Mafra (Palácio) - Ericeira (Terminal) via Carvoeira e Av. Portugal,3,C61D23,FFFFFF,2,0,0
+42,2133,2133,Ericeira (Terminal) - Mafra (Palácio) via Carvoeira Montesouros e Av. Portugal,2133_4,2133,Mafra (Palácio) - Ericeira (Terminal) via Carvoeira e Montesouros,3,C61D23,FFFFFF,2,0,0
+42,2134,2134,Ervideira - Gradil,2134_0,2134,Ervideira - Gradil,3,C61D23,FFFFFF,1,0,0
+42,2135,2135,Igreja Nova - Venda do Pinheiro (Núcleo Empresarial Sul),2135_0,2135,Igreja Nova - Venda do Pinheiro (Nucleo Empresarial sul),3,C61D23,FFFFFF,1,0,0
+42,2136,2136,Jerumelo - Mafra (Terminal),2136_0,2136,Jerumelo - Mafra (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2137,2137,Lagoa (Colégio Miramar) - Mafra (Palácio),2137_0,2137,Lagoa (Colégio Miramar) - Mafra (Palácio),3,C61D23,FFFFFF,1,0,0
+42,2137,2137,Lagoa (Colégio Miramar) - Mafra (Palácio),2137_1,2137,Mafra (Alto da Vela) - Lagoa (Colégio Miramar),3,C61D23,FFFFFF,2,0,0
+42,2138,2138,Lagoa (Colégio Miramar) - São Domingos,2138_0,2138,Lagoa (Colegio Miramar) - São Domingos,3,C61D23,FFFFFF,1,0,0
+42,2139,2139,Lagoa (Colégio Miramar) - Sobral da Abelheira,2139_0,2139,Lagoa (Colégio Miramar) - Sobral da Abelheira,3,C61D23,FFFFFF,1,0,0
+42,2140,2140,Lagoa (Colégio Miramar) - Sobreiro,2140_0,2140,Lagoa (Colégio Miramar) - Sobreiro,3,C61D23,FFFFFF,1,0,0
+42,2141,2141,Mafra (Terminal) - Ribamar,2141_0,2141,Mafra (Terminal) - Ribamar,3,C61D23,FFFFFF,1,0,0
+42,2142,2142,Mafra (Almada) | Circular,2142_0,2142,Mafra (Almada) | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2142,2142,Mafra (Almada) | Circular,2142_1,2142,Mafra (Almada) | Circular,3,3D85C6,FFFFFF,2,0,0
+42,2142,2142,Mafra (Almada) | Circular,2142_2,2142,Mafra (Almada) - Mafra (Terminal),3,3D85C6,FFFFFF,2,0,0
+42,2143,2143,Mafra (Palácio) - Zambujal,2143_0,2143,Mafra (Palácio) - Zambujal,3,C61D23,FFFFFF,1,0,0
+42,2144,2144,Mafra (Parque Desportivo) - Livramento,2144_0,2144,Mafra (Parque Desportivo) - Livramento,3,C61D23,FFFFFF,1,0,0
+42,2144,2144,Mafra (Parque Desportivo) - Livramento,2144_1,2144,Mafra (Parque Desportivo) - Santo Isidoro,3,C61D23,FFFFFF,2,0,0
+42,2144,2144,Mafra (Parque Desportivo) - Livramento,2144_2,2144,Monte Bom - Mafra (Parque Desportivo),3,C61D23,FFFFFF,2,0,0
+42,2144,2144,Mafra (Parque Desportivo) - Livramento,2144_3,2144,Monte Bom - Mafra (Terminal),3,C61D23,FFFFFF,2,0,0
+42,2145,2145,Mafra | Circular via Sobral da Abelheira,2145_0,2145,Mafra | Circular via Sobral da Abelheira,3,C61D23,FFFFFF,1,1,0
+42,2145,2145,Mafra | Circular via Sobral da Abelheira,2145_1,2145,Mafra | Circular via Sobral da Abelheira e Casais Monte Bom,3,C61D23,FFFFFF,3,1,0
+42,2146,2146,Malveira (Centro Saúde) | Circular,2146_0,2146,Malveira (Centro Saude | Circular,3,C61D23,FFFFFF,1,1,0
+42,2147,2147,Milharado - Venda do Pinheiro (Terminal),2147_0,2147,Milharado - Venda do Pinheiro (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2147,2147,Milharado - Venda do Pinheiro (Terminal),2147_1,2147,Venda do Pinheiro (Escola) - Povoa da Galega,3,C61D23,FFFFFF,2,0,0
+42,2148,2148,Póvoa da Galega - Venda do Pinheiro (Terminal),2148_0,2148,Povoa da Galega - Venda do Pinheiro (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2148,2148,Póvoa da Galega - Venda do Pinheiro (Terminal),2148_1,2148,Venda do Pinheiro (Terminal) - Povoa da Galega,3,C61D23,FFFFFF,2,0,0
+42,2149,2149,Prezinheira - Venda do Pinheiro (Terminal),2149_0,2149,Prezinheira - Venda do Pinheiro (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2150,2150,Carvalhal - Venda do Pinheiro (Colégio Santo André),2150_0,2150,Carvalhal - Venda do Pinheiro (Colégio Santo André),3,C61D23,FFFFFF,1,0,0
+42,2150,2150,Carvalhal - Venda do Pinheiro (Colégio Santo André),2150_1,2150,Venda do Pinheiro - Cheleiros via Arrifana,3,C61D23,FFFFFF,2,0,0
+42,2151,2151,Venda do Pinheiro (Terminal) - Vila de Canas,2151_0,2151,Venda do Pinheiro (Terminal) - Vila de Canas,3,C61D23,FFFFFF,1,0,0
+42,2152,2152,Antas - Malveira (Escola),2152_0,2152,Antas - Malveira (Escola),3,C61D23,FFFFFF,1,0,0
+42,2202,2202,Arroja - Senhor Roubado (Metro),2202_0,2202,Arroja - Senhor Roubado (Metro),3,C61D23,FFFFFF,1,0,0
+42,2203,2203,Arroja | Circular via Odivelas (Metro),2203_0,2203,Arroja | Circular via Odivelas (Metro),3,C61D23,FFFFFF,1,1,0
+42,2206,2206,Caneças (Escola Secundária) - Senhor Roubado (Metro) via Patameiras (Centro Comercial),2206_0,2206,Caneças (Escola Secundária) - Senhor Roubado (Metro) via Patameiras (Centro Comercial),3,C61D23,FFFFFF,1,0,0
+42,2207,2207,Caneças (Escola Secundária) - Odivelas (Metro),2207_0,2207,Caneças (Escola Secundária) - Odivelas (Metro),3,C61D23,FFFFFF,1,0,0
+42,2208,2208,Caneças (Jardim) - Vale Nogueira,2208_0,2208,Caneças (Jardim) - Vale Nogueira,3,C61D23,FFFFFF,1,0,0
+42,2209,2209,Caneças (Escola Secundária) - Senhor Roubado (Metro) via Casal do Bispo,2209_0,2209,Caneças (Escola Secundária) - Senhor Roubado (Metro) via Casal do Bispo,3,C61D23,FFFFFF,1,0,0
+42,2210,2210,Jardim da Amoreira | Circular via Colinas do Cruzeiro,2210_0,2210,Jardim da Amoreira | Circular via Colinas do Cruzeiro,3,C61D23,FFFFFF,1,1,0
+42,2212,2212,Odivelas (Centro Comercial) | Circular,2212_0,2212,Odivelas (Centro Comercial) | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2213,2213,Odivelas (Metro) | Circular via Famões,2213_0,2213,Odivelas (Metro) | Circular via Famões,3,C61D23,FFFFFF,1,1,0
+42,2213,2213,Odivelas (Metro) | Circular via Famões,2213_1,2213,Odivelas (Metro) - Famões,3,C61D23,FFFFFF,3,0,0
+42,2215,2215,Odivelas (Metro) - Ramada (Bons Dias),2215_0,2215,Odivelas (Metro) - Ramada (Bons Dias),3,C61D23,FFFFFF,1,0,0
+42,2217,2217,Odivelas (Metro) | Circular via Casal Chapim,2217_0,2217,Odivelas (Metro) | Circular via Casal Chapim,3,C61D23,FFFFFF,1,1,0
+42,2218,2218,Odivelas (Metro) | Circular via Colinas do Cruzeiro,2218_0,2218,Odivelas (Metro) | Circular via Colinas do Cruzeiro,3,C61D23,FFFFFF,1,1,0
+42,2219,2219,Odivelas (Metro) | Circular via Póvoa de Santo Adrião,2219_0,2219,Odivelas (Metro) | Circular via Póvoa de Santo Adrião,3,C61D23,FFFFFF,1,1,0
+42,2220,2220,Olival Basto | Circular via Póvoa de Santo Adrião e Odivelas (Metro),2220_0,2220,Olival Basto | Circular via Póvoa de Santo Adrião e Odivelas (Metro),3,3D85C6,FFFFFF,1,1,0
+42,2221,2221,Póvoa de Santo Adrião (Parque Urbano) - Senhor Roubado (Metro),2221_0,2221,Póvoa de Santo Adrião (Parque Urbano) - Senhor Roubado (Metro),3,C61D23,FFFFFF,1,0,0
+42,2222,2222,Ramada | Circular,2222_0,2222,Ramada | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2223,2223,Senhor Roubado (Metro) | Circular via Casal Novo,2223_0,2223,Senhor Roubado (Metro) | Circular via Casal Novo,3,C61D23,FFFFFF,1,1,0
+42,2223,2223,Senhor Roubado (Metro) | Circular via Casal Novo,2223_1,2223,Casal Novo (Trigache) - Senhor Roubado (Metro),3,C61D23,FFFFFF,3,0,0
+42,2224,2224,Arroja | Circular via Odivelas (Centro Comercial),2224_0,2224,Arroja | Circular via Odivelas (Centro Comercial),3,C61D23,FFFFFF,1,1,0
+42,2225,2225,Odivelas (Metro) | Circular via Arroja,2225_0,2225,Odivelas (Metro) | Circular via Arroja,3,C61D23,FFFFFF,1,1,0
+42,2301,2301,Alverca (Estação) | Circular,2301_0,2301,Alverca (Estação) | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2303,2303,Alverca (Estação) - Arcena,2303_0,2303,Alverca (Estação) - Arcena,3,C61D23,FFFFFF,1,0,0
+42,2304,2304,Alverca (Estação) - Alhandra,2304_0,2304,Alverca (Estação) - Alhandra,3,C61D23,FFFFFF,1,0,0
+42,2306,2306,Alverca (Estação) - Vila Franca de Xira,2306_0,2306,Alverca (Estação) - Vila Franca de Xira,3,C61D23,FFFFFF,1,0,0
+42,2306,2306,Alverca (Estação) - Vila Franca de Xira,2306_1,2306,Alverca (Estação) - Vila Franca de Xira via Alhandra (Escola),3,C61D23,FFFFFF,3,0,0
+42,2307,2307,Arcena - Vila Franca de Xira,2307_0,2307,Arcena - Vila Franca de Xira,3,C61D23,FFFFFF,1,0,0
+42,2308,2308,Alhandra | Circular,2308_0,2308,Alhandra | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2309,2309,Vila Franca de Xira | Circular via Alhandra,2309_0,2309,Vila Franca de Xira | Circular via Alhandra,3,C61D23,FFFFFF,1,1,0
+42,2310,2310,Bom Retiro - Carregado (Estação),2310_0,2310,Bom Retiro - Carregado (Estação),3,C61D23,FFFFFF,1,0,0
+42,2315,2315,Castanheira do Ribatejo (Estação) | Circular via Hospital,2315_0,2315,Castanheira do Ribatejo (Estação) | Circular via Hospital,3,C61D23,FFFFFF,1,1,0
+42,2317,2317,Fonte Santa - Póvoa de Santa Iria (Estação),2317_0,2317,Fonte Santa - Póvoa de Santa Iria (Estação),3,C61D23,FFFFFF,1,0,0
+42,2318,2318,Póvoa de Santa Iria (Estação) | Circular via Forte da Casa,2318_0,2318,Póvoa de Santa Iria (Estação) | Circular via Forte da Casa,3,3D85C6,FFFFFF,1,1,0
+42,2319,2319,Forte da Casa | Circular via Póvoa de Santa Iria,2319_0,2319,Forte da Casa | Circular via Póvoa de Santa Iria,3,3D85C6,FFFFFF,1,1,0
+42,2325,2325,Póvoa de Santa Iria (Estação) - Verdelha Ruivo,2325_0,2325,Póvoa de Santa Iria (Estação) - Verdelha Ruivo,3,C61D23,FFFFFF,1,0,0
+42,2327,2327,Póvoa de Santa Iria (Estação) | Circular via Vialonga,2327_0,2327,Póvoa de Santa Iria (Estação) | Circular via Vialonga,3,C61D23,FFFFFF,1,1,0
+42,2328,2328,Quinta da Piedade - Vila Franca de Xira,2328_0,2328,Quinta da Piedade - Vila Franca de Xira,3,C61D23,FFFFFF,1,0,0
+42,2329,2329,Alhandra (Escola) - Alverca (Estação),2329_0,2329,Alhandra (Escola) - Alverca (Estação),3,C61D23,FFFFFF,1,0,0
+42,2331,2331,Torre de Cima e Capelas - Vila Franca de Xira (Hospital),2331_0,2331,Torre de Cima e Capelas - Vila Franca de Xira (Hospital),3,3D85C6,FFFFFF,1,0,0
+42,2333,2333,Vila Franca de Xira - Vila Franca de Xira (Hospital) via N1,2333_0,2333,Vila Franca de Xira - Vila Franca de Xira (Hospital) via N1,3,3D85C6,FFFFFF,1,0,0
+42,2335,2335,Póvoa de Santa Iria | Circular via Escola Básica Norte,2335_0,2335,Póvoa de Santa Iria | Circular via Escola Básica Norte,3,3D85C6,FFFFFF,1,1,0
+42,2336,2336,Póvoa de Santa Iria | Circular via Centro de Saúde,2336_0,2336,Póvoa de Santa Iria | Circular via Centro de Saúde,3,3D85C6,FFFFFF,1,1,0
+42,2337,2337,Vila Franca de Xira (Estação) | Circular,2337_0,2337,Vila Franca de Xira (Estação) | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2501,2501,Bocal - Malveira (Terminal),2501_0,2501,Bocal - Malveira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2502,2502,Bucelas - Malveira,2502_0,2502,Bucelas - Malveira,3,C61D23,FFFFFF,1,0,0
+42,2504,2504,Carrascal - Ponte de Lousa,2504_0,2504,Carrascal - Ponte de Lousa,3,C61D23,FFFFFF,1,0,0
+42,2505,2505,Loures (Centro Comercial) - Malveira (Terminal),2505_0,2505,Loures (Centro Comercial) - Malveira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2506,2506,Milharado (CASO) - Ponte de Lousa,2506_0,2506,Milharado (CASO) - Ponte de Lousa,3,C61D23,FFFFFF,1,0,0
+42,2511,2511,Caneças (Escola Secundária) - Loures (Centro Comercial) via Bairro CTT,2511_0,2511,Caneças (Escola Secundária) - Loures (Centro Comercial) via Bairro CTT,3,C61D23,FFFFFF,1,0,0
+42,2513,2513,Caneças (Escola Secundária) - Loures,2513_0,2513,Caneças (Escola Secundária) - Loures,3,C61D23,FFFFFF,1,0,0
+42,2515,2515,Odivelas (Metro) | Circular via Bairro da Paradela,2515_0,2515,Odivelas (Metro) | Circular via Bairro da Paradela,3,C61D23,FFFFFF,1,1,0
+42,2516,2516,Senhor Roubado (Metro) | Circular via Bairro da Paradela,2516_0,2516,Senhor Roubado (Metro) | Circular via Bairro da Paradela,3,C61D23,FFFFFF,1,1,0
+42,2517,2517,Odivelas (Metro) | Circular via Loures (Hospital) e Jardim da Amoreira,2517_0,2517,Odivelas (Metro) | Circular via Loures (Hospital) e Jardim da Amoreira,3,C61D23,FFFFFF,1,1,0
+42,2518,2518,Frielas - Senhor Roubado (Metro) via Zona Comercial,2518_0,2518,Frielas - Senhor Roubado (Metro) via Zona Comercial,3,C61D23,FFFFFF,1,0,0
+42,2522,2522,Jardim da Amoreira - Sr. Roubado (Metro) via Montemor,2522_0,2522,Jardim da Amoreira - Sr. Roubado (Metro) via Montemor,3,C61D23,FFFFFF,1,0,0
+42,2523,2523,Jardim da Amoreira - Odivelas (Metro) via Montemor,2523_0,2523,Jardim da Amoreira - Odivelas (Metro) via Montemor,3,C61D23,FFFFFF,1,0,0
+42,2524,2524,Odivelas (Metro) | Circular via Loures (Hospital),2524_0,2524,Odivelas (Metro) | Circular via Loures (Hospital),3,C61D23,FFFFFF,1,1,0
+42,2525,2525,Santo Antão do Tojal - Senhor Roubado (Metro),2525_0,2525,Santo Antão do Tojal - Senhor Roubado (Metro),3,C61D23,FFFFFF,1,0,0
+42,2526,2526,Loures (Centro Comercial) - Odivelas (Metro) via Cidade Nova,2526_0,2526,Loures (Centro Comercial) - Odivelas (Metro) via Cidade Nova,3,C61D23,FFFFFF,1,0,0
+42,2530,2530,Alverca (Estação) - Bucelas via Malvarosa,2530_0,2530,Alverca (Estação) - Bucelas via Malvarosa,3,C61D23,FFFFFF,1,0,0
+42,2532,2532,Alverca (Estação) - Loures,2532_0,2532,Alverca (Estação) - Loures,3,C61D23,FFFFFF,1,0,0
+42,2533,2533,Alverca (Estação) - Santo Antão do Tojal,2533_0,2533,Alverca(Est) - Santo Antao do Tojal via Casal Areias,3,C61D23,FFFFFF,1,0,0
+42,2534,2534,Loures (Supermercado) - Santa Iria da Azóia,2534_0,2534,Loures (Supermercado) - Santa Iria da Azóia,3,C61D23,FFFFFF,1,0,0
+42,2535,2535,Loures - Vila Franca de Xira,2535_0,2535,Loures - Vila Franca de Xira,3,C61D23,FFFFFF,1,0,0
+42,2536,2536,Bairro dos Monjões | Circular via Póvoa de Santa Iria,2536_0,2536,Mojões - Bairro Monjoes via Póvoa de Santa Iria,3,C61D23,FFFFFF,1,1,0
+42,2537,2537,Póvoa de Santa Iria - Santo Antão do Tojal,2537_0,2537,Póvoa de Santa Iria (Estação) - Santo Antão do Tojal,3,C61D23,FFFFFF,1,0,0
+42,2538,2538,Póvoa de Santa Iria (Estação) - Santo Antão do Tojal via Alpriate,2538_0,2538,Póvoa de Santa Iria (Estação) - Santo Antao do Tojal via Alpriate,3,C61D23,FFFFFF,1,0,0
+42,2539,2539,Santa Iria da Azóia (Estação) | Circular via São João da Talha,2539_0,2539,Santa Iria da Azóia (Estação) | Circular via São João da Talha,3,C61D23,FFFFFF,1,1,0
+42,2540,2540,Santa Iria da Azóia (Estação) - MARL,2540_0,2540,Santa Iria de Azóia (Estação) - MARL,3,C61D23,FFFFFF,1,0,0
+42,2601,2601,Loures (Centro Comercial) - Reboleira (Estação),2601_0,2601,Loures (Centro Comercial) - Reboleira (Estação),3,C61D23,FFFFFF,1,0,0
+42,2605,2605,Agualva-Cacém (Estação) - Loures,2605_0,2605,Agualva-Cacém (Estação) - Loures,3,C61D23,FFFFFF,1,0,0
+42,2605,2605,Agualva-Cacém (Estação) - Loures,2605_1,2605,Agualva-Cacém (Estação) - Caneças,3,C61D23,FFFFFF,3,0,0
+42,2610,2610,Odivelas (Metro) - UBBO,2610_0,2610,Odivelas (Metro) - UBBO,3,C61D23,FFFFFF,1,0,0
+42,2611,2611,Santo António dos Cavaleiros – UBBO,2611_0,2611,Santo António dos Cavaleiros - UBBO,3,C61D23,FFFFFF,1,0,0
+42,2620,2620,Covas de Ferro - Loures (Centro Saúde),2620_0,2620,Covas de Ferro - Loures (Centro Saude),3,C61D23,FFFFFF,1,0,0
+42,2621,2621,Covas de Ferro - Pinheiro de Loures,2621_0,2621,Covas de Ferro - Pinheiro de Loures,3,C61D23,FFFFFF,1,0,0
+42,2621,2621,Covas de Ferro - Pinheiro de Loures,2621_1,2621,Pinheiro de Loures - A-Dos-Cãos,3,C61D23,FFFFFF,2,0,0
+42,2625,2625,Mafra (Terminal) - São João das Lampas,2625_0,2625,Mafra (Terminal)- São João das Lampas,3,C61D23,FFFFFF,1,0,0
+42,2626,2626,Mafra (Parque Desportivo) - Portela de Sintra (Estação),2626_0,2626,Mafra (Parque Desportivo) - Portela de Sintra (Estação),3,C61D23,FFFFFF,1,0,0
+42,2626,2626,Mafra (Parque Desportivo) - Portela de Sintra (Estação),2626_1,2626,Mafra (Parque Desportivo) - Cheleiros,3,C61D23,FFFFFF,2,0,0
+42,2626,2626,Mafra (Parque Desportivo) - Portela de Sintra (Estação),2626_2,2626,Mafra (Quinta Santa Barbara) - Portela de Sintra (Estação),3,C61D23,FFFFFF,2,0,0
+42,2627,2627,Mafra (Parque Desportivo) - Ribeira dos Tostões,2627_0,2627,Mafra (Parque Desportivo) - Ribeira dos Tostões,3,C61D23,FFFFFF,1,0,0
+42,2627,2627,Mafra (Parque Desportivo) - Ribeira dos Tostões,2627_1,2627,Ribeira dos Tostões - Igreja Nova,3,C61D23,FFFFFF,2,0,0
+42,2630,2630,Caneças (Escola Secundária) | Circular,2630_0,2630,Caneças (Escola Secundária) | Circular,3,3D85C6,FFFFFF,1,1,0
+42,2631,2631,Caneças (Escola Secundária) - Odivelas (Metro) via Quinta das Pretas,2631_0,2631,Caneças (Escola Secundária) - Odivelas (Metro) via Quinta das Pretas,3,C61D23,FFFFFF,1,0,0
+42,2632,2632,Caneças (Escola Secundária) - Odivelas (Metro) via Bairro Sol Nascente,2632_0,2632,Caneças (Escola Secundária) - Odivelas (Metro) via Bairro Sol Nascente,3,C61D23,FFFFFF,1,0,0
+42,2650,2650,Cidade Nova - Costa da Caparica,2650_0,2650,Cidade Nova - Costa da Caparica,3,0C807E,FFFFFF,1,0,0
+42,2651,2651,Bucelas - Costa da Caparica,2651_0,2651,Bucelas - Costa da Caparica,3,0C807E,FFFFFF,1,0,0
+42,2653,2653,Caneças (Escola Secundaria) - Costa da Caparica,2653_0,2653,Caneças (Escola Secundaria) - Costa da Caparica,3,0C807E,FFFFFF,1,0,0
+42,2706,2706,Bucelas - Lisboa (Campo Grande) via Infantado,2706_0,2706,Bucelas - Lisboa (Campo Grande) via Infantado,3,C61D23,FFFFFF,1,0,0
+42,2706,2706,Bucelas - Lisboa (Campo Grande) via Infantado,2706_1,2706,Bucelas - Lisboa (Campo Grande) via A8,3,C61D23,FFFFFF,3,0,0
+42,2708,2708,Casal da Aguieira - Lisboa (Estação do Oriente),2708_0,2708,Cabeço da Aguieira - Lisboa (Estação do Oriente),3,C61D23,FFFFFF,1,0,0
+42,2709,2709,Bairro de Angola | Circular via Camarate,2709_0,2709,Bairro de Angola | Circular via Camarate,3,C61D23,FFFFFF,1,1,0
+42,2710,2710,Alto do Moinho - Lisboa (Campo Grande),2710_0,2710,Alto do Moínho - Lisboa (Campo Grande),3,C61D23,FFFFFF,1,0,0
+42,2711,2711,Charneca - Lisboa (Estação do Oriente),2711_0,2711,Charneca - Lisboa (Estação do Oriente) via Bairro Santiago,3,C61D23,FFFFFF,1,0,0
+42,2713,2713,Lisboa (Campo Grande) | Circular via Charneca,2713_0,2713,Lisboa (Campo Grande) | Circular via Charneca,3,C61D23,FFFFFF,1,1,0
+42,2713,2713,Lisboa (Campo Grande) | Circular via Charneca,2713_1,2713,Lisboa (Campo Grande) - Sacavém via Charneca,3,C61D23,FFFFFF,3,0,0
+42,2713,2713,Lisboa (Campo Grande) | Circular via Charneca,2713_2,2713,Apelação - Lisboa (Campo Grande),3,C61D23,FFFFFF,3,0,0
+42,2713,2713,Lisboa (Campo Grande) | Circular via Charneca,2713_4,2713,Bairro São José - Lisboa (Campo Grande),3,C61D23,FFFFFF,3,0,0
+42,2714,2714,Lisboa (Campo Grande) - Sacavém (Jardim),2714_0,2714,Lisboa (Campo Grande) - Sacavém (Estação),3,C61D23,FFFFFF,1,0,0
+42,2715,2715,Lisboa (Campo Grande) - Santo António dos Cavaleiros via IC22 e Igreja,2715_0,2715,Lisboa (Campo Grande) - Santo António dos Cavaleiros via IC22 e Igreja,3,C61D23,FFFFFF,1,0,0
+42,2716,2716,Lisboa (Campo Grande) - Santo António dos Cavaleiros via IC22 e Cidade Nova,2716_0,2716,Lisboa (Campo Grande) - Santo António dos Cavaleiros via IC22 e Cidade Nova,3,C61D23,FFFFFF,1,0,0
+42,2717,2717,Lisboa (Campo Grande) - Loures (Centro Comercial) via IC22 e Torres da Bela Vista,2717_0,2717,Lisboa (Campo Grande) - Loures (Centro Comercial) via IC22 e Torres da Bela Vista,3,C61D23,FFFFFF,1,0,0
+42,2718,2718,Infantado - Lisboa (Campo Grande),2718_0,2718,Infantado - Lisboa (Campo Grande),3,C61D23,FFFFFF,1,0,0
+42,2719,2719,Fanhões - Lisboa (Campo Grande),2719_0,2719,Fanhões - Lisboa (Campo Grande)  via Sete Casas A8 e Frielas,3,C61D23,FFFFFF,1,0,0
+42,2720,2720,Lisboa (Campo Grande) - Loures (Bairro da Urmeira),2720_0,2720,Lisboa (Campo Grande) - Loures (Urmeira),3,C61D23,FFFFFF,1,0,0
+42,2722,2722,Lisboa (Areeiro) - Via Rara,2722_0,2722,Lisboa (Areeiro) - Via Rara,3,C61D23,FFFFFF,1,0,0
+42,2723,2723,Lisboa (Campo Grande) - Zambujal,2723_0,2723,Lisboa (Campo Grande) - Zambujal,3,C61D23,FFFFFF,1,0,0
+42,2724,2724,Lisboa (Estação do Oriente) - Loures via Túnel do Grilo e Santo António dos Cavaleiros,2724_0,2724,Lisboa (Estação do Oriente) - Loures (Centro Comercial) via Túnel do Grilo,3,C61D23,FFFFFF,1,0,0
+42,2725,2725,Lisboa (Estação do Oriente) - Loures (Centro Comercial),2725_0,2725,Lisboa (Estação do Oriente) - Loures (Centro Comercial),3,C61D23,FFFFFF,1,0,0
+42,2726,2726,Lisboa (Estação Oriente) - Loures via Camarate,2726_0,2726,Lisboa (Estação do Oriente) - Loures (Centro Comercial) via Camarate,3,C61D23,FFFFFF,1,0,0
+42,2727,2727,Lisboa (Estação do Oriente) - Loures via Unhos,2727_0,2727,Lisboa (Estação do Oriente) - Loures (Centro Comercial) via Unhos,3,C61D23,FFFFFF,1,0,0
+42,2728,2728,Bairro da Covina - Lisboa (Estação do Oriente),2728_0,2728,Bairro da Covina - Lisboa (Estação do Oriente),3,C61D23,FFFFFF,1,0,0
+42,2729,2729,Lisboa (Estação do Oriente) - Portela da Azóia,2729_0,2729,Lisboa (Estação do Oriente) - Portela da Azóia,3,C61D23,FFFFFF,1,0,0
+42,2730,2730,Lisboa (Estação do Oriente) - Santa Iria da Azóia,2730_0,2730,Lisboa (Estação do Oriente) - Santa Iria da Azóia,3,C61D23,FFFFFF,1,0,0
+42,2731,2731,Lisboa (Estação do Oriente) | Circular via Portela,2731_0,2731,Lisboa (Estação do Oriente) | Circular via Portela,3,C61D23,FFFFFF,1,1,0
+42,2731,2731,Lisboa (Estação do Oriente) | Circular via Portela,2731_1,2731,Lisboa (Estação do Oriente) - Sacavém (Estação),3,C61D23,FFFFFF,3,0,0
+42,2733,2733,Loures (Supermercado) - Moscavide (Metro),2733_0,2733,Loures (Supermercado) - Moscavide (Metro),3,C61D23,FFFFFF,1,0,0
+42,2734,2734,Prior Velho - Sacavém (Estação),2734_0,2734,Prior Velho - Sacavém (Estação),3,C61D23,FFFFFF,1,0,0
+42,2735,2735,Urbana de Sacavém | Circular via Prior Velho,2735_0,2735,Sacavém (Estação) | Circular via Prior Velho,3,C61D23,FFFFFF,1,1,0
+42,2736,2736,Lisboa (Campo Grande) | Circular via Sacavém,2736_0,2736,Lisboa (Campo Grande) | Circular via Sacavém,3,C61D23,FFFFFF,1,1,0
+42,2736,2736,Lisboa (Campo Grande) | Circular via Sacavém,2736_1,2736,Lisboa (Campo Grande) - Apelação via Sacavém,3,C61D23,FFFFFF,3,0,0
+42,2736,2736,Lisboa (Campo Grande) | Circular via Sacavém,2736_2,2736,Apelação (Av. Brasilia) - Lisboa (Campo Grande),3,C61D23,FFFFFF,3,0,0
+42,2740,2740,Ericeira (Terminal) - Lisboa (Campo Grande) via A8,2740_0,2740,Ericeira (Terminal) - Lisboa (C. Grande) via A8,3,FDB71A,FFFFFF,1,0,0
+42,2740,2740,Ericeira (Terminal) - Lisboa (Campo Grande) via A8,2740_1,2740,Ericeira (Terminal) - Lisboa (C. Grande) via A8 e Ericeira (Centro),3,FDB71A,FFFFFF,3,0,0
+42,2740,2740,Ericeira (Terminal) - Lisboa (Campo Grande) via A8,2740_2,2740,Lisboa (C. Grande) - Ericeira (Terminal) via Ericeira (Centro) A8,3,FDB71A,FFFFFF,3,0,0
+42,2741,2741,Ericeira (Terminal) - Lisboa (Campo Grande) via Freixeira e A8,2741_0,2741,Ericeira (Terminal) - Lisboa (C. Grande) via Freixeira e A8,3,FDB71A,FFFFFF,1,0,0
+42,2741,2741,Ericeira (Terminal) - Lisboa (Campo Grande) via Freixeira e A8,2741_1,2741,Ericeira (Terminal) - Lisboa (C. Grande) via Ericeira (Centro) Freixeira e A8,3,FDB71A,FFFFFF,3,0,0
+42,2742,2742,Lisboa (Campo Grande) - Mafra (Terminal),2742_0,2742,Lisboa (C. Grande) - Mafra (Terminal),3,FDB71A,FFFFFF,1,0,0
+42,2742,2742,Lisboa (Campo Grande) - Mafra (Terminal),2742_1,2742,Malveira - Lisboa (C. Grande),3,FDB71A,FFFFFF,2,0,0
+42,2743,2743,Lisboa (Campo Grande) - Póvoa da Galega via A8 e Sete Casas,2743_0,2743,Lisboa (C. Grande) - Povoa da Galega via A8 e Sete Casas,3,C61D23,FFFFFF,1,0,0
+42,2744,2744,Lisboa (Campo Grande) - Póvoa da Galega via A8 Lousa e Freixeira,2744_0,2744,Lisboa (C. Grande) - Povoa da Galega via A8 Lousa e Freixeira,3,FDB71A,FFFFFF,1,0,0
+42,2745,2745,Póvoa da Galega - Lisboa (Campo Grande) via Murteira,2745_0,2745,Povoa da Galega - Lisboa (C. Grande) via Murteira,3,C61D23,FFFFFF,1,0,0
+42,2745,2745,Póvoa da Galega - Lisboa (Campo Grande) via Murteira,2745_1,2745,Cabeço de Montachique - Lisboa (C. Grande) via Murteira,3,C61D23,FFFFFF,2,0,0
+42,2746,2746,Lisboa (Campo Grande) - Venda do Pinheiro via Milharado e A8 Lousa,2746_0,2746,Lisboa (C. Grande) - Venda do Pinheiro via Milharado e A8 Lousa,3,FDB71A,FFFFFF,1,0,0
+42,2750,2750,Bucelas - Lisboa (Campo Grande) via Cabeço de Montachique e Odivelas (Metro),2750_0,2750,Bucelas - Lisboa (Campo Grande) via Cabeço de Montachique e Odivelas (Metro),3,C61D23,FFFFFF,1,0,0
+42,2750,2750,2750-Bucelas - Lisboa (Campo Grande) via Cabeço de Montachique e Odivelas (Metro),2750_2,2750,Monte Esperança - Tojal,3,C61D23,FFFFFF,3,0,0
+42,2751,2751,Ericeira (Terminal) - Lisboa (Campo Grande),2751_0,2751,Ericeira (Terminal) - Lisboa (C. Grande),3,C61D23,FFFFFF,1,0,0
+42,2751,2751,Ericeira (Terminal) - Lisboa (Campo Grande),2751_1,2751,Ericeira (Terminal) - Lisboa (C. Grande) via Ericeira (Centro),3,C61D23,FFFFFF,3,0,0
+42,2752,2752,Lisboa (Campo Grande) - Malveira (Terminal),2752_0,2752,Lisboa (C. Grande) - Malveira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2753,2753,Lisboa (Campo Grande) - Milharado (CASO) via Lousa,2753_0,2753,Lisboa (C. Grande) - Milharado (CASO) via Lousa,3,C61D23,FFFFFF,1,0,0
+42,2754,2754,Lisboa (Campo Grande) - Póvoa da Galega via Guerreiros e Lousa,2754_0,2754,Lisboa (C. Grande) - Povoa da Galega via Guerreiros e Lousa,3,C61D23,FFFFFF,1,0,0
+42,2754,2754,Lisboa (Campo Grande) - Póvoa da Galega via Guerreiros e Lousa,2754_1,2754,Povoa da Galega - Loures (Centro Saude) via Lousa e Guerreiros,3,C61D23,FFFFFF,2,0,0
+42,2754,2754,Lisboa (Campo Grande) - Póvoa da Galega via Guerreiros e Lousa,2754_2,2754,Lisboa (C. Grande) - Povoa da Galega via Lumiar e Guerreiros,3,C61D23,FFFFFF,3,0,0
+42,2755,2755,Lisboa (Campo Grande) - Povoa da Galega via Casais do Forno,2755_0,2755,Lisboa (C. Grande) - Povoa da Galega via Casais do Forno,3,C61D23,FFFFFF,1,0,0
+42,2756,2756,Lisboa (Campo Grande) - Povoa da Galega via Urbanização do Almirante,2756_0,2756,Lisboa (C. Grande) - Povoa da Galega via Urbanização do Almirante,3,C61D23,FFFFFF,1,0,0
+42,2756,2756,Lisboa (Campo Grande) - Povoa da Galega via Urbanização do Almirante,2756_1,2756,Povoa da Galega - Lisboa (C. Grande) via Urbanização do Almirante e Lumiar,3,C61D23,FFFFFF,3,0,0
+42,2758,2758,Lisboa (Campo Grande) - Mafra (Terminal),2758_0,2758,Lisboa (C. Grande) - Mafra (Terminal) via Loures,3,C61D23,FFFFFF,1,0,0
+42,2759,2759,Guerreiros - Lisboa (Campo Grande) via A8,2759_0,2759,Guerreiros - Lisboa via A8,3,C61D23,FFFFFF,1,0,0
+42,2761,2761,Bucelas - Lisboa (Campo Grande) via Cabeço de Montachique e Ramada,2761_0,2761,Bucelas - Lisboa (Campo Grande) via Cabeço de Montachique e Ramada,3,C61D23,FFFFFF,1,0,0
+42,2762,2762,Bucelas - Lisboa (Campo Grande) via Ribas,2762_0,2762,Bucelas - Lisboa (Campo Grande) via Ribas A8 e Frielas,3,C61D23,FFFFFF,1,0,0
+42,2764,2764,Bucelas - Lisboa (Campo Grande) via Lumiar,2764_0,2764,Bucelas - Lisboa (Campo Grande),3,C61D23,FFFFFF,1,0,0
+42,2765,2765,Cabeço de Montachique - Lisboa (Campo Grande),2765_0,2765,Cabeço de Montachique - Lisboa (C. Grande),3,C61D23,FFFFFF,1,0,0
+42,2765,2765,Cabeço de Montachique - Lisboa (Campo Grande),2765_1,2765,Lisboa (C. Grande) - Cabeço de Montachique via Palhais,3,C61D23,FFFFFF,3,0,0
+42,2768,2768,Bairro da Paradela - Lisboa (Campo Grande),2768_0,2768,Casal da Paradela - Lisboa (Campo Grande),3,C61D23,FFFFFF,1,0,0
+42,2769,2769,Lisboa (Campo Grande) - Santo António dos Cavaleiros via Cidade Nova,2769_0,2769,Lisboa (Campo Grande) - Santo António de Cavaleiros via Cidade Nova,3,C61D23,FFFFFF,1,0,0
+42,2770,2770,Lisboa (Campo Grande) - Santo António dos Cavaleiros via Lumiar e Cidade Nova,2770_0,2770,Lisboa (Campo Grande) - Santo António dos Cavaleiros via Lumiar e Cidade Nova,3,C61D23,FFFFFF,1,0,0
+42,2772,2772,Lisboa (Campo Grande) - Torres da Bela Vista via Lumiar,2772_0,2772,Lisboa (Campo Grande) - Torres da Bela Vista via Lumiar,3,C61D23,FFFFFF,1,0,0
+42,2772,2772,Lisboa (Campo Grande) - Torres da Bela Vista via Lumiar,2772_1,2772,Lisboa (Campo Grande) - Torres da Bela Vista via Lumiar e Centro Comercial,3,C61D23,FFFFFF,3,0,0
+42,2774,2774,Frielas - Lisboa (Campo Grande),2774_0,2774,Frielas - Lisboa (Campo Grande),3,C61D23,FFFFFF,1,0,0
+42,2776,2776,Guerreiros - Lisboa (Campo Grande),2776_0,2776,Guerreiros - Lisboa (C. Grande),3,C61D23,FFFFFF,1,0,0
+42,2776,2776,Guerreiros - Lisboa (Campo Grande),2776_1,2776,Guerreiros - Lisboa (C. Grande) via Lumiar,3,C61D23,FFFFFF,3,0,0
+42,2780,2780,Loures (Centro Comercial) - Pontinha (Metro),2780_0,2780,Loures (Centro Comercial) - Pontinha (Metro),3,C61D23,FFFFFF,1,0,0
+42,2781,2781,Loures (Centro Comercial) - Pontinha (Metro) via Ramada,2781_0,2781,Loures (Centro Comercial) - Pontinha (Metro) via Ramada,3,C61D23,FFFFFF,1,0,0
+42,2781,2781,Loures (Centro Comercial) - Pontinha (Metro) via Ramada,2781_1,2781,Loures (Centro Comercial) - Pontinha (Metro) via Serra da Amoreira,3,C61D23,FFFFFF,3,0,0
+42,2782,2782,Bucelas - Lisboa (Campo Grande) via Ribas e Manjoeira,2782_0,2782,Bucelas - Lisboa (Campo Grande) via Ribas e Manjoeira,3,C61D23,FFFFFF,1,0,0
+42,2782,2782,Bucelas - Lisboa (Campo Grande) via Ribas e Manjoeira,2782_1,2782,Bucelas - Lisboa (Campo Grande) via Fanhões e Manjoeira,3,C61D23,FFFFFF,3,0,0
+42,2785,2785,Covas de Ferro - Lisboa (Campo Grande),2785_0,2785,Covas de Ferro - Lisboa (C. Grande),3,C61D23,FFFFFF,1,0,0
+42,2785,2785,Covas de Ferro - Lisboa (Campo Grande),2785_1,2785,A-Dos-Cãos - Lisboa (C. Grande),3,C61D23,FFFFFF,2,0,0
+42,2790,2790,Alverca (Estação) - Lisboa (Areeiro),2790_0,2790,Alverca (Estação) - Lisboa (Areeiro),3,C61D23,FFFFFF,1,0,0
+42,2792,2792,Arcena - Lisboa (Estação do Oriente),2792_0,2792,Arcena - Lisboa (Estação do Oriente),3,C61D23,FFFFFF,1,0,0
+42,2792,2792,Arcena - Lisboa (Estação do Oriente),2792_1,2792,Arcena - Lisboa (Estação do Oriente) via A1,3,C61D23,FFFFFF,3,0,0
+42,2793,2793,Lisboa (Campo Grande) - Quinta da Piedade via EN10,2793_0,2793,Lisboa (Campo Grande) - Quinta da Piedade,3,C61D23,FFFFFF,1,0,0
+42,2794,2794,Forte da Casa (Largo) - Lisboa (Estação do Oriente),2794_0,2794,Forte da Casa - Lisboa (Estação do Oriente),3,C61D23,FFFFFF,1,0,0
+42,2795,2795,Lisboa (Campo Grande) - Santa Iria da Azóia,2795_0,2795,Lisboa (Campo Grande) - Santa Iria da Azóia,3,C61D23,FFFFFF,1,0,0
+42,2796,2796,Lisboa (Campo Grande) - Vialonga via Infantado,2796_0,2796,Lisboa (Campo Grande) - Vialonga via Infantado,3,C61D23,FFFFFF,1,0,0
+42,2796,2796,Lisboa (Campo Grande) - Vialonga via Infantado,2796_1,2796,Lisboa (Campo Grande) - Vialonga via Infantado e MARL,3,C61D23,FFFFFF,3,0,0
+42,2797,2797,Lisboa (Campo Grande) - Vialonga via A8,2797_0,2797,Vialonga - Lisboa (Campo Grande) via A8,3,C61D23,FFFFFF,1,0,0
+42,2797,2797,Lisboa (Campo Grande) - Vialonga via A8,2797_1,2797,Lisboa (Campo Grande) - Vialonga via A8 e A9,3,C61D23,FFFFFF,3,0,0
+42,2797,2797,Lisboa (Campo Grande) - Vialonga via A8,2797_2,2797,Lisboa (Campo Grande) - Vialonga via A8 A9 e MARL,3,C61D23,FFFFFF,3,0,0
+42,2801,2801,Ericeira (Terminal) - Lisboa (Campo Grande) via A21/A8,2801_0,2801,Ericeira (Terminal) - Lisboa (C. Grande) via A21/A8,3,FDB71A,FFFFFF,1,0,0
+42,2801,2801,Ericeira (Terminal) - Lisboa (Campo Grande) via A21/A8,2801_1,2801,Ericeira (Terminal) - Lisboa (C. Grande) via Ericeira (Centro) e A21/A8,3,FDB71A,FFFFFF,3,0,0
+42,2801,2801,Ericeira (Terminal) - Lisboa (Campo Grande) via A21/A8,2801_2,2801,Ericeira (Terminal) - Lisboa (C. Grande) via Ericeira (Centro) e A21,3,FDB71A,FFFFFF,3,0,0
+42,2802,2802,Lisboa (Campo Grande) - Mafra (Terminal) via A21,2802_0,2802,Lisboa (C. Grande) - Mafra (Terminal) via A21,3,FDB71A,FFFFFF,1,0,0
+42,2803,2803,Ericeira (Terminal) - Lisboa (Campo Grande) via Mafra e A21/A8,2803_0,2803,Ericeira (Terminal) - Lisboa (C. Grande) via Mafra e A21/A8,3,FDB71A,FFFFFF,1,0,0
+42,2803,2803,Ericeira (Terminal) - Lisboa (Campo Grande) via Mafra e A21/A8,2803_1,2803,Ericeira (Terminal) - Lisboa (C. Grande) via Ericeira (Centro) Mafra e A21/A8,3,FDB71A,FFFFFF,3,0,0
+42,2804,2804,Mafra - Lisboa (Campo Grande) via A8,2804_0,2804,Lisboa (C. Grande) - Mafra via A8,3,FDB71A,FFFFFF,1,0,0
+42,2804,2804,Mafra - Lisboa (Campo Grande) via A8,2804_1,2804,Lisboa (C. Grande) - Mafra (Quinta das Pevides) via A8,3,FDB71A,FFFFFF,3,0,0
+42,2804,2804,Mafra - Lisboa (Campo Grande) via A8,2804_2,2804,Lisboa (C. Grande) - Malveira (Terminal) via A8,3,FDB71A,FFFFFF,2,0,0
+42,2805,2805,Encarnação - Lisboa (Campo Grande),2805_0,2805,Encarnação - Lisboa (C. Grande),3,FDB71A,FFFFFF,1,0,0
+42,2806,2806,Lisboa (Campo Grande) - Livramento,2806_0,2806,Lisboa (C. Grande) - Livramento,3,FDB71A,FFFFFF,1,0,0
+42,2807,2807,Lisboa (Campo Grande) - Zambujal via Mafra,2807_0,2807,Lisboa (C. Grande) - Zambujal via Mafra,3,FDB71A,FFFFFF,1,0,0
+42,2810,2810,Arroja - Lisboa (Campo Grande),2810_0,2810,Arroja - Lisboa (Campo Grande),3,C61D23,FFFFFF,1,0,0
+42,2811,2811,Caneças (Bairro do Monte Verde) - Lisboa (Colégio Militar),2811_0,2811,Caneças (Bairro Monte Verde) - Lisboa (Colégio Militar),3,C61D23,FFFFFF,1,0,0
+42,2812,2812,Caneças (Escola Secundária) - Lisboa (Campo Grande) via Senhor Roubado (Metro),2812_0,2812,Caneças (Escola Secundária) - Lisboa (Campo Grande) via Senhor Roubado (Metro),3,C61D23,FFFFFF,1,0,0
+42,2813,2813,Caneças - Lisboa (Colégio Militar),2813_0,2813,Caneças - Lisboa (Colégio Militar),3,C61D23,FFFFFF,1,0,0
+42,2814,2814,Casal Novo - Pontinha (Metro),2814_0,2814,Casal Novo - Pontinha (Metro),3,C61D23,FFFFFF,1,0,0
+42,2816,2816,Lisboa (Campo Grande) - Ramada (Bairro dos Bons Dias),2816_0,2816,Lisboa (Campo Grande) - Ramada (Bairro Bons Dias),3,C61D23,FFFFFF,1,0,0
+42,2817,2817,Lisboa (Colégio Militar) - Odivelas (Metro) via Serra da Luz,2817_0,2817,Lisboa (Colégio Militar) - Odivelas (Metro) via Serra da Luz,3,C61D23,FFFFFF,1,0,0
+42,2818,2818,Lisboa (Colégio Militar) - Serra da Amoreira,2818_0,2818,Lisboa (Colégio Militar) - Serra da Amoreira,3,C61D23,FFFFFF,1,0,0
+42,2821,2821,Loures (Centro Comercial) - Pontinha (Metro) via Cidade Nova,2821_0,2821,Loures (Centro Comercial) - Pontinha (Metro) via Cidade Nova,3,C61D23,FFFFFF,1,0,0
+42,2824,2824,Pontinha (Metro) - Senhor Roubado (Metro) via Serra da Luz,2824_0,2824,Pontinha (Metro) - Senhor Roubado (Metro) via Serra da Luz,3,C61D23,FFFFFF,1,0,0
+42,2830,2830,Caneças - Lisboa (Colégio Militar) via Casal do Bispo,2830_0,2830,Caneças - Lisboa (Colégio Militar) via Casal do Bispo,3,C61D23,FFFFFF,1,0,0
+42,2831,2831,Caneças (Escola Secundária) - Pontinha (Metro) via Casal do Bispo e Vale Grande,2831_0,2831,Caneças (Escola Secundária) - Pontinha (Metro) via Casal do Bispo e Vale Grande,3,C61D23,FFFFFF,1,0,0
+42,2833,2833,Pontinha (Metro) | Circular via Casal Novo,2833_0,2833,Pontinha (Metro) | Circular via Casal Novo,3,C61D23,FFFFFF,1,1,0
+42,2833,2833,Pontinha (Metro) | Circular via Casal Novo,2833_1,2833,Casal Novo - Pontinha (Metro) via Casal de Cambra,3,C61D23,FFFFFF,3,0,0
+42,2833,2833,Pontinha (Metro) | Circular via Casal Novo,2833_2,2833,Pontinha (Metro) - Casal Novo via Casal de Cambra,3,C61D23,FFFFFF,3,0,0
+42,2841,2841,Lisboa (Campo Grande) - Sobralinho via A1 e Arcena,2841_0,2841,Lisboa (Campo Grande) - Sobralinho via A1 e Arcena,3,C61D23,FFFFFF,1,0,0
+42,2841,2841,Lisboa (Campo Grande) - Sobralinho via A1 e Arcena,2841_2,2841,Lisboa (Campo Grande) - Sobralinho via A1 Arcena e N10,3,C61D23,FFFFFF,3,0,0
+42,2842,2842,Lisboa (Campo Grande) - Vila Franca de Xira via Alverca e N10,2842_0,2842,Lisboa (Campo Grande) - Vila Franca de Xira via Alverca e N10,3,C61D23,FFFFFF,1,0,0
+42,2850,2850,Costa da Caparica - Póvoa de Santo Adrião (Parque Urbano),2850_0,2850,Costa da Caparica - Póvoa de Santo Adrião (Parque Urbano),3,0C807E,FFFFFF,1,0,0
+42,2900,2900,Lisboa (Campo Grande) - São Sebastião,2900_0,2900,Lisboa (C. Grande) - São Sebastião,3,FDB71A,FFFFFF,1,0,0
+42,2901,2901,Rolia - Venda do Pinheiro (Terminal),2901_0,2901,Rolia - Venda do Pinheiro (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2901,2901,Rolia - Venda do Pinheiro (Terminal),2901_1,2901,Povoa da Galega - Venda do Pinheiro,3,C61D23,FFFFFF,2,0,0
+42,2905,2905,Aranha (Rotunda) - Ericeira (Terminal),2905_0,2905,Aranha (Rotunda) - Ericeira (Terminal),3,BB3E96,FFFFFF,1,0,0
+42,2906,2906,Assenta - Encarnação Cruz,2906_0,2906,Assenta - Encarnação Cruz,3,C61D23,FFFFFF,1,0,0
+42,2907,2907,Assenta - Ericeira (Terminal),2907_0,2907,Assenta - Ericeira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2908,2908,Cambelas - Encarnação Cruz,2908_0,2908,Cambelas - Encarnação Cruz,3,BB3E96,FFFFFF,1,0,0
+42,2908,2908,Cambelas - Encarnação Cruz,2908_1,2908,Encarnação Cruz - Barril,3,BB3E96,FFFFFF,2,0,0
+42,2910,2910,Ervideira - Malveira (Terminal),2910_0,2910,Ervideira - Malveira,3,C61D23,FFFFFF,1,0,0
+42,2910,2910,Ervideira - Malveira (Terminal),2910_1,2910,São Sebastião - Malveira,3,C61D23,FFFFFF,2,0,0
+42,2910,2910,Ervideira - Malveira (Terminal),2910_2,2910,Malveira (Terminal) - Ervideira_(C),3,C61D23,FFFFFF,2,0,0
+42,2911,2911,Ervideira - Malveira (Terminal),2911_0,2911,Ervideira - Malveira (Terminal) via Vila Franca do Rosario,3,C61D23,FFFFFF,1,0,0
+42,2911,2911,Ervideira - Malveira (Terminal),2911_1,2911,Malveira (Terminal) - São Sebastião,3,C61D23,FFFFFF,2,0,0
+42,2912,2912,São Sebastião - Malveira (Terminal),2912_0,2912,Malveira (Terminal)  - São Sebastiao via Vila Franca do Rosario,3,C61D23,FFFFFF,1,0,0
+42,2913,2913,Mafra (Parque Desportivo) - Pero Negro (Estação),2913_0,2913,Mafra (Parque Desportivo) - Pero Negro (Estação),3,C61D23,FFFFFF,1,0,0
+42,2913,2913,Mafra (Parque Desportivo) - Pero Negro (Estação),2913_1,2913,Mafra (Parque Desportivo) - Gradil,3,C61D23,FFFFFF,2,0,0
+42,2914,2914,Mafra (Parque Desportivo) - São Pedro da Cadeira (Rotunda da Aranha),2914_0,2914,Mafra (Parque Desportivo) - São Pedro da Cadeira (Rotunda da Aranha),3,BB3E96,FFFFFF,1,0,0
+42,2915,2915,Vila Franca do Rosário - Malveira (Terminal),2915_0,2915,Vila Franca do Rosario - Malveira (Terminal),3,C61D23,FFFFFF,1,0,0
+42,2920,2920,A-do-Mourão - Alverca (Estação),2920_0,2920,A-do-Mourão - Alverca (Estação),3,C61D23,FFFFFF,1,0,0
+42,2921,2921,Vila Franca de Xira - Arruda dos Vinhos via Alhandra,2921_0,2921,Vila Franca de Xira - Arruda Vinhos,3,BB3E96,FFFFFF,1,0,0
+42,2926,2926,Castanheira (Estação) - Vila Franca de Xira via Cachoeiras,2926_0,2926,Castanheira (Estação) - Vila Franca de Xira via Cachoeiras,3,C61D23,FFFFFF,1,0,0
+42,2927,2927,Castanheira (Estação) - Vila Franca de Xira via Montegordo,2927_0,2927,Castanheira (Estação) - Vila Franca de Xira via Montegordo,3,C61D23,FFFFFF,1,0,0
+42,2928,2928,Arruda dos Vinhos - Vila Franca de Xira via Casais da Granja,2928_0,2928,Arruda dos Vinhos - Vila Franca de Xira via Casais da Granja,3,BB3E96,FFFFFF,1,0,0
+43,3001,3001,Almada (Cristo Rei) - Cacilhas (Terminal),3001_0,3001,Almada (Cristo Rei) - Cacilhas (Terminal),3,3D85C6,FFFFFF,1,0,0
+43,3003,3003,Almada Forum - Cacilhas (Terminal),3003_0,3003,Almada Forum - Cacilhas (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3004,3004,Almada Forum - Marisol,3004_0,3004,Almada Forum - Marisol,3,C61D23,FFFFFF,1,0,0
+43,3004,3004,Almada Forum - Marisol,3004_1,3004,Vale Figueira (Esc Sec Daniel Sampaio) - Marisol,3,C61D23,FFFFFF,3,0,0
+43,3005,3005,Flexibus Almada | Circular,3005_0,3005,Flexibus Almada | Circular,3,3D85C6,FFFFFF,1,1,0
+43,3007,3007,Bairro Fundo Fomento - Cacilhas (Terminal),3007_0,3007,Bairro Fundo Fomento - Cacilhas (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3008,3008,Monte de Caparica - Quintinhas,3008_0,3008,Monte de Caparica - Quintinhas,3,C61D23,FFFFFF,1,0,0
+43,3009,3009,Cacilhas (Terminal) - Trafaria (Terminal),3009_0,3009,Cacilhas (Terminal) - Trafaria (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3011,3011,Cacilhas (Terminal) - Costa da Caparica via Escola José Cardoso Pires,3011_0,3011,Cacilhas (Terminal) - Costa da Caparica via Escola José Cardoso Pires,3,C61D23,FFFFFF,1,0,0
+43,3012,3012,Cacilhas (Terminal) - Fonte da Telha,3012_0,3012,Cacilhas (Terminal) - Fonte da Telha,3,C61D23,FFFFFF,1,0,0
+43,3012,3012,Cacilhas (Terminal) - Fonte da Telha,3012_1,3012,Cacilhas (Terminal) - Charneca da Caparica (Tremoceira),3,C61D23,FFFFFF,3,0,0
+43,3013,3013,Cacilhas (Terminal) - Feijó (Almada Forum),3013_0,3013,Cacilhas (Terminal) - Feijó (Almada Forum),3,C61D23,FFFFFF,1,0,0
+43,3017,3017,Charneca de Caparica - Pragal (Estação),3017_0,3017,Charneca de Caparica - Pragal (Estação),3,C61D23,FFFFFF,1,0,0
+43,3018,3018,Charneca de Caparica - Sobreda,3018_0,3018,Charneca de Caparica - Sobreda,3,C61D23,FFFFFF,1,0,0
+43,3019,3019,Charneca de Caparica - Trafaria (Terminal),3019_0,3019,Charneca de Caparica - Trafaria (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3021,3021,Costa da Caparica (Terminal) - Monte de Caparica (FCT),3021_0,3021,Costa da Caparica (Terminal) - Monte de Caparica (FCT),3,C61D23,FFFFFF,1,0,0
+43,3022,3022,Costa da Caparica (Terminal) - Cacilhas (Terminal),3022_0,3022,Costa da Caparica (Terminal) - Cacilhas (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3023,3023,Costa da Caparica (Terminal) - Laranjeiro,3023_0,3023,Costa da Caparica (Terminal) - Laranjeiro,3,C61D23,FFFFFF,1,0,0
+43,3024,3024,Costa da Caparica (Terminal) - Pragal (Estação),3024_0,3024,Costa da Caparica (Terminal) - Pragal (Estação),3,C61D23,FFFFFF,1,0,0
+43,3025,3025,Costa da Caparica (Terminal) - Pragal (Estação) via IC20,3025_0,3025,Costa da Caparica (Terminal) - Pragal (Estação) via IC20,3,C61D23,FFFFFF,1,0,0
+43,3026,3026,Cova da Piedade - Hospital Garcia de Orta,3026_0,3026,Cova da Piedade - Hospital Garcia de Orta,3,3D85C6,FFFFFF,1,0,0
+43,3026,3026,Cova da Piedade - Hospital Garcia de Orta,3026_1,3026,Cova da Piedade - Hospital Garcia de Orta via Base Naval,3,3D85C6,FFFFFF,3,0,0
+43,3027,3027,Hospital Garcia de Orta - Sobreda,3027_0,3027,Hospital Garcia de Orta - Sobreda,3,C61D23,FFFFFF,1,0,0
+43,3030,3030,Fonte da Telha - Monte de Caparica (FCT),3030_0,3030,Fonte da Telha - Monte de Caparica (FCT),3,C61D23,FFFFFF,1,0,0
+43,3033,3033,Monte de Caparica | Circular,3033_0,3033,Monte de Caparica | Circular,3,3D85C6,FFFFFF,1,1,0
+43,3034,3034,Porto Brandão (Terminal) - Quinta do Texugo,3034_0,3034,Porto Brandão (Terminal) - Quinta do Texugo,3,C61D23,FFFFFF,1,0,0
+43,3038,3038,Banática - Porto Brandão,3038_0,3038,Banática - Porto Brandão,3,3D85C6,FFFFFF,1,0,0
+43,3039,3039,Cova do Vapor - Raposeira via Trafaria,3039_0,3039,Cova do Vapor - Raposeira via Trafaria,3,3D85C6,FFFFFF,1,0,0
+43,3040,3040,Cacilhas (Terminal) - Quinta do Texugo,3040_0,3040,Cacilhas (Terminal) - Quinta do Texugo,3,C61D23,FFFFFF,1,0,0
+43,3040,3040,Cacilhas (Terminal) - Quinta do Texugo,3040_1,3040,Cacilhas (Terminal) - Quinta do Texugo via Qta da Graça,3,C61D23,FFFFFF,3,0,0
+43,3041,3041,Cacilhas (Terminal) - Lazarim (Pilotos),3041_0,3041,Cacilhas (Terminal) - Lazarim (Pilotos),3,C61D23,FFFFFF,1,0,0
+43,3042,3042,Aroeira - Charneca de Caparica,3042_0,3042,Aroeira - Charneca de Caparica,3,3D85C6,FFFFFF,1,0,0
+43,3043,3043,Charneca de Caparica - Lazarim (Casalinho da Rosa),3043_0,3043,Charneca de Caparica - Lazarim (Casalinho da Rosa),3,3D85C6,FFFFFF,1,0,0
+43,3044,3044,Costa da Caparica - Praia da Mata,3044_0,3044,Costa da Caparica - Praia da Mata,3,3D85C6,FFFFFF,1,0,0
+43,3101,3101,Amora - Foros de Amora (Estação),3101_0,3101,Amora - Foros de Amora (Estação),3,3D85C6,FFFFFF,1,0,0
+43,3103,3103,Corroios (Estação) - Paio Pires (Centro) via Farinheiras,3103_0,3103,Corroios (Estação) - Paio Pires (Centro) via Farinheiras,3,C61D23,FFFFFF,1,0,0
+43,3104,3104,Corroios (Estação) - Vale de Milhaços,3104_0,3104,Corroios (Estação) - Vale de Milhaços,3,C61D23,FFFFFF,1,0,0
+43,3105,3105,Fernão Ferro - Fogueteiro (Estação),3105_0,3105,Fernão Ferro - Fogueteiro (Estação),3,C61D23,FFFFFF,1,0,0
+43,3106,3106,Coina (Estação) - Fernão Ferro,3106_0,3106,Coina (Estação) - Fernão Ferro,3,3D85C6,FFFFFF,1,0,0
+43,3108,3108,Fogueteiro - Foros de Amora (Estação),3108_0,3108,Fogueteiro (Quinta da Mata) - Foros de Amora (Estação),3,3D85C6,FFFFFF,1,0,0
+43,3109,3109,Fogueteiro (Estação) - Parque Empresarial do Seixal,3109_0,3109,Fogueteiro (Estação) - Parque Empresarial do Seixal,3,C61D23,FFFFFF,1,0,0
+43,3110,3110,Fogueteiro (Estação) - Redondos,3110_0,3110,Fogueteiro (Estação) - Redondos,3,C61D23,FFFFFF,1,0,0
+43,3111,3111,Fogueteiro (Estação) - Seixal (Terminal Fluvial),3111_0,3111,Fogueteiro (Estação) - Seixal (Terminal Fluvial),3,C61D23,FFFFFF,1,0,0
+43,3111,3111,Fogueteiro (Estação) - Seixal (Terminal Fluvial),3111_1,3111,Fogueteiro (Estação) - Seixal (Terminal Fluvial) via Escola António Augusto Louro,3,C61D23,FFFFFF,3,0,0
+43,3112,3112,Fogueteiro (Estação) - Seixal (Terminal Fluvial) via Paio Pires,3112_0,3112,Fogueteiro (Estação) - Seixal (Terminal Fluvial) via Paio Pires,3,3D85C6,FFFFFF,1,0,0
+43,3113,3113,Fogueteiro (Estação) - Seixal (Terminal Fluvial) via Quinta do Cabral,3113_0,3113,Fogueteiro (Estação) - Seixal (Terminal Fluvial) via Quinta do Cabral,3,3D85C6,FFFFFF,1,0,0
+43,3114,3114,Foros de Amora (Estação) - Paio Pires (Quinta Flamância),3114_0,3114,Foros de Amora (Estação) - Paio Pires (Quinta Flamância),3,C61D23,FFFFFF,1,0,0
+43,3116,3116,Marisol (Valadares) - Seixal (Terminal Fluvial) via Corroios (Estação),3116_0,3116,Marisol (Valadares) - Seixal (Terminal Fluvial) via Corroios (Estação),3,C61D23,FFFFFF,1,0,0
+43,3116,3116,Marisol (Valadares) - Seixal (Terminal Fluvial) via Corroios (Estação),3116_1,3116,Marisol (Valadares) - Corroios (Estação),3,C61D23,FFFFFF,3,0,0
+43,3118,3118,Marisol (Valadares) - Seixal (Terminal Fluvial),3118_0,3118,Marisol (Valadares) - Seixal (Terminal Fluvial),3,C61D23,FFFFFF,1,0,0
+43,3118,3118,Marisol (Valadares) - Seixal (Terminal Fluvial),3118_1,3118,Marisol (Valadares) - Foros de Amora (Estação),3,C61D23,FFFFFF,3,0,0
+43,3119,3119,Pinhal Conde Cunha - Seixal (Terminal Fluvial),3119_0,3119,Pinhal Conde Cunha - Seixal (Terminal Fluvial),3,C61D23,FFFFFF,1,0,0
+43,3120,3120,Fernão Ferro - Seixal (Terminal Fluvial),3120_0,3120,Fernão Ferro - Seixal (Terminal Fluvial),3,C61D23,FFFFFF,1,0,0
+43,3121,3121,Seixal | Circular,3121_0,3121,Seixal | Circular,3,3D85C6,FFFFFF,1,1,0
+43,3122,3122,Casal do Sapo - Fogueteiro (Estação),3122_0,3122,Casal do Sapo - Fogueteiro (Estação),3,C61D23,FFFFFF,1,0,0
+43,3201,3201,Aldeia do Meco - Sesimbra (Terminal) via Aiana,3201_0,3201,Aldeia do Meco - Sesimbra (Terminal) via Aiana,3,C61D23,FFFFFF,1,0,0
+43,3202,3202,Alfarim - Sesimbra (Terminal) via Aiana,3202_0,3202,Alfarim - Sesimbra (Terminal) via Aiana e Sampaio,3,C61D23,FFFFFF,1,0,0
+43,3203,3203,Azoia - Sesimbra (Terminal),3203_0,3203,Azoia - Sesimbra (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3204,3204,Azoia - Sesimbra (Terminal) via Serra da Azoia,3204_0,3204,Azoia - Sesimbra (Terminal) via Serra da Azoia,3,C61D23,FFFFFF,1,0,0
+43,3205,3205,Cabo Espichel - Sesimbra (Terminal),3205_0,3205,Cabo Espichel - Sesimbra (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3206,3206,Carrasqueira - Sesimbra (Terminal),3206_0,3206,Carrasqueira - Sesimbra (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3207,3207,Carrasqueira - Sesimbra (Terminal) via Valbom e Sampaio,3207_0,3207,Carrasqueira - Sesimbra (Terminal) via Valbom e Sampaio,3,C61D23,FFFFFF,1,0,0
+43,3208,3208,Aldeia do Meco - Sesimbra (Terminal) via Zambujal,3208_0,3208,Aldeia do Meco - Sesimbra (Terminal) via Zambujal,3,C61D23,FFFFFF,1,0,0
+43,3209,3209,Fetais - Sesimbra (Terminal) via Aiana,3209_0,3209,Fetais - Sesimbra (Terminal) via Aiana,3,C61D23,FFFFFF,1,0,0
+43,3210,3210,Lagoa de Albufeira - Sesimbra (Terminal) via Praia da Lagoa de Albufeira e do Meco,3210_0,3210,Lagoa de Albufeira - Sesimbra (Terminal) via Praia da Lagoa de Albufeira e do Meco,3,C61D23,FFFFFF,1,0,0
+43,3211,3211,Lagoa de Albufeira - Sesimbra (Terminal) via Sampaio,3211_0,3211,Lagoa de Albufeira - Sesimbra (Terminal) via Sampaio,3,C61D23,FFFFFF,1,0,0
+43,3212,3212,Maçã (Rua Macieira) - Sesimbra (Terminal),3212_0,3212,Maçã (Rua Macieira) - Sesimbra (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3213,3213,Sesimbra | Circular via Pinhal de Cima,3213_0,3213,Sesimbra | Circular via Pinhal de Cima,3,C61D23,FFFFFF,1,1,0
+43,3214,3214,Sampaio - Santana,3214_0,3214,Sampaio - Santana,3,C61D23,FFFFFF,1,0,0
+43,3215,3215,Fornos - Sampaio (via Aiana),3215_0,3215,Fornos - Sampaio (via Aiana),3,C61D23,FFFFFF,1,0,0
+43,3216,3216,Maçã - Sampaio,3216_0,3216,Maçã - Sampaio,3,C61D23,FFFFFF,1,0,0
+43,3217,3217,Azoia - Sampaio,3217_0,3217,Azoia - Sampaio,3,C61D23,FFFFFF,1,0,0
+43,3218,3218,Sesimbra | Circular via Porto de Abrigo,3218_0,3218,Sesimbra | Circular via Porto de Abrigo,3,3D85C6,FFFFFF,1,1,0
+43,3218,3218,Sesimbra | Circular via Porto de Abrigo,3218_1,3218,Sesimbra | Circular via Porto de Abrigo e Parque de Campismo,3,3D85C6,FFFFFF,3,1,0
+43,3220,3220,Sesimbra (Centro) | Circular,3220_0,3220,Sesimbra (Centro) | Circular,3,3D85C6,FFFFFF,1,1,0
+43,3221,3221,Valbom - Sesimbra (Terminal) via Sampaio,3221_0,3221,Valbom - Sesimbra (Terminal) via Sampaio,3,C61D23,FFFFFF,1,0,0
+43,3222,3222,Quinta do Conde | Circular,3222_0,3222,Quinta do Conde | Circular,3,3D85C6,FFFFFF,1,1,0
+43,3223,3223,Sampaio (Moagem) - Sesimbra (Terminal),3223_0,3223,Sampaio (Moagem) - Sesimbra (Terminal),3,3D85C6,FFFFFF,1,0,0
+43,3503,3503,Pragal (Estação) - Vale de Milhaços,3503_0,3503,Pragal (Estação) - Vale de Milhaços,3,C61D23,FFFFFF,1,0,0
+43,3504,3504,Hospital Garcia de Orta - Quintinhas,3504_0,3504,Hospital Garcia de Orta - Quintinhas,3,C61D23,FFFFFF,1,0,0
+43,3505,3505,Cacilhas (Terminal) - Paio Pires (Farinheiras),3505_0,3505,Cacilhas (Terminal) - Paio Pires (Farinheiras),3,C61D23,FFFFFF,1,0,0
+43,3506,3506,Cacilhas (Terminal) - Corroios (Estação) via Miratejo,3506_0,3506,Cacilhas (Terminal) - Corroios (Estação) via Miratejo,3,C61D23,FFFFFF,1,0,0
+43,3507,3507,Cacilhas (Terminal) - Marisol,3507_0,3507,Cacilhas (Terminal) - Marisol,3,C61D23,FFFFFF,1,0,0
+43,3508,3508,Cacilhas (Terminal) - Paio Pires (Centro),3508_0,3508,Cacilhas (Terminal) - Paio Pires (Centro),3,C61D23,FFFFFF,1,0,0
+43,3508,3508,Cacilhas (Terminal) - Paio Pires (Centro),3508_1,3508,Foros de Amora (Estação) - Paio Pires (Centro),3,C61D23,FFFFFF,3,0,0
+43,3508,3508,Cacilhas (Terminal) - Paio Pires (Centro),3508_2,3508,Corroios (Estação) - Paio Pires (Centro),3,C61D23,FFFFFF,3,0,0
+43,3508,3508,Cacilhas (Terminal) - Paio Pires (Centro),3508_3,3508,Cacilhas (Terminal) - Fogueteiro,3,C61D23,FFFFFF,3,0,0
+43,3509,3509,Cacilhas (Terminal) - Paio Pires (Centro) via Seixal (Terminal Fluvial) e Amora,3509_0,3509,Cacilhas (Terminal) - Paio Pires (Centro) via Seixal (Terminal Fluvial) e Amora,3,C61D23,FFFFFF,1,0,0
+43,3509,3509,Cacilhas (Terminal) - Paio Pires (Centro) via Seixal (Terminal Fluvial) e Amora,3509_1,3509,Cacilhas (Terminal) - Paio Pires (Centro) via Amora e Corroios (Estação),3,C61D23,FFFFFF,3,0,0
+43,3510,3510,Cacilhas (Terminal) - Lazarim (Pilotos),3510_0,3510,Cacilhas (Terminal) - Lazarim (Pilotos),3,C61D23,FFFFFF,1,0,0
+43,3511,3511,Cacilhas (Terminal) - Pinheirinho,3511_0,3511,Cacilhas (Terminal) - Pinheirinho,3,C61D23,FFFFFF,1,0,0
+43,3511,3511,Cacilhas (Terminal) - Pinheirinho,3511_1,3511,Cacilhas (Terminal) - Vale de Milhaços,3,C61D23,FFFFFF,3,0,0
+43,3512,3512,Cacilhas (Terminal) - Quinta Princesa,3512_0,3512,Cacilhas (Terminal) - Quinta Princesa,3,C61D23,FFFFFF,1,0,0
+43,3513,3513,Cacilhas (Terminal) - Santa Marta do Pinhal,3513_0,3513,Cacilhas (Terminal) - Santa Marta do Pinhal,3,C61D23,FFFFFF,1,0,0
+43,3513,3513,Cacilhas (Terminal) - Santa Marta do Pinhal,3513_1,3513,Cacilhas (Terminal) - Santa Marta do Pinhal (Cemitério),3,C61D23,FFFFFF,3,0,0
+43,3514,3514,Cacilhas (Terminal) - Vale de Milhaços,3514_0,3514,Cacilhas (Terminal) - Vale de Milhaços,3,C61D23,FFFFFF,1,0,0
+43,3515,3515,Corroios (Estação) - Lazarim (Pilotos),3515_0,3515,Corroios (Estação) - Lazarim (Pilotos),3,C61D23,FFFFFF,1,0,0
+43,3516,3516,Charneca de Caparica - Corroios (Estação),3516_0,3516,Charneca de Caparica - Corroios (Estação),3,C61D23,FFFFFF,1,0,0
+43,3517,3517,Chegadinho - Corroios (Estação),3517_0,3517,Chegadinho - Corroios (Estação),3,C61D23,FFFFFF,1,0,0
+43,3518,3518,Corroios (Estação) - Vale de Figueira,3518_0,3518,Corroios (Estação) - Vale de Figueira,3,C61D23,FFFFFF,1,0,0
+43,3519,3519,Costa da Caparica (Terminal) - Corroios (Estação),3519_0,3519,Costa da Caparica (Terminal) - Corroios (Estação),3,C61D23,FFFFFF,1,0,0
+43,3520,3520,Costa da Caparica (Terminal) - Quinta do Brasileiro,3520_0,3520,Costa da Caparica (Terminal) - Quinta do Brasileiro,3,C61D23,FFFFFF,1,0,0
+43,3521,3521,Cruz de Pau - Fonte da Telha,3521_0,3521,Cruz de Pau - Fonte da Telha,3,C61D23,FFFFFF,1,0,0
+43,3521,3521,Cruz de Pau - Fonte da Telha,3521_1,3521,Cruz de Pau - Aroeira,3,C61D23,FFFFFF,3,0,0
+43,3522,3522,Fonte da Telha - Paio Pires (Centro),3522_0,3522,Fonte da Telha - Paio Pires (Centro),3,C61D23,FFFFFF,1,0,0
+43,3523,3523,Fonte da Telha - Paio Pires (Quinta Flamância) via Seixal (Terminal Fluvial) e Foros de Amora (Estação),3523_0,3523,Fonte da Telha - Paio Pires (Quinta Flamância) via Seixal (Terminal Fluvial) e Foros de Amora (Estação),3,C61D23,FFFFFF,1,0,0
+43,3523,3523,Fonte da Telha - Paio Pires (Quinta Flamância) via Seixal (Terminal Fluvial) e Foros de Amora (Estação),3523_1,3523,Aroeira - Paio Pires (Quinta Flamância) via Seixal (Terminal Fluvial) e Foros de Amora (Estação),3,C61D23,FFFFFF,3,0,0
+43,3524,3524,Hospital Garcia de Orta - Marisol,3524_0,3524,Hospital Garcia de Orta - Marisol,3,C61D23,FFFFFF,1,0,0
+43,3525,3525,Hospital Garcia de Orta - Miratejo,3525_0,3525,Hospital Garcia de Orta - Miratejo,3,C61D23,FFFFFF,1,0,0
+43,3526,3526,Laranjeiro - Pinheirinho,3526_0,3526,Laranjeiro - Pinheirinho,3,C61D23,FFFFFF,1,0,0
+43,3526,3526,Laranjeiro - Pinheirinho,3526_1,3526,Laranjeiro - Pinheirinho (Via Sta Marta do Pinhal),3,C61D23,FFFFFF,3,0,0
+43,3527,3527,Monte de Caparica (FCT) - Paio Pires (Bairro Cucena),3527_0,3527,Monte de Caparica (FCT) - Paio Pires (Bairro Cucena),3,C61D23,FFFFFF,1,0,0
+43,3527,3527,Monte de Caparica (FCT) - Paio Pires (Bairro Cucena),3527_1,3527,Monte de Caparica (FCT) - Paio Pires (Centro),3,C61D23,FFFFFF,3,0,0
+43,3535,3535,Cacilhas (Terminal) - Quinta do Conde,3535_0,3535,Cacilhas (Terminal) - Quinta do Conde,3,C61D23,FFFFFF,1,0,0
+43,3536,3536,Cacilhas (Terminal) - Sesimbra (Terminal),3536_0,3536,Cacilhas (Terminal) - Sesimbra (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3536,3536,Cacilhas (Terminal) - Sesimbra (Terminal),3536_1,3536,Foros de Amora (Estação) - Sesimbra (Terminal),3,C61D23,FFFFFF,3,0,0
+43,3540,3540,Zambujal - Coina (Estação),3540_0,3540,Zambujal - Coina (Estação),3,C61D23,FFFFFF,1,0,0
+43,3541,3541,Coina (Estação) - Fernão Ferro via Casal do Sapo e Pinhal do General,3541_0,3541,Coina (Estação) - Fernão Ferro via Casal do Sapo e Pinhal do General,3,C61D23,FFFFFF,1,0,0
+43,3542,3542,Coina (Estação) - Praia do Meco,3542_0,3542,Coina (Estação) - Praia do Meco,3,C61D23,FFFFFF,1,0,0
+43,3543,3543,Coina (Estação) | Circular via Quinta do Conde,3543_0,3543,Coina (Estação) | Circular via Quinta do Conde,3,C61D23,FFFFFF,1,1,0
+43,3544,3544,Coina (Estação) - Sesimbra (Terminal) via Marco do Grilo,3544_0,3544,Coina (Estação) - Sesimbra (Terminal) via Marco do Grilo,3,C61D23,FFFFFF,1,0,0
+43,3546,3546,Cruz de Pau - Quinta do Conde,3546_0,3546,Cruz de Pau - Quinta do Conde,3,C61D23,FFFFFF,1,0,0
+43,3547,3547,Fogueteiro (Estação) - Quinta do Conde,3547_0,3547,Fogueteiro (Estação) - Quinta do Conde via Parque Industrial do Seixal,3,C61D23,FFFFFF,1,0,0
+43,3547,3547,Fogueteiro (Estação) - Quinta do Conde,3547_1,3547,Fogueteiro (Estação) - Quinta do Conde via Pinhal de Frades,3,C61D23,FFFFFF,3,0,0
+43,3548,3548,Marco do Grilo - Quinta do Conde,3548_0,3548,Marco do Grilo - Quinta do Conde,3,C61D23,FFFFFF,1,0,0
+43,3549,3549,Quinta do Conde - Sesimbra (Terminal) via Sampaio e Marco do Grilo,3549_0,3549,Quinta do Conde - Sesimbra (Terminal) via Sampaio e Marco do Grilo,3,C61D23,FFFFFF,1,0,0
+43,3550,3550,Pinhal de Frades (Centro de Saúde) - Pinhal do General,3550_0,3550,Pinhal de Frades (Centro de Saúde) - Pinhal do General,3,C61D23,FFFFFF,1,0,0
+43,3601,3601,Barreiro - Cova da Piedade (Metro),3601_0,3601,Barreiro - Cova da Piedade (Metro),3,C61D23,FFFFFF,1,0,0
+43,3605,3605,Cacilhas (Terminal) - Setúbal (ITS) via Azeitão,3605_0,3605,Cacilhas (Terminal) - Setúbal (ITS) via Azeitão,3,C61D23,FFFFFF,1,0,0
+43,3615,3615,Barreiro (Terminal) - Seixal (Terminal Fluvial),3615_0,3615,Barreiro (Terminal) - Seixal (Terminal Fluvial),3,C61D23,FFFFFF,1,0,0
+43,3620,3620,Coina (Estação) - Quinta do Conde,3620_0,3620,Coina (Estação) - Quinta do Conde,3,C61D23,FFFFFF,1,0,0
+43,3625,3625,Barreiro (Fórum) - Sesimbra (Terminal),3625_0,3625,Barreiro (Forum) - Sesimbra (Terminal),3,C61D23,FFFFFF,1,0,0
+43,3626,3626,Coina (Estação) - Vila Nogueira de Azeitão,3626_0,3626,Coina (Estação) - Vila Nogueira de Azeitão,3,C61D23,FFFFFF,1,0,0
+43,3635,3635,Coina (Estação) - Sesimbra (Terminal) via Azeitão e Sampaio,3635_0,3635,Coina (Estação) - Sesimbra (Terminal) via Azeitão e Sampaio e Alto das Vinhas,3,C61D23,FFFFFF,1,0,0
+43,3640,3640,Azoia - Vila Nogueira de Azeitão,3640_0,3640,Azoia - Vila Nogueira de Azeitão,3,C61D23,FFFFFF,1,0,0
+43,3641,3641,Quinta do Conde - Sampaio via Azeitão,3641_0,3641,Quinta do Conde - Sampaio via Azeitão,3,C61D23,FFFFFF,1,0,0
+43,3642,3642,Sesimbra (Terminal) - Setúbal (Hospital),3642_0,3642,Sesimbra (Terminal) - Setúbal (Hospital),3,C61D23,FFFFFF,1,0,0
+43,3650,3650,Moita - Sesimbra (Terminal),3650_0,3650,Moita - Sesimbra (Terminal),3,0C807E,FFFFFF,1,0,0
+43,3701,3701,Almada (Hosp. Particular) - Algés (Terminal),3701_0,3701,Almada (Hosp. Particular) - Algés (Terminal) (via Centro Sul),3,C61D23,FFFFFF,1,0,0
+43,3702,3702,Almada (Parque Urbano) - Lisboa (C. Universitária),3702_0,3702,Almada (Parque Urbano) - Lisboa (C. Universitária),3,C61D23,FFFFFF,1,0,0
+43,3703,3703,Almada (Parque Urbano) - Lisboa (Areeiro),3703_0,3703,Almada (Parque Urbano) - Lisboa (Areeiro),3,C61D23,FFFFFF,1,0,0
+43,3703,3703,Almada (Parque Urbano) - Lisboa (Areeiro),3703_1,3703,Cova da Piedade - Lisboa (Alcântara),3,C61D23,FFFFFF,3,0,0
+43,3704,3704,Charneca de Caparica - Lisboa (M. Pombal),3704_0,3704,Charneca de Caparica - Lisboa (M. Pombal),3,C61D23,FFFFFF,1,0,0
+43,3705,3705,Charneca de Caparica (Centro) - Lisboa (Sete Rios),3705_0,3705,Charneca de Caparica (Centro) - Lisboa (Sete Rios),3,C61D23,FFFFFF,1,0,0
+43,3706,3706,Charneca de Caparica - Lisboa (Sete Rios) via Feijó,3706_0,3706,Charneca de Caparica - Lisboa (Sete Rios) via Feijó,3,C61D23,FFFFFF,1,0,0
+43,3708,3708,Costa da Caparica (Terminal) - Lisboa (C. Sodré),3708_0,3708,Costa da Caparica (Terminal) - Lisboa (C. Sodré),3,C61D23,FFFFFF,1,0,0
+43,3709,3709,Costa da Caparica (Terminal) - Lisboa (M. Pombal),3709_0,3709,Costa da Caparica (Terminal) - Lisboa (M. Pombal),3,C61D23,FFFFFF,1,0,0
+43,3710,3710,Costa da Caparica (Terminal) - Lisboa (Areeiro),3710_0,3710,Costa da Caparica (Terminal) - Lisboa (Areeiro),3,C61D23,FFFFFF,1,0,0
+43,3711,3711,Monte de Caparica (FCT) - Lisboa (Sete Rios),3711_0,3711,Monte de Caparica (FCT) - Lisboa (Sete Rios),3,C61D23,FFFFFF,1,0,0
+43,3715,3715,Lisboa (M. Pombal) - Santa Marta do Pinhal,3715_0,3715,Lisboa (M. Pombal) - Santa Marta do Pinhal (via Centro Sul),3,C61D23,FFFFFF,1,0,0
+43,3716,3716,Lisboa (Sete Rios) - Marisol,3716_0,3716,Lisboa (Sete Rios) - Marisol,3,C61D23,FFFFFF,1,0,0
+43,3717,3717,Lisboa (Sete Rios) - Quinta do Brasileiro,3717_0,3717,Lisboa (Sete Rios) - Quinta do Brasileiro (via Centro Sul),3,C61D23,FFFFFF,1,0,0
+43,3720,3720,Lisboa (Sete Rios) - Quinta do Conde,3720_0,3720,Lisboa (Sete Rios) - Quinta do Conde,3,FDB71A,FFFFFF,1,0,0
+43,3721,3721,Lisboa (Sete Rios) - Sesimbra (Terminal),3721_0,3721,Lisboa (Sete Rios) - Sesimbra (Terminal),3,FDB71A,FFFFFF,1,0,0
+44,4001,4001,Alcochete | Circular,4001_0,4001,Alcochete | Circular,3,3D85C6,FFFFFF,1,1,0
+44,4002,4002,São Francisco | Circular,4002_0,4002,São Francisco | Circular,3,3D85C6,FFFFFF,1,1,0
+44,4101,4101,Alhos Vedros (Escola José Afonso) - Arroteias,4101_0,4101,Alhos Vedros (Escola José Afonso) - Arroteias,3,C61D23,FFFFFF,1,0,0
+44,4102,4102,Moita (Estação) - Sarilhos Pequenos via Gaio-Rosário,4102_0,4102,Moita (Estação) - Sarilhos Pequenos via Gaio-Rosário,3,C61D23,FFFFFF,1,0,0
+44,4103,4103,Moita (Estação) - Sarilhos Pequenos,4103_0,4103,Moita (Estação) - Sarilhos Pequenos,3,3D85C6,FFFFFF,1,0,0
+44,4104,4104,Moita | Circular via Centro,4104_0,4104,Moita | Circular via centro,3,3D85C6,FFFFFF,1,1,0
+44,4105,4105,Moita | Circular via Carvalhinho,4105_0,4105,Moita | Circular via Carvalhinho,3,3D85C6,FFFFFF,1,1,0
+44,4106,4106,Alhos Vedros | Circular via Centro de Saúde,4106_0,4106,Alhos Vedros | Circular via Centro de Saúde,3,3D85C6,FFFFFF,1,1,0
+44,4107,4107,Alhos Vedros | Circular via Arroteias,4107_0,4107,Alhos Vedros | Circular via Arroteias,3,3D85C6,FFFFFF,1,1,0
+44,4202,4202,Afonsoeiro - Bairro do Saldanha via Bairro da Calçada,4202_0,4202,Afonsoeiro - Bairro do Saldanha via Bairro da Calçada,3,C61D23,FFFFFF,1,0,0
+44,4203,4203,Afonsoeiro - Montijo (Terminal Fluvial) via Bairro da Liberdade,4203_0,4203,Afonsoeiro - Montijo (Terminal Fluvial) via Bairro da Liberdade,3,3D85C6,FFFFFF,1,0,0
+44,4204,4204,Bairro do Charqueirão - Montijo (Terminal Fluvial),4204_0,4204,Bairro do Charqueirão - Montijo (Terminal Fluvial),3,3D85C6,FFFFFF,1,0,0
+44,4205,4205,Montijo (Terminal Fluvial) - Vale Porrim via Bairro do Charqueirão,4205_0,4205,Montijo (Terminal Fluvial) - Vale Porrim via Bairro do Charqueirão,3,C61D23,FFFFFF,1,0,0
+44,4206,4206,Bairro Esteval - Montijo (Terminal Fluvial),4206_0,4206,Bairro Esteval - Montijo (Terminal Fluvial),3,3D85C6,FFFFFF,1,0,0
+44,4207,4207,Montijo (Área Comercial) - Montijo (Terminal Fluvial),4207_0,4207,Montijo (Área Comercial) - Montijo (Terminal Fluvial),3,3D85C6,FFFFFF,1,0,0
+44,4207,4207,Montijo (Área Comercial) - Montijo (Terminal Fluvial),4207_1,4207,Montijo (Escola Joaquim Serra) - Montijo (Terminal Fluvial),3,3D85C6,FFFFFF,3,0,0
+44,4207,4207,Montijo (Área Comercial) - Montijo (Terminal Fluvial),4207_2,4207,Bela Vista - Montijo (Terminal Fluvial),3,3D85C6,FFFFFF,3,0,0
+44,4208,4208,Montijo (Terminal Fluvial) - Sarilhos Grandes (Estr. 4 Marcos),4208_0,4208,Montijo (Terminal Fluvial) - Sarilhos Grandes (Estr. 4 Marcos),3,C61D23,FFFFFF,1,0,0
+44,4211,4211,Craveiras - Pegões | Circular,4211_0,4211,Craveiras - Pegões | Circular,3,3D85C6,FFFFFF,1,0,0
+44,4212,4212,Foros Boavista - Pegões,4212_0,4212,Foros Boavista - Pegões,3,C61D23,FFFFFF,1,0,0
+44,4301,4301,Palmela (Centro) - Palmela (Terminal),4301_0,4301,Palmela (Terminal) | Circular Escolas,3,3D85C6,FFFFFF,1,1,0
+44,4302,4302,Palmela (Estação) - Palmela (Terminal),4302_0,4302,Palmela (Estação) - Palmela (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4303,4303,Palmela | Circular,4303_0,4303,Palmela | Circular via Castelo,3,3D85C6,FFFFFF,1,0,0
+44,4303,4303,Palmela | Circular,4303_1,4303,Palmela | Circular,3,3D85C6,FFFFFF,3,0,0
+44,4304,4304,Palmela (Terminal) - Penalva,4304_0,4304,Palmela (Terminal) - Penalva,3,C61D23,FFFFFF,1,0,0
+44,4305,4305,Brejos do Assa - Palmela (Terminal),4305_0,4305,Brejos do Assa - Palmela (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4307,4307,Loja Nova - Palmela (Terminal),4307_0,4307,Loja Nova - Palmela (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4307,4307,Loja Nova - Palmela (Terminal),4307_1,4307,Loja Nova - Palmela (Terminal) via Forninho,3,C61D23,FFFFFF,3,0,0
+44,4308,4308,Palmela (Terminal) - Pinhal Novo (Estação),4308_0,4308,Palmela (Terminal) - Pinhal Novo (Estação),3,C61D23,FFFFFF,1,0,0
+44,4310,4310,Águas de Moura - Poceirão,4310_0,4310,Águas de Moura - Poceirão,3,C61D23,FFFFFF,1,0,0
+44,4311,4311,Asseiceira - Poceirão,4311_0,4311,Asseiceira - Poceirão,3,C61D23,FFFFFF,1,0,0
+44,4312,4312,Poceirão - Vale Abrunheira (X) via Fernando Pó,4312_0,4312,Poceirão - Vale Abrunheira (X) via Fernando Pó,3,C61D23,FFFFFF,1,0,0
+44,4312,4312,Poceirão - Vale Abrunheira (X) via Fernando Pó,4312_1,4312,Poceirão - Vale Abrunheira (X),3,C61D23,FFFFFF,3,0,0
+44,4312,4312,Poceirão - Vale Abrunheira (X) via Fernando Pó,4312_2,4312,Lagameças - Poceirão via Fernando Pó,3,C61D23,FFFFFF,3,0,0
+44,4313,4313,São Gonçalo - Penalva,4313_0,4313,São Gonçalo - Penalva,3,C61D23,FFFFFF,1,0,0
+44,4320,4320,Pinhal Novo | Circular,4320_0,4320,Pinhal Novo | Circular,3,3D85C6,FFFFFF,1,1,0
+44,4321,4321,Pinhal Novo - Qta do Anjo,4321_0,4321,Pinhal Novo - Quinta do Anjo,3,C61D23,FFFFFF,1,0,0
+44,4322,4322,Pinhal Novo - Rio Frio,4322_0,4322,Pinhal Novo - Rio Frio,3,C61D23,FFFFFF,1,0,0
+44,4322,4322,Pinhal Novo - Rio Frio,4322_1,4322,Pinhal Novo - Rio Frio via Colégio A Palmeira,3,C61D23,FFFFFF,3,0,0
+44,4401,4401,Cachofarra - Setúbal (Hospital),4401_0,4401,Cachofarra - Setúbal (Hospital),3,C61D23,FFFFFF,1,0,0
+44,4402,4402,Complexo Desportivo Vale Rosa - Setúbal (ITS),4402_0,4402,Complexo Desportivo Vale Rosa - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4403,4403,Ferro Engomar (Terminal) - Setúbal (Av. Luísa Todi) via ITS,4403_0,4403,Ferro Engomar (Terminal) - Setúbal (Av. Luísa Todi) via ITS,3,3D85C6,FFFFFF,1,0,0
+44,4404,4404,Várzea (Terminal) | Circular via Bairro do Liceu,4404_0,4404,Várzea (Terminal) | Circular via Bairro do Liceu,3,3D85C6,FFFFFF,1,1,0
+44,4405,4405,Várzea (Terminal) | Circular via ITS,4405_0,4405,Várzea (Terminal) | Circular via ITS,3,3D85C6,FFFFFF,1,1,0
+44,4406,4406,Manteigadas - Setúbal (Mercado),4406_0,4406,Manteigadas - Setúbal (Mercado),3,3D85C6,FFFFFF,1,0,0
+44,4406,4406,Manteigadas - Setúbal (Mercado),4406_1,4406,Setúbal (Politécnico) - Setúbal (Mercado),3,3D85C6,FFFFFF,3,0,0
+44,4407,4407,Manteigadas - Setúbal (Mercado) via Bairro 25 de Abril,4407_0,4407,Manteigadas - Setúbal (Mercado) via Bairro 25 de Abril,3,C61D23,FFFFFF,1,0,0
+44,4408,4408,Manteigadas - Setúbal (Mercado) via Bela Vista,4408_0,4408,Manteigadas - Setúbal (Mercado) via Bela Vista,3,C61D23,FFFFFF,1,0,0
+44,4409,4409,Setúbal (Bº Quinta Santo António) - Setúbal (Bº Viso) via Montebelo,4409_0,4409,Setúbal (Bº Quinta Santo António) - Setúbal (Bº Viso) via Montebelo,3,C61D23,FFFFFF,1,0,0
+44,4410,4410,Manteigadas (Esc. Profissional) - Poço Mouro via Centro Comercial,4410_0,4410,Manteigadas (Esc. Profissional) - Poço Mouro via Centro Comercial,3,C61D23,FFFFFF,1,0,0
+44,4412,4412,Morgada - Setúbal (Mercado),4412_0,4412,Morgada - Setúbal (Mercado),3,C61D23,FFFFFF,1,0,0
+44,4414,4414,Outão (Hospital) - Setúbal (ITS),4414_0,4414,Outão (Hospital) - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4415,4415,Outão (Hospital) - Setúbal (ITS) via Aldeia Grande,4415_0,4415,Outão (Hospital) - Setúbal (ITS) via Aldeia Grande,3,C61D23,FFFFFF,1,0,0
+44,4416,4416,Poço Mouro - Setúbal (ITS),4416_0,4416,Poço Mouro - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4417,4417,Poço Mouro - Setúbal (ITS) via Manteigadas,4417_0,4417,Poço Mouro - Setúbal (ITS) via Manteigadas,3,C61D23,FFFFFF,1,0,0
+44,4418,4418,Setúbal (Alegro) - Setúbal (Av. 5 Outubro),4418_0,4418,Setúbal (Centro Comercial) - Setúbal (Av. 5 Outubro),3,C61D23,FFFFFF,1,0,0
+44,4419,4419,Brejos Canes - Setúbal (Saboaria),4419_0,4419,Brejos Canes - Setúbal (Saboaria),3,C61D23,FFFFFF,1,0,0
+44,4420,4420,Setúbal (Centro Comercial) - Setúbal (ITS),4420_0,4420,Setúbal (Centro Comercial) - Setúbal (ITS),3,3D85C6,FFFFFF,1,0,0
+44,4422,4422,Setúbal (Bairro Camolas) - Setúbal (Casal Figueiras) via Bairro do Viso,4422_0,4422,Setúbal (Bairro Camolas) - Setúbal (Casal Figueiras) via Bairro do Viso,3,C61D23,FFFFFF,1,0,0
+44,4422,4422,Setúbal (Bairro Camolas) - Setúbal (Casal Figueiras) via Bairro do Viso,4422_3,4422,Setúbal (Poçoilos) - Setúbal (Casal Figueiras) via Bairro do Viso,3,C61D23,FFFFFF,3,0,0
+44,4425,4425,Setúbal (Escola Viso) - Mitrena,4425_0,4425,Setúbal (Escola Viso) - Mitrena,3,C61D23,FFFFFF,1,0,0
+44,4425,4425,Setúbal (Escola Viso) - Mitrena,4425_1,4425,Setúbal (Bairro Viso) - Mitrena,3,C61D23,FFFFFF,3,0,0
+44,4426,4426,Setúbal (Bairro do Viso) - Setúbal (Bairro Quinta Santo António),4426_0,4426,Setúbal (Bairro do Viso) - Setúbal (Bairro Quinta Santo António),3,3D85C6,FFFFFF,1,0,0
+44,4426,4426,Setúbal (Bairro do Viso) - Setúbal (Bairro Quinta Santo António),4426_1,4426,Setúbal (Escola Viso) - Setúbal (Bairro Quinta Santo António) via São Francisco Xavier,3,3D85C6,FFFFFF,3,0,0
+44,4426,4426,Setúbal (Bairro do Viso) - Setúbal (Bairro Quinta Santo António),4426_2,4426,Setúbal (Escola Viso) - Setúbal (ITS),3,3D85C6,FFFFFF,3,0,0
+44,4426,4426,Setúbal (Bairro do Viso) - Setúbal (Bairro Quinta Santo António),4426_3,4426,Setúbal (Escola Viso) - Setúbal (Bonfim),3,3D85C6,FFFFFF,3,0,0
+44,4426,4426,Setúbal (Bairro do Viso) - Setúbal (Bairro Quinta Santo António),4426_4,4426,Setúbal (Escola Viso) - Setúbal (Mercado 2 de Abril),3,3D85C6,FFFFFF,3,0,0
+44,4427,4427,Setúbal (Bela Vista) - Setúbal (Mercado),4427_0,4427,Setúbal (Bela Vista) - Setúbal (Mercado),3,3D85C6,FFFFFF,1,0,0
+44,4428,4428,Setúbal (Casal Figueiras) - Vale Ana Gomes,4428_0,4428,Setúbal (Casal Figueiras) - Vale Ana Gomes,3,C61D23,FFFFFF,1,0,0
+44,4429,4429,Setúbal (Centro Saúde) - Setúbal (Mercado),4429_0,4429,Setúbal (Centro Saúde) - Setúbal (Mercado),3,C61D23,FFFFFF,1,0,0
+44,4431,4431,Setúbal (ITS) - Setúbal (Quinta Varzinha),4431_0,4431,Setúbal (ITS) - Setúbal (Quinta Varzinha),3,3D85C6,FFFFFF,1,0,0
+44,4432,4432,Setúbal (ITS) - Vale de Choupo,4432_0,4432,Setúbal (ITS) - Vale de Choupo,3,C61D23,FFFFFF,1,0,0
+44,4433,4433,Alto Guerra - Setúbal (Casal Figueiras),4433_0,4433,Alto Guerra - Setúbal (Casal Figueiras),3,C61D23,FFFFFF,1,0,0
+44,4434,4434,Setúbal (Mercado 2 de Abril) - Setúbal (R. Timor),4434_0,4434,Setúbal (Mercado 2 de Abril) - Setúbal (R. Timor),3,3D85C6,FFFFFF,1,0,0
+44,4434,4434,Setúbal (Mercado 2 de Abril) - Setúbal (R. Timor),4434_1,4434,Manteigadas - Setúbal (R. Timor),3,3D85C6,FFFFFF,3,0,0
+44,4435,4435,Biscainho - Faralhão,4435_0,4435,Biscainho - Faralhão,3,C61D23,FFFFFF,1,0,0
+44,4436,4436,Setúbal (Mercado) - Setúbal (Terroa),4436_0,4436,Setúbal (Mercado) - Setúbal (Terroa),3,3D85C6,FFFFFF,1,0,0
+44,4437,4437,Faralhão - Setúbal (ITS),4437_0,4437,Faralhão - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4438,4438,Setúbal (Monte Belo Norte) - Setúbal (Saboaria),4438_0,4438,Setúbal (Monte Belo Norte) - Setúbal (Saboaria),3,C61D23,FFFFFF,1,0,0
+44,4438,4438,Setúbal (Monte Belo Norte) - Setúbal (Saboaria),4438_1,4438,Setúbal (Monte Belo Norte) - Setúbal (Saboaria) via Centro Saúde São Sebastião,3,C61D23,FFFFFF,3,0,0
+44,4439,4439,Praias do Sado - Setúbal (ITS),4439_0,4439,Praias do Sado - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4440,4440,Setúbal (Monte Belo Norte) - Setúbal (Saboaria) via Centro Comercial,4440_0,4440,Setúbal (Monte Belo Norte) - Setúbal (Saboaria) via Centro Comercial,3,C61D23,FFFFFF,1,0,0
+44,4441,4441,Setúbal (Saboaria) - Setúbal (Vale Cobro),4441_0,4441,Setúbal (Saboaria) - Setúbal (Vale Cobro),3,C61D23,FFFFFF,1,0,0
+44,4442,4442,Praias do Sado (Estação) - Setúbal (Bela Vista),4442_0,4442,Praias do Sado (Estação) - Setúbal (Bela Vista),3,C61D23,FFFFFF,1,0,0
+44,4442,4442,Praias do Sado (Estação) - Setúbal (Bela Vista),4442_1,4442,Praias do Sado (Estação) - Setúbal (Escola Luisa Todi),3,C61D23,FFFFFF,3,0,0
+44,4443,4443,Setúbal (Politécnico) - Praias do Sado,4443_0,4443,Setúbal (Politécnico) - Praias do Sado,3,C61D23,FFFFFF,1,0,0
+44,4451,4451,Mitrena (Lisnave) - Setúbal (ITS),4451_0,4451,Mitrena (Lisnave) - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4452,4452,Mitrena (Portucel) - Setúbal (ITS),4452_0,4452,Mitrena (Portucel) - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4452,4452,Mitrena (Portucel) - Setúbal (ITS),4452_1,4452,Mitrena (Lisnave) - Setúbal (ITS),3,C61D23,FFFFFF,3,0,0
+44,4453,4453,Mitrena (Portucel) - Setúbal (ITS) via Estrada Graça,4453_0,4453,Mitrena (Portucel) - Setúbal (ITS) via Estrada Graça,3,C61D23,FFFFFF,1,0,0
+44,4463,4463,Azeitão | Circular via Mercado,4463_0,4463,Azeitão | Circular via Mercado,3,3D85C6,FFFFFF,1,1,0
+44,4464,4464,Azeitão | Circular via EB Vila Fresca de Azeitão,4464_0,4464,Azeitão | Circular via EB Vila Fresca de Azeitão,3,3D85C6,FFFFFF,1,1,0
+44,4465,4465,Escolas Azeitão | Trajeto 1,4465_0,4465,Escolas Azeitão | Trajeto 1,3,3D85C6,FFFFFF,1,0,1
+44,4466,4466,Escolas Azeitão | Trajeto 2,4466_0,4466,Escolas Azeitão | Trajeto 2,3,3D85C6,FFFFFF,1,0,1
+44,4467,4467,Escolas Azeitão | Trajeto 3,4467_0,4467,Escolas Azeitão | Trajeto 3,3,3D85C6,FFFFFF,1,0,1
+44,4468,4468,Escolas Azeitão | Trajeto 4,4468_0,4468,Escolas Azeitão | Trajeto 4,3,3D85C6,FFFFFF,1,0,1
+44,4470,4470,Setúbal (ITS) - Praia do Creiro via Vila Nogueira de Azeitão,4470_0,4470,Setúbal (ITS) - Praia do Creiro via Vila Nogueira de Azeitão,3,C61D23,FFFFFF,1,0,0
+44,4471,4471,Praia Albarquel | Circular,4471_0,4471,Praia Albarquel | Circular,3,C61D23,FFFFFF,1,0,0
+44,4474,4474,Praia da Figueirinha - Setúbal (Centro Comercial),4474_0,4474,Praia da Figueirinha - Setúbal (Centro Comercial),3,C61D23,FFFFFF,1,0,0
+44,4481,4481,ITS | Circular via Av. Luísa Todi,4481_0,4481,ITS | Circular via Av. Luísa Todi,3,C61D23,FFFFFF,1,1,0
+44,4482,4482,ITS | Circular via Parque Urbano da Várzea,4482_0,4482,ITS | Circular via Parque Urbano da Várzea,3,C61D23,FFFFFF,1,1,0
+44,4501,4501,Alcochete (Freeport) - Montijo (Terminal Fluvial),4501_0,4501,Alcochete (Freeport) - Montijo (Terminal Fluvial),3,C61D23,FFFFFF,1,0,0
+44,4501,4501,Alcochete (Freeport) - Montijo (Terminal Fluvial),4501_1,4501,Alcochete (Freeport) - Montijo (Terminal Rodoviário),3,C61D23,FFFFFF,3,0,0
+44,4503,4503,Atalaia (Bairro Charqueirão) - Montijo (Bairro Areias),4503_0,4503,Atalaia (Bairro Charqueirão) - Montijo (Bairro Areias),3,C61D23,FFFFFF,1,0,0
+44,4504,4504,Alcochete (Freeport) - Montijo (Terminal Fluvial) via Atalaia e Passil,4504_0,4504,Alcochete (Freeport) - Montijo (Terminal Fluvial) via Atalaia e Passil,3,C61D23,FFFFFF,1,0,0
+44,4512,4512,Alcochete (Freeport) - Setúbal (ITS),4512_0,4512,Alcochete (Freeport) - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4512,4512,Alcochete (Freeport) - Setúbal (ITS),4512_1,4512,Alcochete (Freeport) - Setúbal (ITS) via St. Peter's School,3,C61D23,FFFFFF,3,0,0
+44,4514,4514,Canha - Montijo (Terminal Rodoviário) via Pegões,4514_0,4514,Canha - Montijo (Terminal Rodoviário) via Pegões,3,C61D23,FFFFFF,1,0,0
+44,4514,4514,Canha - Montijo (Terminal Rodoviário) via Pegões,4514_1,4514,Canha - Montijo (Terminal Rodoviário),3,C61D23,FFFFFF,3,0,0
+44,4514,4514,Canha - Montijo (Terminal Rodoviário) via Pegões,4514_3,4514,Canha - Montijo (Terminal Rodoviário) via Pegões e Afonsos,3,C61D23,FFFFFF,3,0,0
+44,4515,4515,Montijo (Terminal Rodoviário) - Pegões,4515_0,4515,Montijo (Terminal Rodoviário) - Pegões,3,C61D23,FFFFFF,1,0,0
+44,4516,4516,Montijo (Terminal Rodoviário) - Rio Frio,4516_0,4516,Montijo (Terminal Rodoviário) - Rio Frio,3,C61D23,FFFFFF,1,0,0
+44,4520,4520,Faias - Pegões,4520_0,4520,Faias - Pegões,3,C61D23,FFFFFF,1,0,0
+44,4521,4521,Faias - Pinhal Novo via Lagameças,4521_0,4521,Faias - Pinhal Novo via Lagameças,3,C61D23,FFFFFF,1,0,0
+44,4522,4522,Faias - Poceirão,4522_0,4522,Faias - Poceirão,3,C61D23,FFFFFF,1,0,0
+44,4524,4524,Palmela (Terminal) - Pegões,4524_0,4524,Palmela (Terminal) - Pegões,3,C61D23,FFFFFF,1,0,0
+44,4525,4525,Faias - Pinhal Novo Via N5,4525_0,4525,Faias - Pinhal Novo Via N5,3,C61D23,FFFFFF,1,0,0
+44,4530,4530,Bairro Vila Morena - Pinhal Novo,4530_0,4530,Bairro Vila Morena - Pinhal Novo,3,C61D23,FFFFFF,1,0,0
+44,4531,4531,Moita (Esc. Secundária) - Palmela (Terminal),4531_0,4531,Moita (Esc. Secundária) - Palmela (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4532,4532,Moita (Estação) - Moita (Bairro 1º Maio),4532_0,4532,Moita (Estação) - Moita (Bairro 1º Maio),3,C61D23,FFFFFF,1,0,0
+44,4540,4540,Águas de Moura - Setúbal (ITS),4540_0,4540,Águas de Moura - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4540,4540,Águas de Moura - Setúbal (ITS),4540_1,4540,Águas de Moura - Setúbal (ITS) via Gâmbia,3,C61D23,FFFFFF,3,0,0
+44,4541,4541,Algeruz - Setúbal (Av. Luísa Todi),4541_0,4541,Algeruz - Setúbal (Av. Luísa Todi),3,C61D23,FFFFFF,1,0,0
+44,4542,4542,Algeruz - Setúbal (ITS),4542_0,4542,Algeruz - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4543,4543,Algeruz - Setúbal (ITS) via Poçoilos,4543_0,4543,Algeruz - Setúbal (ITS) via Poçoilos,3,C61D23,FFFFFF,1,0,0
+44,4544,4544,Bairro Margaça - Setúbal (ITS),4544_0,4544,Bairro Margaça - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4544,4544,Bairro Margaça - Setúbal (ITS),4544_1,4544,Bairro Margaça - Setúbal (ITS) via Gâmbia,3,C61D23,FFFFFF,3,0,0
+44,4544,4544,Bairro Margaça - Setúbal (ITS),4544_2,4544,Bairro Margaça - Setúbal (Av. 5 de Outubro) via Gâmbia,3,C61D23,FFFFFF,3,0,0
+44,4545,4545,Biscainho - Setúbal (Bela Vista),4545_0,4545,Biscainho - Setúbal (Bela Vista),3,C61D23,FFFFFF,1,0,0
+44,4546,4546,Biscainho - Setúbal (ITS),4546_0,4546,Biscainho - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4548,4548,Lagameças - Setúbal (ITS),4548_0,4548,Lagameças - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4549,4549,Palmela (Terminal) - Setúbal (ITS),4549_0,4549,Palmela (Terminal) - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4550,4550,Palmela (Terminal) - Vila Nogueira de Azeitão,4550_0,4550,Palmela (Terminal) - Vila Nogueira de Azeitão,3,C61D23,FFFFFF,1,0,0
+44,4551,4551,Palmela (Alameda Nun'Álvares Pereira) - Setúbal (Av. Luísa Todi),4551_0,4551,Palmela (Alameda Nun'Álvares Pereira) - Setúbal (Av. Luísa Todi),3,C61D23,FFFFFF,1,0,0
+44,4552,4552,Brejos de Azeitão (Parque do Morango) - Palmela (Terminal),4552_0,4552,Brejos de Azeitão (Parque do Morango) - Palmela (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4560,4560,São Gonçalo - Vila Nogueira de Azeitão (Escola Básica 2 3),4560_0,4560,São Gonçalo - Vila Nogueira de Azeitão (Escola Básica 2 3),3,C61D23,FFFFFF,1,0,0
+44,4562,4562,Setúbal (ITS) - Vila Nogueira de Azeitão (Escola) via Palmela (Estação),4562_0,4562,Setúbal (ITS) - Vila Nogueira de Azeitão (Escola) via Palmela (Estação),3,C61D23,FFFFFF,1,0,0
+44,4600,4600,Alcochete (Freeport) - Barreiro (Terminal) via Samouco,4600_0,4600,Alcochete (Freeport) - Barreiro (Terminal) via Samouco,3,C61D23,FFFFFF,1,0,0
+44,4600,4600,Alcochete (Freeport) - Barreiro (Terminal) via Samouco,4600_2,4600,Barreiro (Terminal) - Chão Duro,3,C61D23,FFFFFF,3,0,0
+44,4602,4602,Alhos Vedros (Estação) - Barreiro (Terminal),4602_0,4602,Alhos Vedros (Estação) - Barreiro (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4604,4604,Barreiro (Terminal) - Moita (Esc Secundária),4604_0,4604,Barreiro (Terminal) - Moita (Escola Secundária),3,C61D23,FFFFFF,1,0,0
+44,4605,4605,Lavradio - Pinhal do Forno,4605_0,4605,Lavradio - Pinhal do Forno,3,C61D23,FFFFFF,1,0,0
+44,4610,4610,Bairro dos Marinheiros - Barreiro (Terminal),4610_0,4610,Bairro dos Marinheiros - Barreiro (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4611,4611,Penalva - Moita (Esc. Secundária),4611_0,4611,Penalva (Estação) - Moita (Esc. Secundária),3,C61D23,FFFFFF,1,0,0
+44,4612,4612,Bairro dos Marinheiros - Palmela (Terminal),4612_0,4612,Bairro dos Marinheiros - Palmela (Terminal),3,C61D23,FFFFFF,1,0,0
+44,4620,4620,Moita (Esc. Secundária) - Paio Pires,4620_0,4620,Moita (Esc. Secundária) - Paio Pires,3,C61D23,FFFFFF,1,0,0
+44,4621,4621,Moita (Esc. Secundária) - Seixal (Terminal Fluvial),4621_0,4621,Moita (Esc. Secundária) - Seixal (Terminal Fluvial),3,C61D23,FFFFFF,1,0,0
+44,4632,4632,Coina (Estação) - Quinta do Anjo via Vendas de Azeitão,4632_0,4632,Coina (Estação) - Quinta do Anjo via Vendas de Azeitão,3,C61D23,FFFFFF,1,0,0
+44,4641,4641,Quinta do Conde - Setúbal (ITS),4641_0,4641,Quinta do Conde - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4641,4641,Quinta do Conde - Setúbal (ITS),4641_1,4641,Quinta do Conde - Setúbal (Escola Lima Freitas),3,C61D23,FFFFFF,3,0,0
+44,4701,4701,Lisboa (Oriente) - Vale da Amoreira,4701_0,4701,Lisboa (Oriente) - Vale da Amoreira,3,FDB71A,FFFFFF,1,0,0
+44,4701,4701,Lisboa (Oriente) - Vale da Amoreira,4701_1,4701,Lisboa (Oriente) - Moita,3,FDB71A,FFFFFF,3,0,0
+44,4701,4701,Lisboa (Oriente) - Vale da Amoreira,4701_3,4701,Alhos Vedros - Lisboa (Oriente),3,FDB71A,FFFFFF,3,0,0
+44,4702,4702,Lisboa (Oriente) - São Francisco,4702_0,4702,Lisboa (Oriente) - São Francisco,3,FDB71A,FFFFFF,1,0,0
+44,4702,4702,Lisboa (Oriente) - São Francisco,4702_1,4702,Lisboa (Oriente) - Alcochete (Escola),3,FDB71A,FFFFFF,3,0,0
+44,4704,4704,Atalaia - Lisboa (Oriente) via B. Areias e B. Esteval,4704_0,4704,Atalaia - Lisboa (Oriente) via B. Areias e B. Esteval,3,FDB71A,FFFFFF,1,0,0
+44,4705,4705,Lisboa (Oriente) - Samouco,4705_0,4705,Lisboa (Oriente) - Samouco,3,FDB71A,FFFFFF,1,0,0
+44,4706,4706,Montijo (Urb. Alto dos Moinhos) - Lisboa (Oriente),4706_0,4706,Montijo (Urb. Alto dos Moinhos) - Lisboa (Oriente),3,FDB71A,FFFFFF,1,0,0
+44,4707,4707,Lisboa (Oriente) - Montijo (Terminal Rodoviário),4707_0,4707,Lisboa (Oriente) - Montijo (Terminal Rodoviário),3,FDB71A,FFFFFF,1,0,0
+44,4708,4708,Alcochete (Freeport) - Lisboa (Oriente) via Montijo,4708_0,4708,Alcochete (Freeport) - Lisboa (Oriente) via Montijo,3,FDB71A,FFFFFF,1,0,0
+44,4710,4710,Lisboa (Oriente) - Palmela (Terminal),4710_0,4710,Lisboa (Oriente) - Palmela (Terminal),3,FDB71A,FFFFFF,1,0,0
+44,4710,4710,Lisboa (Oriente) - Palmela (Terminal),4710_1,4710,Lisboa (Oriente) - Pinhal Novo,3,FDB71A,FFFFFF,3,0,0
+44,4715,4715,Lisboa (Oriente) - Setúbal (ITS) via Palmela,4715_0,4715,Lisboa (Oriente) - Setúbal (ITS) via Palmela,3,FDB71A,FFFFFF,1,0,0
+44,4720,4720,Lisboa (Oriente) - Setúbal (Terminal Várzea),4720_0,4720,Lisboa (Oriente) - Setúbal (Terminal Várzea),3,FDB71A,FFFFFF,1,0,0
+44,4721,4721,Lisboa (Oriente) - Setúbal (ITS) | Expresso,4721_0,4721,Lisboa (Oriente) - Setúbal (ITS),3,FDB71A,FFFFFF,1,0,0
+44,4725,4725,Lisboa (Sete Rios) - Setúbal (Terminal Várzea),4725_0,4725,Lisboa (Sete Rios) - Setúbal (Terminal Várzea),3,FDB71A,FFFFFF,1,0,0
+44,4730,4730,Lisboa (Sete Rios) - Setúbal (ITS) via Azeitão,4730_0,4730,Lisboa (Sete Rios) - Setúbal (ITS) via Azeitão,3,C61D23,FFFFFF,1,0,0
+44,4741,4741,Lisboa (Oriente) - Vale da Amoreira | Expresso,4741_0,4741,Lisboa (Oriente) - Vale da Amoreira | Expresso,3,FDB71A,FFFFFF,1,0,0
+44,4901,4901,Landeira - Setúbal (ITS),4901_0,4901,Landeira - Setúbal (ITS),3,C61D23,FFFFFF,1,0,0
+44,4901,4901,Landeira - Setúbal (ITS),4901_1,4901,Landeira - Setúbal (ITS) via Gâmbia,3,C61D23,FFFFFF,3,0,0
+44,4902,4902,Landeira - Pegões,4902_0,4902,Pegões - Landeira,3,C61D23,FFFFFF,1,0,0
+44,4905,4905,Faias - Vendas Novas,4905_0,4905,Faias - Vendas Novas,3,BB3E96,FFFFFF,1,0,0
+44,4905,4905,Faias - Vendas Novas,4905_1,4905,Pegões - Vendas Novas,3,BB3E96,FFFFFF,1,0,0
+44,4906,4906,Setúbal (ITS) - Vendas Novas via Landeira,4906_0,4906,Setúbal (ITS) - Vendas Novas via Landeira,3,BB3E96,FFFFFF,1,0,0
+44,4906,4906,Setúbal (ITS) - Vendas Novas via Landeira,4906_1,4906,Setúbal (ITS) - Vendas Novas,3,BB3E96,FFFFFF,3,0,0
