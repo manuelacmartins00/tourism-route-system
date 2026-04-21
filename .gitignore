@@ -23,12 +23,16 @@ data/feedback/
 data/*.npy
 data/*.json
 
+# GTFS — shapes.txt não é usado pelo código (só geometria visual)
+data/gtfs/*/shapes.txt
+# Cache do grafo unificado (gerado em runtime)
+data/gtfs/unified_graph.pkl
+
 # ChromaDB
 chroma_db/
 
-# Outputs e scripts locais
+# Outputs locais
 outputs/
-scripts/
 
 # VS Code
 .vscode/

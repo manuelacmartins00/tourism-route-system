@@ -1,0 +1,2 @@
+feed_publisher_name,feed_publisher_url,feed_lang,default_lang,feed_start_date,feed_end_date,feed_version,feed_contact_email
+"Metropolitano de Lisboa, EPE","https://www.metrolisboa.pt","PT","PT","20260101","20261231","23.01.04","nuno.castelinho@metrolisboa.pt"

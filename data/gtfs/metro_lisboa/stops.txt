@@ -1,0 +1,75 @@
+stop_id,stop_name,stop_lat,stop_lon,zone_id,stop_url,location_type,parent_station
+AM,"Alameda",38.737255,-9.134086,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alameda/,1,
+AM1,"Alameda",38.737255,-9.134086,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alameda/,0,AM
+AM2,"Alameda",38.737255,-9.134086,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alameda/,0,AM
+AM3,"Alameda",38.737255,-9.134086,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alameda/,0,AM
+AM4,"Alameda",38.737255,-9.134086,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alameda/,0,AM
+AF,"Alfornelos",38.760616,-9.204708,1,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alfornelos/,,
+AH,"Alto dos Moinhos",38.74958,-9.179946,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alto-dos-moinhos/,,
+AL,"Alvalade",38.753456,-9.143883,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/alvalade/,,
+AS,"Amadora Este",38.758373,-9.219171,1,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/amadora-este/,,
+AX,"Ameixoeira",38.779903,-9.159986,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/ameixoeira/,,
+AN,"Anjos",38.726616,-9.135025,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/anjos/,,
+AE,"Areeiro",38.7426,-9.133807,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/areeiro/,,
+AR,"Arroios",38.733475,-9.134451,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/arroios/,,
+AV,"Avenida",38.720116,-9.145823,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/avenida/,,
+BC,"Baixa / Chiado",38.71067,-9.139091,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/baixa-chiado/,1,
+BC1,"Baixa / Chiado",38.71067,-9.139091,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/baixa-chiado/,0,BC
+BC2,"Baixa / Chiado",38.71067,-9.139091,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/baixa-chiado/,0,BC
+BC3,"Baixa / Chiado",38.71067,-9.139091,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/baixa-chiado/,0,BC
+BC4,"Baixa / Chiado",38.71067,-9.139091,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/baixa-chiado/,0,BC
+BV,"Bela Vista",38.747738,-9.118547,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/bela-vista/,,
+CR,"Cabo Ruivo",38.763195,-9.104093,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/cabo-ruivo/,,
+CS,"Cais do Sodré",38.706154,-9.145029,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/cais-do-sodre/,,
+CG,"Campo Grande",38.75988,-9.157941,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/campo-grande/,1,
+CG1,"Campo Grande",38.75988,-9.157941,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/campo-grande/,0,CG
+CG2,"Campo Grande",38.75988,-9.157941,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/campo-grande/,0,CG
+CG3,"Campo Grande",38.75988,-9.157941,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/campo-grande/,0,CG
+CG4,"Campo Grande",38.75988,-9.157941,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/campo-grande/,0,CG
+CP,"Campo Pequeno",38.74142,-9.147035,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/campo-pequeno/,,
+CA,"Carnide",38.759308,-9.192812,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/carnide/,,
+CH,"Chelas",38.755283,-9.114136,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/chelas/,,
+CU,"Cidade Universitária",38.751945,-9.158633,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/cidade-universitaria/,,
+CM,"Colégio Militar/Luz",38.753323,-9.188663,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/colegio-militarluz/,,
+EC,"Entre Campos",38.74791,-9.148564,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/entre-campos/,,
+IN,"Intendente",38.722248,-9.135309,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/intendente/,,
+JZ,"Jardim Zoológico",38.742176,-9.168724,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/jardim-zoologico/,,
+LA,"Laranjeiras",38.748528,-9.172431,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/laranjeiras/,,
+LU,"Lumiar",38.772823,-9.159701,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/lumiar/,,
+MP,"Marquês de Pombal",38.72488,-9.150807,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/marques-de-pombal/,1,
+MP1,"Marquês de Pombal",38.72488,-9.150807,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/marques-de-pombal/,0,MP
+MP2,"Marquês de Pombal",38.72488,-9.150807,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/marques-de-pombal/,0,MP
+MP3,"Marquês de Pombal",38.72488,-9.150807,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/marques-de-pombal/,0,MP
+MP4,"Marquês de Pombal",38.72488,-9.150807,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/marques-de-pombal/,0,MP
+MM,"Martim Moniz",38.716812,-9.135749,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/martim-moniz/,,
+OD,"Odivelas",38.79323,-9.173219,1,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/odivelas/,,
+OL,"Olaias",38.73919,-9.123664,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/olaias/,,
+OS,"Olivais",38.761276,-9.112038,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/olivais/,,
+OR,"Oriente",38.767838,-9.099771,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/oriente/,,
+PA,"Parque",38.729725,-9.150276,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/parque/,,
+PI,"Picoas",38.730644,-9.146503,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/picoas/,,
+PO,"Pontinha",38.762398,-9.196931,C,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/pontinha/,,
+PE,"Praça de Espanha",38.73767,-9.158451,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/praca-de-espanha/,,
+QC,"Quinta das Conchas",38.767094,-9.155458,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/quinta-das-conchas/,,
+RA,"Rato",38.720078,-9.154111,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/rato/,,
+RE,"Restauradores",38.715084,-9.141623,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/restauradores/,,
+RM,"Roma",38.74845,-9.141349,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/roma/,,
+RO,"Rossio",38.71384,-9.138957,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/rossio/,,
+SA,"Saldanha",38.735275,-9.145576,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/saldanha/,1,
+SA1,"Saldanha",38.735275,-9.145576,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/saldanha/,0,SA
+SA2,"Saldanha",38.735275,-9.145576,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/saldanha/,0,SA
+SA3,"Saldanha",38.735275,-9.145576,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/saldanha/,0,SA
+SA4,"Saldanha",38.735275,-9.145576,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/saldanha/,0,SA
+SP,"Santa Apolónia",38.713783,-9.122563,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/santa-apolonia/,,
+SS,"São Sebastião",38.73484,-9.154225,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/sao-sebastiao/,1,
+SS1,"São Sebastião",38.73484,-9.154225,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/sao-sebastiao/,0,SS
+SS2,"São Sebastião",38.73484,-9.154225,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/sao-sebastiao/,0,SS
+SS3,"São Sebastião",38.73484,-9.154225,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/sao-sebastiao/,0,SS
+SS4,"São Sebastião",38.73484,-9.154225,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/sao-sebastiao/,0,SS
+SR,"Senhor Roubado",38.78575,-9.172146,C,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/senhor-roubado/,,
+TE,"Telheiras",38.760365,-9.166056,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/telheiras/,,
+TP,"Terreiro do Paço",38.707207,-9.133351,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/terreiro-do-paco/,,
+MO,"Moscavide",38.774776,-9.102664,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/moscavide/,,
+EN,"Encarnação",38.77501,-9.114978,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/encarnacao/,,
+AP,"Aeroporto",38.76859,-9.128328,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/aeroporto/,,
+RB,"Reboleira",38.75221,-9.22414,L,https://www.metrolisboa.pt/informacao/planear-a-viagem/diagrama-e-mapa-de-rede/reboleira/,,
