@@ -1,0 +1,2543 @@
+route_id,service_id,trip_id,trip_headsign,direction_id,shape_id
+C,1,C_1_1.C1,Cais do Sodré,1,shp1
+C,1,C_1_1.C2,Telheiras,0,shp2
+C,1,C_1_1.C3,Cais do Sodré,1,shp1
+C,1,C_1_1.C4,Telheiras,0,shp2
+C,1,C_1_1.C5,Cais do Sodré,1,shp1
+C,1,C_1_1.C6,Telheiras,0,shp2
+C,1,C_1_1.C7,Cais do Sodré,1,shp1
+C,1,C_1_1.C8,Telheiras,0,shp2
+C,1,C_1_1.C9,Cais do Sodré,1,shp1
+C,1,C_1_1.C10,Telheiras,0,shp2
+C,1,C_1_1.C11,Cais do Sodré,1,shp1
+C,1,C_1_1.C12,Telheiras,0,shp2
+C,1,C_1_1.C13,Cais do Sodré,1,shp1
+C,1,C_1_1.C14,Telheiras,0,shp2
+C,1,C_1_1.C15,Cais do Sodré,1,shp1
+C,1,C_1_1.C16,Telheiras,0,shp2
+C,1,C_1_1.C17,Cais do Sodré,1,shp1
+C,1,C_1_1.C18,Telheiras,0,shp2
+C,1,C_1_1.C19,Cais do Sodré,1,shp1
+C,1,C_1_1.C20,Telheiras,0,shp2
+C,1,C_1_1.C21,Cais do Sodré,1,shp1
+C,1,C_1_1.C22,Telheiras,0,shp2
+C,1,C_1_1.C23,Cais do Sodré,1,shp1
+C,1,C_1_1.C24,Telheiras,0,shp2
+C,1,C_1_1.C25,Cais do Sodré,1,shp1
+C,1,C_1_1.C26,Telheiras,0,shp2
+C,1,C_1_1.C27,Cais do Sodré,1,shp1
+C,1,C_1_1.C28,Telheiras,0,shp2
+C,1,C_1_1.C29,Cais do Sodré,1,shp1
+C,1,C_1_1.C30,Telheiras,0,shp2
+C,1,C_1_1.C31,Cais do Sodré,1,shp1
+C,1,C_1_1.C32,Telheiras,0,shp2
+C,1,C_1_1.C33,Cais do Sodré,1,shp1
+C,1,C_1_1.C34,Telheiras,0,shp2
+C,1,C_1_1.C35,Cais do Sodré,1,shp1
+C,1,C_1_1.C36,Telheiras,0,shp2
+C,1,C_1_1.C37,Cais do Sodré,1,shp1
+C,2,C_2_1.C1,Cais do Sodré,1,shp1
+C,2,C_2_1.C2,Telheiras,0,shp2
+C,2,C_2_1.C3,Cais do Sodré,1,shp1
+C,2,C_2_1.C4,Telheiras,0,shp2
+C,2,C_2_1.C5,Cais do Sodré,1,shp1
+C,2,C_2_1.C6,Telheiras,0,shp2
+C,2,C_2_1.C7,Cais do Sodré,1,shp1
+C,2,C_2_1.C8,Telheiras,0,shp2
+C,2,C_2_1.C9,Cais do Sodré,1,shp1
+C,2,C_2_1.C10,Telheiras,0,shp2
+C,2,C_2_1.C11,Cais do Sodré,1,shp1
+C,2,C_2_1.C12,Telheiras,0,shp2
+C,2,C_2_1.C13,Cais do Sodré,1,shp1
+C,2,C_2_1.C14,Telheiras,0,shp2
+C,2,C_2_1.C15,Cais do Sodré,1,shp1
+C,2,C_2_1.C16,Telheiras,0,shp2
+C,2,C_2_1.C17,Cais do Sodré,1,shp1
+C,2,C_2_1.C18,Telheiras,0,shp2
+C,2,C_2_1.C19,Cais do Sodré,1,shp1
+C,2,C_2_1.C20,Telheiras,0,shp2
+C,2,C_2_1.C21,Cais do Sodré,1,shp1
+C,2,C_2_1.C22,Telheiras,0,shp2
+C,2,C_2_1.C23,Cais do Sodré,1,shp1
+C,2,C_2_1.C24,Telheiras,0,shp2
+C,2,C_2_1.C25,Cais do Sodré,1,shp1
+C,2,C_2_1.C26,Telheiras,0,shp2
+C,2,C_2_1.C27,Cais do Sodré,1,shp1
+C,2,C_2_1.C28,Telheiras,0,shp2
+C,2,C_2_1.C29,Cais do Sodré,1,shp1
+C,2,C_2_1.C30,Telheiras,0,shp2
+C,2,C_2_1.C31,Cais do Sodré,1,shp1
+C,2,C_2_1.C32,Telheiras,0,shp2
+C,2,C_2_1.C33,Cais do Sodré,1,shp1
+C,2,C_2_1.C34,Telheiras,0,shp2
+C,2,C_2_1.C35,Cais do Sodré,1,shp1
+C,2,C_2_1.C36,Telheiras,0,shp2
+C,2,C_2_1.C37,Cais do Sodré,1,shp1
+C,2,C_2_1.C38,Telheiras,0,shp2
+C,2,C_2_1.C39,Cais do Sodré,1,shp1
+C,2,C_2_1.C40,Telheiras,0,shp2
+C,2,C_2_1.C41,Cais do Sodré,1,shp1
+C,2,C_2_1.C42,Telheiras,0,shp2
+C,2,C_2_1.C042,Cais do Sodré,1,shp1
+C,2,C_2_1.C043,Telheiras,0,shp2
+C,2,C_2_1.C044,Cais do Sodré,1,shp1
+D,2,D_2_1.D2,Aeroporto,1,shp3
+D,2,D_2_1.D3,São Sebastião,0,shp4
+D,2,D_2_1.D4,Aeroporto,1,shp3
+D,2,D_2_1.D5,São Sebastião,0,shp4
+D,2,D_2_1.D6,Aeroporto,1,shp3
+D,2,D_2_1.D7,São Sebastião,0,shp4
+D,2,D_2_1.D8,Aeroporto,1,shp3
+D,2,D_2_1.D9,São Sebastião,0,shp4
+D,2,D_2_1.D10,Aeroporto,1,shp3
+D,2,D_2_1.D11,São Sebastião,0,shp4
+D,2,D_2_1.D12,Aeroporto,1,shp3
+D,2,D_2_1.D13,São Sebastião,0,shp4
+D,2,D_2_1.D14,Aeroporto,1,shp3
+D,2,D_2_1.D15,São Sebastião,0,shp4
+D,2,D_2_1.D16,Aeroporto,1,shp3
+D,2,D_2_1.D17,São Sebastião,0,shp4
+D,2,D_2_1.D18,Aeroporto,1,shp3
+D,2,D_2_1.D19,São Sebastião,0,shp4
+D,2,D_2_1.D20,Aeroporto,1,shp3
+D,2,D_2_1.D21,São Sebastião,0,shp4
+D,2,D_2_1.D22,Aeroporto,1,shp3
+D,2,D_2_1.D23,São Sebastião,0,shp4
+D,2,D_2_1.D24,Aeroporto,1,shp3
+D,2,D_2_1.D25,São Sebastião,0,shp4
+D,2,D_2_1.D26,Aeroporto,1,shp3
+D,2,D_2_1.D27,São Sebastião,0,shp4
+D,2,D_2_1.D28,Aeroporto,1,shp3
+D,2,D_2_1.D29,São Sebastião,0,shp4
+D,2,D_2_1.D30,Aeroporto,1,shp3
+D,2,D_2_1.D31,São Sebastião,0,shp4
+D,2,D_2_1.D32,Aeroporto,1,shp3
+D,2,D_2_1.D33,São Sebastião,0,shp4
+D,2,D_2_1.D34,Aeroporto,1,shp3
+D,2,D_2_1.D35,São Sebastião,0,shp4
+D,2,D_2_1.D36,Aeroporto,1,shp3
+D,2,D_2_1.D37,São Sebastião,0,shp4
+D,2,D_2_1.D38,Aeroporto,1,shp3
+D,2,D_2_1.D39,São Sebastião,0,shp4
+D,2,D_2_1.D40,Aeroporto,1,shp3
+D,1,D_1_1.D2,Aeroporto,1,shp3
+D,1,D_1_1.D3,São Sebastião,0,shp4
+D,1,D_1_1.D4,Aeroporto,1,shp3
+D,1,D_1_1.D5,São Sebastião,0,shp4
+D,1,D_1_1.D6,Aeroporto,1,shp3
+D,1,D_1_1.D7,São Sebastião,0,shp4
+D,1,D_1_1.D8,Aeroporto,1,shp3
+D,1,D_1_1.D9,São Sebastião,0,shp4
+D,1,D_1_1.D10,Aeroporto,1,shp3
+D,1,D_1_1.D11,São Sebastião,0,shp4
+D,1,D_1_1.D12,Aeroporto,1,shp3
+D,1,D_1_1.D13,São Sebastião,0,shp4
+D,1,D_1_1.D14,Aeroporto,1,shp3
+D,1,D_1_1.D15,São Sebastião,0,shp4
+D,1,D_1_1.D16,Aeroporto,1,shp3
+D,1,D_1_1.D17,São Sebastião,0,shp4
+D,1,D_1_1.D18,Aeroporto,1,shp3
+D,1,D_1_1.D19,São Sebastião,0,shp4
+D,1,D_1_1.D20,Aeroporto,1,shp3
+D,1,D_1_1.D21,São Sebastião,0,shp4
+D,1,D_1_1.D22,Aeroporto,1,shp3
+D,1,D_1_1.D23,São Sebastião,0,shp4
+D,1,D_1_1.D24,Aeroporto,1,shp3
+D,1,D_1_1.D25,São Sebastião,0,shp4
+D,1,D_1_1.D26,Aeroporto,1,shp3
+D,1,D_1_1.D27,São Sebastião,0,shp4
+D,1,D_1_1.D28,Aeroporto,1,shp3
+D,1,D_1_1.D29,São Sebastião,0,shp4
+D,1,D_1_1.D30,Aeroporto,1,shp3
+D,1,D_1_1.D31,São Sebastião,0,shp4
+D,1,D_1_1.D32,Aeroporto,1,shp3
+D,1,D_1_1.D33,São Sebastião,0,shp4
+D,1,D_1_1.D34,Aeroporto,1,shp3
+D,1,D_1_1.D35,São Sebastião,0,shp4
+D,1,D_1_1.D36,Aeroporto,1,shp3
+C,2,C_2_2.C2,Cais do Sodré,1,shp1
+C,2,C_2_2.C3,Telheiras,0,shp2
+C,2,C_2_2.C4,Cais do Sodré,1,shp1
+C,2,C_2_2.C5,Telheiras,0,shp2
+C,2,C_2_2.C6,Cais do Sodré,1,shp1
+C,2,C_2_2.C7,Telheiras,0,shp2
+C,2,C_2_2.C8,Cais do Sodré,1,shp1
+C,2,C_2_2.C9,Telheiras,0,shp2
+C,2,C_2_2.C10,Cais do Sodré,1,shp1
+C,2,C_2_2.C11,Telheiras,0,shp2
+C,2,C_2_2.C12,Cais do Sodré,1,shp1
+C,2,C_2_2.C13,Telheiras,0,shp2
+C,2,C_2_2.C14,Cais do Sodré,1,shp1
+C,2,C_2_2.C15,Telheiras,0,shp2
+C,2,C_2_2.C16,Cais do Sodré,1,shp1
+C,2,C_2_2.C17,Telheiras,0,shp2
+C,2,C_2_2.C18,Cais do Sodré,1,shp1
+C,2,C_2_2.C19,Telheiras,0,shp2
+C,2,C_2_2.C20,Cais do Sodré,1,shp1
+C,2,C_2_2.C21,Telheiras,0,shp2
+C,2,C_2_2.C22,Cais do Sodré,1,shp1
+C,2,C_2_2.C23,Telheiras,0,shp2
+C,2,C_2_2.C24,Cais do Sodré,1,shp1
+C,2,C_2_2.C25,Telheiras,0,shp2
+C,2,C_2_2.C26,Cais do Sodré,1,shp1
+C,2,C_2_2.C27,Telheiras,0,shp2
+C,2,C_2_2.C28,Cais do Sodré,1,shp1
+C,2,C_2_2.C29,Telheiras,0,shp2
+C,2,C_2_2.C30,Cais do Sodré,1,shp1
+C,2,C_2_2.C31,Telheiras,0,shp2
+C,2,C_2_2.C32,Cais do Sodré,1,shp1
+C,2,C_2_2.C33,Telheiras,0,shp2
+C,2,C_2_2.C34,Cais do Sodré,1,shp1
+C,2,C_2_2.C35,Telheiras,0,shp2
+C,2,C_2_2.C36,Cais do Sodré,1,shp1
+C,2,C_2_2.C37,Telheiras,0,shp2
+C,2,C_2_2.C38,Cais do Sodré,1,shp1
+C,2,C_2_2.C39,Telheiras,0,shp2
+C,1,C_1_2.C1,Cais do Sodré,1,shp1
+C,1,C_1_2.C2,Telheiras,0,shp2
+C,1,C_1_2.C3,Cais do Sodré,1,shp1
+C,1,C_1_2.C4,Telheiras,0,shp2
+C,1,C_1_2.C5,Cais do Sodré,1,shp1
+C,1,C_1_2.C6,Telheiras,0,shp2
+C,1,C_1_2.C7,Cais do Sodré,1,shp1
+C,1,C_1_2.C8,Telheiras,0,shp2
+C,1,C_1_2.C9,Cais do Sodré,1,shp1
+C,1,C_1_2.C10,Telheiras,0,shp2
+C,1,C_1_2.C11,Cais do Sodré,1,shp1
+C,1,C_1_2.C12,Telheiras,0,shp2
+C,1,C_1_2.C13,Cais do Sodré,1,shp1
+C,1,C_1_2.C14,Telheiras,0,shp2
+C,1,C_1_2.C15,Cais do Sodré,1,shp1
+C,1,C_1_2.C16,Telheiras,0,shp2
+C,1,C_1_2.C17,Cais do Sodré,1,shp1
+C,1,C_1_2.C18,Telheiras,0,shp2
+C,1,C_1_2.C19,Cais do Sodré,1,shp1
+C,1,C_1_2.C20,Telheiras,0,shp2
+C,1,C_1_2.C21,Cais do Sodré,1,shp1
+C,1,C_1_2.C22,Telheiras,0,shp2
+C,1,C_1_2.C23,Cais do Sodré,1,shp1
+C,1,C_1_2.C24,Telheiras,0,shp2
+C,1,C_1_2.C25,Cais do Sodré,1,shp1
+C,1,C_1_2.C26,Telheiras,0,shp2
+C,1,C_1_2.C27,Cais do Sodré,1,shp1
+C,1,C_1_2.C28,Telheiras,0,shp2
+C,1,C_1_2.C29,Cais do Sodré,1,shp1
+C,1,C_1_2.C30,Telheiras,0,shp2
+C,1,C_1_2.C31,Cais do Sodré,1,shp1
+C,1,C_1_2.C32,Telheiras,0,shp2
+C,1,C_1_2.C33,Cais do Sodré,1,shp1
+C,1,C_1_2.C34,Telheiras,0,shp2
+C,1,C_1_2.C35,Cais do Sodré,1,shp1
+C,1,C_1_2.C36,Telheiras,0,shp2
+C,1,C_1_2.C37,Cais do Sodré,1,shp1
+C,1,C_1_2.C38,Telheiras,0,shp2
+C,1,C_1_2.C39,Cais do Sodré,1,shp1
+C,1,C_1_2.C41,Telheiras,0,shp2
+C,1,C_1_2.C42,Cais do Sodré,1,shp1
+C,1,C_1_2.C43,Telheiras,0,shp2
+C,1,C_1_2.C043,Cais do Sodré,1,shp1
+C,1,C_1_2.C044,Telheiras,0,shp2
+C,1,C_1_2.C045,Cais do Sodré,1,shp1
+D,1,D_1_2.D2,Aeroporto,1,shp3
+D,1,D_1_2.D3,São Sebastião,0,shp4
+D,1,D_1_2.D4,Aeroporto,1,shp3
+D,1,D_1_2.D5,São Sebastião,0,shp4
+D,1,D_1_2.D6,Aeroporto,1,shp3
+D,1,D_1_2.D7,São Sebastião,0,shp4
+D,1,D_1_2.D8,Aeroporto,1,shp3
+D,1,D_1_2.D9,São Sebastião,0,shp4
+D,1,D_1_2.D10,Aeroporto,1,shp3
+D,1,D_1_2.D11,São Sebastião,0,shp4
+D,1,D_1_2.D12,Aeroporto,1,shp3
+D,1,D_1_2.D13,São Sebastião,0,shp4
+D,1,D_1_2.D14,Aeroporto,1,shp3
+D,1,D_1_2.D15,São Sebastião,0,shp4
+D,1,D_1_2.D16,Aeroporto,1,shp3
+D,1,D_1_2.D17,São Sebastião,0,shp4
+D,1,D_1_2.D18,Aeroporto,1,shp3
+D,1,D_1_2.D19,São Sebastião,0,shp4
+D,1,D_1_2.D20,Aeroporto,1,shp3
+D,1,D_1_2.D21,São Sebastião,0,shp4
+D,1,D_1_2.D22,Aeroporto,1,shp3
+D,1,D_1_2.D23,São Sebastião,0,shp4
+D,1,D_1_2.D24,Aeroporto,1,shp3
+D,1,D_1_2.D25,São Sebastião,0,shp4
+D,1,D_1_2.D26,Aeroporto,1,shp3
+D,1,D_1_2.D27,São Sebastião,0,shp4
+D,1,D_1_2.D28,Aeroporto,1,shp3
+D,1,D_1_2.D29,São Sebastião,0,shp4
+D,1,D_1_2.D30,Aeroporto,1,shp3
+D,1,D_1_2.D31,São Sebastião,0,shp4
+D,1,D_1_2.D32,Aeroporto,1,shp3
+D,1,D_1_2.D33,São Sebastião,0,shp4
+D,1,D_1_2.D34,Aeroporto,1,shp3
+D,1,D_1_2.D35,São Sebastião,0,shp4
+D,1,D_1_2.D36,Aeroporto,1,shp3
+D,1,D_1_2.D37,São Sebastião,0,shp4
+D,1,D_1_2.D38,Aeroporto,1,shp3
+D,1,D_1_2.D39,São Sebastião,0,shp4
+D,1,D_1_2.D40,Aeroporto,1,shp3
+D,1,D_1_2.D41,São Sebastião,0,shp4
+D,1,D_1_2.D42,Aeroporto,1,shp3
+D,1,D_1_2.D43,São Sebastião,0,shp4
+D,1,D_1_2.D44,Aeroporto,1,shp3
+D,1,D_1_2.D044,São Sebastião,0,shp4
+D,1,D_1_2.D045,Aeroporto,1,shp3
+D,1,D_1_2.D01,São Sebastião,0,shp4
+D,2,D_2_2.D2,Aeroporto,1,shp3
+D,2,D_2_2.D3,São Sebastião,0,shp4
+D,2,D_2_2.D4,Aeroporto,1,shp3
+D,2,D_2_2.D5,São Sebastião,0,shp4
+D,2,D_2_2.D6,Aeroporto,1,shp3
+D,2,D_2_2.D7,São Sebastião,0,shp4
+D,2,D_2_2.D8,Aeroporto,1,shp3
+D,2,D_2_2.D9,São Sebastião,0,shp4
+D,2,D_2_2.D10,Aeroporto,1,shp3
+D,2,D_2_2.D11,São Sebastião,0,shp4
+D,2,D_2_2.D12,Aeroporto,1,shp3
+D,2,D_2_2.D13,São Sebastião,0,shp4
+D,2,D_2_2.D14,Aeroporto,1,shp3
+D,2,D_2_2.D15,São Sebastião,0,shp4
+D,2,D_2_2.D16,Aeroporto,1,shp3
+D,2,D_2_2.D17,São Sebastião,0,shp4
+D,2,D_2_2.D18,Aeroporto,1,shp3
+D,2,D_2_2.D19,São Sebastião,0,shp4
+D,2,D_2_2.D20,Aeroporto,1,shp3
+D,2,D_2_2.D21,São Sebastião,0,shp4
+D,2,D_2_2.D22,Aeroporto,1,shp3
+D,2,D_2_2.D23,São Sebastião,0,shp4
+D,2,D_2_2.D24,Aeroporto,1,shp3
+D,2,D_2_2.D25,São Sebastião,0,shp4
+D,2,D_2_2.D26,Aeroporto,1,shp3
+D,2,D_2_2.D27,São Sebastião,0,shp4
+D,2,D_2_2.D28,Aeroporto,1,shp3
+D,2,D_2_2.D29,São Sebastião,0,shp4
+D,2,D_2_2.D30,Aeroporto,1,shp3
+D,2,D_2_2.D31,São Sebastião,0,shp4
+D,2,D_2_2.D32,Aeroporto,1,shp3
+D,2,D_2_2.D33,São Sebastião,0,shp4
+D,2,D_2_2.D34,Aeroporto,1,shp3
+D,2,D_2_2.D35,São Sebastião,0,shp4
+D,2,D_2_2.D36,Aeroporto,1,shp3
+C,1,C_1_3.C1,Cais do Sodré,1,shp1
+C,1,C_1_3.C2,Telheiras,0,shp2
+C,1,C_1_3.C3,Cais do Sodré,1,shp1
+C,1,C_1_3.C4,Telheiras,0,shp2
+C,1,C_1_3.C5,Cais do Sodré,1,shp1
+C,1,C_1_3.C6,Telheiras,0,shp2
+C,1,C_1_3.C7,Cais do Sodré,1,shp1
+C,1,C_1_3.C8,Telheiras,0,shp2
+C,1,C_1_3.C9,Cais do Sodré,1,shp1
+C,1,C_1_3.C10,Telheiras,0,shp2
+C,1,C_1_3.C11,Cais do Sodré,1,shp1
+C,1,C_1_3.C12,Telheiras,0,shp2
+C,1,C_1_3.C13,Cais do Sodré,1,shp1
+C,1,C_1_3.C14,Telheiras,0,shp2
+C,1,C_1_3.C15,Cais do Sodré,1,shp1
+C,1,C_1_3.C16,Telheiras,0,shp2
+C,1,C_1_3.C17,Cais do Sodré,1,shp1
+C,1,C_1_3.C18,Telheiras,0,shp2
+C,1,C_1_3.C19,Cais do Sodré,1,shp1
+C,2,C_2_3.C1,Cais do Sodré,1,shp1
+C,2,C_2_3.C2,Telheiras,0,shp2
+C,2,C_2_3.C3,Cais do Sodré,1,shp1
+C,2,C_2_3.C4,Telheiras,0,shp2
+C,2,C_2_3.C5,Cais do Sodré,1,shp1
+C,2,C_2_3.C6,Telheiras,0,shp2
+C,2,C_2_3.C7,Cais do Sodré,1,shp1
+C,2,C_2_3.C8,Telheiras,0,shp2
+C,2,C_2_3.C9,Cais do Sodré,1,shp1
+C,2,C_2_3.C10,Telheiras,0,shp2
+C,2,C_2_3.C11,Cais do Sodré,1,shp1
+C,2,C_2_3.C12,Telheiras,0,shp2
+C,2,C_2_3.C13,Cais do Sodré,1,shp1
+C,2,C_2_3.C14,Telheiras,0,shp2
+C,2,C_2_3.C15,Cais do Sodré,1,shp1
+C,2,C_2_3.C16,Telheiras,0,shp2
+C,2,C_2_3.C17,Cais do Sodré,1,shp1
+C,2,C_2_3.C18,Telheiras,0,shp2
+C,2,C_2_3.C19,Cais do Sodré,1,shp1
+C,2,C_2_3.C20,Telheiras,0,shp2
+C,2,C_2_3.C21,Cais do Sodré,1,shp1
+C,2,C_2_3.C22,Telheiras,0,shp2
+C,2,C_2_3.C23,Cais do Sodré,1,shp1
+C,2,C_2_3.C24,Telheiras,0,shp2
+C,2,C_2_3.C25,Cais do Sodré,1,shp1
+C,2,C_2_3.C26,Telheiras,0,shp2
+C,2,C_2_3.C27,Cais do Sodré,1,shp1
+C,2,C_2_3.C28,Telheiras,0,shp2
+C,2,C_2_3.C29,Cais do Sodré,1,shp1
+C,2,C_2_3.C30,Telheiras,0,shp2
+C,2,C_2_3.C31,Cais do Sodré,1,shp1
+C,2,C_2_3.C32,Telheiras,0,shp2
+C,2,C_2_3.C33,Cais do Sodré,1,shp1
+C,2,C_2_3.C34,Telheiras,0,shp2
+C,2,C_2_3.C35,Cais do Sodré,1,shp1
+C,2,C_2_3.C36,Telheiras,0,shp2
+C,2,C_2_3.C37,Cais do Sodré,1,shp1
+C,2,C_2_3.C38,Telheiras,0,shp2
+C,2,C_2_3.C39,Cais do Sodré,1,shp1
+C,2,C_2_3.C40,Telheiras,0,shp2
+C,2,C_2_3.C41,Cais do Sodré,1,shp1
+C,2,C_2_3.C42,Telheiras,0,shp2
+C,2,C_2_3.C042,Cais do Sodré,1,shp1
+C,2,C_2_3.C043,Telheiras,0,shp2
+C,2,C_2_3.C044,Cais do Sodré,1,shp1
+D,1,D_1_3.D2,Aeroporto,1,shp3
+D,1,D_1_3.D3,São Sebastião,0,shp4
+D,1,D_1_3.D4,Aeroporto,1,shp3
+D,1,D_1_3.D5,São Sebastião,0,shp4
+D,1,D_1_3.D6,Aeroporto,1,shp3
+D,1,D_1_3.D7,São Sebastião,0,shp4
+D,1,D_1_3.D8,Aeroporto,1,shp3
+D,1,D_1_3.D9,São Sebastião,0,shp4
+D,1,D_1_3.D10,Aeroporto,1,shp3
+D,1,D_1_3.D11,São Sebastião,0,shp4
+D,1,D_1_3.D12,Aeroporto,1,shp3
+D,1,D_1_3.D13,São Sebastião,0,shp4
+D,1,D_1_3.D14,Aeroporto,1,shp3
+D,1,D_1_3.D15,São Sebastião,0,shp4
+D,1,D_1_3.D16,Aeroporto,1,shp3
+D,1,D_1_3.D17,São Sebastião,0,shp4
+D,1,D_1_3.D18,Aeroporto,1,shp3
+D,1,D_1_3.D19,São Sebastião,0,shp4
+D,1,D_1_3.D20,Aeroporto,1,shp3
+D,1,D_1_3.D21,São Sebastião,0,shp4
+D,1,D_1_3.D22,Aeroporto,1,shp3
+D,1,D_1_3.D23,São Sebastião,0,shp4
+D,1,D_1_3.D24,Aeroporto,1,shp3
+D,1,D_1_3.D25,São Sebastião,0,shp4
+D,1,D_1_3.D26,Aeroporto,1,shp3
+D,1,D_1_3.D27,São Sebastião,0,shp4
+D,1,D_1_3.D28,Aeroporto,1,shp3
+D,1,D_1_3.D29,São Sebastião,0,shp4
+D,1,D_1_3.D30,Aeroporto,1,shp3
+D,1,D_1_3.D31,São Sebastião,0,shp4
+D,1,D_1_3.D32,Aeroporto,1,shp3
+D,1,D_1_3.D33,São Sebastião,0,shp4
+D,1,D_1_3.D34,Aeroporto,1,shp3
+D,1,D_1_3.D35,São Sebastião,0,shp4
+D,1,D_1_3.D36,Aeroporto,1,shp3
+D,1,D_1_3.D37,São Sebastião,0,shp4
+D,1,D_1_3.D38,Aeroporto,1,shp3
+D,1,D_1_3.D39,São Sebastião,0,shp4
+D,1,D_1_3.D40,Aeroporto,1,shp3
+D,2,D_2_3.D2,Aeroporto,1,shp3
+D,2,D_2_3.D3,São Sebastião,0,shp4
+D,2,D_2_3.D4,Aeroporto,1,shp3
+D,2,D_2_3.D5,São Sebastião,0,shp4
+D,2,D_2_3.D6,Aeroporto,1,shp3
+D,2,D_2_3.D7,São Sebastião,0,shp4
+D,2,D_2_3.D8,Aeroporto,1,shp3
+D,2,D_2_3.D9,São Sebastião,0,shp4
+D,2,D_2_3.D10,Aeroporto,1,shp3
+D,2,D_2_3.D11,São Sebastião,0,shp4
+D,2,D_2_3.D12,Aeroporto,1,shp3
+D,2,D_2_3.D13,São Sebastião,0,shp4
+D,2,D_2_3.D14,Aeroporto,1,shp3
+D,2,D_2_3.D15,São Sebastião,0,shp4
+D,2,D_2_3.D16,Aeroporto,1,shp3
+D,2,D_2_3.D17,São Sebastião,0,shp4
+D,2,D_2_3.D18,Aeroporto,1,shp3
+D,2,D_2_3.D19,São Sebastião,0,shp4
+D,2,D_2_3.D20,Aeroporto,1,shp3
+D,2,D_2_3.D21,São Sebastião,0,shp4
+D,2,D_2_3.D22,Aeroporto,1,shp3
+D,2,D_2_3.D23,São Sebastião,0,shp4
+D,2,D_2_3.D24,Aeroporto,1,shp3
+D,2,D_2_3.D25,São Sebastião,0,shp4
+D,2,D_2_3.D26,Aeroporto,1,shp3
+D,2,D_2_3.D27,São Sebastião,0,shp4
+D,2,D_2_3.D28,Aeroporto,1,shp3
+D,2,D_2_3.D29,São Sebastião,0,shp4
+D,2,D_2_3.D30,Aeroporto,1,shp3
+D,2,D_2_3.D31,São Sebastião,0,shp4
+D,2,D_2_3.D32,Aeroporto,1,shp3
+D,2,D_2_3.D33,São Sebastião,0,shp4
+D,2,D_2_3.D34,Aeroporto,1,shp3
+D,2,D_2_3.D35,São Sebastião,0,shp4
+D,2,D_2_3.D36,Aeroporto,1,shp3
+D,2,D_2_3.D37,São Sebastião,0,shp4
+D,2,D_2_3.D38,Aeroporto,1,shp3
+D,2,D_2_3.D39,São Sebastião,0,shp4
+D,2,D_2_3.D40,Aeroporto,1,shp3
+D,2,D_2_3.D41,São Sebastião,0,shp4
+D,2,D_2_3.D42,Aeroporto,1,shp3
+D,2,D_2_3.D43,São Sebastião,0,shp4
+D,2,D_2_3.D44,Aeroporto,1,shp3
+D,2,D_2_3.D044,São Sebastião,0,shp4
+D,2,D_2_3.D045,Aeroporto,1,shp3
+D,2,D_2_3.D01,São Sebastião,0,shp4
+C,1,C_1_4.C50,Telheiras,0,shp2
+C,1,C_1_4.C1,Cais do Sodré,1,shp1
+C,1,C_1_4.C2,Telheiras,0,shp2
+C,1,C_1_4.C3,Cais do Sodré,1,shp1
+C,1,C_1_4.C4,Telheiras,0,shp2
+C,1,C_1_4.C5,Cais do Sodré,1,shp1
+C,1,C_1_4.C6,Telheiras,0,shp2
+C,1,C_1_4.C7,Cais do Sodré,1,shp1
+C,1,C_1_4.C8,Telheiras,0,shp2
+C,1,C_1_4.C9,Cais do Sodré,1,shp1
+C,1,C_1_4.C10,Telheiras,0,shp2
+C,1,C_1_4.C11,Cais do Sodré,1,shp1
+C,1,C_1_4.C12,Telheiras,0,shp2
+C,1,C_1_4.C13,Cais do Sodré,1,shp1
+C,1,C_1_4.C14,Telheiras,0,shp2
+C,1,C_1_4.C15,Cais do Sodré,1,shp1
+C,1,C_1_4.C16,Telheiras,0,shp2
+C,1,C_1_4.C17,Cais do Sodré,1,shp1
+C,1,C_1_4.C18,Telheiras,0,shp2
+C,1,C_1_4.C19,Cais do Sodré,1,shp1
+C,1,C_1_4.C20,Telheiras,0,shp2
+C,1,C_1_4.C21,Cais do Sodré,1,shp1
+C,1,C_1_4.C22,Telheiras,0,shp2
+C,1,C_1_4.C23,Cais do Sodré,1,shp1
+C,1,C_1_4.C24,Telheiras,0,shp2
+C,1,C_1_4.C25,Cais do Sodré,1,shp1
+C,1,C_1_4.C26,Telheiras,0,shp2
+C,1,C_1_4.C27,Cais do Sodré,1,shp1
+C,1,C_1_4.C28,Telheiras,0,shp2
+C,1,C_1_4.C29,Cais do Sodré,1,shp1
+C,1,C_1_4.C30,Telheiras,0,shp2
+C,1,C_1_4.C31,Cais do Sodré,1,shp1
+C,1,C_1_4.C32,Telheiras,0,shp2
+C,1,C_1_4.C33,Cais do Sodré,1,shp1
+C,1,C_1_4.C34,Telheiras,0,shp2
+C,1,C_1_4.C35,Cais do Sodré,1,shp1
+C,1,C_1_4.C36,Telheiras,0,shp2
+C,1,C_1_4.C37,Cais do Sodré,1,shp1
+C,1,C_1_4.C38,Telheiras,0,shp2
+C,1,C_1_4.C39,Cais do Sodré,1,shp1
+C,1,C_1_4.C40,Telheiras,0,shp2
+C,1,C_1_4.C41,Cais do Sodré,1,shp1
+C,1,C_1_4.C42,Telheiras,0,shp2
+C,1,C_1_4.C042,Cais do Sodré,1,shp1
+C,1,C_1_4.C043,Telheiras,0,shp2
+C,1,C_1_4.C044,Cais do Sodré,1,shp1
+C,2,C_2_4.C1,Telheiras,0,shp2
+C,2,C_2_4.C2,Cais do Sodré,1,shp1
+C,2,C_2_4.C3,Telheiras,0,shp2
+C,2,C_2_4.C4,Cais do Sodré,1,shp1
+C,2,C_2_4.C5,Telheiras,0,shp2
+C,2,C_2_4.C6,Cais do Sodré,1,shp1
+C,2,C_2_4.C7,Telheiras,0,shp2
+C,2,C_2_4.C8,Cais do Sodré,1,shp1
+C,2,C_2_4.C9,Telheiras,0,shp2
+C,2,C_2_4.C10,Cais do Sodré,1,shp1
+C,2,C_2_4.C11,Telheiras,0,shp2
+C,2,C_2_4.C12,Cais do Sodré,1,shp1
+C,2,C_2_4.C13,Telheiras,0,shp2
+C,2,C_2_4.C14,Cais do Sodré,1,shp1
+C,2,C_2_4.C15,Telheiras,0,shp2
+C,2,C_2_4.C16,Cais do Sodré,1,shp1
+C,2,C_2_4.C17,Telheiras,0,shp2
+C,2,C_2_4.C18,Cais do Sodré,1,shp1
+C,2,C_2_4.C19,Telheiras,0,shp2
+C,2,C_2_4.C20,Cais do Sodré,1,shp1
+C,2,C_2_4.C21,Telheiras,0,shp2
+C,2,C_2_4.C22,Cais do Sodré,1,shp1
+C,2,C_2_4.C23,Telheiras,0,shp2
+C,2,C_2_4.C24,Cais do Sodré,1,shp1
+C,2,C_2_4.C25,Telheiras,0,shp2
+C,2,C_2_4.C26,Cais do Sodré,1,shp1
+C,2,C_2_4.C27,Telheiras,0,shp2
+C,2,C_2_4.C28,Cais do Sodré,1,shp1
+C,2,C_2_4.C29,Telheiras,0,shp2
+C,2,C_2_4.C30,Cais do Sodré,1,shp1
+C,2,C_2_4.C31,Telheiras,0,shp2
+C,2,C_2_4.C32,Cais do Sodré,1,shp1
+C,2,C_2_4.C33,Telheiras,0,shp2
+C,2,C_2_4.C34,Cais do Sodré,1,shp1
+C,2,C_2_4.C35,Telheiras,0,shp2
+C,2,C_2_4.C36,Cais do Sodré,1,shp1
+C,2,C_2_4.C37,Telheiras,0,shp2
+C,2,C_2_4.C38,Cais do Sodré,1,shp1
+C,2,C_2_4.C39,Telheiras,0,shp2
+C,2,C_2_4.C40,Cais do Sodré,1,shp1
+C,2,C_2_4.C41,Telheiras,0,shp2
+C,2,C_2_4.C42,Cais do Sodré,1,shp1
+C,2,C_2_4.C042,Telheiras,0,shp2
+C,2,C_2_4.C043,Cais do Sodré,1,shp1
+C,2,C_2_4.C044,Telheiras,0,shp2
+D,1,D_1_4.D2,São Sebastião,0,shp4
+D,1,D_1_4.D3,Aeroporto,1,shp3
+D,1,D_1_4.D4,São Sebastião,0,shp4
+D,1,D_1_4.D5,Aeroporto,1,shp3
+D,1,D_1_4.D6,São Sebastião,0,shp4
+D,1,D_1_4.D7,Aeroporto,1,shp3
+D,1,D_1_4.D8,São Sebastião,0,shp4
+D,1,D_1_4.D9,Aeroporto,1,shp3
+D,1,D_1_4.D10,São Sebastião,0,shp4
+D,1,D_1_4.D11,Aeroporto,1,shp3
+D,1,D_1_4.D12,São Sebastião,0,shp4
+D,1,D_1_4.D13,Aeroporto,1,shp3
+D,1,D_1_4.D14,São Sebastião,0,shp4
+D,1,D_1_4.D15,Aeroporto,1,shp3
+D,1,D_1_4.D16,São Sebastião,0,shp4
+D,1,D_1_4.D17,Aeroporto,1,shp3
+D,1,D_1_4.D18,São Sebastião,0,shp4
+D,1,D_1_4.D19,Aeroporto,1,shp3
+D,1,D_1_4.D20,São Sebastião,0,shp4
+D,1,D_1_4.D21,Aeroporto,1,shp3
+D,1,D_1_4.D22,São Sebastião,0,shp4
+D,1,D_1_4.D23,Aeroporto,1,shp3
+D,1,D_1_4.D24,São Sebastião,0,shp4
+D,1,D_1_4.D25,Aeroporto,1,shp3
+D,1,D_1_4.D26,São Sebastião,0,shp4
+D,1,D_1_4.D27,Aeroporto,1,shp3
+D,1,D_1_4.D28,São Sebastião,0,shp4
+D,1,D_1_4.D29,Aeroporto,1,shp3
+D,1,D_1_4.D30,São Sebastião,0,shp4
+D,1,D_1_4.D31,Aeroporto,1,shp3
+D,1,D_1_4.D32,São Sebastião,0,shp4
+D,1,D_1_4.D33,Aeroporto,1,shp3
+D,1,D_1_4.D34,São Sebastião,0,shp4
+D,1,D_1_4.D35,Aeroporto,1,shp3
+D,1,D_1_4.D36,São Sebastião,0,shp4
+D,1,D_1_4.D37,Aeroporto,1,shp3
+D,1,D_1_4.D38,São Sebastião,0,shp4
+D,1,D_1_4.D39,Aeroporto,1,shp3
+D,1,D_1_4.D40,São Sebastião,0,shp4
+D,1,D_1_4.D41,Aeroporto,1,shp3
+D,1,D_1_4.D42,São Sebastião,0,shp4
+D,1,D_1_4.D43,Aeroporto,1,shp3
+D,1,D_1_4.D44,São Sebastião,0,shp4
+D,1,D_1_4.D044,Aeroporto,1,shp3
+D,1,D_1_4.D045,São Sebastião,0,shp4
+D,1,D_1_4.D046,Aeroporto,1,shp3
+D,2,D_2_4.D2,São Sebastião,0,shp4
+D,2,D_2_4.D3,Aeroporto,1,shp3
+D,2,D_2_4.D4,São Sebastião,0,shp4
+D,2,D_2_4.D5,Aeroporto,1,shp3
+D,2,D_2_4.D6,São Sebastião,0,shp4
+D,2,D_2_4.D7,Aeroporto,1,shp3
+D,2,D_2_4.D8,São Sebastião,0,shp4
+D,2,D_2_4.D9,Aeroporto,1,shp3
+D,2,D_2_4.D10,São Sebastião,0,shp4
+D,2,D_2_4.D11,Aeroporto,1,shp3
+D,2,D_2_4.D12,São Sebastião,0,shp4
+D,2,D_2_4.D13,Aeroporto,1,shp3
+D,2,D_2_4.D14,São Sebastião,0,shp4
+D,2,D_2_4.D15,Aeroporto,1,shp3
+D,2,D_2_4.D16,São Sebastião,0,shp4
+D,2,D_2_4.D17,Aeroporto,1,shp3
+D,2,D_2_4.D18,São Sebastião,0,shp4
+D,2,D_2_4.D19,Aeroporto,1,shp3
+D,2,D_2_4.D20,São Sebastião,0,shp4
+D,2,D_2_4.D21,Aeroporto,1,shp3
+D,2,D_2_4.D22,São Sebastião,0,shp4
+D,2,D_2_4.D23,Aeroporto,1,shp3
+D,2,D_2_4.D24,São Sebastião,0,shp4
+D,2,D_2_4.D25,Aeroporto,1,shp3
+D,2,D_2_4.D26,São Sebastião,0,shp4
+D,2,D_2_4.D27,Aeroporto,1,shp3
+D,2,D_2_4.D28,São Sebastião,0,shp4
+D,2,D_2_4.D29,Aeroporto,1,shp3
+D,2,D_2_4.D30,São Sebastião,0,shp4
+D,2,D_2_4.D31,Aeroporto,1,shp3
+D,2,D_2_4.D32,São Sebastião,0,shp4
+D,2,D_2_4.D33,Aeroporto,1,shp3
+D,2,D_2_4.D34,São Sebastião,0,shp4
+D,2,D_2_4.D35,Aeroporto,1,shp3
+D,2,D_2_4.D36,São Sebastião,0,shp4
+D,2,D_2_4.D37,Aeroporto,1,shp3
+D,2,D_2_4.D38,São Sebastião,0,shp4
+D,2,D_2_4.D39,Aeroporto,1,shp3
+D,2,D_2_4.D40,São Sebastião,0,shp4
+D,2,D_2_4.D41,Aeroporto,1,shp3
+D,2,D_2_4.D42,São Sebastião,0,shp4
+D,2,D_2_4.D43,Aeroporto,1,shp3
+D,2,D_2_4.D44,São Sebastião,0,shp4
+D,2,D_2_4.D044,Aeroporto,1,shp3
+D,2,D_2_4.D045,São Sebastião,0,shp4
+D,2,D_2_4.D046,Aeroporto,1,shp3
+C,1,C_1_5.C51,Telheiras,0,shp2
+C,1,C_1_5.C2,Cais do Sodré,1,shp1
+C,1,C_1_5.C3,Telheiras,0,shp2
+C,1,C_1_5.C4,Cais do Sodré,1,shp1
+C,1,C_1_5.C5,Telheiras,0,shp2
+C,1,C_1_5.C6,Cais do Sodré,1,shp1
+C,1,C_1_5.C7,Telheiras,0,shp2
+C,1,C_1_5.C8,Cais do Sodré,1,shp1
+C,1,C_1_5.C9,Telheiras,0,shp2
+C,1,C_1_5.C10,Cais do Sodré,1,shp1
+C,1,C_1_5.C11,Telheiras,0,shp2
+C,1,C_1_5.C12,Cais do Sodré,1,shp1
+C,1,C_1_5.C13,Telheiras,0,shp2
+C,1,C_1_5.C14,Cais do Sodré,1,shp1
+C,1,C_1_5.C15,Telheiras,0,shp2
+C,1,C_1_5.C16,Cais do Sodré,1,shp1
+C,1,C_1_5.C17,Telheiras,0,shp2
+C,1,C_1_5.C18,Cais do Sodré,1,shp1
+C,1,C_1_5.C19,Telheiras,0,shp2
+C,1,C_1_5.C20,Cais do Sodré,1,shp1
+C,1,C_1_5.C21,Telheiras,0,shp2
+C,1,C_1_5.C22,Cais do Sodré,1,shp1
+C,1,C_1_5.C23,Telheiras,0,shp2
+C,1,C_1_5.C24,Cais do Sodré,1,shp1
+C,1,C_1_5.C25,Telheiras,0,shp2
+C,1,C_1_5.C26,Cais do Sodré,1,shp1
+C,1,C_1_5.C27,Telheiras,0,shp2
+C,1,C_1_5.C28,Cais do Sodré,1,shp1
+C,1,C_1_5.C29,Telheiras,0,shp2
+C,1,C_1_5.C30,Cais do Sodré,1,shp1
+C,1,C_1_5.C31,Telheiras,0,shp2
+C,1,C_1_5.C32,Cais do Sodré,1,shp1
+C,1,C_1_5.C33,Telheiras,0,shp2
+C,1,C_1_5.C34,Cais do Sodré,1,shp1
+C,1,C_1_5.C35,Telheiras,0,shp2
+C,1,C_1_5.C36,Cais do Sodré,1,shp1
+C,1,C_1_5.C37,Telheiras,0,shp2
+C,2,C_2_5.C2,Telheiras,0,shp2
+C,2,C_2_5.C3,Cais do Sodré,1,shp1
+C,2,C_2_5.C4,Telheiras,0,shp2
+C,2,C_2_5.C5,Cais do Sodré,1,shp1
+C,2,C_2_5.C6,Telheiras,0,shp2
+C,2,C_2_5.C7,Cais do Sodré,1,shp1
+C,2,C_2_5.C8,Telheiras,0,shp2
+C,2,C_2_5.C9,Cais do Sodré,1,shp1
+C,2,C_2_5.C10,Telheiras,0,shp2
+C,2,C_2_5.C11,Cais do Sodré,1,shp1
+C,2,C_2_5.C12,Telheiras,0,shp2
+C,2,C_2_5.C13,Cais do Sodré,1,shp1
+C,2,C_2_5.C14,Telheiras,0,shp2
+C,2,C_2_5.C15,Cais do Sodré,1,shp1
+C,2,C_2_5.C16,Telheiras,0,shp2
+C,2,C_2_5.C17,Cais do Sodré,1,shp1
+C,2,C_2_5.C18,Telheiras,0,shp2
+C,2,C_2_5.C19,Cais do Sodré,1,shp1
+C,2,C_2_5.C20,Telheiras,0,shp2
+C,2,C_2_5.C21,Cais do Sodré,1,shp1
+C,2,C_2_5.C22,Telheiras,0,shp2
+C,2,C_2_5.C23,Cais do Sodré,1,shp1
+C,2,C_2_5.C24,Telheiras,0,shp2
+C,2,C_2_5.C25,Cais do Sodré,1,shp1
+C,2,C_2_5.C26,Telheiras,0,shp2
+C,2,C_2_5.C27,Cais do Sodré,1,shp1
+C,2,C_2_5.C28,Telheiras,0,shp2
+C,2,C_2_5.C29,Cais do Sodré,1,shp1
+C,2,C_2_5.C30,Telheiras,0,shp2
+C,2,C_2_5.C31,Cais do Sodré,1,shp1
+C,2,C_2_5.C32,Telheiras,0,shp2
+C,2,C_2_5.C33,Cais do Sodré,1,shp1
+C,2,C_2_5.C34,Telheiras,0,shp2
+C,2,C_2_5.C35,Cais do Sodré,1,shp1
+C,2,C_2_5.C36,Telheiras,0,shp2
+C,2,C_2_5.C37,Cais do Sodré,1,shp1
+C,2,C_2_5.C38,Telheiras,0,shp2
+C,2,C_2_5.C39,Cais do Sodré,1,shp1
+C,2,C_2_5.C40,Telheiras,0,shp2
+C,2,C_2_5.C41,Cais do Sodré,1,shp1
+C,2,C_2_5.C42,Telheiras,0,shp2
+C,2,C_2_5.C43,Cais do Sodré,1,shp1
+C,2,C_2_5.C043,Telheiras,0,shp2
+C,2,C_2_5.C044,Cais do Sodré,1,shp1
+C,2,C_2_5.C045,Telheiras,0,shp2
+D,2,D_2_5.D1,São Sebastião,0,shp4
+D,2,D_2_5.D2,Aeroporto,1,shp3
+D,2,D_2_5.D3,São Sebastião,0,shp4
+D,2,D_2_5.D4,Aeroporto,1,shp3
+D,2,D_2_5.D5,São Sebastião,0,shp4
+D,2,D_2_5.D6,Aeroporto,1,shp3
+D,2,D_2_5.D7,São Sebastião,0,shp4
+D,2,D_2_5.D8,Aeroporto,1,shp3
+D,2,D_2_5.D9,São Sebastião,0,shp4
+D,2,D_2_5.D10,Aeroporto,1,shp3
+D,2,D_2_5.D11,São Sebastião,0,shp4
+D,2,D_2_5.D12,Aeroporto,1,shp3
+D,2,D_2_5.D13,São Sebastião,0,shp4
+D,2,D_2_5.D14,Aeroporto,1,shp3
+D,2,D_2_5.D15,São Sebastião,0,shp4
+D,2,D_2_5.D16,Aeroporto,1,shp3
+D,2,D_2_5.D17,São Sebastião,0,shp4
+D,2,D_2_5.D18,Aeroporto,1,shp3
+D,2,D_2_5.D19,São Sebastião,0,shp4
+D,2,D_2_5.D20,Aeroporto,1,shp3
+D,2,D_2_5.D21,São Sebastião,0,shp4
+D,2,D_2_5.D22,Aeroporto,1,shp3
+D,2,D_2_5.D23,São Sebastião,0,shp4
+D,2,D_2_5.D24,Aeroporto,1,shp3
+D,2,D_2_5.D25,São Sebastião,0,shp4
+D,2,D_2_5.D26,Aeroporto,1,shp3
+D,2,D_2_5.D27,São Sebastião,0,shp4
+D,2,D_2_5.D28,Aeroporto,1,shp3
+D,2,D_2_5.D29,São Sebastião,0,shp4
+D,2,D_2_5.D30,Aeroporto,1,shp3
+D,2,D_2_5.D31,São Sebastião,0,shp4
+D,2,D_2_5.D32,Aeroporto,1,shp3
+D,2,D_2_5.D33,São Sebastião,0,shp4
+D,2,D_2_5.D34,Aeroporto,1,shp3
+D,2,D_2_5.D35,São Sebastião,0,shp4
+D,2,D_2_5.D36,Aeroporto,1,shp3
+D,2,D_2_5.D37,São Sebastião,0,shp4
+D,2,D_2_5.D38,Aeroporto,1,shp3
+D,2,D_2_5.D39,São Sebastião,0,shp4
+D,2,D_2_5.D40,Aeroporto,1,shp3
+D,2,D_2_5.D41,São Sebastião,0,shp4
+D,2,D_2_5.D42,Aeroporto,1,shp3
+D,2,D_2_5.D042,São Sebastião,0,shp4
+D,2,D_2_5.D043,Aeroporto,1,shp3
+D,2,D_2_5.D044,São Sebastião,0,shp4
+D,1,D_1_5.D1,São Sebastião,0,shp4
+D,1,D_1_5.D2,Aeroporto,1,shp3
+D,1,D_1_5.D3,São Sebastião,0,shp4
+D,1,D_1_5.D4,Aeroporto,1,shp3
+D,1,D_1_5.D5,São Sebastião,0,shp4
+D,1,D_1_5.D6,Aeroporto,1,shp3
+D,1,D_1_5.D7,São Sebastião,0,shp4
+D,1,D_1_5.D8,Aeroporto,1,shp3
+D,1,D_1_5.D9,São Sebastião,0,shp4
+D,1,D_1_5.D10,Aeroporto,1,shp3
+D,1,D_1_5.D11,São Sebastião,0,shp4
+D,1,D_1_5.D12,Aeroporto,1,shp3
+D,1,D_1_5.D13,São Sebastião,0,shp4
+D,1,D_1_5.D14,Aeroporto,1,shp3
+D,1,D_1_5.D15,São Sebastião,0,shp4
+D,1,D_1_5.D16,Aeroporto,1,shp3
+D,1,D_1_5.D17,São Sebastião,0,shp4
+D,1,D_1_5.D18,Aeroporto,1,shp3
+D,1,D_1_5.D19,São Sebastião,0,shp4
+D,1,D_1_5.D20,Aeroporto,1,shp3
+D,1,D_1_5.D21,São Sebastião,0,shp4
+D,1,D_1_5.D22,Aeroporto,1,shp3
+D,1,D_1_5.D23,São Sebastião,0,shp4
+D,1,D_1_5.D24,Aeroporto,1,shp3
+D,1,D_1_5.D25,São Sebastião,0,shp4
+D,1,D_1_5.D26,Aeroporto,1,shp3
+D,1,D_1_5.D026,São Sebastião,0,shp4
+D,1,D_1_5.D027,Aeroporto,1,shp3
+D,1,D_1_5.D028,São Sebastião,0,shp4
+C,2,C_2_6.C1,Telheiras,0,shp2
+C,2,C_2_6.C2,Cais do Sodré,1,shp1
+C,2,C_2_6.C3,Telheiras,0,shp2
+C,2,C_2_6.C4,Cais do Sodré,1,shp1
+C,2,C_2_6.C5,Telheiras,0,shp2
+C,2,C_2_6.C6,Cais do Sodré,1,shp1
+C,2,C_2_6.C7,Telheiras,0,shp2
+C,2,C_2_6.C8,Cais do Sodré,1,shp1
+C,2,C_2_6.C9,Telheiras,0,shp2
+C,2,C_2_6.C10,Cais do Sodré,1,shp1
+C,2,C_2_6.C11,Telheiras,0,shp2
+C,2,C_2_6.C12,Cais do Sodré,1,shp1
+C,2,C_2_6.C13,Telheiras,0,shp2
+C,2,C_2_6.C14,Cais do Sodré,1,shp1
+C,2,C_2_6.C15,Telheiras,0,shp2
+C,2,C_2_6.C16,Cais do Sodré,1,shp1
+C,2,C_2_6.C17,Telheiras,0,shp2
+C,2,C_2_6.C18,Cais do Sodré,1,shp1
+C,2,C_2_6.C19,Telheiras,0,shp2
+C,2,C_2_6.C20,Cais do Sodré,1,shp1
+C,2,C_2_6.C21,Telheiras,0,shp2
+C,2,C_2_6.C22,Cais do Sodré,1,shp1
+C,2,C_2_6.C23,Telheiras,0,shp2
+C,2,C_2_6.C24,Cais do Sodré,1,shp1
+C,2,C_2_6.C25,Telheiras,0,shp2
+C,2,C_2_6.C26,Cais do Sodré,1,shp1
+C,2,C_2_6.C27,Telheiras,0,shp2
+C,2,C_2_6.C28,Cais do Sodré,1,shp1
+C,2,C_2_6.C29,Telheiras,0,shp2
+C,2,C_2_6.C30,Cais do Sodré,1,shp1
+C,2,C_2_6.C31,Telheiras,0,shp2
+C,2,C_2_6.C32,Cais do Sodré,1,shp1
+C,2,C_2_6.C33,Telheiras,0,shp2
+C,2,C_2_6.C34,Cais do Sodré,1,shp1
+C,2,C_2_6.C35,Telheiras,0,shp2
+C,2,C_2_6.C36,Cais do Sodré,1,shp1
+C,2,C_2_6.C37,Telheiras,0,shp2
+C,2,C_2_6.C38,Cais do Sodré,1,shp1
+C,2,C_2_6.C39,Telheiras,0,shp2
+C,2,C_2_6.C40,Cais do Sodré,1,shp1
+C,2,C_2_6.C41,Telheiras,0,shp2
+C,2,C_2_6.C041,Cais do Sodré,1,shp1
+C,2,C_2_6.C042,Telheiras,0,shp2
+C,2,C_2_6.C043,Cais do Sodré,1,shp1
+C,1,C_1_6.C47,Telheiras,0,shp2
+C,1,C_1_6.C1,Cais do Sodré,1,shp1
+C,1,C_1_6.C2,Telheiras,0,shp2
+C,1,C_1_6.C3,Cais do Sodré,1,shp1
+C,1,C_1_6.C4,Telheiras,0,shp2
+C,1,C_1_6.C5,Cais do Sodré,1,shp1
+C,1,C_1_6.C6,Telheiras,0,shp2
+C,1,C_1_6.C7,Cais do Sodré,1,shp1
+C,1,C_1_6.C8,Telheiras,0,shp2
+C,1,C_1_6.C9,Cais do Sodré,1,shp1
+C,1,C_1_6.C10,Telheiras,0,shp2
+C,1,C_1_6.C11,Cais do Sodré,1,shp1
+C,1,C_1_6.C12,Telheiras,0,shp2
+C,1,C_1_6.C13,Cais do Sodré,1,shp1
+C,1,C_1_6.C14,Telheiras,0,shp2
+C,1,C_1_6.C15,Cais do Sodré,1,shp1
+C,1,C_1_6.C16,Telheiras,0,shp2
+C,1,C_1_6.C17,Cais do Sodré,1,shp1
+C,1,C_1_6.C18,Telheiras,0,shp2
+C,1,C_1_6.C19,Cais do Sodré,1,shp1
+C,1,C_1_6.C20,Telheiras,0,shp2
+C,1,C_1_6.C21,Cais do Sodré,1,shp1
+C,1,C_1_6.C22,Telheiras,0,shp2
+C,1,C_1_6.C23,Cais do Sodré,1,shp1
+C,1,C_1_6.C24,Telheiras,0,shp2
+C,1,C_1_6.C25,Cais do Sodré,1,shp1
+C,1,C_1_6.C26,Telheiras,0,shp2
+C,1,C_1_6.C27,Cais do Sodré,1,shp1
+C,1,C_1_6.C28,Telheiras,0,shp2
+C,1,C_1_6.C29,Cais do Sodré,1,shp1
+C,1,C_1_6.C30,Telheiras,0,shp2
+C,1,C_1_6.C31,Cais do Sodré,1,shp1
+C,1,C_1_6.C32,Telheiras,0,shp2
+C,1,C_1_6.C33,Cais do Sodré,1,shp1
+C,1,C_1_6.C34,Telheiras,0,shp2
+C,1,C_1_6.C35,Cais do Sodré,1,shp1
+C,1,C_1_6.C36,Telheiras,0,shp2
+C,1,C_1_6.C37,Cais do Sodré,1,shp1
+C,1,C_1_6.C38,Telheiras,0,shp2
+C,1,C_1_6.C39,Cais do Sodré,1,shp1
+C,1,C_1_6.C40,Telheiras,0,shp2
+C,1,C_1_6.C41,Cais do Sodré,1,shp1
+C,1,C_1_6.C041,Telheiras,0,shp2
+C,1,C_1_6.C042,Cais do Sodré,1,shp1
+C,1,C_1_6.C043,Telheiras,0,shp2
+D,1,D_1_6.D2,Aeroporto,1,shp5
+D,1,D_1_6.D3,São Sebastião,0,shp4
+D,1,D_1_6.D4,Aeroporto,1,shp3
+D,1,D_1_6.D5,São Sebastião,0,shp4
+D,1,D_1_6.D6,Aeroporto,1,shp3
+D,1,D_1_6.D7,São Sebastião,0,shp4
+D,1,D_1_6.D8,Aeroporto,1,shp3
+D,1,D_1_6.D9,São Sebastião,0,shp4
+D,1,D_1_6.D10,Aeroporto,1,shp3
+D,1,D_1_6.D11,São Sebastião,0,shp4
+D,1,D_1_6.D12,Aeroporto,1,shp3
+D,1,D_1_6.D13,São Sebastião,0,shp4
+D,1,D_1_6.D14,Aeroporto,1,shp3
+D,1,D_1_6.D15,São Sebastião,0,shp4
+D,1,D_1_6.D16,Aeroporto,1,shp3
+D,1,D_1_6.D17,São Sebastião,0,shp4
+D,1,D_1_6.D18,Aeroporto,1,shp3
+D,1,D_1_6.D19,São Sebastião,0,shp4
+D,1,D_1_6.D20,Aeroporto,1,shp3
+D,1,D_1_6.D21,São Sebastião,0,shp4
+D,1,D_1_6.D22,Aeroporto,1,shp3
+D,1,D_1_6.D23,São Sebastião,0,shp4
+D,1,D_1_6.D24,Aeroporto,1,shp3
+D,1,D_1_6.D25,São Sebastião,0,shp4
+D,1,D_1_6.D26,Aeroporto,1,shp3
+D,1,D_1_6.D27,São Sebastião,0,shp4
+D,1,D_1_6.D28,Aeroporto,1,shp3
+D,1,D_1_6.D29,São Sebastião,0,shp4
+D,1,D_1_6.D30,Aeroporto,1,shp3
+D,1,D_1_6.D31,São Sebastião,0,shp4
+D,1,D_1_6.D32,Aeroporto,1,shp3
+D,1,D_1_6.D33,São Sebastião,0,shp4
+D,1,D_1_6.D34,Aeroporto,1,shp3
+D,1,D_1_6.D35,São Sebastião,0,shp4
+D,1,D_1_6.D36,Aeroporto,1,shp3
+D,1,D_1_6.D37,São Sebastião,0,shp4
+D,1,D_1_6.D38,Aeroporto,1,shp3
+D,1,D_1_6.D39,São Sebastião,0,shp4
+D,1,D_1_6.D40,Aeroporto,1,shp3
+D,1,D_1_6.D41,São Sebastião,0,shp4
+D,1,D_1_6.D42,Aeroporto,1,shp3
+D,1,D_1_6.D042,São Sebastião,0,shp4
+D,1,D_1_6.D043,Aeroporto,1,shp3
+D,1,D_1_6.D044,São Sebastião,0,shp4
+D,2,D_2_6.D1,São Sebastião,0,shp4
+D,2,D_2_6.D2,Aeroporto,1,shp3
+D,2,D_2_6.D3,São Sebastião,0,shp4
+D,2,D_2_6.D4,Aeroporto,1,shp3
+D,2,D_2_6.D5,São Sebastião,0,shp4
+D,2,D_2_6.D6,Aeroporto,1,shp3
+D,2,D_2_6.D7,São Sebastião,0,shp4
+D,2,D_2_6.D8,Aeroporto,1,shp3
+D,2,D_2_6.D9,São Sebastião,0,shp4
+D,2,D_2_6.D10,Aeroporto,1,shp3
+D,2,D_2_6.D11,São Sebastião,0,shp4
+D,2,D_2_6.D12,Aeroporto,1,shp3
+D,2,D_2_6.D13,São Sebastião,0,shp4
+D,2,D_2_6.D14,Aeroporto,1,shp3
+D,2,D_2_6.D15,São Sebastião,0,shp4
+D,2,D_2_6.D16,Aeroporto,1,shp3
+D,2,D_2_6.D17,São Sebastião,0,shp4
+D,2,D_2_6.D18,Aeroporto,1,shp3
+D,2,D_2_6.D19,São Sebastião,0,shp4
+D,2,D_2_6.D20,Aeroporto,1,shp3
+D,2,D_2_6.D21,São Sebastião,0,shp4
+D,2,D_2_6.D22,Aeroporto,1,shp3
+D,2,D_2_6.D23,São Sebastião,0,shp4
+D,2,D_2_6.D24,Aeroporto,1,shp3
+D,2,D_2_6.D25,São Sebastião,0,shp4
+D,2,D_2_6.D26,Aeroporto,1,shp3
+D,2,D_2_6.D27,São Sebastião,0,shp4
+D,2,D_2_6.D28,Aeroporto,1,shp3
+D,2,D_2_6.D29,São Sebastião,0,shp4
+D,2,D_2_6.D30,Aeroporto,1,shp3
+D,2,D_2_6.D31,São Sebastião,0,shp4
+D,2,D_2_6.D32,Aeroporto,1,shp3
+D,2,D_2_6.D33,São Sebastião,0,shp4
+D,2,D_2_6.D34,Aeroporto,1,shp3
+D,2,D_2_6.D35,São Sebastião,0,shp4
+D,2,D_2_6.D36,Aeroporto,1,shp3
+D,2,D_2_6.D37,São Sebastião,0,shp4
+D,2,D_2_6.D38,Aeroporto,1,shp3
+D,2,D_2_6.D39,São Sebastião,0,shp4
+D,2,D_2_6.D40,Aeroporto,1,shp3
+D,2,D_2_6.D41,São Sebastião,0,shp4
+D,2,D_2_6.D42,Aeroporto,1,shp3
+D,2,D_2_6.D042,São Sebastião,0,shp4
+D,2,D_2_6.D043,Aeroporto,1,shp3
+D,2,D_2_6.D044,São Sebastião,0,shp4
+C,1,C_1_7.C1,Telheiras,0,shp2
+C,1,C_1_7.C2,Cais do Sodré,1,shp1
+C,1,C_1_7.C3,Telheiras,0,shp2
+C,1,C_1_7.C4,Cais do Sodré,1,shp1
+C,1,C_1_7.C5,Telheiras,0,shp2
+C,1,C_1_7.C6,Cais do Sodré,1,shp1
+C,1,C_1_7.C7,Telheiras,0,shp2
+C,1,C_1_7.C8,Cais do Sodré,1,shp1
+C,1,C_1_7.C9,Telheiras,0,shp2
+C,1,C_1_7.C10,Cais do Sodré,1,shp1
+C,1,C_1_7.C11,Telheiras,0,shp2
+C,1,C_1_7.C12,Cais do Sodré,1,shp1
+C,1,C_1_7.C13,Telheiras,0,shp2
+C,1,C_1_7.C14,Cais do Sodré,1,shp1
+C,1,C_1_7.C15,Telheiras,0,shp2
+C,1,C_1_7.C16,Cais do Sodré,1,shp1
+C,1,C_1_7.C17,Telheiras,0,shp2
+C,1,C_1_7.C18,Cais do Sodré,1,shp1
+C,1,C_1_7.C19,Telheiras,0,shp2
+C,1,C_1_7.C20,Cais do Sodré,1,shp1
+C,1,C_1_7.C21,Telheiras,0,shp2
+C,1,C_1_7.C22,Cais do Sodré,1,shp1
+C,1,C_1_7.C23,Telheiras,0,shp2
+C,1,C_1_7.C24,Cais do Sodré,1,shp1
+C,1,C_1_7.C25,Telheiras,0,shp2
+C,1,C_1_7.C26,Cais do Sodré,1,shp1
+C,1,C_1_7.C27,Telheiras,0,shp2
+C,1,C_1_7.C28,Cais do Sodré,1,shp1
+C,1,C_1_7.C29,Telheiras,0,shp2
+C,1,C_1_7.C30,Cais do Sodré,1,shp1
+C,1,C_1_7.C31,Telheiras,0,shp2
+C,1,C_1_7.C32,Cais do Sodré,1,shp1
+C,1,C_1_7.C33,Telheiras,0,shp2
+C,1,C_1_7.C34,Cais do Sodré,1,shp1
+C,1,C_1_7.C35,Telheiras,0,shp2
+C,1,C_1_7.C36,Cais do Sodré,1,shp1
+C,1,C_1_7.C37,Telheiras,0,shp2
+C,1,C_1_7.C38,Cais do Sodré,1,shp1
+C,1,C_1_7.C39,Telheiras,0,shp2
+C,1,C_1_7.C40,Cais do Sodré,1,shp1
+C,1,C_1_7.C41,Telheiras,0,shp2
+C,1,C_1_7.C42,Cais do Sodré,1,shp1
+C,1,C_1_7.C042,Telheiras,0,shp2
+C,1,C_1_7.C043,Cais do Sodré,1,shp1
+C,1,C_1_7.C044,Telheiras,0,shp2
+D,1,D_1_7.D2,Aeroporto,1,shp5
+D,1,D_1_7.D3,São Sebastião,0,shp4
+D,1,D_1_7.D4,Aeroporto,1,shp3
+D,1,D_1_7.D5,São Sebastião,0,shp4
+D,1,D_1_7.D6,Aeroporto,1,shp3
+D,1,D_1_7.D7,São Sebastião,0,shp4
+D,1,D_1_7.D8,Aeroporto,1,shp3
+D,1,D_1_7.D9,São Sebastião,0,shp4
+D,1,D_1_7.D10,Aeroporto,1,shp3
+D,1,D_1_7.D11,São Sebastião,0,shp4
+D,1,D_1_7.D12,Aeroporto,1,shp3
+D,1,D_1_7.D13,São Sebastião,0,shp4
+D,1,D_1_7.D14,Aeroporto,1,shp3
+D,1,D_1_7.D15,São Sebastião,0,shp4
+D,1,D_1_7.D16,Aeroporto,1,shp3
+D,1,D_1_7.D17,São Sebastião,0,shp4
+D,1,D_1_7.D18,Aeroporto,1,shp3
+D,1,D_1_7.D19,São Sebastião,0,shp4
+D,1,D_1_7.D20,Aeroporto,1,shp3
+D,1,D_1_7.D21,São Sebastião,0,shp4
+D,1,D_1_7.D22,Aeroporto,1,shp3
+D,1,D_1_7.D23,São Sebastião,0,shp4
+D,1,D_1_7.D24,Aeroporto,1,shp3
+D,1,D_1_7.D25,São Sebastião,0,shp4
+D,1,D_1_7.D26,Aeroporto,1,shp3
+D,1,D_1_7.D27,São Sebastião,0,shp4
+D,1,D_1_7.D28,Aeroporto,1,shp3
+D,1,D_1_7.D29,São Sebastião,0,shp4
+D,1,D_1_7.D30,Aeroporto,1,shp3
+D,1,D_1_7.D31,São Sebastião,0,shp4
+D,1,D_1_7.D32,Aeroporto,1,shp3
+D,1,D_1_7.D33,São Sebastião,0,shp4
+D,1,D_1_7.D34,Aeroporto,1,shp3
+D,1,D_1_7.D35,São Sebastião,0,shp4
+D,1,D_1_7.D36,Aeroporto,1,shp3
+D,1,D_1_7.D37,São Sebastião,0,shp4
+D,1,D_1_7.D38,Aeroporto,1,shp3
+D,1,D_1_7.D39,São Sebastião,0,shp4
+D,1,D_1_7.D40,Aeroporto,1,shp3
+D,1,D_1_7.D41,São Sebastião,0,shp4
+D,1,D_1_7.D041,Aeroporto,1,shp3
+D,1,D_1_7.D042,São Sebastião,0,shp4
+D,1,D_1_7.D043,Aeroporto,1,shp3
+D,2,D_2_7.D2,Aeroporto,1,shp5
+D,2,D_2_7.D3,São Sebastião,0,shp4
+D,2,D_2_7.D4,Aeroporto,1,shp3
+D,2,D_2_7.D5,São Sebastião,0,shp4
+D,2,D_2_7.D6,Aeroporto,1,shp3
+D,2,D_2_7.D7,São Sebastião,0,shp4
+D,2,D_2_7.D8,Aeroporto,1,shp3
+D,2,D_2_7.D9,São Sebastião,0,shp4
+D,2,D_2_7.D10,Aeroporto,1,shp3
+D,2,D_2_7.D44,São Sebastião,0,shp4
+D,2,D_2_7.D45,Aeroporto,1,shp3
+D,2,D_2_7.D46,São Sebastião,0,shp4
+D,2,D_2_7.D47,Aeroporto,1,shp3
+D,2,D_2_7.D48,São Sebastião,0,shp4
+D,2,D_2_7.D49,Aeroporto,1,shp3
+D,2,D_2_7.D50,São Sebastião,0,shp4
+D,2,D_2_7.D51,Aeroporto,1,shp3
+D,2,D_2_7.D52,São Sebastião,0,shp4
+D,2,D_2_7.D53,Aeroporto,1,shp3
+D,2,D_2_7.D54,São Sebastião,0,shp4
+D,2,D_2_7.D55,Aeroporto,1,shp3
+D,2,D_2_7.D11,São Sebastião,0,shp4
+D,2,D_2_7.D12,Aeroporto,1,shp3
+D,2,D_2_7.D13,São Sebastião,0,shp4
+D,2,D_2_7.D14,Aeroporto,1,shp3
+D,2,D_2_7.D15,São Sebastião,0,shp4
+D,2,D_2_7.D16,Aeroporto,1,shp3
+D,2,D_2_7.D17,São Sebastião,0,shp4
+D,2,D_2_7.D18,Aeroporto,1,shp3
+D,2,D_2_7.D19,São Sebastião,0,shp4
+D,2,D_2_7.D019,Aeroporto,1,shp3
+D,2,D_2_7.D020,São Sebastião,0,shp4
+D,2,D_2_7.D021,Aeroporto,1,shp3
+C,1,C_1_8.C1,Cais do Sodré,1,shp1
+C,1,C_1_8.C2,Telheiras,0,shp2
+C,1,C_1_8.C3,Cais do Sodré,1,shp1
+C,1,C_1_8.C4,Telheiras,0,shp2
+C,1,C_1_8.C5,Cais do Sodré,1,shp1
+C,1,C_1_8.C6,Telheiras,0,shp2
+C,1,C_1_8.C7,Cais do Sodré,1,shp1
+C,1,C_1_8.C8,Telheiras,0,shp2
+C,1,C_1_8.C9,Cais do Sodré,1,shp1
+C,1,C_1_8.C10,Telheiras,0,shp2
+C,1,C_1_8.C11,Cais do Sodré,1,shp1
+C,1,C_1_8.C12,Telheiras,0,shp2
+C,1,C_1_8.C13,Cais do Sodré,1,shp1
+C,1,C_1_8.C14,Telheiras,0,shp2
+C,1,C_1_8.C15,Cais do Sodré,1,shp1
+C,1,C_1_8.C16,Telheiras,0,shp2
+C,1,C_1_8.C17,Cais do Sodré,1,shp1
+C,1,C_1_8.C18,Telheiras,0,shp2
+C,1,C_1_8.C19,Cais do Sodré,1,shp1
+C,1,C_1_8.C20,Telheiras,0,shp2
+C,1,C_1_8.C21,Cais do Sodré,1,shp1
+C,1,C_1_8.C22,Telheiras,0,shp2
+C,1,C_1_8.C23,Cais do Sodré,1,shp1
+C,1,C_1_8.C24,Telheiras,0,shp2
+C,1,C_1_8.C25,Cais do Sodré,1,shp1
+C,1,C_1_8.C26,Telheiras,0,shp2
+C,1,C_1_8.C27,Cais do Sodré,1,shp1
+C,1,C_1_8.C28,Telheiras,0,shp2
+C,1,C_1_8.C29,Cais do Sodré,1,shp1
+C,1,C_1_8.C30,Telheiras,0,shp2
+C,1,C_1_8.C31,Cais do Sodré,1,shp1
+C,1,C_1_8.C32,Telheiras,0,shp2
+C,1,C_1_8.C33,Cais do Sodré,1,shp1
+C,1,C_1_8.C34,Telheiras,0,shp2
+C,1,C_1_8.C35,Cais do Sodré,1,shp1
+C,1,C_1_8.C36,Telheiras,0,shp2
+C,1,C_1_8.C37,Cais do Sodré,1,shp1
+C,1,C_1_8.C38,Telheiras,0,shp2
+C,1,C_1_8.C39,Cais do Sodré,1,shp1
+C,1,C_1_8.C40,Telheiras,0,shp2
+C,1,C_1_8.C41,Cais do Sodré,1,shp1
+C,1,C_1_8.C041,Telheiras,0,shp2
+C,1,C_1_8.C042,Cais do Sodré,1,shp1
+D,1,D_1_8.D1,São Sebastião,0,shp4
+D,1,D_1_8.D2,Aeroporto,1,shp3
+D,1,D_1_8.D3,São Sebastião,0,shp4
+D,1,D_1_8.D4,Aeroporto,1,shp3
+D,1,D_1_8.D5,São Sebastião,0,shp4
+D,1,D_1_8.D6,Aeroporto,1,shp3
+D,1,D_1_8.D7,São Sebastião,0,shp4
+D,1,D_1_8.D8,Aeroporto,1,shp3
+D,1,D_1_8.D9,São Sebastião,0,shp4
+D,1,D_1_8.D10,Aeroporto,1,shp3
+D,1,D_1_8.D11,São Sebastião,0,shp4
+D,1,D_1_8.D12,Aeroporto,1,shp3
+D,1,D_1_8.D13,São Sebastião,0,shp4
+D,1,D_1_8.D14,Aeroporto,1,shp3
+D,1,D_1_8.D15,São Sebastião,0,shp4
+D,1,D_1_8.D16,Aeroporto,1,shp3
+D,1,D_1_8.D17,São Sebastião,0,shp4
+D,1,D_1_8.D18,Aeroporto,1,shp3
+D,1,D_1_8.D19,São Sebastião,0,shp4
+D,1,D_1_8.D20,Aeroporto,1,shp3
+D,1,D_1_8.D21,São Sebastião,0,shp4
+D,1,D_1_8.D22,Aeroporto,1,shp3
+D,1,D_1_8.D23,São Sebastião,0,shp4
+D,1,D_1_8.D24,Aeroporto,1,shp3
+D,1,D_1_8.D25,São Sebastião,0,shp4
+D,1,D_1_8.D26,Aeroporto,1,shp3
+D,1,D_1_8.D27,São Sebastião,0,shp4
+D,1,D_1_8.D28,Aeroporto,1,shp3
+D,1,D_1_8.D29,São Sebastião,0,shp4
+D,1,D_1_8.D30,Aeroporto,1,shp3
+C,1,C_1_9.C1,Telheiras,0,shp2
+C,1,C_1_9.C2,Cais do Sodré,1,shp1
+C,1,C_1_9.C3,Telheiras,0,shp2
+C,1,C_1_9.C4,Cais do Sodré,1,shp1
+C,1,C_1_9.C5,Telheiras,0,shp2
+C,1,C_1_9.C6,Cais do Sodré,1,shp1
+C,1,C_1_9.C7,Telheiras,0,shp2
+C,1,C_1_9.C8,Cais do Sodré,1,shp1
+C,1,C_1_9.C9,Telheiras,0,shp2
+C,1,C_1_9.C10,Cais do Sodré,1,shp1
+C,1,C_1_9.C11,Telheiras,0,shp2
+C,1,C_1_9.C12,Cais do Sodré,1,shp1
+C,1,C_1_9.C13,Telheiras,0,shp2
+C,1,C_1_9.C14,Cais do Sodré,1,shp1
+C,1,C_1_9.C15,Telheiras,0,shp2
+C,1,C_1_9.C16,Cais do Sodré,1,shp1
+C,1,C_1_9.C17,Telheiras,0,shp2
+C,1,C_1_9.C18,Cais do Sodré,1,shp1
+C,1,C_1_9.C19,Telheiras,0,shp2
+C,1,C_1_9.C20,Cais do Sodré,1,shp1
+C,1,C_1_9.C21,Telheiras,0,shp2
+C,1,C_1_9.C22,Cais do Sodré,1,shp1
+C,1,C_1_9.C23,Telheiras,0,shp2
+C,1,C_1_9.C24,Cais do Sodré,1,shp1
+C,1,C_1_9.C25,Telheiras,0,shp2
+C,1,C_1_9.C26,Cais do Sodré,1,shp1
+C,1,C_1_9.C27,Telheiras,0,shp2
+C,1,C_1_9.C28,Cais do Sodré,1,shp1
+C,1,C_1_9.C29,Telheiras,0,shp2
+C,1,C_1_9.C30,Cais do Sodré,1,shp1
+C,1,C_1_9.C31,Telheiras,0,shp2
+C,1,C_1_9.C32,Cais do Sodré,1,shp1
+C,1,C_1_9.C33,Telheiras,0,shp2
+C,1,C_1_9.C34,Cais do Sodré,1,shp1
+C,1,C_1_9.C35,Telheiras,0,shp2
+C,1,C_1_9.C36,Cais do Sodré,1,shp1
+C,1,C_1_9.C37,Telheiras,0,shp2
+A,1,A_1_15.A4,Santa Apolónia,1,shp6
+A,1,A_1_15.A5,Reboleira,0,shp7
+A,1,A_1_15.A6,Santa Apolónia,1,shp6
+A,1,A_1_15.A7,Reboleira,0,shp7
+A,1,A_1_15.A8,Santa Apolónia,1,shp6
+A,1,A_1_15.A9,Reboleira,0,shp7
+A,1,A_1_15.A10,Santa Apolónia,1,shp6
+A,1,A_1_15.A11,Reboleira,0,shp7
+A,1,A_1_15.A12,Santa Apolónia,1,shp6
+A,1,A_1_15.A13,Reboleira,0,shp7
+A,1,A_1_15.A14,Santa Apolónia,1,shp6
+A,1,A_1_15.A15,Reboleira,0,shp7
+A,1,A_1_15.A16,Santa Apolónia,1,shp6
+A,1,A_1_15.A17,Reboleira,0,shp7
+A,1,A_1_15.A18,Santa Apolónia,1,shp6
+A,1,A_1_15.A19,Reboleira,0,shp7
+A,1,A_1_15.A20,Santa Apolónia,1,shp6
+A,1,A_1_15.A21,Reboleira,0,shp7
+A,1,A_1_15.A22,Santa Apolónia,1,shp6
+A,1,A_1_15.A23,Reboleira,0,shp7
+A,1,A_1_14.A2,Reboleira,0,shp8
+A,1,A_1_14.A4,Santa Apolónia,1,shp6
+A,1,A_1_14.A5,Reboleira,0,shp7
+A,1,A_1_14.A6,Santa Apolónia,1,shp6
+A,1,A_1_14.A7,Reboleira,0,shp7
+A,1,A_1_14.A3,Santa Apolónia,1,shp6
+A,1,A_1_14.A8,Reboleira,0,shp7
+A,1,A_1_14.A9,Santa Apolónia,1,shp6
+A,1,A_1_14.A10,Reboleira,0,shp7
+A,1,A_1_14.A11,Santa Apolónia,1,shp6
+A,1,A_1_14.A12,Reboleira,0,shp7
+A,1,A_1_14.A13,Santa Apolónia,1,shp6
+A,1,A_1_14.A14,Reboleira,0,shp7
+A,1,A_1_14.A15,Santa Apolónia,1,shp6
+A,1,A_1_14.A16,Reboleira,0,shp7
+A,1,A_1_14.A17,Santa Apolónia,1,shp6
+A,1,A_1_14.A18,Reboleira,0,shp7
+A,1,A_1_14.A19,Santa Apolónia,1,shp6
+A,1,A_1_14.A20,Reboleira,0,shp7
+A,1,A_1_14.A020,Santa Apolónia,1,shp6
+A,1,A_1_14.A021,Reboleira,0,shp7
+B,1,B_1_33.B40,Odivelas,1,shp9
+B,1,B_1_33.B2,Rato,0,shp10
+B,1,B_1_33.B3,Odivelas,1,shp11
+B,1,B_1_33.B4,Rato,0,shp10
+B,1,B_1_33.B5,Odivelas,1,shp11
+B,1,B_1_33.B6,Rato,0,shp10
+B,1,B_1_33.B7,Campo Grande,1,shp12
+B,1,B_1_33.B8,Rato,0,shp13
+B,1,B_1_33.B9,Campo Grande,1,shp12
+B,1,B_1_33.B10,Rato,0,shp13
+B,1,B_1_33.B11,Campo Grande,1,shp12
+B,1,B_1_33.B12,Rato,0,shp13
+B,1,B_1_33.B13,Campo Grande,1,shp12
+B,1,B_1_33.B14,Rato,0,shp13
+B,1,B_1_33.B15,Campo Grande,1,shp12
+B,1,B_1_33.B16,Rato,0,shp13
+B,1,B_1_33.B17,Campo Grande,1,shp12
+B,1,B_1_33.B18,Rato,0,shp13
+B,1,B_1_33.B19,Campo Grande,1,shp12
+B,1,B_1_33.B20,Rato,0,shp13
+B,1,B_1_33.B21,Campo Grande,1,shp12
+B,1,B_1_33.B22,Rato,0,shp13
+B,1,B_1_33.B23,Campo Grande,1,shp12
+B,1,B_1_33.B24,Rato,0,shp13
+B,1,B_1_33.B25,Campo Grande,1,shp12
+B,1,B_1_33.B26,Rato,0,shp13
+B,1,B_1_33.B27,Campo Grande,1,shp12
+B,1,B_1_33.B28,Rato,0,shp13
+B,1,B_1_33.B29,Odivelas,1,shp11
+B,1,B_1_33.B30,Rato,0,shp10
+B,1,B_1_33.B31,Odivelas,1,shp11
+B,1,B_1_33.B32,Rato,0,shp10
+B,1,B_1_33.B33,Odivelas,1,shp11
+B,1,B_1_33.B34,Rato,0,shp10
+B,1,B_1_33.B35,Odivelas,1,shp11
+B,1,B_1_33.B36,Rato,0,shp10
+B,1,B_1_33.B37,Odivelas,1,shp11
+B,1,B_1_33.B38,Rato,0,shp10
+B,1,B_1_33.B39,Odivelas,1,shp11
+B,1,B_1_33.B41,Rato,0,shp10
+B,1,B_1_33.B42,Odivelas,1,shp11
+B,1,B_1_33.B43,Rato,0,shp10
+B,1,B_1_33.B44,Odivelas,1,shp11
+B,1,B_1_33.B45,Rato,0,shp10
+B,1,B_1_33.B46,Odivelas,1,shp11
+B,1,B_1_33.B47,Rato,0,shp10
+B,1,B_1_33.B01,Odivelas,1,shp11
+B,1,B_1_33.B02,Rato,0,shp10
+B,1,B_1_33.B03,Odivelas,1,shp11
+A,1,A_1_13.A4,Santa Apolónia,1,shp6
+A,1,A_1_13.A5,Reboleira,0,shp7
+A,1,A_1_13.A6,Santa Apolónia,1,shp6
+A,1,A_1_13.A7,Reboleira,0,shp7
+A,1,A_1_13.A8,Santa Apolónia,1,shp6
+A,1,A_1_13.A9,Reboleira,0,shp7
+A,1,A_1_13.A10,Santa Apolónia,1,shp6
+A,1,A_1_13.A11,Reboleira,0,shp7
+A,1,A_1_13.A12,Santa Apolónia,1,shp6
+A,1,A_1_13.A13,Reboleira,0,shp7
+A,1,A_1_13.A14,Santa Apolónia,1,shp6
+A,1,A_1_13.A15,Reboleira,0,shp7
+A,1,A_1_13.A16,Santa Apolónia,1,shp6
+A,1,A_1_13.A17,Reboleira,0,shp7
+A,1,A_1_13.A18,Santa Apolónia,1,shp6
+A,1,A_1_13.A19,Reboleira,0,shp7
+A,1,A_1_13.A20,Santa Apolónia,1,shp6
+A,1,A_1_13.A21,Reboleira,0,shp7
+A,1,A_1_13.A22,Santa Apolónia,1,shp6
+A,1,A_1_13.A23,Reboleira,0,shp7
+A,1,A_1_13.A24,Santa Apolónia,1,shp6
+A,1,A_1_13.A25,Reboleira,0,shp7
+B,1,B_1_32.B20,Odivelas,1,shp9
+B,1,B_1_32.B2,Rato,0,shp10
+B,1,B_1_32.B3,Odivelas,1,shp11
+B,1,B_1_32.B4,Rato,0,shp10
+B,1,B_1_32.B5,Odivelas,1,shp11
+B,1,B_1_32.B6,Rato,0,shp10
+B,1,B_1_32.B7,Campo Grande,1,shp14
+B,1,B_1_32.B10,Rato,0,shp10
+B,1,B_1_32.B11,Odivelas,1,shp11
+B,1,B_1_32.B12,Rato,0,shp10
+B,1,B_1_32.B13,Odivelas,1,shp11
+B,1,B_1_32.B14,Rato,0,shp10
+B,1,B_1_32.B15,Odivelas,1,shp11
+B,1,B_1_32.B16,Rato,0,shp10
+B,1,B_1_32.B17,Odivelas,1,shp11
+B,1,B_1_32.B18,Rato,0,shp10
+B,1,B_1_32.B19,Odivelas,1,shp11
+B,1,B_1_32.B22,Rato,0,shp10
+B,1,B_1_32.B23,Odivelas,1,shp11
+B,1,B_1_32.B24,Rato,0,shp10
+B,1,B_1_32.B25,Odivelas,1,shp11
+B,1,B_1_32.B26,Rato,0,shp10
+B,1,B_1_32.B27,Odivelas,1,shp11
+B,1,B_1_32.B01,Rato,0,shp10
+B,1,B_1_32.B02,Odivelas,1,shp11
+B,1,B_1_32.B03,Rato,0,shp10
+A,1,A_1_12.A2,Reboleira,0,shp8
+A,1,A_1_12.A4,Santa Apolónia,1,shp6
+A,1,A_1_12.A5,Reboleira,0,shp7
+A,1,A_1_12.A6,Santa Apolónia,1,shp6
+A,1,A_1_12.A7,Reboleira,0,shp7
+A,1,A_1_12.A8,Santa Apolónia,1,shp6
+A,1,A_1_12.A9,Reboleira,0,shp7
+A,1,A_1_12.A10,Santa Apolónia,1,shp6
+A,1,A_1_12.A11,Reboleira,0,shp7
+A,1,A_1_12.A12,Santa Apolónia,1,shp6
+A,1,A_1_12.A13,Reboleira,0,shp7
+A,1,A_1_12.A14,Santa Apolónia,1,shp6
+A,1,A_1_12.A15,Reboleira,0,shp7
+A,1,A_1_12.A16,Santa Apolónia,1,shp6
+A,1,A_1_12.A17,Reboleira,0,shp7
+A,1,A_1_12.A18,Santa Apolónia,1,shp6
+A,1,A_1_12.A19,Reboleira,0,shp7
+A,1,A_1_12.A20,Santa Apolónia,1,shp6
+A,1,A_1_12.A21,Reboleira,0,shp7
+A,1,A_1_12.A22,Santa Apolónia,1,shp6
+A,1,A_1_12.A23,Reboleira,0,shp7
+A,1,A_1_12.A24,Santa Apolónia,1,shp6
+A,1,A_1_12.A25,Reboleira,0,shp7
+A,1,A_1_12.A26,Santa Apolónia,1,shp6
+A,1,A_1_12.A27,Reboleira,0,shp7
+A,1,A_1_12.A28,Santa Apolónia,1,shp6
+A,1,A_1_12.A29,Reboleira,0,shp7
+A,1,A_1_12.A30,Santa Apolónia,1,shp6
+A,1,A_1_12.A31,Reboleira,0,shp7
+B,1,B_1_31.B39,Odivelas,1,shp9
+B,1,B_1_31.B2,Rato,0,shp10
+B,1,B_1_31.B3,Odivelas,1,shp11
+B,1,B_1_31.B4,Rato,0,shp10
+B,1,B_1_31.B5,Odivelas,1,shp11
+B,1,B_1_31.B6,Rato,0,shp10
+B,1,B_1_31.B7,Odivelas,1,shp11
+B,1,B_1_31.B8,Rato,0,shp10
+B,1,B_1_31.B9,Odivelas,1,shp11
+B,1,B_1_31.B10,Rato,0,shp10
+B,1,B_1_31.B11,Odivelas,1,shp11
+B,1,B_1_31.B12,Rato,0,shp10
+B,1,B_1_31.B13,Odivelas,1,shp11
+B,1,B_1_31.B14,Rato,0,shp10
+B,1,B_1_31.B15,Odivelas,1,shp11
+B,1,B_1_31.B16,Rato,0,shp10
+B,1,B_1_31.B17,Odivelas,1,shp11
+B,1,B_1_31.B18,Rato,0,shp10
+B,1,B_1_31.B19,Odivelas,1,shp11
+B,1,B_1_31.B20,Rato,0,shp10
+B,1,B_1_31.B21,Odivelas,1,shp11
+B,1,B_1_31.B22,Rato,0,shp10
+B,1,B_1_31.B23,Odivelas,1,shp11
+B,1,B_1_31.B24,Rato,0,shp10
+B,1,B_1_31.B25,Odivelas,1,shp11
+B,1,B_1_31.B26,Rato,0,shp10
+B,1,B_1_31.B27,Odivelas,1,shp11
+B,1,B_1_31.B28,Rato,0,shp10
+B,1,B_1_31.B29,Odivelas,1,shp11
+B,1,B_1_31.B30,Rato,0,shp10
+B,1,B_1_31.B31,Odivelas,1,shp11
+B,1,B_1_31.B32,Rato,0,shp10
+B,1,B_1_31.B33,Odivelas,1,shp11
+B,1,B_1_31.B34,Rato,0,shp10
+B,1,B_1_31.B35,Odivelas,1,shp11
+B,1,B_1_31.B36,Rato,0,shp10
+B,1,B_1_31.B37,Odivelas,1,shp11
+B,1,B_1_31.B38,Rato,0,shp10
+B,1,B_1_31.B01,Odivelas,1,shp11
+B,1,B_1_31.B02,Rato,0,shp10
+B,1,B_1_31.B03,Odivelas,1,shp11
+A,1,A_1_11.A3,Santa Apolónia,1,shp6
+A,1,A_1_11.A4,Reboleira,0,shp7
+A,1,A_1_11.A5,Santa Apolónia,1,shp6
+A,1,A_1_11.A6,Reboleira,0,shp7
+A,1,A_1_11.A7,Santa Apolónia,1,shp6
+A,1,A_1_11.A8,Reboleira,0,shp7
+A,1,A_1_11.A9,Santa Apolónia,1,shp6
+A,1,A_1_11.A10,Reboleira,0,shp7
+A,1,A_1_11.A11,Santa Apolónia,1,shp6
+A,1,A_1_11.A12,Reboleira,0,shp7
+A,1,A_1_11.A13,Santa Apolónia,1,shp6
+A,1,A_1_11.A14,Reboleira,0,shp7
+A,1,A_1_11.A15,Santa Apolónia,1,shp6
+A,1,A_1_11.A16,Reboleira,0,shp7
+A,1,A_1_11.A17,Santa Apolónia,1,shp6
+A,1,A_1_11.A18,Reboleira,0,shp7
+A,1,A_1_11.A19,Santa Apolónia,1,shp6
+A,1,A_1_11.A20,Reboleira,0,shp7
+A,1,A_1_11.A21,Santa Apolónia,1,shp6
+A,1,A_1_11.A22,Reboleira,0,shp7
+A,1,A_1_11.A23,Santa Apolónia,1,shp6
+A,1,A_1_11.A24,Reboleira,0,shp7
+A,1,A_1_11.A25,Santa Apolónia,1,shp6
+A,1,A_1_11.A26,Reboleira,0,shp7
+A,1,A_1_11.A27,Santa Apolónia,1,shp6
+A,1,A_1_11.A28,Reboleira,0,shp7
+A,1,A_1_11.A29,Santa Apolónia,1,shp6
+A,1,A_1_11.A30,Reboleira,0,shp7
+A,1,A_1_11.A31,Santa Apolónia,1,shp6
+A,1,A_1_11.A32,Reboleira,0,shp7
+A,1,A_1_11.A032,Santa Apolónia,1,shp6
+A,1,A_1_11.A033,Reboleira,0,shp7
+B,1,B_1_30.B30,Odivelas,1,shp9
+B,1,B_1_30.B2,Rato,0,shp10
+B,1,B_1_30.B3,Odivelas,1,shp11
+B,1,B_1_30.B4,Rato,0,shp10
+B,1,B_1_30.B5,Odivelas,1,shp11
+B,1,B_1_30.B6,Rato,0,shp10
+B,1,B_1_30.B7,Odivelas,1,shp11
+B,1,B_1_30.B8,Rato,0,shp10
+B,1,B_1_30.B9,Odivelas,1,shp11
+B,1,B_1_30.B10,Rato,0,shp10
+B,1,B_1_30.B11,Odivelas,1,shp11
+B,1,B_1_30.B12,Rato,0,shp10
+B,1,B_1_30.B13,Odivelas,1,shp11
+B,1,B_1_30.B14,Rato,0,shp10
+B,1,B_1_30.B15,Odivelas,1,shp11
+B,1,B_1_30.B16,Rato,0,shp10
+B,1,B_1_30.B17,Odivelas,1,shp11
+B,1,B_1_30.B18,Rato,0,shp10
+B,1,B_1_30.B19,Odivelas,1,shp11
+B,1,B_1_30.B20,Rato,0,shp10
+B,1,B_1_30.B21,Odivelas,1,shp11
+B,1,B_1_30.B22,Rato,0,shp10
+B,1,B_1_30.B23,Odivelas,1,shp11
+B,1,B_1_30.B24,Rato,0,shp10
+B,1,B_1_30.B25,Odivelas,1,shp11
+B,1,B_1_30.B26,Rato,0,shp10
+B,1,B_1_30.B27,Odivelas,1,shp11
+A,1,A_1_10.A3,Santa Apolónia,1,shp6
+A,1,A_1_10.A4,Reboleira,0,shp7
+A,1,A_1_10.A5,Santa Apolónia,1,shp6
+A,1,A_1_10.A6,Reboleira,0,shp7
+A,1,A_1_10.A7,Santa Apolónia,1,shp6
+A,1,A_1_10.A8,Reboleira,0,shp7
+A,1,A_1_10.A9,Santa Apolónia,1,shp6
+A,1,A_1_10.A10,Reboleira,0,shp7
+A,1,A_1_10.A11,Santa Apolónia,1,shp6
+A,1,A_1_10.A12,Reboleira,0,shp7
+A,1,A_1_10.A13,Santa Apolónia,1,shp6
+A,1,A_1_10.A14,Reboleira,0,shp7
+A,1,A_1_10.A15,Santa Apolónia,1,shp6
+A,1,A_1_10.A16,Reboleira,0,shp7
+A,1,A_1_10.A17,Santa Apolónia,1,shp6
+A,1,A_1_10.A18,Reboleira,0,shp7
+A,1,A_1_10.A19,Santa Apolónia,1,shp6
+A,1,A_1_10.A20,Reboleira,0,shp7
+A,1,A_1_10.A21,Santa Apolónia,1,shp6
+A,1,A_1_10.A22,Reboleira,0,shp7
+A,1,A_1_10.A23,Santa Apolónia,1,shp6
+A,1,A_1_10.A24,Reboleira,0,shp7
+A,1,A_1_10.A25,Santa Apolónia,1,shp6
+A,1,A_1_10.A26,Reboleira,0,shp7
+A,1,A_1_10.A27,Santa Apolónia,1,shp6
+A,1,A_1_10.A28,Reboleira,0,shp7
+A,1,A_1_10.A1,Santa Apolónia,1,shp6
+A,1,A_1_10.A29,Reboleira,0,shp7
+A,1,A_1_10.A30,Santa Apolónia,1,shp6
+A,1,A_1_10.A31,Reboleira,0,shp7
+A,1,A_1_10.A32,Santa Apolónia,1,shp6
+A,1,A_1_10.A032,Reboleira,0,shp7
+A,1,A_1_10.A033,Santa Apolónia,1,shp6
+B,1,B_1_29.B28,Odivelas,1,shp9
+B,1,B_1_29.B2,Rato,0,shp10
+B,1,B_1_29.B3,Odivelas,1,shp11
+B,1,B_1_29.B4,Rato,0,shp10
+B,1,B_1_29.B5,Odivelas,1,shp11
+B,1,B_1_29.B6,Rato,0,shp10
+B,1,B_1_29.B7,Odivelas,1,shp11
+B,1,B_1_29.B8,Rato,0,shp10
+B,1,B_1_29.B9,Campo Grande,1,shp12
+B,1,B_1_29.B10,Rato,0,shp13
+B,1,B_1_29.B11,Campo Grande,1,shp12
+B,1,B_1_29.B12,Rato,0,shp13
+B,1,B_1_29.B13,Campo Grande,1,shp12
+B,1,B_1_29.B14,Rato,0,shp13
+B,1,B_1_29.B15,Campo Grande,1,shp12
+B,1,B_1_29.B16,Rato,0,shp13
+B,1,B_1_29.B17,Campo Grande,1,shp12
+B,1,B_1_29.B18,Rato,0,shp13
+B,1,B_1_29.B19,Campo Grande,1,shp12
+B,1,B_1_29.B20,Rato,0,shp13
+B,1,B_1_29.B21,Campo Grande,1,shp12
+B,1,B_1_29.B22,Rato,0,shp13
+B,1,B_1_29.B23,Campo Grande,1,shp12
+B,1,B_1_29.B24,Rato,0,shp13
+B,1,B_1_29.B25,Campo Grande,1,shp12
+B,1,B_1_29.B26,Rato,0,shp13
+B,1,B_1_29.B27,Campo Grande,1,shp12
+B,1,B_1_29.B29,Rato,0,shp13
+B,1,B_1_29.B30,Campo Grande,1,shp12
+B,1,B_1_29.B31,Rato,0,shp13
+B,1,B_1_29.B32,Odivelas,1,shp11
+B,1,B_1_29.B33,Rato,0,shp10
+B,1,B_1_29.B34,Odivelas,1,shp11
+B,1,B_1_29.B35,Rato,0,shp10
+B,1,B_1_29.B36,Odivelas,1,shp11
+B,1,B_1_29.B37,Rato,0,shp10
+B,1,B_1_29.B38,Odivelas,1,shp11
+B,1,B_1_29.B39,Rato,0,shp10
+B,1,B_1_29.B40,Odivelas,1,shp11
+B,1,B_1_29.B41,Rato,0,shp10
+B,1,B_1_29.B42,Odivelas,1,shp11
+B,1,B_1_29.B43,Rato,0,shp10
+B,1,B_1_29.B44,Odivelas,1,shp11
+B,1,B_1_29.B45,Rato,0,shp10
+B,1,B_1_29.B46,Odivelas,1,shp11
+B,1,B_1_29.B47,Rato,0,shp10
+B,1,B_1_29.B48,Odivelas,1,shp11
+B,1,B_1_29.B01,Rato,0,shp10
+B,1,B_1_29.B02,Odivelas,1,shp11
+B,1,B_1_29.B03,Rato,0,shp10
+A,1,A_1_9.A2,Reboleira,0,shp7
+A,1,A_1_9.A3,Santa Apolónia,1,shp6
+A,1,A_1_9.A4,Reboleira,0,shp7
+A,1,A_1_9.A5,Santa Apolónia,1,shp6
+A,1,A_1_9.A6,Reboleira,0,shp7
+A,1,A_1_9.A7,Santa Apolónia,1,shp6
+A,1,A_1_9.A8,Reboleira,0,shp7
+A,1,A_1_9.A9,Santa Apolónia,1,shp6
+A,1,A_1_9.A10,Reboleira,0,shp7
+A,1,A_1_9.A11,Santa Apolónia,1,shp6
+A,1,A_1_9.A12,Reboleira,0,shp7
+A,1,A_1_9.A13,Santa Apolónia,1,shp6
+A,1,A_1_9.A14,Reboleira,0,shp7
+A,1,A_1_9.A15,Santa Apolónia,1,shp6
+A,1,A_1_9.A16,Reboleira,0,shp7
+A,1,A_1_9.A17,Santa Apolónia,1,shp6
+A,1,A_1_9.A18,Reboleira,0,shp7
+A,1,A_1_9.A19,Santa Apolónia,1,shp6
+A,1,A_1_9.A20,Reboleira,0,shp7
+A,1,A_1_9.A21,Santa Apolónia,1,shp6
+A,1,A_1_9.A22,Reboleira,0,shp7
+A,1,A_1_9.A23,Santa Apolónia,1,shp6
+A,1,A_1_9.A24,Reboleira,0,shp7
+A,1,A_1_9.A25,Santa Apolónia,1,shp6
+A,1,A_1_9.A26,Reboleira,0,shp7
+A,1,A_1_9.A27,Santa Apolónia,1,shp6
+A,1,A_1_9.A28,Reboleira,0,shp7
+A,1,A_1_9.A29,Santa Apolónia,1,shp6
+A,1,A_1_9.A30,Reboleira,0,shp7
+A,1,A_1_9.A31,Santa Apolónia,1,shp6
+A,1,A_1_9.A32,Reboleira,0,shp7
+A,1,A_1_9.A33,Santa Apolónia,1,shp6
+A,1,A_1_9.A033,Reboleira,0,shp7
+A,1,A_1_9.A034,Santa Apolónia,1,shp6
+A,2,A_2_9.A33,Santa Apolónia,1,shp6
+A,2,A_2_9.A34,Reboleira,0,shp7
+A,2,A_2_9.A35,Santa Apolónia,1,shp6
+A,2,A_2_9.A36,Reboleira,0,shp7
+A,2,A_2_9.A37,Santa Apolónia,1,shp6
+A,2,A_2_9.A38,Reboleira,0,shp7
+A,2,A_2_9.A39,Santa Apolónia,1,shp6
+A,2,A_2_9.A40,Reboleira,0,shp7
+A,2,A_2_9.A41,Santa Apolónia,1,shp6
+A,2,A_2_9.A42,Reboleira,0,shp7
+A,2,A_2_9.A43,Santa Apolónia,1,shp6
+A,2,A_2_9.A44,Reboleira,0,shp7
+A,2,A_2_9.A45,Santa Apolónia,1,shp6
+A,2,A_2_9.A46,Reboleira,0,shp7
+A,2,A_2_9.A47,Santa Apolónia,1,shp6
+A,2,A_2_9.A1,Reboleira,0,shp7
+A,2,A_2_9.A2,Santa Apolónia,1,shp6
+A,2,A_2_9.A3,Reboleira,0,shp7
+A,2,A_2_9.A5,Santa Apolónia,1,shp6
+A,2,A_2_9.A6,Reboleira,0,shp7
+B,1,B_1_28.B42,Odivelas,1,shp9
+B,1,B_1_28.B2,Rato,0,shp10
+B,1,B_1_28.B3,Odivelas,1,shp11
+B,1,B_1_28.B4,Rato,0,shp10
+B,1,B_1_28.B5,Odivelas,1,shp11
+B,1,B_1_28.B6,Rato,0,shp10
+B,1,B_1_28.B7,Odivelas,1,shp11
+B,1,B_1_28.B8,Rato,0,shp10
+B,1,B_1_28.B9,Campo Grande,1,shp12
+B,1,B_1_28.B10,Rato,0,shp13
+B,1,B_1_28.B11,Campo Grande,1,shp12
+B,1,B_1_28.B12,Rato,0,shp13
+B,1,B_1_28.B13,Campo Grande,1,shp12
+B,1,B_1_28.B14,Rato,0,shp13
+B,1,B_1_28.B15,Campo Grande,1,shp12
+B,1,B_1_28.B16,Rato,0,shp13
+B,1,B_1_28.B17,Campo Grande,1,shp12
+B,1,B_1_28.B18,Rato,0,shp13
+B,1,B_1_28.B19,Campo Grande,1,shp12
+B,1,B_1_28.B20,Rato,0,shp13
+B,1,B_1_28.B21,Campo Grande,1,shp12
+B,1,B_1_28.B22,Rato,0,shp13
+B,1,B_1_28.B23,Campo Grande,1,shp12
+B,1,B_1_28.B24,Rato,0,shp13
+B,1,B_1_28.B25,Campo Grande,1,shp12
+B,1,B_1_28.B26,Rato,0,shp13
+B,1,B_1_28.B27,Campo Grande,1,shp12
+B,1,B_1_28.B28,Rato,0,shp13
+B,1,B_1_28.B29,Campo Grande,1,shp12
+B,1,B_1_28.B30,Rato,0,shp13
+B,1,B_1_28.B31,Odivelas,1,shp11
+B,1,B_1_28.B32,Rato,0,shp10
+B,1,B_1_28.B33,Odivelas,1,shp11
+B,1,B_1_28.B34,Rato,0,shp10
+B,1,B_1_28.B35,Odivelas,1,shp11
+B,1,B_1_28.B36,Rato,0,shp10
+B,1,B_1_28.B37,Odivelas,1,shp11
+B,1,B_1_28.B38,Rato,0,shp10
+B,1,B_1_28.B39,Odivelas,1,shp11
+A,1,A_1_8.A1,Reboleira,0,shp7
+A,1,A_1_8.A2,Santa Apolónia,1,shp6
+A,1,A_1_8.A3,Reboleira,0,shp7
+A,1,A_1_8.A4,Santa Apolónia,1,shp6
+A,1,A_1_8.A5,Reboleira,0,shp7
+A,1,A_1_8.A6,Santa Apolónia,1,shp6
+A,1,A_1_8.A7,Reboleira,0,shp7
+A,1,A_1_8.A8,Santa Apolónia,1,shp6
+A,1,A_1_8.A9,Reboleira,0,shp7
+A,1,A_1_8.A10,Santa Apolónia,1,shp6
+A,1,A_1_8.A11,Reboleira,0,shp7
+A,1,A_1_8.A12,Santa Apolónia,1,shp6
+A,1,A_1_8.A13,Reboleira,0,shp7
+A,1,A_1_8.A14,Santa Apolónia,1,shp6
+A,1,A_1_8.A15,Reboleira,0,shp7
+A,1,A_1_8.A16,Santa Apolónia,1,shp6
+A,1,A_1_8.A17,Reboleira,0,shp7
+A,1,A_1_8.A18,Santa Apolónia,1,shp6
+A,1,A_1_8.A19,Reboleira,0,shp7
+A,1,A_1_8.A20,Santa Apolónia,1,shp6
+A,1,A_1_8.A21,Reboleira,0,shp7
+A,1,A_1_8.A22,Santa Apolónia,1,shp6
+A,1,A_1_8.A23,Reboleira,0,shp7
+A,1,A_1_8.A24,Santa Apolónia,1,shp6
+A,1,A_1_8.A25,Reboleira,0,shp7
+A,1,A_1_8.A26,Santa Apolónia,1,shp6
+A,1,A_1_8.A27,Reboleira,0,shp7
+A,2,A_2_8.A27,Reboleira,0,shp7
+A,2,A_2_8.A28,Santa Apolónia,1,shp6
+A,2,A_2_8.A29,Reboleira,0,shp7
+A,2,A_2_8.A30,Santa Apolónia,1,shp6
+A,2,A_2_8.A31,Reboleira,0,shp7
+A,2,A_2_8.A32,Santa Apolónia,1,shp6
+A,2,A_2_8.A33,Reboleira,0,shp7
+A,2,A_2_8.A34,Santa Apolónia,1,shp6
+A,2,A_2_8.A35,Reboleira,0,shp7
+A,2,A_2_8.A36,Santa Apolónia,1,shp6
+A,2,A_2_8.A37,Reboleira,0,shp7
+A,2,A_2_8.A38,Santa Apolónia,1,shp6
+A,2,A_2_8.A39,Reboleira,0,shp7
+A,2,A_2_8.A40,Santa Apolónia,1,shp6
+A,2,A_2_8.A41,Reboleira,0,shp7
+A,2,A_2_8.A42,Santa Apolónia,1,shp6
+A,2,A_2_8.A43,Reboleira,0,shp7
+A,2,A_2_8.A44,Santa Apolónia,1,shp6
+A,2,A_2_8.A45,Reboleira,0,shp7
+A,2,A_2_8.A46,Santa Apolónia,1,shp6
+A,2,A_2_8.A47,Reboleira,0,shp7
+A,2,A_2_8.A48,Santa Apolónia,1,shp6
+A,2,A_2_8.A49,Reboleira,0,shp7
+A,2,A_2_8.A50,Santa Apolónia,1,shp6
+A,2,A_2_8.A51,Reboleira,0,shp7
+A,2,A_2_8.A1,Santa Apolónia,1,shp6
+A,2,A_2_8.A2,Reboleira,0,shp7
+A,2,A_2_8.A3,Santa Apolónia,1,shp6
+A,2,A_2_8.A4,Reboleira,0,shp7
+A,2,A_2_8.A5,Santa Apolónia,1,shp6
+A,2,A_2_8.A6,Reboleira,0,shp7
+A,2,A_2_8.A7,Santa Apolónia,1,shp6
+A,2,A_2_8.A07,Reboleira,0,shp7
+A,2,A_2_8.A08,Santa Apolónia,1,shp6
+B,1,B_1_27.B2,Rato,0,shp10
+B,1,B_1_27.B3,Odivelas,1,shp11
+B,1,B_1_27.B4,Rato,0,shp10
+B,1,B_1_27.B5,Odivelas,1,shp11
+B,1,B_1_27.B6,Rato,0,shp10
+B,1,B_1_27.B7,Odivelas,1,shp11
+B,1,B_1_27.B11,Rato,0,shp10
+B,1,B_1_27.B12,Odivelas,1,shp11
+B,1,B_1_27.B13,Rato,0,shp10
+B,1,B_1_27.B14,Odivelas,1,shp11
+B,1,B_1_27.B15,Rato,0,shp10
+B,1,B_1_27.B16,Odivelas,1,shp11
+B,1,B_1_27.B17,Rato,0,shp10
+B,1,B_1_27.B18,Odivelas,1,shp11
+B,1,B_1_27.B19,Rato,0,shp10
+B,1,B_1_27.B20,Odivelas,1,shp11
+A,2,A_2_7.A39,Reboleira,0,shp7
+A,2,A_2_7.A40,Santa Apolónia,1,shp6
+A,2,A_2_7.A41,Reboleira,0,shp7
+A,2,A_2_7.A42,Santa Apolónia,1,shp6
+A,2,A_2_7.A43,Reboleira,0,shp7
+A,2,A_2_7.A44,Santa Apolónia,1,shp6
+A,2,A_2_7.A45,Reboleira,0,shp7
+A,2,A_2_7.A46,Santa Apolónia,1,shp6
+A,2,A_2_7.A47,Reboleira,0,shp7
+A,2,A_2_7.A48,Santa Apolónia,1,shp6
+A,2,A_2_7.A49,Reboleira,0,shp7
+A,2,A_2_7.A50,Santa Apolónia,1,shp6
+A,2,A_2_7.A51,Reboleira,0,shp7
+A,2,A_2_7.A52,Santa Apolónia,1,shp6
+A,2,A_2_7.A53,Reboleira,0,shp7
+A,2,A_2_7.A54,Santa Apolónia,1,shp6
+A,2,A_2_7.A55,Reboleira,0,shp7
+A,2,A_2_7.A56,Santa Apolónia,1,shp6
+A,2,A_2_7.A57,Reboleira,0,shp7
+A,2,A_2_7.A58,Santa Apolónia,1,shp6
+A,2,A_2_7.A59,Reboleira,0,shp7
+A,2,A_2_7.A60,Santa Apolónia,1,shp6
+A,2,A_2_7.A61,Reboleira,0,shp7
+A,2,A_2_7.A62,Santa Apolónia,1,shp6
+A,2,A_2_7.A63,Reboleira,0,shp7
+A,2,A_2_7.A1,Santa Apolónia,1,shp6
+A,2,A_2_7.A2,Reboleira,0,shp7
+A,2,A_2_7.A3,Santa Apolónia,1,shp6
+A,2,A_2_7.A4,Reboleira,0,shp7
+A,2,A_2_7.A5,Santa Apolónia,1,shp6
+A,2,A_2_7.A6,Reboleira,0,shp7
+A,2,A_2_7.A7,Santa Apolónia,1,shp6
+A,2,A_2_7.A07,Reboleira,0,shp7
+A,2,A_2_7.A08,Santa Apolónia,1,shp6
+A,1,A_1_7.A4,Reboleira,0,shp15
+A,1,A_1_7.A5,Santa Apolónia,1,shp6
+A,1,A_1_7.A6,Reboleira,0,shp7
+A,1,A_1_7.A7,Santa Apolónia,1,shp6
+A,1,A_1_7.A8,Reboleira,0,shp7
+A,1,A_1_7.A9,Santa Apolónia,1,shp6
+A,1,A_1_7.A10,Reboleira,0,shp7
+A,1,A_1_7.A11,Santa Apolónia,1,shp6
+A,1,A_1_7.A12,Reboleira,0,shp7
+A,1,A_1_7.A13,Santa Apolónia,1,shp6
+A,1,A_1_7.A14,Reboleira,0,shp7
+A,1,A_1_7.A15,Santa Apolónia,1,shp6
+A,1,A_1_7.A16,Reboleira,0,shp7
+A,1,A_1_7.A17,Santa Apolónia,1,shp6
+A,1,A_1_7.A18,Reboleira,0,shp7
+A,1,A_1_7.A19,Santa Apolónia,1,shp6
+A,1,A_1_7.A20,Reboleira,0,shp7
+A,1,A_1_7.A21,Santa Apolónia,1,shp6
+A,1,A_1_7.A22,Reboleira,0,shp7
+A,1,A_1_7.A23,Santa Apolónia,1,shp6
+A,1,A_1_7.A24,Reboleira,0,shp7
+A,1,A_1_7.A25,Santa Apolónia,1,shp6
+A,1,A_1_7.A26,Reboleira,0,shp7
+A,1,A_1_7.A27,Santa Apolónia,1,shp6
+A,1,A_1_7.A28,Reboleira,0,shp7
+A,1,A_1_7.A29,Santa Apolónia,1,shp6
+A,1,A_1_7.A30,Reboleira,0,shp7
+A,1,A_1_7.A31,Santa Apolónia,1,shp6
+A,1,A_1_7.A32,Reboleira,0,shp7
+A,1,A_1_7.A33,Santa Apolónia,1,shp6
+A,1,A_1_7.A34,Reboleira,0,shp7
+A,1,A_1_7.A35,Santa Apolónia,1,shp6
+A,1,A_1_7.A035,Reboleira,0,shp7
+A,1,A_1_7.A036,Santa Apolónia,1,shp6
+B,2,B_2_26.B1,Odivelas,1,shp11
+B,2,B_2_26.B2,Rato,0,shp10
+B,2,B_2_26.B3,Odivelas,1,shp11
+B,2,B_2_26.B4,Rato,0,shp10
+B,2,B_2_26.B5,Odivelas,1,shp11
+B,2,B_2_26.B6,Rato,0,shp10
+B,2,B_2_26.B7,Odivelas,1,shp11
+B,2,B_2_26.B8,Rato,0,shp10
+B,2,B_2_26.B9,Odivelas,1,shp11
+B,2,B_2_26.B10,Rato,0,shp10
+B,2,B_2_26.B11,Odivelas,1,shp11
+B,2,B_2_26.B12,Rato,0,shp10
+B,2,B_2_26.B13,Odivelas,1,shp11
+B,2,B_2_26.B14,Rato,0,shp10
+B,2,B_2_26.B15,Odivelas,1,shp11
+B,2,B_2_26.B16,Rato,0,shp10
+B,2,B_2_26.B17,Odivelas,1,shp11
+B,2,B_2_26.B18,Rato,0,shp10
+B,2,B_2_26.B19,Odivelas,1,shp11
+B,2,B_2_26.B20,Rato,0,shp10
+B,2,B_2_26.B21,Odivelas,1,shp11
+B,2,B_2_26.B22,Rato,0,shp10
+B,2,B_2_26.B23,Odivelas,1,shp11
+B,2,B_2_26.B24,Rato,0,shp10
+B,2,B_2_26.B25,Odivelas,1,shp11
+B,2,B_2_26.B26,Rato,0,shp10
+B,2,B_2_26.B27,Odivelas,1,shp11
+B,2,B_2_26.B28,Rato,0,shp10
+B,2,B_2_26.B29,Odivelas,1,shp11
+B,2,B_2_26.B30,Rato,0,shp10
+B,2,B_2_26.B31,Odivelas,1,shp11
+B,2,B_2_26.B32,Rato,0,shp10
+B,2,B_2_26.B33,Odivelas,1,shp11
+B,2,B_2_26.B34,Rato,0,shp10
+B,2,B_2_26.B35,Odivelas,1,shp11
+B,2,B_2_26.B36,Rato,0,shp10
+B,2,B_2_26.B37,Odivelas,1,shp11
+B,2,B_2_26.B38,Rato,0,shp10
+B,2,B_2_26.B39,Odivelas,1,shp11
+B,2,B_2_26.B40,Rato,0,shp10
+B,2,B_2_26.B41,Odivelas,1,shp11
+B,2,B_2_26.B01,Rato,0,shp10
+B,2,B_2_26.B02,Odivelas,1,shp11
+B,2,B_2_26.B03,Rato,0,shp10
+B,1,B_1_26.B2,Odivelas,1,shp11
+B,1,B_1_26.B3,Rato,0,shp10
+B,1,B_1_26.B4,Odivelas,1,shp11
+B,1,B_1_26.B5,Rato,0,shp10
+B,1,B_1_26.B6,Odivelas,1,shp11
+B,1,B_1_26.B7,Rato,0,shp10
+B,1,B_1_26.B8,Odivelas,1,shp11
+B,1,B_1_26.B9,Rato,0,shp10
+B,1,B_1_26.B10,Odivelas,1,shp11
+B,1,B_1_26.B11,Rato,0,shp10
+B,1,B_1_26.B12,Odivelas,1,shp11
+B,1,B_1_26.B13,Rato,0,shp10
+B,1,B_1_26.B14,Odivelas,1,shp11
+B,1,B_1_26.B15,Rato,0,shp10
+B,1,B_1_26.B16,Odivelas,1,shp11
+B,1,B_1_26.B17,Rato,0,shp10
+B,1,B_1_26.B18,Odivelas,1,shp11
+B,1,B_1_26.B19,Rato,0,shp10
+B,1,B_1_26.B20,Odivelas,1,shp11
+B,1,B_1_26.B21,Rato,0,shp10
+B,1,B_1_26.B22,Odivelas,1,shp11
+B,1,B_1_26.B23,Rato,0,shp10
+B,1,B_1_26.B24,Odivelas,1,shp11
+B,1,B_1_26.B25,Rato,0,shp10
+B,1,B_1_26.B26,Odivelas,1,shp11
+B,1,B_1_26.B27,Rato,0,shp10
+B,1,B_1_26.B28,Odivelas,1,shp11
+B,1,B_1_26.B29,Rato,0,shp10
+B,1,B_1_26.B30,Odivelas,1,shp11
+A,1,A_1_6.A2,Reboleira,0,shp16
+A,1,A_1_6.A3,Santa Apolónia,1,shp6
+A,1,A_1_6.A4,Reboleira,0,shp7
+A,1,A_1_6.A5,Santa Apolónia,1,shp6
+A,1,A_1_6.A6,Reboleira,0,shp7
+A,1,A_1_6.A7,Santa Apolónia,1,shp6
+A,1,A_1_6.A8,Reboleira,0,shp7
+A,1,A_1_6.A12,Santa Apolónia,1,shp6
+A,1,A_1_6.A13,Reboleira,0,shp7
+A,1,A_1_6.A14,Santa Apolónia,1,shp6
+A,1,A_1_6.A15,Reboleira,0,shp7
+A,2,A_2_6.A18,Reboleira,0,shp15
+A,2,A_2_6.A19,Santa Apolónia,1,shp6
+A,2,A_2_6.A20,Reboleira,0,shp7
+A,2,A_2_6.A21,Santa Apolónia,1,shp6
+A,2,A_2_6.A22,Reboleira,0,shp7
+A,2,A_2_6.A23,Santa Apolónia,1,shp6
+A,2,A_2_6.A24,Reboleira,0,shp7
+A,2,A_2_6.A25,Santa Apolónia,1,shp6
+A,2,A_2_6.A26,Reboleira,0,shp7
+A,2,A_2_6.A27,Santa Apolónia,1,shp6
+A,2,A_2_6.A28,Reboleira,0,shp7
+A,2,A_2_6.A29,Santa Apolónia,1,shp6
+A,2,A_2_6.A30,Reboleira,0,shp7
+A,2,A_2_6.A31,Santa Apolónia,1,shp6
+A,2,A_2_6.A32,Reboleira,0,shp7
+A,2,A_2_6.A33,Santa Apolónia,1,shp6
+A,2,A_2_6.A34,Reboleira,0,shp7
+A,2,A_2_6.A35,Santa Apolónia,1,shp6
+A,2,A_2_6.A42,Reboleira,0,shp7
+A,2,A_2_6.A43,Santa Apolónia,1,shp6
+A,2,A_2_6.A44,Reboleira,0,shp7
+A,2,A_2_6.A45,Santa Apolónia,1,shp6
+A,2,A_2_6.A46,Reboleira,0,shp7
+A,2,A_2_6.A47,Santa Apolónia,1,shp6
+A,2,A_2_6.A48,Reboleira,0,shp7
+A,2,A_2_6.A49,Santa Apolónia,1,shp6
+A,2,A_2_6.A3,Reboleira,0,shp7
+A,2,A_2_6.A4,Santa Apolónia,1,shp6
+A,2,A_2_6.A5,Reboleira,0,shp7
+A,2,A_2_6.A6,Santa Apolónia,1,shp6
+A,2,A_2_6.A7,Reboleira,0,shp7
+A,2,A_2_6.A8,Santa Apolónia,1,shp6
+A,2,A_2_6.A08,Reboleira,0,shp7
+A,2,A_2_6.A09,Santa Apolónia,1,shp6
+A,2,A_2_6.A010,Reboleira,0,shp7
+B,2,B_2_25.B1,Odivelas,1,shp11
+B,2,B_2_25.B2,Rato,0,shp10
+B,2,B_2_25.B3,Odivelas,1,shp11
+B,2,B_2_25.B4,Rato,0,shp10
+B,2,B_2_25.B5,Odivelas,1,shp11
+B,2,B_2_25.B6,Rato,0,shp10
+B,2,B_2_25.B7,Odivelas,1,shp11
+B,2,B_2_25.B8,Rato,0,shp10
+B,2,B_2_25.B9,Odivelas,1,shp11
+B,2,B_2_25.B10,Rato,0,shp10
+B,2,B_2_25.B11,Odivelas,1,shp11
+B,2,B_2_25.B12,Rato,0,shp10
+B,2,B_2_25.B13,Odivelas,1,shp11
+B,2,B_2_25.B14,Rato,0,shp10
+B,2,B_2_25.B15,Odivelas,1,shp11
+B,2,B_2_25.B16,Rato,0,shp10
+B,2,B_2_25.B17,Odivelas,1,shp11
+B,2,B_2_25.B18,Rato,0,shp10
+B,2,B_2_25.B19,Odivelas,1,shp11
+B,2,B_2_25.B20,Rato,0,shp10
+B,2,B_2_25.B21,Odivelas,1,shp11
+B,2,B_2_25.B22,Rato,0,shp10
+B,2,B_2_25.B23,Odivelas,1,shp11
+B,2,B_2_25.B24,Rato,0,shp10
+B,2,B_2_25.B25,Odivelas,1,shp11
+B,2,B_2_25.B26,Rato,0,shp10
+B,2,B_2_25.B27,Odivelas,1,shp11
+B,2,B_2_25.B28,Rato,0,shp10
+B,2,B_2_25.B29,Odivelas,1,shp11
+B,2,B_2_25.B30,Rato,0,shp10
+B,2,B_2_25.B31,Odivelas,1,shp11
+B,2,B_2_25.B32,Rato,0,shp10
+B,2,B_2_25.B33,Odivelas,1,shp11
+B,2,B_2_25.B34,Rato,0,shp10
+B,2,B_2_25.B35,Odivelas,1,shp11
+B,2,B_2_25.B36,Rato,0,shp10
+B,2,B_2_25.B37,Odivelas,1,shp11
+B,2,B_2_25.B38,Rato,0,shp10
+B,2,B_2_25.B39,Odivelas,1,shp11
+B,2,B_2_25.B40,Rato,0,shp10
+B,2,B_2_25.B41,Odivelas,1,shp11
+B,2,B_2_25.B42,Rato,0,shp10
+B,2,B_2_25.B01,Odivelas,1,shp11
+B,2,B_2_25.B02,Rato,0,shp10
+B,1,B_1_25.B1,Odivelas,1,shp11
+B,1,B_1_25.B2,Rato,0,shp10
+B,1,B_1_25.B3,Odivelas,1,shp11
+B,1,B_1_25.B4,Rato,0,shp10
+B,1,B_1_25.B5,Odivelas,1,shp11
+B,1,B_1_25.B6,Rato,0,shp10
+B,1,B_1_25.B7,Odivelas,1,shp11
+B,1,B_1_25.B12,Rato,0,shp10
+B,1,B_1_25.B13,Odivelas,1,shp11
+B,1,B_1_25.B14,Rato,0,shp10
+B,1,B_1_25.B15,Odivelas,1,shp11
+B,1,B_1_25.B16,Rato,0,shp10
+B,1,B_1_25.B17,Odivelas,1,shp11
+B,1,B_1_25.B18,Rato,0,shp10
+B,1,B_1_25.B19,Odivelas,1,shp11
+B,1,B_1_25.B20,Rato,0,shp10
+B,1,B_1_25.B21,Odivelas,1,shp11
+B,1,B_1_25.B22,Rato,0,shp10
+B,1,B_1_25.B23,Odivelas,1,shp11
+B,1,B_1_25.B24,Rato,0,shp10
+B,1,B_1_25.B25,Odivelas,1,shp11
+B,1,B_1_25.B26,Rato,0,shp10
+B,1,B_1_25.B27,Odivelas,1,shp11
+B,1,B_1_25.B28,Rato,0,shp10
+B,1,B_1_25.B01,Odivelas,1,shp11
+B,1,B_1_25.B02,Rato,0,shp10
+A,1,A_1_5.A3,Santa Apolónia,1,shp6
+A,1,A_1_5.A4,Reboleira,0,shp7
+A,1,A_1_5.A5,Santa Apolónia,1,shp6
+A,1,A_1_5.A6,Reboleira,0,shp7
+A,1,A_1_5.A7,Santa Apolónia,1,shp6
+A,1,A_1_5.A8,Reboleira,0,shp7
+A,1,A_1_5.A9,Santa Apolónia,1,shp6
+A,1,A_1_5.A10,Reboleira,0,shp7
+A,1,A_1_5.A11,Santa Apolónia,1,shp6
+A,1,A_1_5.A12,Reboleira,0,shp7
+A,1,A_1_5.A13,Santa Apolónia,1,shp6
+A,1,A_1_5.A14,Reboleira,0,shp7
+A,1,A_1_5.A15,Santa Apolónia,1,shp6
+A,1,A_1_5.A16,Reboleira,0,shp7
+A,1,A_1_5.A17,Santa Apolónia,1,shp6
+A,1,A_1_5.A18,Reboleira,0,shp7
+A,1,A_1_5.A19,Santa Apolónia,1,shp6
+A,1,A_1_5.A20,Reboleira,0,shp7
+A,1,A_1_5.A21,Santa Apolónia,1,shp6
+A,1,A_1_5.A22,Reboleira,0,shp7
+A,1,A_1_5.A23,Santa Apolónia,1,shp6
+A,1,A_1_5.A24,Reboleira,0,shp7
+A,1,A_1_5.A25,Santa Apolónia,1,shp6
+A,1,A_1_5.A26,Reboleira,0,shp7
+A,1,A_1_5.A27,Santa Apolónia,1,shp6
+A,1,A_1_5.A28,Reboleira,0,shp7
+A,1,A_1_5.A29,Santa Apolónia,1,shp6
+A,1,A_1_5.A1,Reboleira,0,shp7
+A,1,A_1_5.A2,Santa Apolónia,1,shp6
+A,1,A_1_5.A30,Reboleira,0,shp7
+A,1,A_1_5.A31,Santa Apolónia,1,shp6
+A,1,A_1_5.A32,Reboleira,0,shp7
+A,1,A_1_5.A032,Santa Apolónia,1,shp6
+A,1,A_1_5.A033,Reboleira,0,shp7
+A,2,A_2_5.A31,Santa Apolónia,1,shp6
+A,2,A_2_5.A32,Reboleira,0,shp7
+A,2,A_2_5.A33,Santa Apolónia,1,shp6
+A,2,A_2_5.A34,Reboleira,0,shp7
+A,2,A_2_5.A35,Santa Apolónia,1,shp6
+A,2,A_2_5.A36,Reboleira,0,shp7
+A,2,A_2_5.A37,Santa Apolónia,1,shp6
+A,2,A_2_5.A38,Reboleira,0,shp7
+A,2,A_2_5.A39,Santa Apolónia,1,shp6
+A,2,A_2_5.A40,Reboleira,0,shp7
+A,2,A_2_5.A41,Santa Apolónia,1,shp6
+A,2,A_2_5.A42,Reboleira,0,shp7
+A,2,A_2_5.A43,Santa Apolónia,1,shp6
+A,2,A_2_5.A44,Reboleira,0,shp7
+A,2,A_2_5.A45,Santa Apolónia,1,shp6
+A,2,A_2_5.A46,Reboleira,0,shp7
+A,2,A_2_5.A47,Santa Apolónia,1,shp6
+A,2,A_2_5.A48,Reboleira,0,shp7
+A,2,A_2_5.A49,Santa Apolónia,1,shp6
+A,2,A_2_5.A50,Reboleira,0,shp7
+A,2,A_2_5.A51,Santa Apolónia,1,shp6
+A,2,A_2_5.A52,Reboleira,0,shp7
+A,2,A_2_5.A53,Santa Apolónia,1,shp6
+A,2,A_2_5.A54,Reboleira,0,shp7
+A,2,A_2_5.A55,Santa Apolónia,1,shp6
+A,2,A_2_5.A1,Reboleira,0,shp7
+A,2,A_2_5.A2,Santa Apolónia,1,shp6
+A,2,A_2_5.A3,Reboleira,0,shp7
+A,2,A_2_5.A4,Santa Apolónia,1,shp6
+A,2,A_2_5.A5,Reboleira,0,shp7
+A,2,A_2_5.A6,Santa Apolónia,1,shp6
+A,2,A_2_5.A7,Reboleira,0,shp7
+A,2,A_2_5.A07,Santa Apolónia,1,shp6
+A,2,A_2_5.A08,Reboleira,0,shp7
+B,3,B_3_24.B43,Odivelas,1,shp17
+B,2,B_2_24.B1,Rato,0,shp10
+B,2,B_2_24.B2,Odivelas,1,shp11
+B,2,B_2_24.B3,Rato,0,shp10
+B,2,B_2_24.B4,Odivelas,1,shp11
+B,2,B_2_24.B5,Rato,0,shp10
+B,2,B_2_24.B6,Odivelas,1,shp11
+B,2,B_2_24.B7,Rato,0,shp10
+B,2,B_2_24.B8,Odivelas,1,shp11
+B,2,B_2_24.B9,Rato,0,shp10
+B,2,B_2_24.B10,Odivelas,1,shp11
+B,2,B_2_24.B11,Rato,0,shp10
+B,2,B_2_24.B12,Odivelas,1,shp11
+B,2,B_2_24.B13,Rato,0,shp10
+B,2,B_2_24.B14,Odivelas,1,shp11
+B,2,B_2_24.B15,Rato,0,shp10
+B,2,B_2_24.B16,Odivelas,1,shp11
+B,2,B_2_24.B17,Rato,0,shp10
+B,2,B_2_24.B18,Odivelas,1,shp11
+B,2,B_2_24.B19,Rato,0,shp10
+B,2,B_2_24.B20,Odivelas,1,shp11
+B,2,B_2_24.B21,Rato,0,shp10
+B,2,B_2_24.B22,Odivelas,1,shp11
+B,2,B_2_24.B23,Rato,0,shp10
+B,2,B_2_24.B24,Odivelas,1,shp11
+B,2,B_2_24.B25,Rato,0,shp10
+B,2,B_2_24.B26,Odivelas,1,shp11
+B,2,B_2_24.B27,Rato,0,shp10
+B,2,B_2_24.B28,Odivelas,1,shp11
+B,2,B_2_24.B29,Rato,0,shp10
+B,2,B_2_24.B30,Odivelas,1,shp11
+B,2,B_2_24.B31,Rato,0,shp10
+B,2,B_2_24.B32,Odivelas,1,shp11
+B,2,B_2_24.B33,Rato,0,shp10
+B,2,B_2_24.B34,Odivelas,1,shp11
+B,2,B_2_24.B35,Rato,0,shp10
+B,2,B_2_24.B36,Odivelas,1,shp11
+B,2,B_2_24.B37,Rato,0,shp10
+B,2,B_2_24.B38,Odivelas,1,shp11
+B,2,B_2_24.B39,Rato,0,shp10
+B,2,B_2_24.B40,Odivelas,1,shp11
+B,2,B_2_24.B41,Rato,0,shp10
+B,2,B_2_24.B01,Odivelas,1,shp11
+B,2,B_2_24.B02,Rato,0,shp10
+B,2,B_2_24.B03,Odivelas,1,shp11
+B,1,B_1_24.B2,Rato,0,shp10
+B,1,B_1_24.B3,Odivelas,1,shp11
+B,1,B_1_24.B5,Rato,0,shp10
+B,1,B_1_24.B6,Odivelas,1,shp11
+B,1,B_1_24.B7,Rato,0,shp10
+B,1,B_1_24.B8,Odivelas,1,shp11
+B,1,B_1_24.B9,Rato,0,shp10
+B,1,B_1_24.B10,Odivelas,1,shp11
+B,1,B_1_24.B1,Rato,0,shp10
+B,1,B_1_24.B4,Odivelas,1,shp11
+B,1,B_1_24.B11,Rato,0,shp10
+B,1,B_1_24.B12,Odivelas,1,shp11
+B,1,B_1_24.B13,Rato,0,shp10
+B,1,B_1_24.B14,Odivelas,1,shp11
+B,1,B_1_24.B15,Rato,0,shp10
+B,1,B_1_24.B16,Odivelas,1,shp11
+B,1,B_1_24.B17,Rato,0,shp10
+B,1,B_1_24.B18,Odivelas,1,shp11
+A,1,A_1_4.A2,Santa Apolónia,1,shp6
+A,1,A_1_4.A3,Reboleira,0,shp7
+A,1,A_1_4.A4,Santa Apolónia,1,shp6
+A,1,A_1_4.A5,Reboleira,0,shp7
+A,1,A_1_4.A6,Santa Apolónia,1,shp6
+A,1,A_1_4.A7,Reboleira,0,shp7
+A,1,A_1_4.A12,Santa Apolónia,1,shp6
+A,1,A_1_4.A13,Reboleira,0,shp7
+A,1,A_1_4.A14,Santa Apolónia,1,shp6
+A,1,A_1_4.A15,Reboleira,0,shp7
+A,1,A_1_4.A16,Santa Apolónia,1,shp6
+A,1,A_1_4.A17,Reboleira,0,shp7
+A,1,A_1_4.A18,Santa Apolónia,1,shp6
+A,1,A_1_4.A19,Reboleira,0,shp7
+A,1,A_1_4.A20,Santa Apolónia,1,shp6
+A,1,A_1_4.A21,Reboleira,0,shp7
+A,1,A_1_4.A22,Santa Apolónia,1,shp6
+A,1,A_1_4.A23,Reboleira,0,shp7
+A,1,A_1_4.A023,Santa Apolónia,1,shp6
+A,1,A_1_4.A024,Reboleira,0,shp7
+A,1,A_1_4.A025,Santa Apolónia,1,shp6
+A,2,A_2_4.A14,Santa Apolónia,1,shp6
+A,2,A_2_4.A15,Reboleira,0,shp7
+A,2,A_2_4.A16,Santa Apolónia,1,shp6
+A,2,A_2_4.A17,Reboleira,0,shp7
+A,2,A_2_4.A18,Santa Apolónia,1,shp6
+A,2,A_2_4.A19,Reboleira,0,shp7
+A,2,A_2_4.A20,Santa Apolónia,1,shp6
+A,2,A_2_4.A21,Reboleira,0,shp7
+A,2,A_2_4.A22,Santa Apolónia,1,shp6
+A,2,A_2_4.A23,Reboleira,0,shp7
+A,2,A_2_4.A24,Santa Apolónia,1,shp6
+A,2,A_2_4.A25,Reboleira,0,shp7
+A,2,A_2_4.A26,Santa Apolónia,1,shp6
+A,2,A_2_4.A27,Reboleira,0,shp7
+A,2,A_2_4.A28,Santa Apolónia,1,shp6
+A,2,A_2_4.A29,Reboleira,0,shp7
+A,2,A_2_4.A30,Santa Apolónia,1,shp6
+A,2,A_2_4.A31,Reboleira,0,shp7
+A,2,A_2_4.A32,Santa Apolónia,1,shp6
+A,2,A_2_4.A33,Reboleira,0,shp7
+A,2,A_2_4.A34,Santa Apolónia,1,shp6
+A,2,A_2_4.A35,Reboleira,0,shp7
+A,2,A_2_4.A36,Santa Apolónia,1,shp6
+A,2,A_2_4.A42,Reboleira,0,shp7
+A,2,A_2_4.A43,Santa Apolónia,1,shp6
+A,2,A_2_4.A1,Reboleira,0,shp7
+A,2,A_2_4.A2,Santa Apolónia,1,shp6
+A,2,A_2_4.A3,Reboleira,0,shp7
+A,2,A_2_4.A4,Santa Apolónia,1,shp6
+A,2,A_2_4.A5,Reboleira,0,shp7
+A,2,A_2_4.A6,Santa Apolónia,1,shp6
+A,2,A_2_4.A7,Reboleira,0,shp7
+A,2,A_2_4.A07,Santa Apolónia,1,shp6
+A,2,A_2_4.A08,Reboleira,0,shp7
+B,2,B_2_23.B1,Rato,0,shp10
+B,2,B_2_23.B2,Odivelas,1,shp11
+B,2,B_2_23.B3,Rato,0,shp10
+B,2,B_2_23.B4,Odivelas,1,shp11
+B,2,B_2_23.B5,Rato,0,shp10
+B,2,B_2_23.B6,Odivelas,1,shp11
+B,2,B_2_23.B7,Rato,0,shp10
+B,2,B_2_23.B8,Odivelas,1,shp11
+B,2,B_2_23.B9,Rato,0,shp10
+B,2,B_2_23.B10,Odivelas,1,shp11
+B,2,B_2_23.B11,Rato,0,shp10
+B,2,B_2_23.B12,Odivelas,1,shp11
+B,2,B_2_23.B13,Rato,0,shp10
+B,2,B_2_23.B14,Odivelas,1,shp11
+B,2,B_2_23.B15,Rato,0,shp10
+B,2,B_2_23.B16,Odivelas,1,shp11
+B,2,B_2_23.B17,Rato,0,shp10
+B,2,B_2_23.B18,Odivelas,1,shp11
+B,2,B_2_23.B19,Rato,0,shp10
+B,2,B_2_23.B20,Odivelas,1,shp11
+B,2,B_2_23.B21,Rato,0,shp10
+B,2,B_2_23.B22,Odivelas,1,shp11
+B,2,B_2_23.B23,Rato,0,shp10
+B,2,B_2_23.B24,Odivelas,1,shp11
+B,2,B_2_23.B25,Rato,0,shp10
+B,2,B_2_23.B26,Odivelas,1,shp11
+B,2,B_2_23.B27,Rato,0,shp10
+B,2,B_2_23.B28,Odivelas,1,shp11
+B,2,B_2_23.B29,Rato,0,shp10
+B,2,B_2_23.B30,Odivelas,1,shp11
+B,2,B_2_23.B31,Rato,0,shp10
+B,2,B_2_23.B32,Odivelas,1,shp11
+B,2,B_2_23.B33,Rato,0,shp10
+B,2,B_2_23.B34,Odivelas,1,shp11
+B,2,B_2_23.B35,Rato,0,shp10
+B,2,B_2_23.B36,Odivelas,1,shp11
+B,2,B_2_23.B37,Rato,0,shp10
+B,2,B_2_23.B38,Odivelas,1,shp11
+B,2,B_2_23.B39,Rato,0,shp10
+B,2,B_2_23.B40,Odivelas,1,shp11
+B,2,B_2_23.B41,Rato,0,shp10
+B,2,B_2_23.B01,Odivelas,1,shp11
+B,2,B_2_23.B02,Rato,0,shp10
+B,2,B_2_23.B03,Odivelas,1,shp11
+B,1,B_1_23.B1,Rato,0,shp10
+B,1,B_1_23.B2,Odivelas,1,shp11
+B,1,B_1_23.B3,Rato,0,shp10
+B,1,B_1_23.B4,Odivelas,1,shp11
+B,1,B_1_23.B5,Rato,0,shp10
+B,1,B_1_23.B6,Odivelas,1,shp11
+B,1,B_1_23.B7,Rato,0,shp10
+B,1,B_1_23.B8,Odivelas,1,shp11
+B,1,B_1_23.B12,Rato,0,shp18
+B,1,B_1_23.B13,Odivelas,1,shp11
+B,1,B_1_23.B14,Rato,0,shp10
+B,1,B_1_23.B15,Odivelas,1,shp11
+B,1,B_1_23.B16,Rato,0,shp10
+B,1,B_1_23.B17,Odivelas,1,shp11
+B,1,B_1_23.B18,Rato,0,shp10
+B,1,B_1_23.B19,Odivelas,1,shp11
+A,2,A_2_3.A21,Santa Apolónia,1,shp6
+A,2,A_2_3.A22,Reboleira,0,shp7
+A,2,A_2_3.A23,Santa Apolónia,1,shp6
+A,2,A_2_3.A24,Reboleira,0,shp7
+A,2,A_2_3.A25,Santa Apolónia,1,shp6
+A,2,A_2_3.A26,Reboleira,0,shp7
+A,2,A_2_3.A27,Santa Apolónia,1,shp6
+A,2,A_2_3.A28,Reboleira,0,shp7
+A,2,A_2_3.A29,Santa Apolónia,1,shp6
+A,2,A_2_3.A30,Reboleira,0,shp7
+A,2,A_2_3.A31,Santa Apolónia,1,shp6
+A,2,A_2_3.A32,Reboleira,0,shp7
+A,2,A_2_3.A33,Santa Apolónia,1,shp6
+A,2,A_2_3.A34,Reboleira,0,shp7
+A,2,A_2_3.A35,Santa Apolónia,1,shp6
+A,2,A_2_3.A36,Reboleira,0,shp7
+A,2,A_2_3.A37,Santa Apolónia,1,shp6
+A,2,A_2_3.A38,Reboleira,0,shp7
+A,2,A_2_3.A39,Santa Apolónia,1,shp6
+A,2,A_2_3.A40,Reboleira,0,shp7
+A,2,A_2_3.A41,Santa Apolónia,1,shp6
+A,2,A_2_3.A42,Reboleira,0,shp7
+A,2,A_2_3.A43,Santa Apolónia,1,shp6
+A,2,A_2_3.A44,Reboleira,0,shp7
+A,2,A_2_3.A45,Santa Apolónia,1,shp6
+A,2,A_2_3.A46,Reboleira,0,shp7
+A,2,A_2_3.A1,Santa Apolónia,1,shp6
+A,2,A_2_3.A2,Reboleira,0,shp7
+A,2,A_2_3.A3,Santa Apolónia,1,shp6
+A,2,A_2_3.A4,Reboleira,0,shp7
+A,2,A_2_3.A5,Santa Apolónia,1,shp6
+A,2,A_2_3.A6,Reboleira,0,shp7
+A,2,A_2_3.A06,Santa Apolónia,1,shp6
+A,2,A_2_3.A07,Reboleira,0,shp7
+A,2,A_2_3.A08,Santa Apolónia,1,shp6
+A,1,A_1_3.A1,Santa Apolónia,1,shp6
+A,1,A_1_3.A2,Reboleira,0,shp7
+A,1,A_1_3.A3,Santa Apolónia,1,shp6
+A,1,A_1_3.A4,Reboleira,0,shp7
+A,1,A_1_3.A5,Santa Apolónia,1,shp6
+A,1,A_1_3.A6,Reboleira,0,shp7
+A,1,A_1_3.A7,Santa Apolónia,1,shp6
+A,1,A_1_3.A8,Reboleira,0,shp7
+A,1,A_1_3.A9,Santa Apolónia,1,shp6
+A,1,A_1_3.A10,Reboleira,0,shp7
+A,1,A_1_3.A11,Santa Apolónia,1,shp6
+A,1,A_1_3.A12,Reboleira,0,shp7
+A,1,A_1_3.A13,Santa Apolónia,1,shp6
+A,1,A_1_3.A14,Reboleira,0,shp7
+A,1,A_1_3.A15,Santa Apolónia,1,shp6
+A,1,A_1_3.A16,Reboleira,0,shp7
+A,1,A_1_3.A17,Santa Apolónia,1,shp6
+A,1,A_1_3.A18,Reboleira,0,shp7
+A,1,A_1_3.A19,Santa Apolónia,1,shp6
+A,1,A_1_3.A20,Reboleira,0,shp7
+A,1,A_1_3.A21,Santa Apolónia,1,shp6
+A,1,A_1_3.A22,Reboleira,0,shp7
+A,1,A_1_3.A23,Santa Apolónia,1,shp6
+A,1,A_1_3.A24,Reboleira,0,shp7
+A,1,A_1_3.A25,Santa Apolónia,1,shp6
+A,1,A_1_3.A26,Reboleira,0,shp7
+B,2,B_2_22.B1,Rato,0,shp10
+B,2,B_2_22.B2,Odivelas,1,shp11
+B,2,B_2_22.B3,Rato,0,shp10
+B,2,B_2_22.B4,Odivelas,1,shp11
+B,2,B_2_22.B5,Rato,0,shp10
+B,2,B_2_22.B6,Odivelas,1,shp11
+B,2,B_2_22.B7,Rato,0,shp10
+B,2,B_2_22.B8,Odivelas,1,shp11
+B,2,B_2_22.B9,Rato,0,shp10
+B,2,B_2_22.B10,Odivelas,1,shp11
+B,2,B_2_22.B11,Rato,0,shp10
+B,2,B_2_22.B12,Odivelas,1,shp11
+B,2,B_2_22.B13,Rato,0,shp10
+B,2,B_2_22.B14,Odivelas,1,shp11
+B,2,B_2_22.B15,Rato,0,shp10
+B,2,B_2_22.B16,Odivelas,1,shp11
+B,2,B_2_22.B17,Rato,0,shp10
+B,2,B_2_22.B18,Odivelas,1,shp11
+B,2,B_2_22.B19,Rato,0,shp10
+B,2,B_2_22.B20,Odivelas,1,shp11
+B,2,B_2_22.B21,Rato,0,shp10
+B,2,B_2_22.B22,Odivelas,1,shp11
+B,2,B_2_22.B23,Rato,0,shp10
+B,2,B_2_22.B24,Odivelas,1,shp11
+B,2,B_2_22.B25,Rato,0,shp10
+B,2,B_2_22.B26,Odivelas,1,shp11
+B,2,B_2_22.B27,Rato,0,shp10
+B,2,B_2_22.B28,Odivelas,1,shp11
+B,2,B_2_22.B29,Rato,0,shp10
+B,2,B_2_22.B30,Odivelas,1,shp11
+B,2,B_2_22.B31,Rato,0,shp10
+B,2,B_2_22.B32,Odivelas,1,shp11
+B,2,B_2_22.B33,Rato,0,shp10
+B,2,B_2_22.B34,Odivelas,1,shp11
+B,2,B_2_22.B35,Rato,0,shp10
+B,2,B_2_22.B36,Odivelas,1,shp11
+B,2,B_2_22.B37,Rato,0,shp10
+B,2,B_2_22.B38,Odivelas,1,shp11
+B,2,B_2_22.B39,Rato,0,shp10
+B,2,B_2_22.B40,Odivelas,1,shp11
+B,2,B_2_22.B41,Rato,0,shp10
+B,2,B_2_22.B42,Odivelas,1,shp11
+B,2,B_2_22.B01,Rato,0,shp10
+B,2,B_2_22.B02,Odivelas,1,shp11
+B,1,B_1_22.B2,Rato,0,shp10
+B,1,B_1_22.B3,Odivelas,1,shp11
+B,1,B_1_22.B4,Rato,0,shp10
+B,1,B_1_22.B5,Odivelas,1,shp11
+B,1,B_1_22.B6,Rato,0,shp10
+B,1,B_1_22.B7,Odivelas,1,shp11
+B,1,B_1_22.B8,Rato,0,shp10
+B,1,B_1_22.B9,Odivelas,1,shp11
+B,1,B_1_22.B10,Rato,0,shp10
+B,1,B_1_22.B11,Odivelas,1,shp11
+B,1,B_1_22.B12,Rato,0,shp10
+B,1,B_1_22.B13,Odivelas,1,shp11
+B,1,B_1_22.B14,Rato,0,shp10
+B,1,B_1_22.B15,Odivelas,1,shp11
+B,1,B_1_22.B16,Rato,0,shp10
+B,1,B_1_22.B17,Odivelas,1,shp11
+B,1,B_1_22.B18,Rato,0,shp10
+B,1,B_1_22.B19,Odivelas,1,shp11
+B,1,B_1_22.B20,Rato,0,shp10
+B,1,B_1_22.B21,Odivelas,1,shp11
+B,1,B_1_22.B22,Rato,0,shp10
+B,1,B_1_22.B23,Odivelas,1,shp11
+B,1,B_1_22.B24,Rato,0,shp10
+B,1,B_1_22.B25,Odivelas,1,shp11
+B,1,B_1_22.B26,Rato,0,shp10
+B,1,B_1_22.B27,Odivelas,1,shp11
+B,1,B_1_22.B28,Rato,0,shp10
+B,1,B_1_22.B29,Odivelas,1,shp11
+B,1,B_1_22.B30,Rato,0,shp10
+B,1,B_1_22.B31,Odivelas,1,shp11
+B,1,B_1_22.B32,Rato,0,shp10
+B,1,B_1_22.B33,Odivelas,1,shp11
+B,1,B_1_22.B34,Rato,0,shp10
+B,1,B_1_22.B35,Odivelas,1,shp11
+B,1,B_1_22.B36,Rato,0,shp10
+B,1,B_1_22.B37,Odivelas,1,shp11
+B,1,B_1_22.B38,Rato,0,shp10
+B,1,B_1_22.B39,Odivelas,1,shp11
+B,1,B_1_22.B40,Rato,0,shp10
+B,1,B_1_22.B41,Odivelas,1,shp11
+B,1,B_1_22.B01,Rato,0,shp10
+B,1,B_1_22.B02,Odivelas,1,shp11
+A,1,A_1_2.A2,Santa Apolónia,1,shp19
+A,1,A_1_2.A3,Reboleira,0,shp7
+A,1,A_1_2.A4,Santa Apolónia,1,shp6
+A,1,A_1_2.A5,Reboleira,0,shp7
+A,1,A_1_2.A6,Santa Apolónia,1,shp6
+A,1,A_1_2.A7,Reboleira,0,shp7
+A,1,A_1_2.A8,Santa Apolónia,1,shp6
+A,1,A_1_2.A9,Reboleira,0,shp7
+A,2,A_2_2.A33,Santa Apolónia,1,shp19
+A,2,A_2_2.A34,Reboleira,0,shp7
+A,2,A_2_2.A35,Santa Apolónia,1,shp6
+A,2,A_2_2.A36,Reboleira,0,shp7
+A,2,A_2_2.A37,Santa Apolónia,1,shp6
+A,2,A_2_2.A38,Reboleira,0,shp7
+A,2,A_2_2.A39,Santa Apolónia,1,shp6
+A,2,A_2_2.A40,Reboleira,0,shp7
+A,2,A_2_2.A41,Santa Apolónia,1,shp6
+A,2,A_2_2.A42,Reboleira,0,shp7
+A,2,A_2_2.A43,Santa Apolónia,1,shp6
+A,2,A_2_2.A44,Reboleira,0,shp7
+A,2,A_2_2.A45,Santa Apolónia,1,shp6
+A,2,A_2_2.A46,Reboleira,0,shp7
+A,2,A_2_2.A47,Santa Apolónia,1,shp6
+A,2,A_2_2.A48,Reboleira,0,shp7
+A,2,A_2_2.A49,Santa Apolónia,1,shp6
+A,2,A_2_2.A50,Reboleira,0,shp7
+A,2,A_2_2.A51,Santa Apolónia,1,shp6
+A,2,A_2_2.A52,Reboleira,0,shp7
+A,2,A_2_2.A53,Santa Apolónia,1,shp6
+A,2,A_2_2.A54,Reboleira,0,shp7
+A,2,A_2_2.A55,Santa Apolónia,1,shp6
+A,2,A_2_2.A56,Reboleira,0,shp7
+A,2,A_2_2.A57,Santa Apolónia,1,shp6
+A,2,A_2_2.A58,Reboleira,0,shp7
+B,3,B_3_21.B43,Rato,0,shp18
+B,2,B_2_21.B1,Odivelas,1,shp11
+B,2,B_2_21.B2,Rato,0,shp10
+B,2,B_2_21.B3,Odivelas,1,shp11
+B,2,B_2_21.B4,Rato,0,shp10
+B,2,B_2_21.B5,Odivelas,1,shp11
+B,2,B_2_21.B6,Rato,0,shp10
+B,2,B_2_21.B7,Odivelas,1,shp11
+B,2,B_2_21.B8,Rato,0,shp10
+B,2,B_2_21.B9,Odivelas,1,shp11
+B,2,B_2_21.B10,Rato,0,shp10
+B,2,B_2_21.B11,Odivelas,1,shp11
+B,2,B_2_21.B12,Rato,0,shp10
+B,2,B_2_21.B13,Odivelas,1,shp11
+B,2,B_2_21.B14,Rato,0,shp10
+B,2,B_2_21.B15,Odivelas,1,shp11
+B,2,B_2_21.B16,Rato,0,shp10
+B,2,B_2_21.B17,Odivelas,1,shp11
+B,2,B_2_21.B18,Rato,0,shp10
+B,2,B_2_21.B19,Odivelas,1,shp11
+B,2,B_2_21.B20,Rato,0,shp10
+B,2,B_2_21.B21,Odivelas,1,shp11
+B,2,B_2_21.B22,Rato,0,shp10
+B,2,B_2_21.B23,Odivelas,1,shp11
+B,2,B_2_21.B24,Rato,0,shp10
+B,2,B_2_21.B25,Odivelas,1,shp11
+B,2,B_2_21.B26,Rato,0,shp10
+B,2,B_2_21.B27,Odivelas,1,shp11
+B,2,B_2_21.B28,Rato,0,shp10
+B,2,B_2_21.B29,Odivelas,1,shp11
+B,2,B_2_21.B30,Rato,0,shp10
+B,2,B_2_21.B31,Odivelas,1,shp11
+B,2,B_2_21.B32,Rato,0,shp10
+B,2,B_2_21.B33,Odivelas,1,shp11
+B,2,B_2_21.B34,Rato,0,shp10
+B,2,B_2_21.B35,Odivelas,1,shp11
+B,2,B_2_21.B36,Rato,0,shp10
+B,2,B_2_21.B37,Odivelas,1,shp11
+B,2,B_2_21.B38,Rato,0,shp10
+B,2,B_2_21.B39,Odivelas,1,shp11
+B,2,B_2_21.B40,Rato,0,shp10
+B,2,B_2_21.B41,Odivelas,1,shp11
+B,2,B_2_21.B01,Rato,0,shp10
+B,2,B_2_21.B02,Odivelas,1,shp11
+B,2,B_2_21.B03,Rato,0,shp10
+B,1,B_1_21.B3,Odivelas,1,shp11
+B,1,B_1_21.B4,Rato,0,shp10
+B,1,B_1_21.B5,Odivelas,1,shp11
+B,1,B_1_21.B6,Rato,0,shp10
+B,1,B_1_21.B7,Odivelas,1,shp11
+B,1,B_1_21.B8,Rato,0,shp10
+B,1,B_1_21.B9,Odivelas,1,shp11
+B,1,B_1_21.B10,Rato,0,shp10
+B,1,B_1_21.B11,Odivelas,1,shp11
+B,1,B_1_21.B12,Rato,0,shp10
+B,1,B_1_21.B13,Odivelas,1,shp11
+B,1,B_1_21.B14,Rato,0,shp10
+B,1,B_1_21.B15,Odivelas,1,shp11
+B,1,B_1_21.B16,Rato,0,shp10
+B,1,B_1_21.B17,Odivelas,1,shp11
+B,1,B_1_21.B18,Rato,0,shp10
+B,1,B_1_21.B19,Odivelas,1,shp11
+B,1,B_1_21.B20,Rato,0,shp10
+B,1,B_1_21.B21,Odivelas,1,shp11
+B,1,B_1_21.B22,Rato,0,shp10
+B,1,B_1_21.B23,Odivelas,1,shp11
+B,1,B_1_21.B24,Rato,0,shp10
+B,1,B_1_21.B25,Odivelas,1,shp11
+B,1,B_1_21.B26,Rato,0,shp10
+B,1,B_1_21.B27,Odivelas,1,shp11
+B,1,B_1_21.B28,Rato,0,shp10
+B,1,B_1_21.B29,Odivelas,1,shp11
+B,1,B_1_21.B30,Rato,0,shp10
+B,1,B_1_21.B31,Odivelas,1,shp11
+B,1,B_1_21.B32,Rato,0,shp10
+B,1,B_1_21.B33,Odivelas,1,shp11
+A,2,A_2_1.A31,Santa Apolónia,1,shp20
+A,2,A_2_1.A32,Reboleira,0,shp7
+A,2,A_2_1.A33,Santa Apolónia,1,shp6
+A,2,A_2_1.A34,Reboleira,0,shp7
+A,2,A_2_1.A35,Santa Apolónia,1,shp6
+A,2,A_2_1.A36,Reboleira,0,shp7
+A,2,A_2_1.A37,Santa Apolónia,1,shp6
+A,2,A_2_1.A38,Reboleira,0,shp7
+A,2,A_2_1.A39,Santa Apolónia,1,shp6
+A,2,A_2_1.A40,Reboleira,0,shp7
+A,2,A_2_1.A41,Santa Apolónia,1,shp6
+A,2,A_2_1.A42,Reboleira,0,shp7
+A,2,A_2_1.A43,Santa Apolónia,1,shp6
+A,2,A_2_1.A44,Reboleira,0,shp7
+A,2,A_2_1.A45,Santa Apolónia,1,shp6
+A,2,A_2_1.A46,Reboleira,0,shp7
+A,2,A_2_1.A47,Santa Apolónia,1,shp6
+A,2,A_2_1.A48,Reboleira,0,shp7
+A,2,A_2_1.A49,Santa Apolónia,1,shp6
+A,2,A_2_1.A50,Reboleira,0,shp7
+A,2,A_2_1.A51,Santa Apolónia,1,shp6
+A,2,A_2_1.A52,Reboleira,0,shp7
+A,2,A_2_1.A53,Santa Apolónia,1,shp6
+A,2,A_2_1.A54,Reboleira,0,shp7
+A,2,A_2_1.A55,Santa Apolónia,1,shp6
+A,2,A_2_1.A56,Reboleira,0,shp7
+A,2,A_2_1.A1,Santa Apolónia,1,shp6
+A,2,A_2_1.A2,Reboleira,0,shp7
+A,2,A_2_1.A3,Santa Apolónia,1,shp6
+A,2,A_2_1.A5,Reboleira,0,shp7
+A,2,A_2_1.A6,Santa Apolónia,1,shp6
+A,2,A_2_1.A7,Reboleira,0,shp7
+A,2,A_2_1.A8,Santa Apolónia,1,shp6
+A,2,A_2_1.A08,Reboleira,0,shp7
+A,2,A_2_1.A09,Santa Apolónia,1,shp6
+A,1,A_1_1.A2,Santa Apolónia,1,shp20
+A,1,A_1_1.A3,Reboleira,0,shp7
+A,1,A_1_1.A4,Santa Apolónia,1,shp6
+A,1,A_1_1.A5,Reboleira,0,shp7
+A,1,A_1_1.A6,Santa Apolónia,1,shp6
+A,1,A_1_1.A7,Reboleira,0,shp7
+A,1,A_1_1.A11,Santa Apolónia,1,shp6
+A,1,A_1_1.A12,Reboleira,0,shp7
+A,1,A_1_1.A13,Santa Apolónia,1,shp6
+A,1,A_1_1.A14,Reboleira,0,shp7

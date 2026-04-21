@@ -40,10 +40,16 @@ async def startup():
     if not api_key:
         raise RuntimeError("GROQ_API_KEY não configurada")
     system = TourismRouteSystem(api_key=api_key)
+
     try:
         from src.transit.transit_service import TransitService
         transit_service = TransitService()
         transit_service.load(use_cache=True)
+        if transit_service.graph and transit_service.graph.number_of_nodes() > 0:
+            print(f"🚌 TransitService OK: {transit_service.graph.number_of_nodes()} paragens")
+        else:
+            print("⚠️  TransitService: grafo vazio — transportes públicos usarão Haversine")
+        system.transit_service = transit_service
     except Exception as e:
         print(f"⚠️  TransitService não disponível: {e}")
 
