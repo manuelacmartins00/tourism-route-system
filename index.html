@@ -835,8 +835,9 @@
   const FIELD_LABELS = {
     location:        { label: 'Localização', placeholder: 'Ex: Lisboa, Porto, Algarve...', type: 'text' },
     max_time:        { label: 'Duração', placeholder: 'Ex: 3 dias, 5 horas, 1 semana...', type: 'text' },
-    max_cost:        { label: 'Orçamento', placeholder: 'Ex: 50€, 100€ por pessoa...', type: 'text' },
-    group_size:      { label: 'Número de pessoas', placeholder: 'Ex: 1, 2, grupo de 5...', type: 'text' },
+    max_cost:        { label: 'Orçamento (valor)', placeholder: 'Ex: 50, 200, 1000...', type: 'text' },
+    budget_type:     { label: 'O orçamento é...', type: 'select', options: ['Por pessoa (total da viagem)', 'Por pessoa por dia', 'Por dia (grupo todo)', 'Total para o grupo'] },
+    num_people:      { label: 'Número de pessoas', placeholder: 'Ex: 1, 2, 5...', type: 'text' },
     transport_mode:  { label: 'Modo de transporte', type: 'select', options: ['A pé', 'Carro', 'Transportes públicos'] },
     has_children:    { label: 'Viajam crianças?', type: 'select', options: ['Não', 'Sim'] },
     mobility_issues: { label: 'Mobilidade reduzida?', type: 'select', options: ['Não', 'Sim'] },
@@ -894,7 +895,13 @@
     location:        v => `a viagem é em ${v}`,
     max_time:        v => `a duração é ${v}`,
     max_cost:        v => `o orçamento é ${v}`,
-    group_size:      v => `somos ${v} pessoas`,
+    budget_type:     v => ({
+        'Por pessoa (total da viagem)': 'o orçamento é por pessoa',
+        'Por pessoa por dia':           'o orçamento é por pessoa por dia',
+        'Por dia (grupo todo)':         'o orçamento é por dia para o grupo',
+        'Total para o grupo':           'o orçamento é o total para o grupo',
+    })[v] || `tipo de orçamento: ${v}`,
+    num_people:      v => `somos ${v} pessoas`,
     transport_mode:  v => ({
         'A pé': 'vamos a pé',
         'Carro': 'vamos de carro',
