@@ -187,7 +187,6 @@ CAMPOS A VERIFICAR PARA missing_fields:
 - "max_time": se o utilizador não mencionou duração nem número de dias
 - "max_cost": se o utilizador não mencionou orçamento nem preço de forma alguma (nem vago)
 - "budget_type": se foi dado um valor de orçamento mas o tipo não é claro (não disse "por pessoa", "por dia", "total", etc.)
-- "num_people": APENAS se budget_type for "total" ou "per_day" E num_people não puder ser determinado E houver indício de grupo
 - "transport_mode": sempre incluir se não mencionado (foot, car, public_transport)
 - "has_children": SÓ incluir se não foi mencionado de todo. Se a query contiver "sem crianças", "viajamos sem crianças", "não temos crianças", "grupo de amigos", "casal" → NÃO incluir, assume false
 - "mobility_issues": NUNCA incluir em missing_fields. Extrair como campo booleano separado:
@@ -317,7 +316,8 @@ Responde APENAS com o JSON, sem explicações."""
             
             # Extrair campos em falta
             missing_fields = data.get("missing_fields", [])
-            missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues", "group_size")]
+            # num_people nunca é obrigatório — extrai silenciosamente com default 1
+            missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues", "group_size", "num_people")]
             if missing_fields:
                 print(f"   ❓ Campos em falta: {missing_fields}")
 
