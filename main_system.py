@@ -357,6 +357,7 @@ class TourismRouteSystem:
         user_prefs_dict = {
             "max_time": preferences.max_time,
             "max_cost": preferences.max_cost,
+            "num_people": getattr(preferences, "num_people", 1),
             "preferred_categories": preferences.preferred_categories,
             "category_weights": preferences.category_weights,
             "start_location": (optimizer_pois[0].lat, optimizer_pois[0].lon),

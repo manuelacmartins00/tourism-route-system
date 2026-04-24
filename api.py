@@ -148,7 +148,6 @@ async def query_route(req: QueryRequest):
                 use_shap=False,
                 verbose=True,
                 force_algorithm=None,
-                transit_service=system.transit_service
             )
         except Exception as e:
             import traceback
