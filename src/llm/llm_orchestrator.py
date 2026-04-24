@@ -20,6 +20,7 @@ class UserPreferences:
     transport_mode: str = "foot"
     start_location: str = None
     mobility_issues: bool = False
+    num_people: int = 1
 
 class LlamaOrchestrator:
     """
@@ -124,11 +125,24 @@ TAREFA:
        · 3 dias = 1440 minutos (24 horas)
        · 1 semana = 3360 minutos (56 horas)
    
-   - Orçamento (em euros):
-     * Se mencionar "por dia" ou "por pessoa": multiplicar pelo número de dias/pessoas
-     * Ex: "60 euros por dia, 3 dias" = 180 euros total
-     * Ex: "50 euros por pessoa, 4 pessoas" = 200 euros total
-   
+   - Orçamento — extrair DOIS campos separados:
+     * "budget_value": o valor numérico mencionado (nunca calcular, nunca multiplicar)
+     * "budget_type": o tipo do orçamento:
+       · "per_person"         → "por pessoa", "each", "per person", "p/pessoa"
+       · "per_day"            → "por dia" (para o grupo todo), "daily"
+       · "per_person_per_day" → "por pessoa por dia", "per person per day"
+       · "total"              → "no total", "para todos", "para o grupo", sem especificar tipo
+     * Se só foi dito "budget baixo"  → budget_value: 25,  budget_type: "per_person"
+     * Se só foi dito "budget médio"  → budget_value: 70,  budget_type: "per_person"
+     * Se só foi dito "budget alto"   → budget_value: 150, budget_type: "per_person"
+     * Se foi dado valor sem tipo claro → incluir "budget_type" em missing_fields
+
+   - Número de pessoas:
+     * "num_people": extrair de "5 amigos", "somos 3", "família de 4", "eu e a minha namorada" (2), etc.
+     * Se não mencionado → num_people: 1 (padrão, não perguntar)
+     * APENAS incluir "num_people" em missing_fields se budget_type for "total" ou "per_day"
+       E num_people não puder ser determinado E houver indício de grupo (plural, "amigos", "família", "nós")
+
    - Hora de início (padrão 09:00)
 
 EXEMPLOS DE CONVERSÃO:
@@ -136,13 +150,20 @@ EXEMPLOS DE CONVERSÃO:
 - "5 horas" → max_time: 300
 - "meio dia" → max_time: 240
 - "1 semana" → max_time: 3360
-- "60 euros por dia, 3 dias" → max_cost: 180
-- "40 euros por pessoa, 2 pessoas" → max_cost: 80
+- "60 euros por dia" → budget_value: 60, budget_type: "per_day"
+- "40 euros por pessoa" → budget_value: 40, budget_type: "per_person"
+- "1000 euros para o grupo" → budget_value: 1000, budget_type: "total"
+- "50€ por pessoa por dia" → budget_value: 50, budget_type: "per_person_per_day"
+- "5 amigos" → num_people: 5
+- "somos 3" → num_people: 3
+- "eu e a minha namorada" → num_people: 2
 
 Devolve APENAS JSON (sem texto adicional):
 {{
   "max_time": 300,
-  "max_cost": 50.0,
+  "budget_value": 50.0,
+  "budget_type": "per_person",
+  "num_people": 1,
   "tags": ["tag1", "tag2", "tag3"],
   "interests": ["interest1", "interest2"],
   "start_time": "09:00",
@@ -150,7 +171,7 @@ Devolve APENAS JSON (sem texto adicional):
   "transport_mode": "foot",
   "start_location": null,
   "mobility_issues": false,
-  "missing_fields": ["group_size"]
+  "missing_fields": []
 }}
 
 REGRAS PARA transport_mode:
@@ -164,8 +185,9 @@ REGRAS PARA transport_mode:
 CAMPOS A VERIFICAR PARA missing_fields:
 - "location": se não foi mencionada nenhuma localização em Portugal
 - "max_time": se o utilizador não mencionou duração nem número de dias
-- "max_cost": se o utilizador não mencionou orçamento nem preço
-- "group_size": se não foi mencionado número de pessoas
+- "max_cost": se o utilizador não mencionou orçamento nem preço de forma alguma (nem vago)
+- "budget_type": se foi dado um valor de orçamento mas o tipo não é claro (não disse "por pessoa", "por dia", "total", etc.)
+- "num_people": APENAS se budget_type for "total" ou "per_day" E num_people não puder ser determinado E houver indício de grupo
 - "transport_mode": sempre incluir se não mencionado (foot, car, public_transport)
 - "has_children": SÓ incluir se não foi mencionado de todo. Se a query contiver "sem crianças", "viajamos sem crianças", "não temos crianças", "grupo de amigos", "casal" → NÃO incluir, assume false
 - "mobility_issues": NUNCA incluir em missing_fields. Extrair como campo booleano separado:
@@ -235,18 +257,33 @@ Responde APENAS com o JSON, sem explicações."""
                 for category in main_categories:
                     category_weights[category] = 0.8
             
-            # ✅ FIX: Validar tempo extraído
+            # Validar tempo extraído
             extracted_time = data.get("max_time", 300)
             if extracted_time > 5000:
-                print(f"   ⚠️ Tempo extraído parece errado: {extracted_time} min")
-                print(f"      Limitando a 1440 min (1 dia útil)")
+                print(f"   ⚠️ Tempo extraído parece errado: {extracted_time} min — limitando a 1440 min")
                 extracted_time = 1440
-            
-            # ✅ FIX: Validar custo extraído
-            # ✅ FIX: Validar custo extraído
-            extracted_cost = float(data.get("max_cost", 50.0))
+
+            # Número de pessoas
+            num_people = max(1, int(data.get("num_people", 1) or 1))
+
+            # Calcular orçamento per-person total com base no tipo declarado
+            import math as _math
+            num_days = max(1, _math.ceil(extracted_time / 480))
+            budget_value = float(data.get("budget_value", data.get("max_cost", 50.0)) or 50.0)
+            budget_type  = data.get("budget_type", "per_person") or "per_person"
+
+            if budget_type == "per_person":
+                extracted_cost = budget_value
+            elif budget_type == "per_person_per_day":
+                extracted_cost = budget_value * num_days
+            elif budget_type == "per_day":
+                extracted_cost = (budget_value * num_days) / num_people
+            else:  # "total"
+                extracted_cost = budget_value / num_people
+
             if extracted_cost > 1000:
-                print(f"   ⚠️ Orçamento extraído parece alto: €{extracted_cost}")
+                print(f"   ⚠️ Orçamento por pessoa calculado parece alto: €{extracted_cost:.0f}")
+            print(f"   💰 Budget: €{budget_value} ({budget_type}) × {num_days}d / {num_people}p → €{extracted_cost:.2f}/pessoa")
 
             # Extrair localização
             extracted_location = data.get("location", None)
@@ -280,7 +317,7 @@ Responde APENAS com o JSON, sem explicações."""
             
             # Extrair campos em falta
             missing_fields = data.get("missing_fields", [])
-            missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues")]
+            missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues", "group_size")]
             if missing_fields:
                 print(f"   ❓ Campos em falta: {missing_fields}")
 
@@ -300,7 +337,8 @@ Responde APENAS com o JSON, sem explicações."""
                 missing_fields=missing_fields,
                 transport_mode=transport_mode or "foot",
                 start_location=start_location,
-                mobility_issues=mobility_issues
+                mobility_issues=mobility_issues,
+                num_people=num_people,
             )
         
         except Exception as e:
