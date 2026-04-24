@@ -624,9 +624,30 @@
     const algo = result.algorithm_used || '—';
     const mapId = result.map_id;
 
-    // POI list HTML
+    // POI list HTML — agrupado por dia se day_plan disponível
     let poisHtml = '';
-    if (pois.length > 0) {
+    const dayPlan = result.day_plan;
+    if (dayPlan && dayPlan.days && dayPlan.days.length > 0) {
+      dayPlan.days.forEach(day => {
+        poisHtml += `
+          <div style="margin-top:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">
+              📅 Dia ${day.day} &nbsp;·&nbsp; ${day.start_time}–${day.end_time} &nbsp;·&nbsp; €${day.total_cost.toFixed(0)}
+            </div>
+            <div class="poi-list">`;
+        day.pois.forEach(p => {
+          poisHtml += `
+              <div class="poi-item">
+                <div class="poi-num">${p.order}</div>
+                <div style="flex:1;min-width:0;">
+                  <div class="poi-name">${escapeHtml(p.name)}</div>
+                  <div class="poi-meta">${p.arrival_time} · ${p.duration}min · €${p.cost.toFixed(2)}</div>
+                </div>
+              </div>`;
+        });
+        poisHtml += `</div></div>`;
+      });
+    } else if (pois.length > 0) {
       poisHtml = '<div class="poi-list">';
       pois.forEach((p, i) => {
         poisHtml += `
