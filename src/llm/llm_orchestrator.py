@@ -187,6 +187,7 @@ CAMPOS A VERIFICAR PARA missing_fields:
 - "max_time": se o utilizador não mencionou duração nem número de dias
 - "max_cost": se o utilizador não mencionou orçamento nem preço de forma alguma (nem vago)
 - "budget_type": se foi dado um valor de orçamento mas o tipo não é claro (não disse "por pessoa", "por dia", "total", etc.)
+- "max_time": OBRIGATÓRIO incluir se não foi mencionada duração nem número de dias. ESPECIALMENTE obrigatório se budget_type for "per_day" ou "per_person_per_day" — sem saber os dias, o orçamento total não pode ser calculado.
 - "transport_mode": sempre incluir se não mencionado (foot, car, public_transport)
 - "has_children": SÓ incluir se não foi mencionado de todo. Se a query contiver "sem crianças", "viajamos sem crianças", "não temos crianças", "grupo de amigos", "casal" → NÃO incluir, assume false
 - "mobility_issues": NUNCA incluir em missing_fields. Extrair como campo booleano separado:
