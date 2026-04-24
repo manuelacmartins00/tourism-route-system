@@ -64,7 +64,7 @@ class RouteMapGenerator:
             print(f"   ⚠️ Erro ao chamar OSRM: {e}")
             return None
     
-    def generate_map(self, route: List[Dict], output_file: str = None, algorithm: str = "", transport_mode: str = "foot") -> str:
+    def generate_map(self, route: List[Dict], output_file: str = None, algorithm: str = "", transport_mode: str = "foot", day_plan: dict = None) -> str:
         """
         Gera mapa interativo com rota REAL via OSRM
         
@@ -157,6 +157,13 @@ class RouteMapGenerator:
                 dash_array='5'
             ).add_to(m)
         
+        # Construir mapa de (poi_name → (dia, ordem_no_dia)) a partir do day_plan
+        poi_day_label = {}
+        if day_plan and day_plan.get("days"):
+            for day in day_plan["days"]:
+                for p in day["pois"]:
+                    poi_day_label[p["name"]] = (day["day"], p["order"])
+
         # ✅ ADICIONAR MARCADORES para cada POI
         for i, poi in enumerate(route, 1):
             lat = poi['lat']
@@ -172,7 +179,7 @@ class RouteMapGenerator:
                 popup=folium.Popup(f"""
                     <div style="font-family: Arial; width: 200px;">
                         <h4 style="margin: 0 0 10px 0; color: {colors.get(category, 'gray')};">
-                            {i}. {name}
+                            {f"D{poi_day_label[name][0]}-{poi_day_label[name][1]}" if name in poi_day_label else str(i)}. {name}
                         </h4>
                         <p style="margin: 5px 0;">
                             <b>Categoria:</b> {category.title()}<br>
@@ -181,7 +188,7 @@ class RouteMapGenerator:
                         </p>
                     </div>
                 """, max_width=300),
-                tooltip=f"{i}. {name}",
+                tooltip=f"{f'D{poi_day_label[name][0]}-{poi_day_label[name][1]}' if name in poi_day_label else str(i)}. {name}",
                 icon=folium.Icon(
                     color=colors.get(category, 'gray'),
                     icon='info-sign',
@@ -205,7 +212,7 @@ class RouteMapGenerator:
                         line-height: 30px;
                         border: 3px solid white;
                         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-                    ">{i}</div>
+                    ">{f"D{poi_day_label[name][0]}<br>{poi_day_label[name][1]}" if name in poi_day_label else str(i)}</div>
                 """)
             ).add_to(m)
         
