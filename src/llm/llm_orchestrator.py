@@ -327,6 +327,9 @@ Responde APENAS com o JSON, sem explicações."""
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
                     print("   ❓ max_time adicionado: budget por dia requer saber a duração")
+            # ordenar por prioridade: info essencial primeiro, transporte por último
+            FIELD_PRIORITY = ["location", "max_time", "max_cost", "budget_type", "transport_mode"]
+            missing_fields.sort(key=lambda f: FIELD_PRIORITY.index(f) if f in FIELD_PRIORITY else 99)
             if missing_fields:
                 print(f"   ❓ Campos em falta: {missing_fields}")
 
