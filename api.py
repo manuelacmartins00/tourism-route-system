@@ -178,7 +178,6 @@ async def query_route(req: QueryRequest):
     # Limpar campos não serializáveis antes de devolver
     result.pop("map_file", None)
     result.pop("shap_explanation", None)
-    result.pop("day_plan", None)
 
     run_id = None
     if not is_refinement:

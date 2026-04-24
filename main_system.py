@@ -212,6 +212,31 @@ class TourismRouteSystem:
         )
         candidate_pois = rag_results['pois']
 
+        # Garantir representação mínima de cada categoria pedida
+        if preferences.preferred_categories and len(preferences.preferred_categories) > 1:
+            from collections import defaultdict
+            by_cat = defaultdict(list)
+            for p in candidate_pois:
+                by_cat[p['category']].append(p)
+            min_per_cat = max(3, 25 // len(preferences.preferred_categories))
+            existing_ids = {p['id'] for p in candidate_pois}
+            for cat in preferences.preferred_categories:
+                if len(by_cat[cat]) < min_per_cat:
+                    extra = self.rag.query(
+                        text=cat,
+                        n_results=min_per_cat * 2,
+                        category_filter=[cat],
+                        max_cost=preferences.max_cost,
+                        lat_min=lat_min, lat_max=lat_max,
+                        lon_min=lon_min, lon_max=lon_max
+                    )
+                    for p in extra['pois']:
+                        if p['id'] not in existing_ids:
+                            candidate_pois.append(p)
+                            existing_ids.add(p['id'])
+                    if verbose:
+                        print(f"   🔄 Rebalance '{cat}': +{len(extra['pois'])} POIs")
+
         # Fallback: se POIs insuficientes para preencher 60% do tempo disponível
         tempo_candidatos = sum(p['duration'] for p in candidate_pois)
         if tempo_candidatos < 0.6 * preferences.max_time:
