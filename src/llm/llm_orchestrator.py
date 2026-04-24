@@ -356,16 +356,16 @@ Responde APENAS com o JSON, sem explicações."""
             if extracted_time != 300:
                 missing_fields = [f for f in missing_fields if f != "max_time"]
 
-            # 3. Forçar max_time se budget é por dia mas duração não foi explicitamente mencionada
+            # 3. max_time é sempre obrigatório se não foi explicitamente mencionado
             import re as _re
             _has_explicit_duration = bool(_re.search(
-                r'\b\d+\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?)\b',
+                r'\b\d+\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin de semana|weekend)\b',
                 user_query.lower()
             ))
-            if budget_type in ("per_day", "per_person_per_day") and not _has_explicit_duration:
+            if not _has_explicit_duration:
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
-                    print("   ❓ max_time adicionado: budget por dia sem duração explícita na query")
+                    print("   ❓ max_time adicionado: duração não mencionada na query")
 
             # 4. Ordenar por prioridade
             FIELD_PRIORITY = ["location", "max_time", "max_cost", "budget_type", "transport_mode"]
