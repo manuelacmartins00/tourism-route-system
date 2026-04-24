@@ -635,7 +635,13 @@
               📅 Dia ${day.day} &nbsp;·&nbsp; ${day.start_time}–${day.end_time} &nbsp;·&nbsp; €${day.total_cost.toFixed(0)}
             </div>
             <div class="poi-list">`;
+        const NOCTURNAL_CATS = ['bares_e_discotecas', 'casinos'];
+        let nightSepShown = false;
         day.pois.forEach(p => {
+          if (!nightSepShown && NOCTURNAL_CATS.includes(p.category)) {
+            poisHtml += `<div style="font-size:11px;color:var(--text-muted);margin:6px 0 2px 0;padding-left:4px;">🌙 Noite</div>`;
+            nightSepShown = true;
+          }
           poisHtml += `
               <div class="poi-item">
                 <div class="poi-num">${p.order}</div>
