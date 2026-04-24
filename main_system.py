@@ -108,8 +108,7 @@ class TourismRouteSystem:
                user_query: str,
                use_shap: bool = True,
                verbose: bool = True,
-               force_algorithm: str = None,
-               transit_service=None) -> Dict:
+               force_algorithm: str = None) -> Dict:
         """
         Pipeline completo: LLM → RAG → Otimização → SHAP → Explicação LLM → Mapa → Day Planning
 
@@ -325,10 +324,10 @@ class TourismRouteSystem:
             print(f"   ✓ POIs para otimização: {n_pois}\n")
 
         # Sub-matriz de tempos reais (TransitService) ou Haversine (fallback)
-        if transit_service is not None:
+        if self.transit_service is not None:
             if verbose:
                 print(f"   🚌 A construir matriz de tempos reais ({preferences.transport_mode})...\n")
-            sub_distance_matrix = transit_service.build_cost_matrix(
+            sub_distance_matrix = self.transit_service.build_cost_matrix(
                 optimizer_pois,
                 mode=preferences.transport_mode
             )
