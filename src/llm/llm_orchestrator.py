@@ -317,17 +317,30 @@ Responde APENAS com o JSON, sem explicações."""
             
             # Extrair campos em falta
             missing_fields = data.get("missing_fields", [])
-            # campos nunca obrigatórios — extraídos silenciosamente
-            missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues", "group_size", "num_people", "start_location")]
-            # se o budget foi extraído com sucesso, remover max_cost dos missing_fields
-            if budget_value != 50.0 or budget_type != "per_person":
-                missing_fields = [f for f in missing_fields if f != "max_cost"]
-            # se budget é por dia e max_time parece ser o default (≤300), obrigar a pedir duração
-            if budget_type in ("per_day", "per_person_per_day") and extracted_time <= 300:
+
+            # 1. Remover campos nunca obrigatórios
+            missing_fields = [f for f in missing_fields if f not in
+                              ("has_children", "mobility_issues", "group_size", "num_people", "start_location")]
+
+            # 2. Remover campos que foram extraídos com sucesso pelo LLM
+            if transport_mode:
+                missing_fields = [f for f in missing_fields if f != "transport_mode"]
+            if extracted_location:
+                missing_fields = [f for f in missing_fields if f != "location"]
+            if budget_value != 50.0:
+                missing_fields = [f for f in missing_fields if f not in ("max_cost", "budget_value")]
+            if data.get("budget_type"):  # LLM devolveu um budget_type explícito
+                missing_fields = [f for f in missing_fields if f != "budget_type"]
+            if extracted_time != 300:
+                missing_fields = [f for f in missing_fields if f != "max_time"]
+
+            # 3. Forçar max_time se budget foi especificado mas duração não
+            if budget_value != 50.0 and extracted_time <= 300:
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
-                    print("   ❓ max_time adicionado: budget por dia requer saber a duração")
-            # ordenar por prioridade: info essencial primeiro, transporte por último
+                    print("   ❓ max_time adicionado: budget especificado mas duração não")
+
+            # 4. Ordenar por prioridade
             FIELD_PRIORITY = ["location", "max_time", "max_cost", "budget_type", "transport_mode"]
             missing_fields.sort(key=lambda f: FIELD_PRIORITY.index(f) if f in FIELD_PRIORITY else 99)
             if missing_fields:
