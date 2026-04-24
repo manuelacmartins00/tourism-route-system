@@ -482,38 +482,18 @@ class TourismRouteSystem:
             "explanation": explanation
         }
 
-        # ========== PASSO 8: GERAR MAPA OSRM ==========
-        if verbose:
-            print("🗺️  [MAP] Gerando mapa interativo com OSRM...\n")
-
-        try:
-            from src.utils.map_generator import RouteMapGenerator
-            map_gen = RouteMapGenerator()
-            map_path = map_gen.generate_map(
-                result['route'],
-                output_file=None,
-                algorithm=selected_algo,
-                transport_mode=preferences.transport_mode
-            )   
-            if map_path:
-                result['map_file'] = map_path
-                if verbose:
-                    print(f"✅ Mapa disponível em: {map_path}")
-                    print(f"   Abre no browser: file:///{Path(map_path).absolute()}\n")
-        except ImportError as e:
-            print(f"⚠️ Módulos de mapa não instalados: {e}")
-            print(f"   Execute: pip install folium requests polyline\n")
-        except Exception as e:
-            print(f"⚠️ Erro ao gerar mapa: {e}\n")
-
-        # ========== PASSO 9: PLANEAR DIAS ==========
+        # ========== PASSO 8: PLANEAR DIAS ==========
         if verbose:
             print("📅 [PLANNER] Organizando rota por dias...\n")
 
+        day_plan = None
         try:
             from src.utils.day_planner import DayPlanner
 
-            total_days = max(1, int(np.ceil(preferences.max_time / 480)))
+            requested_days = max(1, int(np.ceil(preferences.max_time / 480)))
+            actual_route_time = sum(p['duration'] for p in result['route'])
+            actual_days_needed = max(1, int(np.ceil(actual_route_time / 480)))
+            total_days = min(requested_days, actual_days_needed)
 
             planner = DayPlanner(
                 hours_per_day=8,
@@ -539,6 +519,31 @@ class TourismRouteSystem:
             print(f"⚠️ Erro ao planear dias: {e}\n")
             import traceback
             traceback.print_exc()
+
+        # ========== PASSO 9: GERAR MAPA OSRM ==========
+        if verbose:
+            print("🗺️  [MAP] Gerando mapa interativo com OSRM...\n")
+
+        try:
+            from src.utils.map_generator import RouteMapGenerator
+            map_gen = RouteMapGenerator()
+            map_path = map_gen.generate_map(
+                result['route'],
+                output_file=None,
+                algorithm=selected_algo,
+                transport_mode=preferences.transport_mode,
+                day_plan=day_plan,
+            )
+            if map_path:
+                result['map_file'] = map_path
+                if verbose:
+                    print(f"✅ Mapa disponível em: {map_path}")
+                    print(f"   Abre no browser: file:///{Path(map_path).absolute()}\n")
+        except ImportError as e:
+            print(f"⚠️ Módulos de mapa não instalados: {e}")
+            print(f"   Execute: pip install folium requests polyline\n")
+        except Exception as e:
+            print(f"⚠️ Erro ao gerar mapa: {e}\n")
 
         if verbose:
             self._print_result(result)
