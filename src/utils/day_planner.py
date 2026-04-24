@@ -1,257 +1,187 @@
 # src/utils/day_planner.py
 
-from typing import List, Dict, Tuple
-from datetime import datetime, timedelta
+from typing import List, Dict, Optional
 import numpy as np
+import math
+
 
 class DayPlanner:
-    """
-    Divide rotas turísticas em dias, respeitando:
-    - Horários de funcionamento dos POIs
-    - Tempo disponível por dia
-    - Proximidade geográfica (clustering)
-    - Fluxo lógico (manhã → tarde → noite)
-    """
     NOCTURNO_CATEGORIES = {"bares_e_discotecas", "casinos"}
     DIURNO_CATEGORIES = {"monumentos", "museus_e_palacios", "espacos_verdes",
                           "parques_e_reservas", "arqueologia", "grutas",
                           "turismo_activo", "praias", "zoos_e_aquarios"}
+    NOCTURNAL_START = "21:00"
 
-    def _reorder_by_time_of_day(self, pois: List[Dict]) -> List[Dict]:
-        """Reordena POIs dentro de um dia: diurnos primeiro, nocturnos no final."""
-        diurnos   = [p for p in pois if p.get("category") in self.DIURNO_CATEGORIES]
-        outros    = [p for p in pois if p.get("category") not in self.DIURNO_CATEGORIES
-                     and p.get("category") not in self.NOCTURNO_CATEGORIES]
-        nocturnos = [p for p in pois if p.get("category") in self.NOCTURNO_CATEGORIES]
-        return diurnos + outros + nocturnos
-    
-    def __init__(self, 
-                 hours_per_day: int = 8,
-                 start_time: str = "09:00",
-                 lunch_break: int = 60):
-        """
-        Args:
-            hours_per_day: Horas úteis de turismo por dia (padrão: 8h)
-            start_time: Hora de início diária (padrão: 09:00)
-            lunch_break: Minutos de pausa para almoço (padrão: 60)
-        """
+    def __init__(self, hours_per_day: int = 8, start_time: str = "09:00", lunch_break: int = 60):
         self.start_lat = None
         self.start_lon = None
         self.hours_per_day = hours_per_day
         self.minutes_per_day = hours_per_day * 60
         self.start_time = start_time
         self.lunch_break = lunch_break
-    
-    def plan_days(self, 
-                  route: List[Dict], 
-                  distance_matrix: np.ndarray = None,
+
+    # ── Public API ──────────────────────────────────────────────────────────
+
+    def plan_days(self, route: List[Dict], distance_matrix: np.ndarray = None,
                   total_days: int = None) -> Dict:
-        """
-        Divide rota em dias
-        
-        Args:
-            route: Lista de POIs com lat, lon, duration, cost, etc.
-            distance_matrix: Matriz de distâncias entre POIs (opcional)
-            total_days: Número de dias disponíveis (se None, calcula automaticamente)
-        
-        Returns:
-            Dict com rota organizada por dias
-        """
-        
         if not route:
             return {"days": [], "total_days": 0}
-        
-        # Calcular tempo total necessário
-        total_time = sum(poi['duration'] for poi in route)
-        
-        # Se não especificou dias, calcular automaticamente
+
         if total_days is None:
-            total_days = max(1, int(np.ceil(total_time / self.minutes_per_day)))
-        
-        print(f"\n📅 Planejando {len(route)} POIs em {total_days} dias...")
-        print(f"   Tempo total: {total_time} min ({total_time/60:.1f}h)")
+            total_time = sum(p['duration'] for p in route)
+            total_days = max(1, math.ceil(total_time / self.minutes_per_day))
+
+        diurnal  = [p for p in route if p.get("category") not in self.NOCTURNO_CATEGORIES]
+        nocturnal = [p for p in route if p.get("category") in self.NOCTURNO_CATEGORIES]
+
+        print(f"\n📅 Planejando {len(route)} POIs em {total_days} dias "
+              f"({len(diurnal)} diurnos, {len(nocturnal)} noturnos)...")
         print(f"   Tempo por dia: {self.minutes_per_day} min ({self.hours_per_day}h)\n")
-        
-        # Estratégia: Clustering geográfico + temporal
-        if distance_matrix is not None and len(route) > 3:
-            days = self._cluster_by_geography_and_time(route, distance_matrix, total_days)
-        else:
-            days = self._split_sequential(route, total_days)
-        
-        # Adicionar informações extras
-        result = {
+
+        # Distribuir POIs diurnos por dia (clustering geográfico se possível)
+        diurnal_by_day = self._distribute_diurnal(diurnal, total_days)
+
+        # Distribuir POIs noturnos em round-robin pelos dias
+        nocturnal_by_day: List[List[Dict]] = [[] for _ in range(total_days)]
+        for i, poi in enumerate(nocturnal):
+            nocturnal_by_day[i % total_days].append(poi)
+
+        days = []
+        for day_num in range(1, total_days + 1):
+            d = diurnal_by_day[day_num - 1] if day_num <= len(diurnal_by_day) else []
+            n = nocturnal_by_day[day_num - 1]
+            if d or n:
+                days.append(self._format_day(day_num, d, n))
+
+        return {
             "days": days,
             "total_days": len(days),
             "total_pois": len(route),
-            "summary": self._generate_summary(days)
+            "summary": self._generate_summary(days),
         }
-        
-        return result
-    def _cluster_by_geography_and_time(self, route: List[Dict],
-                                    distance_matrix: np.ndarray,
-                                    n_days: int) -> List[Dict]:
-        from sklearn.cluster import KMeans
-        coords = np.array([[p["lat"], p["lon"]] for p in route])
-        n_clusters = min(n_days, len(route))
-        kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
-        labels = kmeans.fit_predict(coords)
-        clusters = {}
-        for i, poi in enumerate(route):
-            clusters.setdefault(labels[i], []).append(poi)
-        days = []
-        day_num = 1
-        start_lat = self.start_lat if hasattr(self, 'start_lat') else None
-        start_lon = self.start_lon if hasattr(self, 'start_lon') else None
 
-        for cluster_pois in clusters.values():
-            if start_lat and len(cluster_pois) > 1:
-                cluster_pois = self._nearest_neighbor_order(cluster_pois, start_lat, start_lon)
-            current_day = []
-            current_time = 0
-            for poi in cluster_pois:
-                if current_time + poi["duration"] > self.minutes_per_day and current_day:
-                    current_day = self._reorder_by_time_of_day(current_day)
-                    days.append(self._format_day(day_num, current_day, current_time))
-                    current_day = []
-                    current_time = 0
-                    day_num += 1
-                current_day.append(poi)
-                current_time += poi["duration"]
-            if current_day:
-                current_day = self._reorder_by_time_of_day(current_day)
-                days.append(self._format_day(day_num, current_day, current_time))
-                day_num += 1
-        return days
+    # ── Distribution ────────────────────────────────────────────────────────
 
-    def _nearest_neighbor_order(self, pois, start_lat, start_lon):
-        import math
-        def hav(lat1, lon1, lat2, lon2):
-            R = 6371
-            r = math.radians
-            a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
-            return R * 2 * math.asin(math.sqrt(a))
+    def _distribute_diurnal(self, diurnal: List[Dict], n_days: int) -> List[List[Dict]]:
+        if not diurnal:
+            return [[] for _ in range(n_days)]
+        if len(diurnal) <= n_days:
+            result = [[p] for p in diurnal]
+            result += [[] for _ in range(n_days - len(diurnal))]
+            return result
+        try:
+            from sklearn.cluster import KMeans
+            coords = np.array([[p["lat"], p["lon"]] for p in diurnal])
+            labels = KMeans(n_clusters=n_days, random_state=42, n_init=10).fit_predict(coords)
+            by_day: List[List[Dict]] = [[] for _ in range(n_days)]
+            for i, poi in enumerate(diurnal):
+                by_day[labels[i]].append(poi)
+            # Ordem nearest-neighbour dentro de cada dia
+            if self.start_lat:
+                by_day = [self._nearest_neighbor_order(d, self.start_lat, self.start_lon)
+                          if len(d) > 1 else d for d in by_day]
+            return by_day
+        except Exception:
+            # Fallback: divisão sequencial
+            by_day = [[] for _ in range(n_days)]
+            for i, poi in enumerate(diurnal):
+                by_day[i % n_days].append(poi)
+            return by_day
+
+    def _nearest_neighbor_order(self, pois: List[Dict], start_lat: float, start_lon: float) -> List[Dict]:
         remaining = list(pois)
         ordered = []
         cur_lat, cur_lon = start_lat, start_lon
         while remaining:
-            nearest = min(remaining, key=lambda p: hav(cur_lat, cur_lon, p['lat'], p['lon']))
+            nearest = min(remaining, key=lambda p: self._haversine(cur_lat, cur_lon, p['lat'], p['lon']))
             ordered.append(nearest)
             cur_lat, cur_lon = nearest['lat'], nearest['lon']
             remaining.remove(nearest)
         return ordered
-    
-    def _split_sequential(self, route: List[Dict], n_days: int) -> List[Dict]:
-        """
-        Divisão sequencial simples (sem otimização geográfica)
-        """
-        
-        days = []
-        current_day = []
-        current_time = 0
-        day_num = 1
-        
-        for poi in route:
-            poi_time = poi['duration']
-            
-            # Se adicionar este POI ultrapassar o tempo do dia, inicia novo dia
-            if current_time + poi_time > self.minutes_per_day and current_day:
-                current_day = self._reorder_by_time_of_day(current_day)
-                days.append(self._format_day(day_num, current_day, current_time))
-                current_day = []
-                current_time = 0
-                day_num += 1
-            
-            current_day.append(poi)
-            current_time += poi_time
-        
-        # Adicionar último dia
-        if current_day:
-            current_day = self._reorder_by_time_of_day(current_day)
-            days.append(self._format_day(day_num, current_day, current_time))
-        
-        return days
-    
-    
-    def _format_day(self, day_num: int, pois: List[Dict], total_time: int) -> Dict:
-        """Formata informações de um dia"""
-        
-        total_cost = sum(poi['cost'] for poi in pois)
-        
-        # Adicionar horários estimados
-        current_time = self._parse_time(self.start_time)
+
+    @staticmethod
+    def _haversine(lat1, lon1, lat2, lon2) -> float:
+        R = 6371
+        r = math.radians
+        a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
+        return R * 2 * math.asin(math.sqrt(a))
+
+    # ── Formatting ──────────────────────────────────────────────────────────
+
+    def _format_day(self, day_num: int, diurnal: List[Dict], nocturnal: List[Dict]) -> Dict:
         schedule = []
-        
-        for i, poi in enumerate(pois):
-            arrival_time = self._format_time(current_time)
-            departure_time = self._format_time(current_time + poi['duration'])
-            
-            schedule.append({
-                **poi,
-                "arrival_time": arrival_time,
-                "departure_time": departure_time,
-                "order": i + 1
-            })
-            
-            current_time += poi['duration']
-            
-            # Adicionar pausa para almoço (meio-dia)
-            if i < len(pois) - 1 and 12 * 60 < current_time < 14 * 60:
-                current_time += self.lunch_break
-        
+        order = 1
+
+        # Manhã/tarde — começa em start_time (09:00)
+        current = self._parse_time(self.start_time)
+        for i, poi in enumerate(diurnal):
+            arr = self._fmt(current)
+            dep = self._fmt(current + poi['duration'])
+            schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
+            order += 1
+            current += poi['duration']
+            # pausa de almoço
+            if i < len(diurnal) - 1 and 12 * 60 < current < 14 * 60:
+                current += self.lunch_break
+
+        # Noite — começa às 21:00
+        current = self._parse_time(self.NOCTURNAL_START)
+        for poi in nocturnal:
+            arr = self._fmt(current)
+            dep = self._fmt(current + poi['duration'])
+            schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
+            order += 1
+            current += poi['duration']
+
+        # end_time: última saída (noturna se existir, senão diurna)
+        if schedule:
+            end_time = schedule[-1]['departure_time']
+        else:
+            end_time = self.start_time
+
+        total_cost = sum(p['cost'] for p in diurnal + nocturnal)
+        total_time = sum(p['duration'] for p in diurnal + nocturnal)
+
         return {
             "day": day_num,
             "pois": schedule,
             "total_time": total_time,
             "total_cost": total_cost,
-            "n_pois": len(pois),
+            "n_pois": len(schedule),
             "start_time": self.start_time,
-            "end_time": self._format_time(current_time)
+            "end_time": end_time,
         }
-    
-    def _generate_summary(self, days: List[Dict]) -> str:
-        """Gera resumo textual do planejamento"""
-        
-        summary = []
-        
-        for day in days:
-            day_num = day['day']
-            n_pois = day['n_pois']
-            time = day['total_time']
-            cost = day['total_cost']
-            
-            summary.append(
-                f"Dia {day_num}: {n_pois} POIs, {time} min ({time/60:.1f}h), €{cost:.2f}"
-            )
-        
-        return "\n".join(summary)
-    
+
+    # ── Helpers ─────────────────────────────────────────────────────────────
+
     def _parse_time(self, time_str: str) -> int:
-        """Converte "09:30" para minutos desde meia-noite"""
         h, m = map(int, time_str.split(':'))
         return h * 60 + m
-    
-    def _format_time(self, minutes: int) -> str:
-        """Converte minutos desde meia-noite para "09:30" """
-        hours = int(minutes // 60) % 24
-        mins = int(minutes % 60)
-        return f"{hours:02d}:{mins:02d}"
-    
+
+    def _fmt(self, minutes: int) -> str:
+        h = int(minutes // 60) % 24
+        m = int(minutes % 60)
+        return f"{h:02d}:{m:02d}"
+
+    def _generate_summary(self, days: List[Dict]) -> str:
+        lines = []
+        for d in days:
+            lines.append(f"Dia {d['day']}: {d['n_pois']} POIs, {d['total_time']} min "
+                         f"({d['total_time']/60:.1f}h), €{d['total_cost']:.2f}")
+        return "\n".join(lines)
+
     def print_itinerary(self, day_plan: Dict):
-        """Imprime itinerário formatado"""
-        
         print(f"\n{'='*70}")
         print(f"📅 ITINERÁRIO - {day_plan['total_days']} DIAS")
         print(f"{'='*70}\n")
-        
         for day in day_plan['days']:
             print(f"📆 DIA {day['day']} - {day['start_time']} às {day['end_time']}")
             print(f"   {day['n_pois']} POIs | {day['total_time']} min | €{day['total_cost']:.2f}\n")
-            
             for poi in day['pois']:
-                print(f"   {poi['order']}. {poi['arrival_time']} - {poi['departure_time']}")
-                print(f"      {poi['name']} ({poi['category']})")
-                print(f"      Duração: {poi['duration']} min | Custo: €{poi['cost']:.2f}\n")
-        
+                prefix = "🌙" if poi.get("category") in self.NOCTURNO_CATEGORIES else "  "
+                print(f"   {prefix} {poi['order']}. {poi['arrival_time']} - {poi['departure_time']}")
+                print(f"         {poi['name']} ({poi['category']})")
+                print(f"         Duração: {poi['duration']} min | Custo: €{poi['cost']:.2f}\n")
         print(f"{'='*70}\n")
         print(day_plan['summary'])
         print(f"\n{'='*70}\n")
