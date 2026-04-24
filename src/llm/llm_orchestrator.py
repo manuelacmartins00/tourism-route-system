@@ -250,8 +250,23 @@ Responde APENAS com o JSON, sem explicações."""
                     secondary_tags.append(tag)
             
             if not main_categories:
+                main_categories = []
+
+            # Garantir categorias óbvias que o LLM às vezes não extrai
+            _q = user_query.lower()
+            _keyword_cats = {
+                "bares_e_discotecas": ["vida noturna", "noturno", "bar ", "bares", "discoteca", "night", "beber copos", "sair à noite"],
+                "restaurantes_e_cafes": ["comer", "jantar", "restaurante", "gastronomia", "almoço"],
+                "museus_e_palacios": ["museu", "museus", "palácio", "palácios"],
+            }
+            for cat, hints in _keyword_cats.items():
+                if any(h in _q for h in hints) and cat not in main_categories:
+                    main_categories.append(cat)
+                    print(f"   🔑 Categoria '{cat}' adicionada por keyword")
+
+            if not main_categories:
                 main_categories = None
-            
+
             category_weights = {}
             if main_categories:
                 for category in main_categories:
@@ -271,6 +286,13 @@ Responde APENAS com o JSON, sem explicações."""
             num_days = max(1, _math.ceil(extracted_time / 480))
             budget_value = float(data.get("budget_value", data.get("max_cost", 50.0)) or 50.0)
             budget_type  = data.get("budget_type", "per_person") or "per_person"
+
+            # Corrigir budget_type: se LLM retornou "per_person" mas a query diz "por dia"
+            _q = user_query.lower()
+            _per_day_hints = ["por dia", "per day", "diário", "/dia", "daily", "each day"]
+            if budget_type == "per_person" and any(h in _q for h in _per_day_hints):
+                budget_type = "per_person_per_day"
+                print(f"   💡 budget_type corrigido: 'por dia' detectado na query")
 
             if budget_type == "per_person":
                 extracted_cost = budget_value
