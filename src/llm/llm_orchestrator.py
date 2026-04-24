@@ -317,8 +317,16 @@ Responde APENAS com o JSON, sem explicações."""
             
             # Extrair campos em falta
             missing_fields = data.get("missing_fields", [])
-            # num_people nunca é obrigatório — extrai silenciosamente com default 1
+            # campos nunca obrigatórios — extraídos silenciosamente
             missing_fields = [f for f in missing_fields if f not in ("has_children", "mobility_issues", "group_size", "num_people", "start_location")]
+            # se o budget foi extraído com sucesso, remover max_cost dos missing_fields
+            if budget_value != 50.0 or budget_type != "per_person":
+                missing_fields = [f for f in missing_fields if f != "max_cost"]
+            # se budget é por dia e max_time parece ser o default (≤300), obrigar a pedir duração
+            if budget_type in ("per_day", "per_person_per_day") and extracted_time <= 300:
+                if "max_time" not in missing_fields:
+                    missing_fields.append("max_time")
+                    print("   ❓ max_time adicionado: budget por dia requer saber a duração")
             if missing_fields:
                 print(f"   ❓ Campos em falta: {missing_fields}")
 
