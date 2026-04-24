@@ -75,6 +75,21 @@ Large files live in `data/` and are **not committed to git**:
 
 The transit integration (`src/transit/`) is optional — GTFS data files for Lisbon/Porto metro and buses must be placed in `data/` before `TransitService` will load.
 
+## Deployment
+
+The production app runs on HuggingFace Spaces (`ManuelMartinsTeseISCTE/TourismRouteSystemV1`). **Code changes only take effect after pushing to the HF Space remote** — pushing to GitHub alone is not enough.
+
+```bash
+# Push to HuggingFace Space (triggers rebuild)
+git push huggingface main
+
+# If push is rejected due to large files (>10MB), migrate them to LFS first:
+git lfs migrate import --include="path/to/large/file" --everything --yes
+git push huggingface main --force
+```
+
+After pushing, the Space rebuilds automatically — wait ~1-2 minutes before testing.
+
 ## Key Configuration
 
 - **LLM:** `llama-3.1-8b-instant` via Groq, temperature 0.3, max 600 tokens
