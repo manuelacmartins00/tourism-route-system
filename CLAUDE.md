@@ -68,7 +68,7 @@ The `/query` response includes `route`, `explanation`, `map_id`, `day_plan`, `op
 ## Data Files
 
 Large files live in `data/` and are **not committed to git**:
-- `portugal_todos_pois_final_enriched.json` — ~15 K POIs (main database)
+- `portugal_todos_pois_final_enriched.json` — ~11.3 K POIs (main database)
 - `portugal_distances.npy` — pre-computed distance matrix (~1 GB)
 - `chroma_db/` — ChromaDB persistent vector index
 - `feedback/` — collected SUS responses (CSV-backed)

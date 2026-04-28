@@ -359,10 +359,11 @@ Responde APENAS com o JSON, sem explicações."""
             # 3. max_time é sempre obrigatório se não foi explicitamente mencionado
             import re as _re
             _has_explicit_duration = bool(_re.search(
-                r'\b\d+\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin de semana|weekend)\b',
+                r'\b(\d+|um|uma|dois|duas|tr[eê]s|quatro|cinco|seis|sete|oito|nove|dez|meio)\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin\s+de\s+semana|weekend|dia)\b',
                 user_query.lower()
             ))
-            if not _has_explicit_duration:
+            # Só forçar se o regex também não encontrou E o LLM não extraiu nada útil
+            if not _has_explicit_duration and extracted_time == 300:
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
                     print("   ❓ max_time adicionado: duração não mencionada na query")

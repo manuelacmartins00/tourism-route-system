@@ -202,7 +202,7 @@ class TourismRouteSystem:
 
         rag_results = self.rag.query(
             text=rag_query,
-            n_results=25,
+            n_results=60,
             category_filter=preferences.preferred_categories,
             max_cost=preferences.max_cost,
             lat_min=lat_min,
@@ -245,7 +245,7 @@ class TourismRouteSystem:
                 print(f"   🔄 Re-query sem filtro de categorias...")
             rag_results_fallback = self.rag.query(
                 text=rag_query,
-                n_results=50,
+                n_results=80,
                 category_filter=None,
                 max_cost=preferences.max_cost,
                 lat_min=lat_min,
@@ -405,7 +405,7 @@ class TourismRouteSystem:
                                    n_ants=30, n_iterations=100)
         elif selected_algo == "GA":
             optimizer = TourismGA(optimizer_pois, sub_distance_matrix, evaluator,
-                                  population_size=50, n_generations=30)
+                                  population_size=80, n_generations=50)
         elif selected_algo == "PSO":
             optimizer = TourismPSOA(optimizer_pois, sub_distance_matrix, evaluator,
                                     n_particles=30, n_iterations=50)
