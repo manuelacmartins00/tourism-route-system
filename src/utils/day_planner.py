@@ -76,6 +76,8 @@ class DayPlanner:
             by_day: List[List[Dict]] = [[] for _ in range(n_days)]
             for i, poi in enumerate(diurnal):
                 by_day[labels[i]].append(poi)
+            # Reequilibrar categorias antes de ordenar geograficamente
+            by_day = self._rebalance_category_diversity(by_day, max_same_cat=2)
             # Ordem nearest-neighbour dentro de cada dia
             if self.start_lat:
                 by_day = [self._nearest_neighbor_order(d, self.start_lat, self.start_lon)
@@ -87,6 +89,52 @@ class DayPlanner:
             for i, poi in enumerate(diurnal):
                 by_day[i % n_days].append(poi)
             return by_day
+
+    def _rebalance_category_diversity(self, by_day: List[List[Dict]], max_same_cat: int = 2) -> List[List[Dict]]:
+        """
+        Move POIs excedentes da mesma categoria para dias com menos dessa categoria,
+        respeitando o budget de tempo por dia. Máximo max_same_cat POIs da mesma
+        categoria por dia.
+        """
+        from collections import defaultdict
+        n_days = len(by_day)
+        if n_days <= 1:
+            return by_day
+
+        for _ in range(n_days * 3):  # iterações suficientes para convergir
+            moved = False
+            for src in range(n_days):
+                cat_counts = defaultdict(list)
+                for poi in by_day[src]:
+                    cat_counts[poi['category']].append(poi)
+
+                for cat, pois_in_cat in cat_counts.items():
+                    if len(pois_in_cat) <= max_same_cat:
+                        continue
+                    # Mover os excedentes (os últimos da lista — menos prioritários)
+                    for poi in pois_in_cat[max_same_cat:]:
+                        # Encontrar o dia destino com menos desta categoria e com espaço
+                        best_dst, best_count = None, float('inf')
+                        for dst in range(n_days):
+                            if dst == src:
+                                continue
+                            dst_cat_count = sum(1 for p in by_day[dst] if p['category'] == cat)
+                            dst_time = sum(p['duration'] for p in by_day[dst])
+                            # Só mover se o dia destino tem espaço e menos desta categoria
+                            if dst_cat_count < best_count and dst_time + poi['duration'] <= self.minutes_per_day:
+                                best_count = dst_cat_count
+                                best_dst = dst
+                        if best_dst is not None and best_count < len(pois_in_cat) - max_same_cat:
+                            by_day[src].remove(poi)
+                            by_day[best_dst].append(poi)
+                            moved = True
+                            break  # recalcular cat_counts após cada movimento
+                    if moved:
+                        break
+            if not moved:
+                break
+
+        return by_day
 
     def _nearest_neighbor_order(self, pois: List[Dict], start_lat: float, start_lon: float) -> List[Dict]:
         remaining = list(pois)
