@@ -125,6 +125,7 @@ async def query_route(req: QueryRequest):
     is_refinement = session_id and session_id in sessions and sessions[session_id].get("last_result")
 
     result = None
+    effective_query = req.query  # pode ser substituída por query composta abaixo
 
     if is_refinement:
         last_result = sessions[session_id]["last_result"]
@@ -132,7 +133,11 @@ async def query_route(req: QueryRequest):
             operation = system.llm.interpret_refinement(req.query, last_result.get("route", []))
             print(f"   🔄 Operação de refinamento: {operation}")
             if operation.get("type") == "fresh_query":
-                # O LLM decidiu que é uma query nova — tratar como tal
+                # Manter contexto da sessão: juntar query original com a nova instrução
+                base_query = sessions[session_id].get("original_query", "")
+                if base_query and base_query.strip() != req.query.strip():
+                    effective_query = f"{base_query}. Actualização: {req.query}"
+                    print(f"   🔀 Contexto preservado — query combinada")
                 is_refinement = False
             else:
                 result = apply_refinement(operation, last_result)
@@ -144,7 +149,7 @@ async def query_route(req: QueryRequest):
     if not is_refinement:
         try:
             result = system.plan_route(
-                req.query,
+                effective_query,
                 use_shap=False,
                 verbose=True,
                 force_algorithm=None,
@@ -196,7 +201,7 @@ async def query_route(req: QueryRequest):
     # Guardar sessão para possíveis refinamentos futuros
     if not session_id:
         session_id = str(uuid.uuid4())[:8]
-    sessions[session_id] = {"last_result": dict(result), "original_query": req.query}
+    sessions[session_id] = {"last_result": dict(result), "original_query": effective_query}
     result["session_id"] = session_id
 
     return JSONResponse(content=result)
