@@ -393,6 +393,41 @@
   }
   .footer-btn.primary:hover { background: #3a7ef0; }
 
+  /* DOWNLOAD PDF BUTTON */
+  .dl-pdf-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-muted);
+    font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .dl-pdf-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* PRINT STYLES */
+  @media print {
+    body > *:not(#printArea) { display: none !important; }
+    #printArea {
+      display: block !important;
+      font-family: Arial, sans-serif;
+      color: #000;
+      padding: 24px;
+    }
+    #printArea h1 { font-size: 18px; margin-bottom: 4px; }
+    #printArea h2 { font-size: 14px; color: #444; margin: 16px 0 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+    #printArea .print-meta { font-size: 11px; color: #666; margin-bottom: 16px; }
+    #printArea .print-poi { display: flex; gap: 12px; margin-bottom: 6px; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 12px; }
+    #printArea .print-poi-num { font-weight: 700; width: 20px; flex-shrink: 0; }
+    #printArea .print-poi-name { flex: 1; font-weight: 600; }
+    #printArea .print-poi-meta { color: #666; font-size: 11px; }
+    #printArea .print-explanation { font-size: 12px; color: #333; line-height: 1.7; margin-top: 8px; }
+    #printArea .print-night { font-size: 11px; color: #555; font-style: italic; margin: 8px 0 4px; }
+  }
+
   /* FEEDBACK BANNER */
   .feedback-banner {
     position: fixed;
@@ -476,6 +511,9 @@
   </div>
 </div>
 
+<!-- PRINT AREA (hidden, only visible on print) -->
+<div id="printArea" style="display:none;"></div>
+
 <!-- MAP MODAL -->
 <div class="modal-overlay" id="mapModal" onclick="if(event.target===this)closeMap()">
   <div class="modal">
@@ -495,7 +533,8 @@
     <div class="modal-footer">
       <div class="modal-footer-info" id="modalFooterInfo"></div>
       <div class="footer-actions">
-        <button class="footer-btn secondary" id="downloadBtn" onclick="downloadMap()">⬇ Descarregar HTML</button>
+        <button class="footer-btn secondary" onclick="downloadPDF()">📄 PDF</button>
+        <button class="footer-btn secondary" id="downloadBtn" onclick="downloadMap()">⬇ HTML Mapa</button>
         <button class="footer-btn primary" onclick="closeMap()">✕ Fechar</button>
       </div>
     </div>
@@ -687,6 +726,7 @@
     const mapBtnHtml = mapId ? `
       <div class="map-btn-row">
         <span class="map-hint">Rota interactiva disponível</span>
+        <button class="dl-pdf-btn" onclick="downloadPDF()">📄 PDF</button>
         <button class="map-open-btn" onclick="openMap('${mapId}', '${escapeHtml(algo)}', ${pois.length}, ${visitMin}, ${totalCost.toFixed(0)})">
           🗺️ Ver Mapa
         </button>
@@ -808,10 +848,84 @@
     document.getElementById('mapIframe').src = 'about:blank';
   }
 
-  function downloadMap() {
-    if (currentMapId) {
+  async function downloadMap() {
+    if (!currentMapId) return;
+    try {
+      const res = await fetch(`/map/${currentMapId}`);
+      const html = await res.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `rota_${currentMapId}.html`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch {
       window.open(`/map/${currentMapId}`, '_blank');
     }
+  }
+
+  function downloadPDF() {
+    if (!currentResult) return;
+    const result = currentResult;
+    const pois = result.route || [];
+    const opt = result.optimization || {};
+    const algo = result.algorithm_used || '—';
+    const dayPlan = result.day_plan;
+    const explanation = result.explanation || '';
+    const totalCost = pois.reduce((s, p) => s + (p.cost || 0), 0);
+    const prefs = result.preferences || {};
+
+    let html = `
+      <h1>Tourism Route Assistant — Itinerário</h1>
+      <div class="print-meta">
+        Algoritmo: ${algo} &nbsp;·&nbsp;
+        ${pois.length} POIs &nbsp;·&nbsp;
+        €${totalCost.toFixed(2)} &nbsp;·&nbsp;
+        fitness ${(opt.fitness || 0).toFixed(2)} &nbsp;·&nbsp;
+        ${prefs.location || ''} &nbsp;·&nbsp;
+        Gerado em ${new Date().toLocaleDateString('pt-PT')}
+      </div>`;
+
+    const NOCTURNAL_CATS = ['bares_e_discotecas', 'casinos'];
+    if (dayPlan && dayPlan.days && dayPlan.days.length > 0) {
+      dayPlan.days.forEach(day => {
+        html += `<h2>Dia ${day.day} &nbsp; ${day.start_time}–${day.end_time} &nbsp; €${day.total_cost.toFixed(2)}</h2>`;
+        let nightShown = false;
+        day.pois.forEach(p => {
+          if (!nightShown && NOCTURNAL_CATS.includes(p.category)) {
+            html += `<div class="print-night">🌙 Noite</div>`;
+            nightShown = true;
+          }
+          html += `
+            <div class="print-poi">
+              <div class="print-poi-num">${p.order}.</div>
+              <div style="flex:1">
+                <div class="print-poi-name">${p.name}</div>
+                <div class="print-poi-meta">${p.arrival_time}–${p.departure_time} · ${p.duration} min · €${p.cost.toFixed(2)} · ${p.category}</div>
+              </div>
+            </div>`;
+        });
+      });
+    } else {
+      html += `<h2>Rota</h2>`;
+      pois.forEach((p, i) => {
+        html += `
+          <div class="print-poi">
+            <div class="print-poi-num">${i + 1}.</div>
+            <div style="flex:1">
+              <div class="print-poi-name">${p.name}</div>
+              <div class="print-poi-meta">${p.duration} min · €${p.cost.toFixed(2)} · ${p.category}</div>
+            </div>
+          </div>`;
+      });
+    }
+
+    if (explanation) {
+      html += `<h2>Explicação da Rota</h2><div class="print-explanation">${explanation}</div>`;
+    }
+
+    document.getElementById('printArea').innerHTML = html;
+    window.print();
   }
 
   // ── Feedback banner ───────────────────────────────────────────
