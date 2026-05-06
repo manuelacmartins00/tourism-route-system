@@ -31,6 +31,30 @@ from src.optimizers.greedy_planner import GreedyPlanner
 from src.utils.data_loader import load_pois_from_json
 from src.utils.shap_explainer import RouteExplainer
 
+DURATION_RANGES = {
+    "restaurantes_e_cafes":   (45,  90),
+    "monumentos":             (15,  60),
+    "turismo_activo":         (90, 300),
+    "praias":                 (60, 240),
+    "bares_e_discotecas":     (90, 240),
+    "museus_e_palacios":      (60, 150),
+    "eventos":                (60, 180),
+    "campos":                (120, 300),
+    "arqueologia":            (30,  90),
+    "espacos_verdes":         (30, 180),
+    "marinas_e_portos":       (20,  90),
+    "termas":                 (90, 180),
+    "parques_e_reservas":     (60, 240),
+    "parques_de_diversao":   (180, 360),
+    "zoos_e_aquarios":       (120, 240),
+    "ciencia_e_conhecimento": (60, 120),
+    "casinos":                (60, 240),
+    "talassoterapia":         (90, 180),
+    "grutas":                 (30,  75),
+    "academias":              (60, 120),
+    "barragens":              (20,  60),
+}
+
 def _within_radius(poi_lat: float, poi_lon: float,
                    center_lat: float, center_lon: float,
                    radius_km: float) -> bool:
@@ -285,6 +309,13 @@ class TourismRouteSystem:
                 )
                 candidate_pois = rag_results_nogeo['pois']
 
+        # Aplicar intervalos de duração por categoria
+        for p in candidate_pois:
+            cat = p.get("category", "")
+            if cat in DURATION_RANGES:
+                d_min, d_max = DURATION_RANGES[cat]
+                p["duration"] = max(d_min, min(d_max, p["duration"]))
+
         if len(candidate_pois) == 0:
             print(f"\n{'=' * 70}")
             print("⚠️  ERRO: RAG RETORNOU 0 POIs!")
@@ -371,6 +402,9 @@ class TourismRouteSystem:
 
         # Preferências — sem sentimento, pesos fixos no RouteEvaluator
         mobility_issues = getattr(preferences, 'mobility_issues', False) or False
+        has_children    = getattr(preferences, 'has_children', False) or False
+        if has_children:
+            print("   👶 has_children=True → modificador contextual activado\n")
 
         # Matriz de elevação — só calculada se mobilidade reduzida
         elevation_matrix = None
@@ -391,6 +425,7 @@ class TourismRouteSystem:
             "center_lon": geo[1] if geo else None,
             "max_radius_km": geo[2] if geo else 30.0,
             "mobility_issues": mobility_issues,
+            "has_children": has_children,
             "elevation_matrix": elevation_matrix,
         }
 
