@@ -35,8 +35,17 @@ class RouteEvaluator:
         self.center_lon = user_prefs.get("center_lon")
         self.max_radius_km = user_prefs.get("max_radius_km", 20.0)
         self.mobility_issues = user_prefs.get("mobility_issues", False)
+        self.has_children    = user_prefs.get("has_children", False)
         self.elevation_matrix = user_prefs.get("elevation_matrix", None)
         self.w_elevation = 0.15
+
+        self._CHILDREN_PENALTY = {"bares_e_discotecas", "casinos", "turismo_activo"}
+        self._CHILDREN_BONUS   = {"espacos_verdes", "parques_e_reservas", "parques_de_diversao",
+                                   "zoos_e_aquarios", "ciencia_e_conhecimento"}
+        self._MOBILITY_PENALTY = {"turismo_activo", "campos", "parques_e_reservas",
+                                   "parques_de_diversao", "grutas"}
+        self._MOBILITY_BONUS   = {"restaurantes_e_cafes", "monumentos", "museus_e_palacios",
+                                   "espacos_verdes", "termas", "ciencia_e_conhecimento", "talassoterapia"}
             
         self._debug_mode = False
         self._empty_warning_shown = False
@@ -106,7 +115,32 @@ class RouteEvaluator:
                 self.w_proximity * proximity_component
             )
         
-        return fitness
+        return fitness * self._contextual_modifier(route)
+
+    def _contextual_modifier(self, route: List[int]) -> float:
+        """
+        Multiplica o fitness por um factor contextual (0.7–1.3) baseado em
+        has_children e mobility_issues. Penaliza categorias inapropriadas e
+        bonifica categorias adequadas ao contexto do utilizador.
+        """
+        if not self.has_children and not self.mobility_issues:
+            return 1.0
+        total = 0.0
+        for poi_idx in route:
+            cat = self.pois[poi_idx].category
+            delta = 0.0
+            if self.has_children:
+                if cat in self._CHILDREN_PENALTY:
+                    delta -= 0.15
+                elif cat in self._CHILDREN_BONUS:
+                    delta += 0.10
+            if self.mobility_issues:
+                if cat in self._MOBILITY_PENALTY:
+                    delta -= 0.15
+                elif cat in self._MOBILITY_BONUS:
+                    delta += 0.10
+            total += delta
+        return max(0.7, min(1.3, 1.0 + total / len(route)))
 
     def _proximity_component(self, route: List[int]) -> float:
         """
