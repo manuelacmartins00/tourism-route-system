@@ -21,6 +21,7 @@ class UserPreferences:
     start_location: str = None
     mobility_issues: bool = False
     num_people: int = 1
+    has_children: bool = False
 
 class LlamaOrchestrator:
     """
@@ -330,6 +331,14 @@ Responde APENAS com o JSON, sem explicações."""
             if mobility_issues:
                 print(f"   ♿ Mobilidade reduzida identificada — pipeline de elevação activado")
 
+            # Detetar crianças silenciosamente por keywords (sem perguntar ao utilizador)
+            _children_hints = ["filho", "filha", "filhos", "filhas", "criança", "crianças",
+                                "kids", "children", "child", "bebé", "bebés", "bebe", "bebes",
+                                "miúdo", "miúdos", "family with kids", "com crianças"]
+            has_children = bool(data.get("has_children", False)) or any(h in _q for h in _children_hints)
+            if has_children:
+                print(f"   👶 Crianças detectadas — regras contextuais activadas")
+
             # Extrair ponto de partida (opcional)
             start_location = data.get("start_location", None)
             if start_location and not isinstance(start_location, str):
@@ -392,6 +401,7 @@ Responde APENAS com o JSON, sem explicações."""
                 start_location=start_location,
                 mobility_issues=mobility_issues,
                 num_people=num_people,
+                has_children=has_children,
             )
         
         except Exception as e:
