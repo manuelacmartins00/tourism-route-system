@@ -139,3 +139,8 @@ def log_feedback(run_id: str, feedback_data: dict, sus_score: float):
         json.dump(payload, f, ensure_ascii=False, indent=2)
 
     _upload(str(fb_path), f"feedback/feedback_{run_id}.json")
+
+    # Upload do CSV agregado de feedback
+    feedback_csv = Path("data/feedback/responses.csv")
+    if feedback_csv.exists():
+        _upload(str(feedback_csv), "feedback/responses.csv")
