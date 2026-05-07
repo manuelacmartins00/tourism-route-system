@@ -22,6 +22,7 @@ class UserPreferences:
     mobility_issues: bool = False
     num_people: int = 1
     has_children: bool = False
+    last_day_end_time: str = None
 
 class LlamaOrchestrator:
     """
@@ -144,7 +145,20 @@ TAREFA:
      * APENAS incluir "num_people" em missing_fields se budget_type for "total" ou "per_day"
        E num_people não puder ser determinado E houver indício de grupo (plural, "amigos", "família", "nós")
 
-   - Hora de início (padrão 09:00)
+   - Hora de início (apenas para o PRIMEIRO dia, padrão "09:00"):
+     * "de manhã" / "de manhã cedo" → "09:00"
+     * "ao meio-dia" → "12:00"
+     * "à tarde" / "da tarde" → "16:00"
+     * "ao final da tarde" → "18:00"
+     * "à noite" → "20:00"
+
+   - Hora de fim do ÚLTIMO dia — campo "last_day_end_time" (null se não especificado):
+     * "até de manhã" / "termina de manhã" → "12:00"
+     * "até ao meio-dia" → "12:00"
+     * "até à tarde" / "até domingo à tarde" → "17:00"
+     * "até ao final da tarde" → "18:00"
+     * "até à noite" → "21:00"
+     * Se não especificado → null
 
 EXEMPLOS DE CONVERSÃO:
 - "3 dias" → max_time: 1440
@@ -158,6 +172,8 @@ EXEMPLOS DE CONVERSÃO:
 - "5 amigos" → num_people: 5
 - "somos 3" → num_people: 3
 - "eu e a minha namorada" → num_people: 2
+- "de 6ª à tarde até domingo à tarde" → start_time: "16:00", last_day_end_time: "17:00"
+- "de sábado de manhã até domingo ao meio-dia" → start_time: "09:00", last_day_end_time: "12:00"
 
 Devolve APENAS JSON (sem texto adicional):
 {{
@@ -168,6 +184,7 @@ Devolve APENAS JSON (sem texto adicional):
   "tags": ["tag1", "tag2", "tag3"],
   "interests": ["interest1", "interest2"],
   "start_time": "09:00",
+  "last_day_end_time": null,
   "location": "Lisboa",
   "transport_mode": "foot",
   "start_location": null,
@@ -339,6 +356,17 @@ Responde APENAS com o JSON, sem explicações."""
             if has_children:
                 print(f"   👶 Crianças detectadas — regras contextuais activadas")
 
+            # Extrair hora de fim do último dia (opcional)
+            last_day_end_time = data.get("last_day_end_time", None)
+            if last_day_end_time and isinstance(last_day_end_time, str):
+                import re as _ret
+                if _ret.match(r'^\d{2}:\d{2}$', last_day_end_time):
+                    print(f"   🌅 Hora de fim do último dia: '{last_day_end_time}'")
+                else:
+                    last_day_end_time = None
+            else:
+                last_day_end_time = None
+
             # Extrair ponto de partida (opcional)
             start_location = data.get("start_location", None)
             if start_location and not isinstance(start_location, str):
@@ -402,6 +430,7 @@ Responde APENAS com o JSON, sem explicações."""
                 mobility_issues=mobility_issues,
                 num_people=num_people,
                 has_children=has_children,
+                last_day_end_time=last_day_end_time,
             )
         
         except Exception as e:

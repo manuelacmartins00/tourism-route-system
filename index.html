@@ -554,6 +554,7 @@
   <button class="feedback-cta" onclick="openFeedback()">Responder →</button>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
   // ── Estado global ────────────────────────────────────────────
   let currentMapId = null;
@@ -924,8 +925,29 @@
       html += `<h2>Explicação da Rota</h2><div class="print-explanation">${explanation}</div>`;
     }
 
-    document.getElementById('printArea').innerHTML = html;
-    window.print();
+    const container = document.createElement('div');
+    container.style.cssText = 'width:190mm;padding:15mm 20mm;font-family:Arial,sans-serif;font-size:12px;color:#000;background:#fff;';
+    container.innerHTML = `
+      <style>
+        h1{font-size:18px;margin-bottom:4px;}
+        h2{font-size:14px;color:#444;margin:16px 0 8px;border-bottom:1px solid #ccc;padding-bottom:4px;}
+        .print-meta{font-size:11px;color:#666;margin-bottom:16px;}
+        .print-poi{display:flex;gap:12px;margin-bottom:6px;padding:6px 0;border-bottom:1px solid #eee;}
+        .print-poi-num{font-weight:700;width:20px;flex-shrink:0;}
+        .print-poi-name{font-weight:600;}
+        .print-poi-meta{color:#666;font-size:11px;}
+        .print-explanation{font-size:12px;color:#333;line-height:1.7;margin-top:8px;}
+        .print-night{font-size:11px;color:#555;font-style:italic;margin:8px 0 4px;}
+      </style>
+      ${html}`;
+    document.body.appendChild(container);
+    html2pdf().set({
+      margin: 0,
+      filename: 'itinerario_turistico.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(container).save().then(() => document.body.removeChild(container));
   }
 
   // ── Feedback banner ───────────────────────────────────────────

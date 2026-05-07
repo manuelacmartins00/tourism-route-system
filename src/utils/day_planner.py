@@ -23,7 +23,8 @@ class DayPlanner:
     # ── Public API ──────────────────────────────────────────────────────────
 
     def plan_days(self, route: List[Dict], distance_matrix: np.ndarray = None,
-                  total_days: int = None) -> Dict:
+                  total_days: int = None, first_day_start_time: str = None,
+                  last_day_end_time: str = None) -> Dict:
         if not route:
             return {"days": [], "total_days": 0}
 
@@ -37,21 +38,36 @@ class DayPlanner:
         print(f"\n📅 Planejando {len(route)} POIs em {total_days} dias "
               f"({len(diurnal)} diurnos, {len(nocturnal)} noturnos)...")
         print(f"   Tempo por dia: {self.minutes_per_day} min ({self.hours_per_day}h)\n")
+        if first_day_start_time and first_day_start_time != self.start_time:
+            print(f"   🌅 Dia 1 começa às {first_day_start_time} (dias seguintes: {self.start_time})")
+        if last_day_end_time:
+            print(f"   🌆 Último dia termina às {last_day_end_time}")
 
         # Distribuir POIs diurnos por dia (clustering geográfico se possível)
         diurnal_by_day = self._distribute_diurnal(diurnal, total_days)
 
         # Distribuir POIs noturnos em round-robin pelos dias
+        # Se o último dia tem hora de fim antes de NOCTURNAL_START, redirecionar noturnos do último dia
         nocturnal_by_day: List[List[Dict]] = [[] for _ in range(total_days)]
+        last_day_blocks_night = (
+            last_day_end_time is not None and
+            total_days > 0 and
+            self._parse_time(last_day_end_time) <= self._parse_time(self.NOCTURNAL_START)
+        )
+        available_night_days = total_days - 1 if last_day_blocks_night and total_days > 1 else total_days
         for i, poi in enumerate(nocturnal):
-            nocturnal_by_day[i % total_days].append(poi)
+            if available_night_days > 0:
+                nocturnal_by_day[i % available_night_days].append(poi)
+            else:
+                nocturnal_by_day[0].append(poi)
 
         days = []
         for day_num in range(1, total_days + 1):
             d = diurnal_by_day[day_num - 1] if day_num <= len(diurnal_by_day) else []
             n = nocturnal_by_day[day_num - 1]
+            day_start = first_day_start_time if day_num == 1 and first_day_start_time else self.start_time
             if d or n:
-                days.append(self._format_day(day_num, d, n))
+                days.append(self._format_day(day_num, d, n, day_start_time=day_start))
 
         return {
             "days": days,
@@ -156,12 +172,14 @@ class DayPlanner:
 
     # ── Formatting ──────────────────────────────────────────────────────────
 
-    def _format_day(self, day_num: int, diurnal: List[Dict], nocturnal: List[Dict]) -> Dict:
+    def _format_day(self, day_num: int, diurnal: List[Dict], nocturnal: List[Dict],
+                    day_start_time: str = None) -> Dict:
         schedule = []
         order = 1
 
-        # Manhã/tarde — começa em start_time (09:00)
-        current = self._parse_time(self.start_time)
+        # Manhã/tarde — começa em day_start_time (ou start_time por defeito)
+        current = self._parse_time(day_start_time if day_start_time else self.start_time)
+        effective_start = day_start_time if day_start_time else self.start_time
         for i, poi in enumerate(diurnal):
             arr = self._fmt(current)
             dep = self._fmt(current + poi['duration'])
@@ -196,7 +214,7 @@ class DayPlanner:
             "total_time": total_time,
             "total_cost": total_cost,
             "n_pois": len(schedule),
-            "start_time": self.start_time,
+            "start_time": effective_start,
             "end_time": end_time,
         }
 
