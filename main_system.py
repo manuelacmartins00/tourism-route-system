@@ -532,17 +532,22 @@ class TourismRouteSystem:
 
             planner = DayPlanner(
                 hours_per_day=8,
-                start_time=preferences.start_time,
+                start_time="09:00",
                 lunch_break=60
             )
             if start_geo:
                 planner.start_lat = start_geo[0]
                 planner.start_lon = start_geo[1]
 
+            first_day_start = preferences.start_time if preferences.start_time != "09:00" else None
+            last_day_end = getattr(preferences, 'last_day_end_time', None)
+
             day_plan = planner.plan_days(
                 result['route'],
                 distance_matrix=sub_distance_matrix,
-                total_days=total_days
+                total_days=total_days,
+                first_day_start_time=first_day_start,
+                last_day_end_time=last_day_end,
             )
 
             result['day_plan'] = day_plan
