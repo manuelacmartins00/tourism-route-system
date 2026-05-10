@@ -22,10 +22,18 @@ EMBED_FN = embedding_functions.SentenceTransformerEmbeddingFunction(
 )
 
 def get_v1(query, n):
-    from src.rag.rag_setup import POI_RAG
-    rag = POI_RAG(data_file=DATA_FILE)
-    r = rag.query(text=query, n_results=n)
-    return [(p["name"], p["category"], p["relevance_score"]) for p in r["pois"]]
+    client = chromadb.PersistentClient(
+        path="./data/chroma_db",
+        settings=Settings(anonymized_telemetry=False)
+    )
+    col = client.get_collection("portugal_pois", embedding_function=EMBED_FN)
+    r = col.query(query_texts=[query], n_results=n)
+    results = []
+    for i in range(len(r["ids"][0])):
+        m = r["metadatas"][0][i]
+        score = 1.0 - r["distances"][0][i]
+        results.append((m["name"], m["category"], round(score, 3)))
+    return results
 
 def get_v2(query, n):
     client = chromadb.PersistentClient(
