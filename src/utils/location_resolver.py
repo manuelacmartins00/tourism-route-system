@@ -12,18 +12,18 @@ import urllib.parse
 
 
 def _normalize(text: str) -> str:
-    """Remove acentos e converte para lowercase para comparação robusta."""
+    """Remove acentos e converte para lowercase para comparacao robusta."""
     nfkd = unicodedata.normalize("NFKD", text)
     return "".join(c for c in nfkd if not unicodedata.combining(c)).lower().strip()
 
 
 def _polygon_centroid(coordinates) -> Tuple[float, float]:
     """
-    Calcula centroide de um polígono GeoJSON.
+    Calcula centroide de um poligono GeoJSON.
     Suporta Polygon e MultiPolygon.
     Retorna (lat, lon).
     """
-    # Achata MultiPolygon para lista de anéis
+    # Achata MultiPolygon para lista de aneis
     if isinstance(coordinates[0][0][0], list):
         # MultiPolygon: coordinates = [[anel1, anel2], [anel1], ...]
         rings = [ring for polygon in coordinates for ring in polygon]
@@ -31,7 +31,7 @@ def _polygon_centroid(coordinates) -> Tuple[float, float]:
         # Polygon: coordinates = [anel_exterior, anel_interior, ...]
         rings = coordinates
 
-    # Usar apenas o anel exterior de cada polígono
+    # Usar apenas o anel exterior de cada poligono
     all_points = []
     for ring in rings:
         all_points.extend(ring[0] if isinstance(ring[0][0], list) else ring)
@@ -65,38 +65,38 @@ def _bbox_radius_km(bbox) -> float:
 
 class LocationResolver:
     """
-    Resolve topónimos portugueses para coordenadas (lat, lon, radius_km).
+    Resolve toponimos portugueses para coordenadas (lat, lon, radius_km).
 
-    Estratégia:
-      1. GeoJSON estático dos municípios portugueses (primário, offline)
-      2. Nominatim / OpenStreetMap (fallback, cobre regiões, serras, praias, etc.)
-      3. None — sem filtro geográfico se ambos falharem
+    Estrategia:
+      1. GeoJSON estatico dos municipios portugueses (primario, offline)
+      2. Nominatim / OpenStreetMap (fallback, cobre regioes, serras, praias, etc.)
+      3. None - sem filtro geografico se ambos falharem
     """
 
     GEOJSON_PATH = Path("data/Portugal_Municipalities.geojson")
 
-    # Raio default por tipo de localização
-    RADIUS_MUNICIPIO = 25.0   # km — município concreto
-    RADIUS_NOMINATIM = 50.0   # km — fallback quando não há bbox
+    # Raio default por tipo de localizacao
+    RADIUS_MUNICIPIO = 25.0   # km - municipio concreto
+    RADIUS_NOMINATIM = 50.0   # km - fallback quando nao ha bbox
 
-    # User-Agent obrigatório pela política do Nominatim
+    # User-Agent obrigatorio pela politica do Nominatim
     NOMINATIM_UA = "TourismRouteSystem/1.0 (thesis project; contact: tourism@thesis.pt)"
     NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
-    # Throttle: Nominatim exige máx 1 req/s
+    # Throttle: Nominatim exige max 1 req/s
     _last_nominatim_call: float = 0.0
 
     def __init__(self):
-        self._geojson_index: dict = {}   # nome_normalizado → {lat, lon, radius}
+        self._geojson_index: dict = {}   # nome_normalizado -> {lat, lon, radius}
         self._loaded = False
 
     def _load_geojson(self):
-        """Carrega e indexa o GeoJSON na primeira utilização."""
+        """Carrega e indexa o GeoJSON na primeira utilizacao."""
         if self._loaded:
             return
 
         if not self.GEOJSON_PATH.exists():
-            print(f"   ⚠️ [LocationResolver] GeoJSON não encontrado: {self.GEOJSON_PATH}")
+            print(f"   AVISO: [LocationResolver] GeoJSON nao encontrado: {self.GEOJSON_PATH}")
             self._loaded = True
             return
 
@@ -107,7 +107,7 @@ class LocationResolver:
             props = feature.get("properties", {})
             geom  = feature.get("geometry", {})
 
-            # Tentar vários campos de nome comuns em GeoJSON de municípios PT
+            # Tentar varios campos de nome comuns em GeoJSON de municipios PT
             name = (props.get("NAME_2") or props.get("NAME_1") or
                     props.get("Municipio") or props.get("name") or
                     props.get("NOME") or props.get("concelho") or "")
@@ -131,7 +131,7 @@ class LocationResolver:
             if lat is None:
                 continue
 
-            # Calcular raio a partir do bounding box se disponível
+            # Calcular raio a partir do bounding box se disponivel
             bbox = props.get("bbox") or feature.get("bbox")
             radius = _bbox_radius_km(bbox) if bbox else self.RADIUS_MUNICIPIO
 
@@ -144,12 +144,12 @@ class LocationResolver:
                 "source": "geojson"
             }
 
-        print(f"   ✓ [LocationResolver] {len(self._geojson_index)} municípios indexados do GeoJSON")
+        print(f"   [OK] [LocationResolver] {len(self._geojson_index)} municipios indexados do GeoJSON")
         self._loaded = True
 
     def _query_nominatim(self, location: str) -> Optional[dict]:
         """
-        Chama Nominatim para resolver um topónimo.
+        Chama Nominatim para resolver um toponimo.
         Respeita throttle de 1 req/s.
         Retorna dict com lat, lon, radius_km ou None.
         """
@@ -199,19 +199,19 @@ class LocationResolver:
             }
 
         except Exception as e:
-            print(f"   ⚠️ [LocationResolver] Nominatim falhou para '{location}': {e}")
+            print(f"   AVISO: [LocationResolver] Nominatim falhou para '{location}': {e}")
             LocationResolver._last_nominatim_call = time.time()
             return None
 
     def resolve(self, location: str) -> Optional[Tuple[float, float, float]]:
         """
-        Resolve um topónimo para (lat, lon, radius_km).
+        Resolve um toponimo para (lat, lon, radius_km).
 
         Args:
             location: Nome do local ("Lisboa", "Algarve", "Serra da Estrela", etc.)
 
         Returns:
-            (lat, lon, radius_km) ou None se não conseguiu resolver.
+            (lat, lon, radius_km) ou None se nao conseguiu resolver.
         """
         if not location or not location.strip():
             return None
@@ -220,30 +220,30 @@ class LocationResolver:
 
         key = _normalize(location)
 
-        # ── 1. Tentativa GeoJSON (exact match) ──────────────────────────
+        # 1. Tentativa GeoJSON (exact match)
         if key in self._geojson_index:
             entry = self._geojson_index[key]
-            print(f"   ✓ [LocationResolver] '{location}' → GeoJSON "
+            print(f"   [OK] [LocationResolver] '{location}' -> GeoJSON "
                   f"({entry['lat']:.4f}, {entry['lon']:.4f}, r={entry['radius_km']:.0f}km)")
             return entry["lat"], entry["lon"], entry["radius_km"]
 
-        # ── 2. Tentativa GeoJSON (partial match) ─────────────────────────
-        #    Útil para "Lisboa" encontrar "Lisboa (Lisboa)" etc.
+        # 2. Tentativa GeoJSON (partial match)
+        #    Util para "Lisboa" encontrar "Lisboa (Lisboa)" etc.
         matches = [k for k in self._geojson_index if key in k or k in key]
         if len(matches) == 1:
             entry = self._geojson_index[matches[0]]
-            print(f"   ✓ [LocationResolver] '{location}' → GeoJSON partial "
+            print(f"   [OK] [LocationResolver] '{location}' -> GeoJSON partial "
                   f"({entry['lat']:.4f}, {entry['lon']:.4f}, r={entry['radius_km']:.0f}km)")
             return entry["lat"], entry["lon"], entry["radius_km"]
 
-        # ── 3. Fallback Nominatim ────────────────────────────────────────
-        print(f"   🌐 [LocationResolver] '{location}' não no GeoJSON, tentando Nominatim...")
+        # 3. Fallback Nominatim
+        print(f"   [LocationResolver] '{location}' nao no GeoJSON, tentando Nominatim...")
         result = self._query_nominatim(location)
 
         if result:
-            print(f"   ✓ [LocationResolver] '{location}' → Nominatim "
+            print(f"   [OK] [LocationResolver] '{location}' -> Nominatim "
                   f"({result['lat']:.4f}, {result['lon']:.4f}, r={result['radius_km']:.0f}km)")
             return result["lat"], result["lon"], result["radius_km"]
 
-        print(f"   ⚠️ [LocationResolver] Não foi possível resolver '{location}' — sem filtro geográfico")
+        print(f"   AVISO: [LocationResolver] Nao foi possivel resolver '{location}' - sem filtro geografico")
         return None

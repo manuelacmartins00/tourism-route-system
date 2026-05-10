@@ -1,8 +1,8 @@
 # apply_google_price_levels.py
 #
-# Converte price_level_google (0-4) em cost_euros para os POIs que têm
+# Converte price_level_google (0-4) em cost_euros para os POIs que tem
 # este campo preenchido, usando tabelas de mapeamento por bundle.
-# Só actualiza POIs com price_level_google não-nulo.
+# So actualiza POIs com price_level_google nao-nulo.
 # Guarda o resultado no mesmo ficheiro (ou num ficheiro novo com --output).
 #
 # Uso:
@@ -13,7 +13,7 @@
 import json, argparse
 from pathlib import Path
 
-# ── Mapeamento price_level_google (0-4) → cost_euros por bundle ──────
+# -- Mapeamento price_level_google (0-4) -> cost_euros por bundle ------
 # 0 = gratuito, 1 = barato, 2 = moderado, 3 = caro, 4 = muito caro
 PRICE_MAP = {
     "restaurantes_e_cafes":  {0: 0,  1: 12,  2: 25,  3: 45,  4: 80},
@@ -73,7 +73,7 @@ def main():
             poi["attributes"]["cost_euros"] = float(cost)
             poi["attributes"]["cost_source"] = "google_price_level"
         else:
-            # Formato MongoDB raw — campo directo
+            # Formato MongoDB raw - campo directo
             poi["cost_euros"] = float(cost)
 
         # Registar fonte no enrichment se existir
@@ -93,7 +93,7 @@ def main():
         encoding="utf-8"
     )
 
-    print(f"✅ CONCLUÍDO")
+    print(f"[OK] CONCLUIDO")
     print(f"   Actualizados: {updated}")
     print(f"   Sem price_level (saltados): {skipped}")
     print(f"   Sem mapeamento: {no_map}")

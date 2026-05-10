@@ -7,7 +7,7 @@ from typing import List, Dict
 from .route_evaluator import POI, RouteEvaluator
 
 class TourismGA:
-    """Genetic Algorithm para rotas turísticas"""
+    """Genetic Algorithm para rotas turisticas"""
     
     def __init__(self,
                  pois: List[POI],
@@ -33,7 +33,7 @@ class TourismGA:
     def optimize(self, start_poi: int = 0) -> Dict:
         """Executa GA"""
         
-        # População inicial
+        # Populacao inicial
         population = [self._generate_random_route(start_poi) for _ in range(self.pop_size)]
         
         best_route = None
@@ -55,11 +55,11 @@ class TourismGA:
             if gen % 5 == 0:
                 print(f"  GA Gen {gen}: Best={best_fitness:.2f}, Avg={np.mean(fitnesses):.2f}")
             
-            # Nova geração
+            # Nova geracao
             new_population = []
             
             while len(new_population) < self.pop_size:
-                # Seleção
+                # Selecao
                 parent1 = self._tournament_selection(population, fitnesses)
                 parent2 = self._tournament_selection(population, fitnesses)
                 
@@ -69,7 +69,7 @@ class TourismGA:
                 else:
                     child1, child2 = parent1.copy(), parent2.copy()
                 
-                # Mutação
+                # Mutacao
                 if random.random() < self.mut_prob:
                     child1 = self._mutate(child1)
                 if random.random() < self.mut_prob:
@@ -88,7 +88,7 @@ class TourismGA:
         }
     
     def _generate_random_route(self, start_poi: int) -> List[int]:
-        """Gera rota inicial viável"""
+        """Gera rota inicial viavel"""
         available = list(range(self.n_pois))
         available.remove(start_poi)
         random.shuffle(available)
@@ -104,7 +104,7 @@ class TourismGA:
         return route
     
     def _tournament_selection(self, population: List, fitnesses: List) -> List[int]:
-        """Seleção por torneio"""
+        """Selecao por torneio"""
         tournament = random.sample(list(zip(population, fitnesses)), self.tournament_size)
         winner = max(tournament, key=lambda x: x[1])
         return winner[0].copy()
@@ -152,7 +152,7 @@ class TourismGA:
         
         individual[idx1], individual[idx2] = individual[idx2], individual[idx1]
         
-        # Reverter se inviável
+        # Reverter se inviavel
         if not self.evaluator._is_feasible(individual):
             individual[idx1], individual[idx2] = individual[idx2], individual[idx1]
         

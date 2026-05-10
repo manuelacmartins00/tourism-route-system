@@ -7,12 +7,12 @@ from .route_evaluator import POI, RouteEvaluator
 
 class TourismPSOA:
     """
-    Particle Swarm Optimization Algorithm para rotas turísticas
+    Particle Swarm Optimization Algorithm para rotas turisticas
     
-    Cada partícula representa uma rota (sequência de POIs)
-    Partículas movem-se no espaço de soluções seguindo:
-    - Melhor posição pessoal (pbest)
-    - Melhor posição global (gbest)
+    Cada particula representa uma rota (sequencia de POIs)
+    Particulas movem-se no espaco de solucoes seguindo:
+    - Melhor posicao pessoal (pbest)
+    - Melhor posicao global (gbest)
     """
     
     def __init__(self,
@@ -21,7 +21,7 @@ class TourismPSOA:
                  evaluator: RouteEvaluator,
                  n_particles: int = 30,
                  n_iterations: int = 50,
-                 w: float = 0.7,        # Inércia
+                 w: float = 0.7,        # Inercia
                  c1: float = 1.5,       # Cognitive component
                  c2: float = 1.5):      # Social component
         
@@ -33,32 +33,32 @@ class TourismPSOA:
         self.n_particles = n_particles
         self.n_iterations = n_iterations
         
-        # Parâmetros PSO
-        self.w = w      # Inércia (exploração vs exploitation)
-        self.c1 = c1    # Peso da melhor posição pessoal
-        self.c2 = c2    # Peso da melhor posição global
+        # Parametros PSO
+        self.w = w      # Inercia (exploracao vs exploitation)
+        self.c1 = c1    # Peso da melhor posicao pessoal
+        self.c2 = c2    # Peso da melhor posicao global
     
     def optimize(self, start_poi: int = 0) -> Dict:
-        """Executa otimização PSO"""
+        """Executa otimizacao PSO"""
         
         # Inicializar enxame
         particles = self._initialize_swarm(start_poi)
         
-        # Velocidades (mudanças nas rotas)
+        # Velocidades (mudancas nas rotas)
         velocities = [self._random_velocity() for _ in range(self.n_particles)]
         
-        # Melhores posições pessoais
+        # Melhores posicoes pessoais
         pbest_positions = [p.copy() for p in particles]
         pbest_fitness = [self.evaluator.calculate_fitness(p) for p in particles]
         
-        # Melhor posição global
+        # Melhor posicao global
         gbest_idx = np.argmax(pbest_fitness)
         gbest_position = particles[gbest_idx].copy()
         gbest_fitness = pbest_fitness[gbest_idx]
         
         fitness_history = []
         
-        # Iterações PSO
+        # Iteracoes PSO
         for iteration in range(self.n_iterations):
             
             for i in range(self.n_particles):
@@ -83,7 +83,7 @@ class TourismPSOA:
                     gbest_position
                 )
                 
-                # Atualizar posição
+                # Atualizar posicao
                 particles[i] = self._update_position(
                     particles[i],
                     velocities[i]
@@ -105,7 +105,7 @@ class TourismPSOA:
         }
     
     def _initialize_swarm(self, start_poi: int) -> List[List[int]]:
-        """Inicializa enxame com rotas aleatórias viáveis"""
+        """Inicializa enxame com rotas aleatorias viaveis"""
         
         particles = []
         
@@ -116,7 +116,7 @@ class TourismPSOA:
         return particles
     
     def _generate_random_route(self, start_poi: int) -> List[int]:
-        """Gera rota inicial aleatória mas viável"""
+        """Gera rota inicial aleatoria mas viavel"""
         
         available = list(range(self.n_pois))
         available.remove(start_poi)
@@ -137,7 +137,7 @@ class TourismPSOA:
     
     def _random_velocity(self) -> List[tuple]:
         """
-        Velocidade = lista de operações (swap, insert, remove)
+        Velocidade = lista de operacoes (swap, insert, remove)
         """
         n_ops = random.randint(1, 3)
         velocity = []
@@ -161,14 +161,14 @@ class TourismPSOA:
                         gbest: List[int]) -> List[tuple]:
         """
         Atualiza velocidade baseado em:
-        - Inércia (velocidade atual)
-        - Componente cognitiva (direção para pbest)
-        - Componente social (direção para gbest)
+        - Inercia (velocidade atual)
+        - Componente cognitiva (direcao para pbest)
+        - Componente social (direcao para gbest)
         """
         
         new_velocity = []
         
-        # Inércia
+        # Inercia
         if random.random() < self.w:
             new_velocity.extend(velocity[:max(1, int(len(velocity) * self.w))])
         
@@ -186,26 +186,26 @@ class TourismPSOA:
     
     def _path_to_target(self, current: List[int], target: List[int]) -> List[tuple]:
         """
-        Calcula operações para transformar current em target
-        (versão simplificada - retorna swaps)
+        Calcula operacoes para transformar current em target
+        (versao simplificada - retorna swaps)
         """
         ops = []
         
         for i in range(1, min(len(current), len(target))):
             if current[i] != target[i]:
-                # Encontrar onde target[i] está em current
+                # Encontrar onde target[i] esta em current
                 try:
                     j = current.index(target[i], i)
                     ops.append(('swap', i, j))
                 except ValueError:
-                    # target[i] não está em current
+                    # target[i] nao esta em current
                     ops.append(('insert', target[i], i))
         
         return ops
     
     def _update_position(self, position: List[int], velocity: List[tuple]) -> List[int]:
         """
-        Aplica velocidade (operações) à posição (rota)
+        Aplica velocidade (operacoes) a posicao (rota)
         """
         
         new_position = position.copy()
@@ -226,11 +226,11 @@ class TourismPSOA:
             elif op[0] == 'remove' and len(new_position) > 2:
                 # Remove
                 pos = op[1] % len(new_position)
-                if pos != 0:  # Não remover o POI inicial
+                if pos != 0:  # Nao remover o POI inicial
                     new_position.pop(pos)
         
         # Validar rota final
         if self.evaluator._is_feasible(new_position):
             return new_position
         else:
-            return position  # Retornar posição original se inviável
+            return position  # Retornar posicao original se inviavel

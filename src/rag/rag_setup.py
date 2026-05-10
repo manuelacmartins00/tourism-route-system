@@ -1,4 +1,4 @@
-# src/rag/rag_setup.py (VERSÃO CORRIGIDA)
+# src/rag/rag_setup.py (VERSAO CORRIGIDA)
 
 import chromadb
 from chromadb.config import Settings
@@ -8,7 +8,7 @@ from typing import List, Dict
 import os
 
 class POI_RAG:
-    """Sistema RAG para POIs turísticos"""
+    """Sistema RAG para POIs turisticos"""
     
     def __init__(self, data_file: str = "data/pois_structured_for_rag.json"):
         # Inicializar ChromaDB (persistente)
@@ -54,20 +54,20 @@ class POI_RAG:
 {poi['name']}
 
 Categoria: {poi.get('source', {}).get('bundle', '')}
-Região: {poi.get('source', {}).get('region', '')}
+Regiao: {poi.get('source', {}).get('region', '')}
 
 {poi.get('description', '')}
 
-Duração típica: {poi['attributes'].get('duration_minutes', 60)} minutos
-Custo: €{poi['attributes'].get('cost_euros', 0.0)}
-Horário: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('schedule', {}).get('closing_time', '18:00')}
+Duracao tipica: {poi['attributes'].get('duration_minutes', 60)} minutos
+Custo: EUR{poi['attributes'].get('cost_euros', 0.0)}
+Horario: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('schedule', {}).get('closing_time', '18:00')}
 """.strip()
             
             documents.append(doc)
             
             # Metadata estruturada (filtros)
             metadatas.append({
-                "poi_id": str(poi['id']),   # ← usa entity_id real
+                "poi_id": str(poi['id']),   # <- usa entity_id real
                 "original_id": str(poi['id']),
                 "name": poi['name'],
                 "category": poi.get('source', {}).get('bundle', 'outros'),
@@ -107,12 +107,12 @@ Horário: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('sch
           lon_min: float = None,
           lon_max: float = None) -> Dict:
         """
-        Query semântica com filtros
+        Query semantica com filtros
         
-        ✅ CORRIGIDO: Usa $and para múltiplos filtros
+        [OK] CORRIGIDO: Usa $and para multiplos filtros
         """
         
-        # Construir lista de condições
+        # Construir lista de condicoes
         filter_conditions = []
         
         if category_filter:
@@ -133,7 +133,7 @@ Horário: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('sch
             filter_conditions.append({"lon": {"$gte": lon_min}})
             filter_conditions.append({"lon": {"$lte": lon_max}})
         
-        # ✅ Combinar filtros com $and se houver múltiplos
+        # [OK] Combinar filtros com $and se houver multiplos
         where_filter = None
         if len(filter_conditions) > 1:
             where_filter = {"$and": filter_conditions}
@@ -178,4 +178,4 @@ Horário: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('sch
     def reset(self):
         """Reset da base de dados"""
         self.client.delete_collection("portugal_pois")
-        print("✓ Coleção eliminada")
+        print("[OK] Colecao eliminada")

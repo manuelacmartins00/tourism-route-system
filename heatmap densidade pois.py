@@ -7,7 +7,7 @@ Output: heatmap_pois.html (abre no browser)
 
 import json
 import folium
-from folium.plugins import HeatMap
+from folium.plugins import HeatMap, FastMarkerCluster
 from collections import Counter
 from pathlib import Path
 
@@ -22,8 +22,24 @@ data = json.loads(Path(DATA_FILE).read_text(encoding="utf-8"))
 pois = data if isinstance(data, list) else data.get("pois", [])
 print(f"  Total POIs: {len(pois)}")
 
-# ── Extrair coordenadas ───────────────────────────────────────
-coords = []
+# ── Cores por categoria ───────────────────────────────────────
+CAT_COLORS = {
+    "museus_e_palacios":    "#4f8ef7",
+    "monumentos":           "#a78bfa",
+    "restaurantes_e_cafes": "#f87171",
+    "bares_e_discotecas":   "#fb923c",
+    "espacos_verdes":       "#34d399",
+    "parques_e_reservas":   "#6ee7b7",
+    "praias":               "#fcd34d",
+    "turismo_activo":       "#f472b6",
+    "arqueologia":          "#c084fc",
+    "eventos":              "#38bdf8",
+}
+DEFAULT_COLOR = "#94a3b8"
+
+# ── Extrair coordenadas e metadados ──────────────────────────
+coords   = []
+markers  = []   # (lat, lon, name, category)
 by_bundle = Counter()
 
 for p in pois:
@@ -32,7 +48,10 @@ for p in pois:
     lon = loc.get("lon") or p.get("lon")
     if lat and lon and -90 <= lat <= 90 and -180 <= lon <= 180:
         coords.append([lat, lon])
-        by_bundle[p.get("category", p.get("source", {}).get("bundle", "?"))] += 1
+        cat  = p.get("category", p.get("source", {}).get("bundle", "?"))
+        name = p.get("name", "—")
+        markers.append((lat, lon, name, cat))
+        by_bundle[cat] += 1
 
 print(f"  POIs com coordenadas válidas: {len(coords)}")
 
@@ -49,7 +68,63 @@ HeatMap(
     blur=15,
     max_zoom=13,
     gradient={0.2: "#1a1d27", 0.4: "#2a4a7f", 0.6: "#4f8ef7", 0.8: "#34d399", 1.0: "#f87171"},
+    name="Heatmap",
 ).add_to(m)
+
+# ── Marcadores individuais (visíveis ao fazer zoom in) ────────
+callback = """
+function(row) {
+    var color  = row[4] || '#94a3b8';
+    var marker = L.circleMarker([row[0], row[1]], {
+        radius: 6,
+        fillColor: color,
+        color: '#fff',
+        weight: 1,
+        opacity: 0.9,
+        fillOpacity: 0.85
+    });
+    marker.bindPopup(
+        '<b>' + row[2] + '</b><br/><span style="font-size:11px;color:#666">' + row[3] + '</span>'
+    );
+    marker.bindTooltip(row[2], {direction:'top', offset:[0,-4]});
+    return marker;
+}
+"""
+
+marker_data = [
+    [lat, lon, name, cat, CAT_COLORS.get(cat, DEFAULT_COLOR)]
+    for lat, lon, name, cat in markers
+]
+
+cluster = FastMarkerCluster(
+    marker_data,
+    callback=callback,
+    name="POIs individuais",
+    show=False,          # começa escondido — aparece automaticamente ao zoom in
+).add_to(m)
+
+# Layer control + JS para mostrar/esconder automaticamente por zoom
+folium.LayerControl(collapsed=False).add_to(m)
+
+zoom_js = """
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var maps = Object.values(window).filter(v => v && v._leaflet_id);
+    var map  = maps.find(v => v.getZoom);
+    if (!map) return;
+    map.on('zoomend', function() {
+        var z = map.getZoom();
+        map.eachLayer(function(layer) {
+            if (layer.options && layer.options.name === 'POIs individuais') {
+                if (z >= 12) map.addLayer(layer);
+                else         map.removeLayer(layer);
+            }
+        });
+    });
+});
+</script>
+"""
+m.get_root().html.add_child(folium.Element(zoom_js))
 
 # Adicionar marcadores das capitais de distrito para referência
 capitais = {
@@ -88,16 +163,16 @@ for nome, (lat, lon) in capitais.items():
     ).add_to(m)
 
 m.save(OUTPUT)
-print(f"\n✅ Heatmap guardado: {OUTPUT}")
+print(f"\nHeatmap guardado: {OUTPUT}")
 
 # ── Top bundles ───────────────────────────────────────────────
-print(f"\n📊 Top {TOP_N} categorias com mais POIs:")
+print(f"\nTop {TOP_N} categorias com mais POIs:")
 for bundle, count in by_bundle.most_common(TOP_N):
     bar = "█" * (count // 50)
     print(f"  {bundle:<35} {count:>5}  {bar}")
 
 # ── Divisão por região aproximada (para envio aos postos) ─────
-print("\n📍 Sugestão de postos de turismo a contactar (por densidade):")
+print("\nSugestao de postos de turismo a contactar (por densidade):")
 regioes = {
     "Porto e Norte":      lambda lat, lon: lat > 41.0,
     "Centro":             lambda lat, lon: 39.5 < lat <= 41.0,
