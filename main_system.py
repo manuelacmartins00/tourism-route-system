@@ -398,9 +398,9 @@ class TourismRouteSystem:
             # Formato: [(max_km, minutos), ...] — ultimo entry e o fallback
             _TIME_TABLE = {
                 "foot":             [(1, 12), (2, 25), (5, 60), (float('inf'), 999)],
-                "car":              [(2, 8),  (5, 15), (15, 30), (50, 75), (float('inf'), 150)],
-                "public_transport": [(1, 12), (2, 20), (5, 35), (15, 55), (50, 110), (float('inf'), 180)],
-                "fastest":          [(2, 8),  (5, 15), (15, 30), (50, 75), (float('inf'), 150)],
+                "car":              [(2, 4),  (5, 8),  (15, 15), (50, 38), (float('inf'), 75)],
+                "public_transport": [(1, 10), (2, 17), (5, 30), (15, 47), (50, 94), (float('inf'), 153)],
+                "fastest":          [(2, 4),  (5, 8),  (15, 15), (50, 38), (float('inf'), 75)],
             }
             def _travel_time(d_km, mode):
                 table = _TIME_TABLE.get(mode, _TIME_TABLE["public_transport"])
