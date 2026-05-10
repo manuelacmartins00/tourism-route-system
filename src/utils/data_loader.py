@@ -7,17 +7,17 @@ from pathlib import Path
 def load_pois_from_json(filepath: str = "data/pois_structured_for_rag.json") -> List[Dict]:
     """
     Carrega POIs do ficheiro JSON
-    
+
     Args:
         filepath: Caminho para o ficheiro JSON
-    
+
     Returns:
-        Lista de dicionários com POIs
+        Lista de dicionarios com POIs
     """
     filepath = Path(filepath)
-    
+
     if not filepath.exists():
-        raise FileNotFoundError(f"Ficheiro não encontrado: {filepath}")
+        raise FileNotFoundError(f"Ficheiro nao encontrado: {filepath}")
     
     with open(filepath, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -26,11 +26,11 @@ def load_pois_from_json(filepath: str = "data/pois_structured_for_rag.json") -> 
 
 def convert_to_poi_objects(pois_data: List[Dict]):
     """
-    Converte dicionários em objetos POI
-    
+    Converte dicionarios em objetos POI
+
     Args:
-        pois_data: Lista de dicionários
-    
+        pois_data: Lista de dicionarios
+
     Returns:
         Lista de objetos POI
     """

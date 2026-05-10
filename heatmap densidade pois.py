@@ -1,6 +1,6 @@
 """
 heatmap_pois.py
-Gera um heatmap interactivo Folium dos POIs por densidade geográfica.
+Gera um heatmap interativo Folium dos POIs por densidade geografica.
 Uso: python heatmap_pois.py
 Output: heatmap_pois.html (abre no browser)
 """
@@ -11,18 +11,18 @@ from folium.plugins import HeatMap, FastMarkerCluster
 from collections import Counter
 from pathlib import Path
 
-# ── Configuração ──────────────────────────────────────────────
+# -- Configuracao --
 DATA_FILE = "data/portugal_todos_pois_final_enriched.json"
 OUTPUT    = "heatmap_pois.html"
-TOP_N     = 15  # número de zonas com mais POIs a listar no terminal
+TOP_N     = 15  # numero de zonas com mais POIs a listar no terminal
 
-# ── Carregar dados ────────────────────────────────────────────
+# -- Carregar dados --
 print(f"A carregar {DATA_FILE}...")
 data = json.loads(Path(DATA_FILE).read_text(encoding="utf-8"))
 pois = data if isinstance(data, list) else data.get("pois", [])
 print(f"  Total POIs: {len(pois)}")
 
-# ── Cores por categoria ───────────────────────────────────────
+# -- Cores por categoria --
 CAT_COLORS = {
     "museus_e_palacios":    "#4f8ef7",
     "monumentos":           "#a78bfa",
@@ -37,7 +37,7 @@ CAT_COLORS = {
 }
 DEFAULT_COLOR = "#94a3b8"
 
-# ── Extrair coordenadas e metadados ──────────────────────────
+# -- Extrair coordenadas e metadados --
 coords   = []
 markers  = []   # (lat, lon, name, category)
 by_bundle = Counter()
@@ -49,13 +49,13 @@ for p in pois:
     if lat and lon and -90 <= lat <= 90 and -180 <= lon <= 180:
         coords.append([lat, lon])
         cat  = p.get("category", p.get("source", {}).get("bundle", "?"))
-        name = p.get("name", "—")
+        name = p.get("name", "-")
         markers.append((lat, lon, name, cat))
         by_bundle[cat] += 1
 
-print(f"  POIs com coordenadas válidas: {len(coords)}")
+print(f"  POIs com coordenadas validas: {len(coords)}")
 
-# ── Gerar heatmap ─────────────────────────────────────────────
+# -- Gerar heatmap --
 m = folium.Map(
     location=[39.5, -8.0],  # centro de Portugal
     zoom_start=7,
@@ -71,7 +71,7 @@ HeatMap(
     name="Heatmap",
 ).add_to(m)
 
-# ── Marcadores individuais (visíveis ao fazer zoom in) ────────
+# -- Marcadores individuais (visiveis ao fazer zoom in) --
 callback = """
 function(row) {
     var color  = row[4] || '#94a3b8';
@@ -100,7 +100,7 @@ cluster = FastMarkerCluster(
     marker_data,
     callback=callback,
     name="POIs individuais",
-    show=False,          # começa escondido — aparece automaticamente ao zoom in
+    show=False,          # comeca escondido -- aparece automaticamente ao zoom in
 ).add_to(m)
 
 # Layer control + JS para mostrar/esconder automaticamente por zoom
@@ -126,22 +126,22 @@ document.addEventListener('DOMContentLoaded', function() {
 """
 m.get_root().html.add_child(folium.Element(zoom_js))
 
-# Adicionar marcadores das capitais de distrito para referência
+# Adicionar marcadores das capitais de distrito para referencia
 capitais = {
     "Lisboa": (38.717, -9.139),
     "Porto": (41.157, -8.629),
     "Coimbra": (40.203, -8.410),
     "Braga": (41.545, -8.426),
     "Faro": (37.019, -7.935),
-    "Évora": (38.571, -7.909),
+    "Evora": (38.571, -7.909),
     "Aveiro": (40.644, -8.645),
     "Viseu": (40.657, -7.909),
     "Leiria": (39.744, -8.807),
-    "Setúbal": (38.524, -8.893),
-    "Santarém": (39.236, -8.686),
+    "Setubal": (38.524, -8.893),
+    "Santarem": (39.236, -8.686),
     "Viana do Castelo": (41.694, -8.834),
     "Vila Real": (41.301, -7.745),
-    "Bragança": (41.806, -6.757),
+    "Braganca": (41.806, -6.757),
     "Guarda": (40.538, -7.268),
     "Castelo Branco": (39.820, -7.491),
     "Portalegre": (39.296, -7.428),
@@ -163,15 +163,15 @@ for nome, (lat, lon) in capitais.items():
     ).add_to(m)
 
 m.save(OUTPUT)
-print(f"\nHeatmap guardado: {OUTPUT}")
+print(f"\nHeatmap guardado em: {OUTPUT}")
 
-# ── Top bundles ───────────────────────────────────────────────
+# -- Top bundles --
 print(f"\nTop {TOP_N} categorias com mais POIs:")
 for bundle, count in by_bundle.most_common(TOP_N):
-    bar = "█" * (count // 50)
+    bar = "#" * (count // 50)
     print(f"  {bundle:<35} {count:>5}  {bar}")
 
-# ── Divisão por região aproximada (para envio aos postos) ─────
+# -- Divisao por regiao aproximada (para envio aos postos) --
 print("\nSugestao de postos de turismo a contactar (por densidade):")
 regioes = {
     "Porto e Norte":      lambda lat, lon: lat > 41.0,
