@@ -1,4 +1,4 @@
-# src/llm/llm_orchestrator.py (VERSÃO COM GROQ)
+# src/llm/llm_orchestrator.py (VERSAO COM GROQ)
 
 from groq import Groq
 import json
@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 @dataclass
 class UserPreferences:
-    """Preferências do utilizador extraídas pelo LLM"""
+    """Preferencias do utilizador extraidas pelo LLM"""
     max_time: int
     max_cost: float
     preferred_categories: List[str]
@@ -19,7 +19,7 @@ class UserPreferences:
 
 class LlamaOrchestrator:
     """
-    Orquestrador LLM com mapeamento semântico inteligente
+    Orquestrador LLM com mapeamento semantico inteligente
     """
     
     VALID_TAGS = [
@@ -29,7 +29,7 @@ class LlamaOrchestrator:
         "sports", "family", "attraction", "shopping",
         "religious", "educational", "wellness", "transport",
         
-        # Tags Secundárias
+        # Tags Secundarias
         "historic", "architecture", "art", "nature", "outdoor",
         "food", "culture", "photography", "sunset", "panorama",
         "children", "interactive", "traditional", "modern",
@@ -148,14 +148,14 @@ class LlamaOrchestrator:
     
     def extract_preferences(self, user_query: str) -> UserPreferences:
         """
-        Extrai preferências com mapeamento semântico de tags
+        Extrai preferencias com mapeamento semantico de tags
         """
         
         valid_tags_str = ", ".join(self.VALID_TAGS)
         
-        prompt = f"""Tu és um assistente de turismo inteligente. Analisa a query do utilizador e extrai preferências.
+        prompt = f"""Tu es um assistente de turismo inteligente. Analisa a query do utilizador e extrai preferencias.
 
-TAGS VÁLIDAS DO SISTEMA:
+TAGS VALIDAS DO SISTEMA:
 {valid_tags_str}
 
 QUERY DO UTILIZADOR:
@@ -163,40 +163,40 @@ QUERY DO UTILIZADOR:
 
 TAREFA:
 1. Identifica os interesses e necessidades do utilizador
-2. Mapeia SEMANTICAMENTE para as TAGS VÁLIDAS acima
-3. Pensa em sinónimos e contexto:
-   - "música ao vivo" → music_venue, concert, live_music
-   - "natureza" → park, nature, outdoor, garden
-   - "comida tradicional" → restaurant, traditional, portuguese_culture, food
-   - "desporto" → sports, outdoor, hiking, bike_friendly, surf
-   - "crianças" → family, children, educational, interactive
-   - "jantar romântico" → restaurant, romantic, food, sunset
-   - "história" → monument, historic, museum, architecture
-   - "praia" → beach, outdoor, nature, surf
+2. Mapeia SEMANTICAMENTE para as TAGS VALIDAS acima
+3. Pensa em sinonimos e contexto:
+   - "musica ao vivo" -> music_venue, concert, live_music
+   - "natureza" -> park, nature, outdoor, garden
+   - "comida tradicional" -> restaurant, traditional, portuguese_culture, food
+   - "desporto" -> sports, outdoor, hiking, bike_friendly, surf
+   - "criancas" -> family, children, educational, interactive
+   - "jantar romantico" -> restaurant, romantic, food, sunset
+   - "historia" -> monument, historic, museum, architecture
+   - "praia" -> beach, outdoor, nature, surf
 
-4. Extrai também:
-   - Tempo disponível (IMPORTANTE - converter corretamente):
+4. Extrai tambem:
+   - Tempo disponivel (IMPORTANTE - converter corretamente):
      * Se mencionar "horas": converter para minutos (ex: 5 horas = 300)
-     * Se mencionar "dias": assumir 8 horas úteis por dia em minutos
-       · 1 dia = 480 minutos (8 horas)
-       · 2 dias = 960 minutos (16 horas)
-       · 3 dias = 1440 minutos (24 horas)
-       · 1 semana = 3360 minutos (56 horas)
-   
-   - Orçamento (em euros):
-     * Se mencionar "por dia" ou "por pessoa": multiplicar pelo número de dias/pessoas
+     * Se mencionar "dias": assumir 8 horas uteis por dia em minutos
+       - 1 dia = 480 minutos (8 horas)
+       - 2 dias = 960 minutos (16 horas)
+       - 3 dias = 1440 minutos (24 horas)
+       - 1 semana = 3360 minutos (56 horas)
+
+   - Orcamento (em euros):
+     * Se mencionar "por dia" ou "por pessoa": multiplicar pelo numero de dias/pessoas
      * Ex: "60 euros por dia, 3 dias" = 180 euros total
      * Ex: "50 euros por pessoa, 4 pessoas" = 200 euros total
-   
-   - Hora de início (padrão 09:00)
 
-EXEMPLOS DE CONVERSÃO:
-- "3 dias" → max_time: 1440
-- "5 horas" → max_time: 300
-- "meio dia" → max_time: 240
-- "1 semana" → max_time: 3360
-- "60 euros por dia, 3 dias" → max_cost: 180
-- "40 euros por pessoa, 2 pessoas" → max_cost: 80
+   - Hora de inicio (padrao 09:00)
+
+EXEMPLOS DE CONVERSAO:
+- "3 dias" -> max_time: 1440
+- "5 horas" -> max_time: 300
+- "meio dia" -> max_time: 240
+- "1 semana" -> max_time: 3360
+- "60 euros por dia, 3 dias" -> max_cost: 180
+- "40 euros por pessoa, 2 pessoas" -> max_cost: 80
 
 Devolve APENAS JSON (sem texto adicional):
 {{
@@ -208,13 +208,13 @@ Devolve APENAS JSON (sem texto adicional):
 }}
 
 REGRAS IMPORTANTES:
-- Usa APENAS tags da lista VÁLIDA acima
-- CUIDADO com conversão de tempo: dias × 480 minutos
-- CUIDADO com orçamento: multiplicar por dias/pessoas se mencionado
-- Múltiplas tags são permitidas e encorajadas
-- Pensa semanticamente (sinónimos, contexto, relacionados)
+- Usa APENAS tags da lista VALIDA acima
+- CUIDADO com conversao de tempo: dias x 480 minutos
+- CUIDADO com orcamento: multiplicar por dias/pessoas se mencionado
+- Multiplas tags sao permitidas e encorajadas
+- Pensa semanticamente (sinonimos, contexto, relacionados)
 
-Responde APENAS com o JSON, sem explicações."""
+Responde APENAS com o JSON, sem explicacoes."""
 
         content = ""
         try:
@@ -232,9 +232,9 @@ Responde APENAS com o JSON, sem explicações."""
             valid_extracted_tags = [tag for tag in extracted_tags if tag in self.VALID_TAGS]
             
             if len(valid_extracted_tags) < len(extracted_tags):
-                print(f"   ⚠️ Algumas tags inválidas foram removidas")
+                print(f"   [WARN] Algumas tags invalidas foram removidas")
                 print(f"      Original: {extracted_tags}")
-                print(f"      Válidas: {valid_extracted_tags}")
+                print(f"      Validas: {valid_extracted_tags}")
             
             main_categories = []
             secondary_tags = []
@@ -256,21 +256,21 @@ Responde APENAS com o JSON, sem explicações."""
                 for category in main_categories:
                     category_weights[category] = 0.8
             
-            # ✅ FIX: Validar tempo extraído
+            # FIX: Validar tempo extraido
             extracted_time = data.get("max_time", 300)
             if extracted_time > 5000:
-                print(f"   ⚠️ Tempo extraído parece errado: {extracted_time} min")
-                print(f"      Limitando a 1440 min (1 dia útil)")
+                print(f"   [WARN] Tempo extraido parece errado: {extracted_time} min")
+                print(f"      Limitando a 1440 min (1 dia util)")
                 extracted_time = 1440
-            
-            # ✅ FIX: Validar custo extraído
+
+            # FIX: Validar custo extraido
             extracted_cost = float(data.get("max_cost", 50.0))
             if extracted_cost > 1000:
-                print(f"   ⚠️ Orçamento extraído parece alto: €{extracted_cost}")
-            
-            print(f"   🔄 Tags extraídas pelo LLM: {valid_extracted_tags}")
-            print(f"   🎯 Categorias principais (filtro): {main_categories}")
-            print(f"   🏷️  Tags secundárias (semântica): {secondary_tags}")
+                print(f"   [WARN] Orcamento extraido parece alto: EUR{extracted_cost}")
+
+            print(f"   [INFO] Tags extraidas pelo LLM: {valid_extracted_tags}")
+            print(f"   [INFO] Categorias principais (filtro): {main_categories}")
+            print(f"   [INFO] Tags secundarias (semantica): {secondary_tags}")
             
             return UserPreferences(
                 max_time=extracted_time,
@@ -283,7 +283,7 @@ Responde APENAS com o JSON, sem explicações."""
             )
         
         except Exception as e:
-            print(f"⚠️ Erro ao extrair preferências: {e}")
+            print(f"[WARN] Erro ao extrair preferencias: {e}")
             print(f"   Resposta LLM: {content if content else 'N/A'}")
             
             return UserPreferences(
@@ -314,34 +314,34 @@ Responde APENAS com o JSON, sem explicações."""
         return query
     
     def select_algorithm(self, preferences: UserPreferences, n_candidates: int) -> str:
-        """Seleciona algoritmo de otimização"""
-        
-        prompt = f"""Seleciona o MELHOR algoritmo de otimização para este problema de roteamento turístico.
+        """Seleciona algoritmo de otimizacao"""
+
+        prompt = f"""Seleciona o MELHOR algoritmo de otimizacao para este problema de roteamento turistico.
 
 CONTEXTO:
-- Número de POIs candidatos: {n_candidates}
-- Tempo disponível: {preferences.max_time} minutos
-- Orçamento: €{preferences.max_cost}
+- Numero de POIs candidatos: {n_candidates}
+- Tempo disponivel: {preferences.max_time} minutos
+- Orcamento: EUR{preferences.max_cost}
 - Categorias desejadas: {len(preferences.preferred_categories) if preferences.preferred_categories else 0}
 
-ALGORITMOS DISPONÍVEIS:
+ALGORITMOS DISPONIVEIS:
 1. ACO (Ant Colony Optimization)
-   - Melhor para: problemas multi-objetivo, exploração de múltiplas rotas
-   - Recomendado quando: n_candidates > 15, múltiplas categorias
+   - Melhor para: problemas multi-objetivo, exploracao de multiplas rotas
+   - Recomendado quando: n_candidates > 15, multiplas categorias
 
 2. GA (Genetic Algorithm)
-   - Melhor para: grandes espaços de busca, diversidade de soluções
+   - Melhor para: grandes espacos de busca, diversidade de solucoes
    - Recomendado quando: n_candidates > 12, variedade importante
 
 3. PSO (Particle Swarm Optimization)
-   - Melhor para: convergência rápida
+   - Melhor para: convergencia rapida
    - Recomendado quando: n_candidates 8-15, tempo limitado
 
 4. GREEDY (Algoritmo Guloso)
-   - Melhor para: soluções rápidas, poucos candidatos
+   - Melhor para: solucoes rapidas, poucos candidatos
    - Recomendado quando: n_candidates < 10
 
-DECISÃO:
+DECISAO:
 Escolhe o algoritmo MAIS APROPRIADO e responde APENAS com uma palavra: ACO, GA, PSO ou GREEDY."""
 
         try:
@@ -350,16 +350,16 @@ Escolhe o algoritmo MAIS APROPRIADO e responde APENAS com uma palavra: ACO, GA, 
             if algo in ["ACO", "GA", "PSO", "GREEDY"]:
                 return algo
             else:
-                print(f"⚠️ Algoritmo inválido '{algo}', usando ACO por padrão")
+                print(f"[WARN] Algoritmo invalido '{algo}', usando ACO por padrao")
                 return "ACO"
-        
+
         except Exception as e:
-            print(f"⚠️ Erro ao selecionar algoritmo: {e}, usando ACO por padrão")
+            print(f"[WARN] Erro ao selecionar algoritmo: {e}, usando ACO por padrao")
             return "ACO"
     
     def explain_route(self, route: List[Dict], preferences: UserPreferences,
                      algorithm_used: str, optimization_metadata: Dict) -> str:
-        """Gera explicação em português sobre a rota gerada"""
+        """Gera explicacao em portugues sobre a rota gerada"""
         
         route_summary = []
         total_cost = 0
@@ -372,7 +372,7 @@ Escolhe o algoritmo MAIS APROPRIADO e responde APENAS com uma palavra: ACO, GA, 
         
         route_str = ", ".join(route_summary)
         
-        prompt = f"""Gera uma explicação CURTA e AMIGÁVEL em português sobre esta rota turística.
+        prompt = f"""Gera uma explicacao CURTA e AMIGAVEL em portugues sobre esta rota turistica.
 
 ROTA GERADA:
 {route_str}
@@ -381,25 +381,25 @@ DETALHES:
 - Algoritmo usado: {algorithm_used}
 - Fitness score: {optimization_metadata.get('fitness', 0):.2f}
 - POIs selecionados: {len(route)}
-- Duração total: {total_duration} minutos
-- Custo total: €{total_cost:.2f}
-- Preferências utilizador: {', '.join(preferences.interests)}
+- Duracao total: {total_duration} minutos
+- Custo total: EUR{total_cost:.2f}
+- Preferencias utilizador: {', '.join(preferences.interests)}
 
 TAREFA:
-Escreve um parágrafo curto (3-4 frases) explicando:
-1. Por que esta rota é adequada para o utilizador
+Escreve um paragrafo curto (3-4 frases) explicando:
+1. Por que esta rota e adequada para o utilizador
 2. Destaca 1-2 POIs principais
-3. Menciona a diversidade ou características especiais
+3. Menciona a diversidade ou caracteristicas especiais
 
-TOM: Amigável, informativo, português de Portugal
-TAMANHO: Máximo 4 frases
+TOM: Amigavel, informativo, portugues de Portugal
+TAMANHO: Maximo 4 frases
 
-Responde APENAS com o texto da explicação, sem introduções."""
+Responde APENAS com o texto da explicacao, sem introducoes."""
 
         try:
             explanation = self._call_llm(prompt, max_tokens=300, temperature=0.7).strip()
             return explanation
         
         except Exception as e:
-            print(f"⚠️ Erro ao gerar explicação: {e}")
-            return f"Esta rota foi otimizada com o algoritmo {algorithm_used} para incluir {len(route)} POIs que correspondem aos teus interesses em {', '.join(preferences.interests)}. O percurso tem uma duração total de {total_duration} minutos e custa €{total_cost:.2f}."
+            print(f"[WARN] Erro ao gerar explicacao: {e}")
+            return f"Esta rota foi otimizada com o algoritmo {algorithm_used} para incluir {len(route)} POIs que correspondem aos teus interesses em {', '.join(preferences.interests)}. O percurso tem uma duracao total de {total_duration} minutos e custa EUR{total_cost:.2f}."

@@ -1,7 +1,7 @@
 # src/__init__.py
 """
 Tourism Route Recommendation System
-Sistema de Recomendação de Rotas Turísticas
+Sistema de Recomendacao de Rotas Turisticas
 """
 
 __version__ = "1.0.0"

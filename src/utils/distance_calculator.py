@@ -5,14 +5,14 @@ from typing import List, Dict
 
 def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
-    Calcula distância em km entre dois pontos (Haversine)
-    
+    Calcula distancia em km entre dois pontos (Haversine)
+
     Args:
         lat1, lon1: Coordenadas do ponto 1
         lat2, lon2: Coordenadas do ponto 2
-    
+
     Returns:
-        Distância em quilómetros
+        Distancia em quilometros
     """
     R = 6371  # Raio da Terra em km
     
@@ -29,19 +29,19 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 def build_distance_matrix(pois: List[Dict]) -> np.ndarray:
     """
-    Cria matriz de distâncias NxN entre POIs
-    
+    Cria matriz de distancias NxN entre POIs
+
     Args:
         pois: Lista de POIs com campos 'lat' e 'lon'
-    
+
     Returns:
-        Matriz numpy NxN com distâncias
+        Matriz numpy NxN com distancias
     """
     n = len(pois)
     matrix = np.zeros((n, n))
     
     for i in range(n):
-        for j in range(i+1, n):  # só metade superior
+        for j in range(i+1, n):  # so metade superior
             if 'location' in pois[i]:
                 lat1 = pois[i]['location']['lat']
                 lon1 = pois[i]['location']['lon']
@@ -55,6 +55,6 @@ def build_distance_matrix(pois: List[Dict]) -> np.ndarray:
             
             d = haversine(lat1, lon1, lat2, lon2)
             matrix[i][j] = d
-            matrix[j][i] = d  # simétrico
+            matrix[j][i] = d  # simetrico
     
     return matrix
