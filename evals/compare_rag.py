@@ -1,7 +1,7 @@
 """
 Compara os dois indices RAG (v1 e v2) na mesma query.
-v1: chroma_db  — embedding inclui custo/duracao/horario
-v2: chroma_db2 — embedding apenas nome/categoria/regiao/descricao
+v1: chroma_db  - embedding inclui custo/duracao/horario
+v2: chroma_db2 - embedding apenas nome/categoria/regiao/descricao
 Uso: python evals/compare_rag.py "museus de arte em Lisboa"
      python evals/compare_rag.py  (usa query de exemplo)
 """
@@ -63,9 +63,9 @@ if __name__ == "__main__":
     v1 = get_v1(query, N_RESULTS)
     v2 = get_v2(query, N_RESULTS)
 
-    print_col("V1 (chroma_db)  — com custo/duracao/horario no embedding", v1)
+    print_col("V1 (chroma_db)  - com custo/duracao/horario no embedding", v1)
     print()
-    print_col("V2 (chroma_db2) — so nome/categoria/regiao/descricao", v2)
+    print_col("V2 (chroma_db2) - so nome/categoria/regiao/descricao", v2)
 
     # Overlap
     names_v1 = {r[0] for r in v1}

@@ -1,4 +1,4 @@
-# interactive_cli.py (VERSÃO COMPLETA COM ESCOLHA DE ALGORITMO + MÉTRICAS)
+# interactive_cli.py (VERSAO COMPLETA COM ESCOLHA DE ALGORITMO + METRICAS)
 
 import os
 import sys
@@ -26,31 +26,31 @@ class InteractiveCLI:
         self.metrics_evaluator = None
         
     def print_header(self):
-        """Cabeçalho"""
+        """Cabecalho"""
         print(f"\n{Fore.CYAN}{'='*70}")
-        print(f"{Fore.CYAN}🗺️  SISTEMA DE RECOMENDAÇÃO DE ROTAS TURÍSTICAS")
+        print(f"{Fore.CYAN}SISTEMA DE RECOMENDACAO DE ROTAS TURISTICAS")
         print(f"{Fore.CYAN}{'='*70}\n")
     
     def print_menu(self):
         """Menu principal"""
-        print(f"\n{Fore.YELLOW}Opções:")
+        print(f"\n{Fore.YELLOW}Opcoes:")
         print(f"{Fore.GREEN}  1. {Fore.WHITE}Planear nova rota (escolher algoritmo)")
         print(f"{Fore.GREEN}  2. {Fore.WHITE}Comparar todos os algoritmos (mesma query)")
-        print(f"{Fore.GREEN}  3. {Fore.WHITE}Ver histórico de rotas")
-        print(f"{Fore.GREEN}  4. {Fore.WHITE}Ver métricas de avaliação")
-        print(f"{Fore.GREEN}  5. {Fore.WHITE}Configurações")
+        print(f"{Fore.GREEN}  3. {Fore.WHITE}Ver historico de rotas")
+        print(f"{Fore.GREEN}  4. {Fore.WHITE}Ver metricas de avaliacao")
+        print(f"{Fore.GREEN}  5. {Fore.WHITE}Configuracoes")
         print(f"{Fore.GREEN}  6. {Fore.WHITE}Ajuda")
         print(f"{Fore.GREEN}  7. {Fore.WHITE}Sair")
         print()
     
     def initialize_system(self):
         """Inicializa o sistema"""
-        print(f"{Fore.YELLOW}🚀 A inicializar sistema...\n")
-        
+        print(f"{Fore.YELLOW}A inicializar sistema...\n")
+
         # Verificar API key
         api_key = os.getenv("HF_TOKEN")
         if not api_key:
-            print(f"{Fore.RED}❌ ERRO: HF_TOKEN não configurada!")
+            print(f"{Fore.RED}[ERRO] HF_TOKEN nao configurada!")
             print(f"{Fore.YELLOW}\nPara configurar:")
             print(f"{Fore.WHITE}  1. Vai a https://huggingface.co/settings/tokens")
             print(f"{Fore.WHITE}  2. Cria um token (role: read)")
@@ -61,39 +61,39 @@ class InteractiveCLI:
         try:
             self.system = TourismRouteSystem(api_key=api_key)
             self.metrics_evaluator = MetricsEvaluator()
-            print(f"{Fore.GREEN}✓ Sistema pronto!\n")
+            print(f"{Fore.GREEN}[OK] Sistema pronto!\n")
             return True
         except Exception as e:
-            print(f"{Fore.RED}❌ Erro ao inicializar: {e}")
+            print(f"{Fore.RED}[ERRO] Erro ao inicializar: {e}")
             import traceback
             traceback.print_exc()
             return False
     
     def choose_algorithm(self):
         """Menu para escolher algoritmo"""
-        print(f"\n{Fore.CYAN}{'─'*70}")
-        print(f"{Fore.CYAN}⚙️  ESCOLHER ALGORITMO DE OTIMIZAÇÃO")
-        print(f"{Fore.CYAN}{'─'*70}\n")
+        print(f"\n{Fore.CYAN}{'-'*70}")
+        print(f"{Fore.CYAN}ESCOLHER ALGORITMO DE OTIMIZACAO")
+        print(f"{Fore.CYAN}{'-'*70}\n")
         
-        print(f"{Fore.YELLOW}Algoritmos disponíveis:")
+        print(f"{Fore.YELLOW}Algoritmos disponiveis:")
         print(f"{Fore.GREEN}  1. {Fore.WHITE}ACO (Ant Colony Optimization)")
-        print(f"{Fore.WHITE}     └─ Melhor para: problemas multi-objetivo, boa exploração")
-        print(f"{Fore.WHITE}     └─ Tempo: ~10-15s | Qualidade: Alta")
+        print(f"{Fore.WHITE}     +-- Melhor para: problemas multi-objetivo, boa exploracao")
+        print(f"{Fore.WHITE}     +-- Tempo: ~10-15s | Qualidade: Alta")
         print()
         print(f"{Fore.GREEN}  2. {Fore.WHITE}GA (Genetic Algorithm)")
-        print(f"{Fore.WHITE}     └─ Melhor para: grandes espaços de busca, diversidade")
-        print(f"{Fore.WHITE}     └─ Tempo: ~8-12s | Qualidade: Alta")
+        print(f"{Fore.WHITE}     +-- Melhor para: grandes espacos de busca, diversidade")
+        print(f"{Fore.WHITE}     +-- Tempo: ~8-12s | Qualidade: Alta")
         print()
         print(f"{Fore.GREEN}  3. {Fore.WHITE}PSO (Particle Swarm Optimization)")
-        print(f"{Fore.WHITE}     └─ Melhor para: convergência rápida, otimização contínua")
-        print(f"{Fore.WHITE}     └─ Tempo: ~10-15s | Qualidade: Média-Alta")
+        print(f"{Fore.WHITE}     +-- Melhor para: convergencia rapida, otimizacao continua")
+        print(f"{Fore.WHITE}     +-- Tempo: ~10-15s | Qualidade: Media-Alta")
         print()
         print(f"{Fore.GREEN}  4. {Fore.WHITE}GREEDY (Algoritmo Guloso)")
-        print(f"{Fore.WHITE}     └─ Melhor para: baseline rápido, soluções simples")
-        print(f"{Fore.WHITE}     └─ Tempo: <1s | Qualidade: Média")
+        print(f"{Fore.WHITE}     +-- Melhor para: baseline rapido, solucoes simples")
+        print(f"{Fore.WHITE}     +-- Tempo: <1s | Qualidade: Media")
         print()
         print(f"{Fore.GREEN}  5. {Fore.WHITE}AUTO (Deixar o LLM escolher)")
-        print(f"{Fore.WHITE}     └─ LLM analisa a query e escolhe o melhor")
+        print(f"{Fore.WHITE}     +-- LLM analisa a query e escolhe o melhor")
         print()
         
         while True:
@@ -110,37 +110,37 @@ class InteractiveCLI:
             elif choice == '5':
                 return None  # AUTO
             else:
-                print(f"{Fore.RED}❌ Opção inválida! Escolhe 1-5.")
+                print(f"{Fore.RED}[ERRO] Opcao invalida! Escolhe 1-5.")
     
     def plan_route(self):
         """Planear nova rota com escolha de algoritmo"""
-        print(f"\n{Fore.CYAN}{'─'*70}")
-        print(f"{Fore.CYAN}📝 PLANEAR NOVA ROTA")
-        print(f"{Fore.CYAN}{'─'*70}\n")
-        
+        print(f"\n{Fore.CYAN}{'-'*70}")
+        print(f"{Fore.CYAN}PLANEAR NOVA ROTA")
+        print(f"{Fore.CYAN}{'-'*70}\n")
+
         # Exemplos
         print(f"{Fore.YELLOW}Exemplos de queries:")
-        print(f"{Fore.WHITE}  • \"quero visitar museus e monumentos, tenho 5 horas e 40 euros\"")
-        print(f"{Fore.WHITE}  • \"procuro restaurantes bons e miradouros, 3 horas, 50 euros\"")
-        print(f"{Fore.WHITE}  • \"I want to see historic sites and eat well, 6 hours, 60 euros\"")
+        print(f"{Fore.WHITE}  - \"quero visitar museus e monumentos, tenho 5 horas e 40 euros\"")
+        print(f"{Fore.WHITE}  - \"procuro restaurantes bons e miradouros, 3 horas, 50 euros\"")
+        print(f"{Fore.WHITE}  - \"I want to see historic sites and eat well, 6 hours, 60 euros\"")
         print()
-        
+
         # Input do utilizador
-        query = input(f"{Fore.GREEN}💬 A tua query: {Fore.WHITE}").strip()
-        
+        query = input(f"{Fore.GREEN}A tua query: {Fore.WHITE}").strip()
+
         if not query:
-            print(f"{Fore.RED}❌ Query vazia!")
+            print(f"{Fore.RED}[ERRO] Query vazia!")
             return
         
         # Escolher algoritmo
         force_algorithm = self.choose_algorithm()
         
         if force_algorithm:
-            print(f"\n{Fore.YELLOW}✓ Algoritmo selecionado: {Fore.GREEN}{force_algorithm}")
+            print(f"\n{Fore.YELLOW}OK Algoritmo selecionado: {Fore.GREEN}{force_algorithm}")
         else:
-            print(f"\n{Fore.YELLOW}✓ Modo AUTO - LLM vai escolher o algoritmo")
+            print(f"\n{Fore.YELLOW}OK Modo AUTO - LLM vai escolher o algoritmo")
         
-        print(f"\n{Fore.YELLOW}⏳ A processar (pode demorar 10-30 segundos)...\n")
+        print(f"\n{Fore.YELLOW}A processar (pode demorar 10-30 segundos)...\n")
         
         # Processar
         start_time = time.time()
@@ -155,10 +155,10 @@ class InteractiveCLI:
             
             elapsed = time.time() - start_time
             
-            # Calcular métricas
+            # Calcular metricas
             metrics = self.metrics_evaluator.calculate_metrics(result)
             
-            # Guardar no histórico
+            # Guardar no historico
             self.history.append({
                 'query': query,
                 'result': result,
@@ -169,78 +169,78 @@ class InteractiveCLI:
                 'elapsed_seconds': elapsed
             })
             
-            # Mostrar métricas
+            # Mostrar metricas
             self._display_metrics(metrics, result['algorithm_used'])
             
             # Perguntar se quer guardar
-            save = input(f"\n{Fore.YELLOW}💾 Guardar resultado em ficheiro? (s/n): {Fore.WHITE}").strip().lower()
+            save = input(f"\n{Fore.YELLOW}Guardar resultado em ficheiro? (s/n): {Fore.WHITE}").strip().lower()
             
             if save == 's':
                 self.save_result(result, metrics)
         
         except Exception as e:
-            print(f"{Fore.RED}❌ Erro ao processar: {e}")
+            print(f"{Fore.RED}[ERRO] Erro ao processar: {e}")
             import traceback
             traceback.print_exc()
     
     def compare_algorithms(self):
         """Comparar todos os algoritmos com a mesma query"""
-        print(f"\n{Fore.CYAN}{'─'*70}")
-        print(f"{Fore.CYAN}🔬 COMPARAR TODOS OS ALGORITMOS")
-        print(f"{Fore.CYAN}{'─'*70}\n")
+        print(f"\n{Fore.CYAN}{'-'*70}")
+        print(f"{Fore.CYAN}COMPARAR TODOS OS ALGORITMOS")
+        print(f"{Fore.CYAN}{'-'*70}\n")
         
-        print(f"{Fore.YELLOW}Esta opção vai executar ACO, GA, PSO e GREEDY com a mesma query.")
+        print(f"{Fore.YELLOW}Esta opcao vai executar ACO, GA, PSO e GREEDY com a mesma query.")
         print(f"{Fore.YELLOW}Pode demorar 1-2 minutos.\n")
         
         # Input
-        query = input(f"{Fore.GREEN}💬 Query para comparação: {Fore.WHITE}").strip()
-        
+        query = input(f"{Fore.GREEN}Query para comparacao: {Fore.WHITE}").strip()
+
         if not query:
-            print(f"{Fore.RED}❌ Query vazia!")
+            print(f"{Fore.RED}[ERRO] Query vazia!")
             return
-        
+
         algorithms = ["ACO", "GA", "PSO", "GREEDY"]
         results = {}
         metrics_all = {}
-        
-        print(f"\n{Fore.YELLOW}⏳ A executar comparação...\n")
+
+        print(f"\n{Fore.YELLOW}A executar comparacao...\n")
         
         for algo in algorithms:
-            print(f"{Fore.CYAN}{'─'*70}")
+            print(f"{Fore.CYAN}{'-'*70}")
             print(f"{Fore.CYAN}Testando {algo}...")
-            print(f"{Fore.CYAN}{'─'*70}\n")
+            print(f"{Fore.CYAN}{'-'*70}\n")
             
             start_time = time.time()
             
             try:
                 result = self.system.plan_route(
                     query,
-                    use_shap=False,  # Desativar SHAP para ser mais rápido
+                    use_shap=False,  # Desativar SHAP para ser mais rapido
                     verbose=False,
                     force_algorithm=algo
                 )
                 
                 elapsed = time.time() - start_time
                 
-                # Calcular métricas
+                # Calcular metricas
                 metrics = self.metrics_evaluator.calculate_metrics(result)
                 
                 results[algo] = result
                 metrics_all[algo] = metrics
                 
-                print(f"{Fore.GREEN}✓ {algo} completado em {elapsed:.1f}s")
+                print(f"{Fore.GREEN}OK {algo} completado em {elapsed:.1f}s")
                 print(f"  Fitness: {result['optimization']['fitness']:.2f}")
                 print(f"  POIs: {len(result['route'])}")
             
             except Exception as e:
-                print(f"{Fore.RED}✗ {algo} falhou: {e}\n")
+                print(f"{Fore.RED}X {algo} falhou: {e}\n")
                 results[algo] = None
                 metrics_all[algo] = None
         
-        # Comparação final
+        # Comparacao final
         self._display_comparison(results, metrics_all)
         
-        # Guardar histórico
+        # Guardar historico
         self.history.append({
             'type': 'comparison',
             'query': query,
@@ -250,15 +250,15 @@ class InteractiveCLI:
         })
         
         # Guardar ficheiro
-        save = input(f"\n{Fore.YELLOW}💾 Guardar comparação em ficheiro? (s/n): {Fore.WHITE}").strip().lower()
+        save = input(f"\n{Fore.YELLOW}Guardar comparacao em ficheiro? (s/n): {Fore.WHITE}").strip().lower()
         
         if save == 's':
             self.save_comparison(query, results, metrics_all)
     
     def _display_comparison(self, results, metrics_all):
-        """Mostra tabela de comparação"""
+        """Mostra tabela de comparacao"""
         print(f"\n{Fore.CYAN}{'='*70}")
-        print(f"{Fore.CYAN}📊 COMPARAÇÃO FINAL")
+        print(f"{Fore.CYAN}COMPARACAO FINAL")
         print(f"{Fore.CYAN}{'='*70}\n")
         
         # Header
@@ -290,37 +290,37 @@ class InteractiveCLI:
             key=lambda x: x[1]['optimization']['fitness']
         )
         
-        print(f"\n{Fore.GREEN}🏆 Melhor algoritmo: {best_algo[0]} (Fitness: {best_algo[1]['optimization']['fitness']:.2f})")
-        
-        # Métricas agregadas
-        print(f"\n{Fore.YELLOW}📈 Estatísticas:")
+        print(f"\n{Fore.GREEN}Melhor algoritmo: {best_algo[0]} (Fitness: {best_algo[1]['optimization']['fitness']:.2f})")
+
+        # Metricas agregadas
+        print(f"\n{Fore.YELLOW}Estatisticas:")
         valid_metrics = [m for m in metrics_all.values() if m]
         
         if valid_metrics:
             std_fitness = np.std([results[a]['optimization']['fitness'] for a in results if results[a]])
             
-            print(f"{Fore.WHITE}  Desvio padrão fitness: {std_fitness:.2f}")
+            print(f"{Fore.WHITE}  Desvio padrao fitness: {std_fitness:.2f}")
     
     def _display_metrics(self, metrics, algorithm):
-        """Mostra métricas de um resultado"""
+        """Mostra metricas de um resultado"""
         print(f"\n{Fore.CYAN}{'='*70}")
-        print(f"{Fore.CYAN}📊 MÉTRICAS DE AVALIAÇÃO - {algorithm}")
+        print(f"{Fore.CYAN}METRICAS DE AVALIACAO - {algorithm}")
         print(f"{Fore.CYAN}{'='*70}\n")
-        
+
         print(f"\n{Fore.YELLOW}Qualidade da Rota:")
         print(f"{Fore.WHITE}  Fitness Score: {metrics['fitness_score']:.2f}")
         print(f"{Fore.WHITE}  Coverage (POIs vs candidatos): {metrics['coverage']:.2f}%")
         print(f"{Fore.WHITE}  Constraint Satisfaction: {metrics['constraint_satisfaction']:.2f}%")
         
-        print(f"\n{Fore.YELLOW}Eficiência:")
+        print(f"\n{Fore.YELLOW}Eficiencia:")
         print(f"{Fore.WHITE}  Tempo Total: {metrics['total_time']:.0f} min")
-        print(f"{Fore.WHITE}  Custo Total: €{metrics['total_cost']:.2f}")
+        print(f"{Fore.WHITE}  Custo Total: EUR{metrics['total_cost']:.2f}")
         print(f"{Fore.WHITE}  POIs por Euro: {metrics['pois_per_euro']:.2f}")
         print(f"{Fore.WHITE}  POIs por Hora: {metrics['pois_per_hour']:.2f}")
         
         print(f"\n{Fore.YELLOW}Diversidade:")
-        print(f"{Fore.WHITE}  Categorias Únicas: {metrics['unique_categories']}")
-        print(f"{Fore.WHITE}  Índice de Diversidade: {metrics['diversity_index']:.2f}")
+        print(f"{Fore.WHITE}  Categorias Unicas: {metrics['unique_categories']}")
+        print(f"{Fore.WHITE}  Indice de Diversidade: {metrics['diversity_index']:.2f}")
     
     def save_result(self, result, metrics):
         """Guarda resultado individual"""
@@ -338,10 +338,10 @@ class InteractiveCLI:
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
         
-        print(f"{Fore.GREEN}✓ Guardado em: {filename}")
+        print(f"{Fore.GREEN}OK Guardado em: {filename}")
     
     def save_comparison(self, query, results, metrics_all):
-        """Guarda comparação"""
+        """Guarda comparacao"""
         Path("outputs/comparisons").mkdir(parents=True, exist_ok=True)
         
         timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -357,21 +357,21 @@ class InteractiveCLI:
         with open(filename, 'w', encoding='utf-8') as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
         
-        print(f"{Fore.GREEN}✓ Comparação guardada em: {filename}")
+        print(f"{Fore.GREEN}OK Comparacao guardada em: {filename}")
     
     def show_history(self):
-        """Mostra histórico"""
-        print(f"\n{Fore.CYAN}{'─'*70}")
-        print(f"{Fore.CYAN}📜 HISTÓRICO DE ROTAS")
-        print(f"{Fore.CYAN}{'─'*70}\n")
+        """Mostra historico"""
+        print(f"\n{Fore.CYAN}{'-'*70}")
+        print(f"{Fore.CYAN}HISTORICO DE ROTAS")
+        print(f"{Fore.CYAN}{'-'*70}\n")
         
         if not self.history:
-            print(f"{Fore.YELLOW}Ainda não planeaste nenhuma rota nesta sessão.")
+            print(f"{Fore.YELLOW}Ainda nao planeaste nenhuma rota nesta sessao.")
             return
         
         for i, entry in enumerate(self.history, 1):
             if entry.get('type') == 'comparison':
-                print(f"{Fore.GREEN}{i}. {Fore.WHITE}[{entry['timestamp']}] COMPARAÇÃO")
+                print(f"{Fore.GREEN}{i}. {Fore.WHITE}[{entry['timestamp']}] COMPARACAO")
                 print(f"   Query: {entry['query']}")
                 valid = sum(1 for r in entry['results'].values() if r)
                 print(f"   Algoritmos testados: {valid}/4")
@@ -384,20 +384,20 @@ class InteractiveCLI:
             print()
     
     def show_metrics_summary(self):
-        """Mostra resumo de métricas do histórico"""
-        print(f"\n{Fore.CYAN}{'─'*70}")
-        print(f"{Fore.CYAN}📊 RESUMO DE MÉTRICAS")
-        print(f"{Fore.CYAN}{'─'*70}\n")
+        """Mostra resumo de metricas do historico"""
+        print(f"\n{Fore.CYAN}{'-'*70}")
+        print(f"{Fore.CYAN}RESUMO DE METRICAS")
+        print(f"{Fore.CYAN}{'-'*70}\n")
         
         if not self.history:
-            print(f"{Fore.YELLOW}Sem dados no histórico.")
+            print(f"{Fore.YELLOW}Sem dados no historico.")
             return
         
         # Filtrar apenas rotas individuais
         routes = [h for h in self.history if h.get('type') != 'comparison']
         
         if not routes:
-            print(f"{Fore.YELLOW}Sem rotas individuais no histórico.")
+            print(f"{Fore.YELLOW}Sem rotas individuais no historico.")
             return
         
         # Agrupar por algoritmo
@@ -407,66 +407,66 @@ class InteractiveCLI:
             if algo not in by_algo:
                 by_algo[algo] = []
             by_algo[algo].append(route['metrics'])
-        
-        # Estatísticas por algoritmo
-        print(f"{Fore.YELLOW}Estatísticas por Algoritmo:\n")
+
+        # Estatisticas por algoritmo
+        print(f"{Fore.YELLOW}Estatisticas por Algoritmo:\n")
         
         for algo, metrics_list in by_algo.items():
             print(f"{Fore.GREEN}{algo}:")
             
             avg_fitness = np.mean([m['fitness_score'] for m in metrics_list])
             
-            print(f"{Fore.WHITE}  Execuções: {len(metrics_list)}")
-            print(f"{Fore.WHITE}  Fitness médio: {avg_fitness:.2f}")
+            print(f"{Fore.WHITE}  Execucoes: {len(metrics_list)}")
+            print(f"{Fore.WHITE}  Fitness medio: {avg_fitness:.2f}")
             print()
     
     def show_settings(self):
-        """Mostra configurações"""
-        print(f"\n{Fore.CYAN}{'─'*70}")
-        print(f"{Fore.CYAN}⚙️  CONFIGURAÇÕES")
-        print(f"{Fore.CYAN}{'─'*70}\n")
+        """Mostra configuracoes"""
+        print(f"\n{Fore.CYAN}{'-'*70}")
+        print(f"{Fore.CYAN}CONFIGURACOES")
+        print(f"{Fore.CYAN}{'-'*70}\n")
         
         api_key = os.getenv("HF_TOKEN")
         
         print(f"{Fore.YELLOW}API Key:")
         if api_key:
-            print(f"{Fore.GREEN}   ✓ Configurada: {api_key[:20]}...{api_key[-10:]}")
+            print(f"{Fore.GREEN}   [OK] Configurada: {api_key[:20]}...{api_key[-10:]}")
         else:
-            print(f"{Fore.RED}   ✗ Não configurada")
+            print(f"{Fore.RED}   [N/A] Nao configurada")
         
         print(f"\n{Fore.YELLOW}Modelo LLM:")
         print(f"{Fore.WHITE}   Meta-Llama-3.1-8B-Instruct (Hugging Face)")
         
-        print(f"\n{Fore.YELLOW}Algoritmos disponíveis:")
-        print(f"{Fore.WHITE}   • ACO (Ant Colony Optimization)")
-        print(f"{Fore.WHITE}   • GA (Genetic Algorithm)")
-        print(f"{Fore.WHITE}   • PSO (Particle Swarm Optimization)")
-        print(f"{Fore.WHITE}   • GREEDY (Baseline)")
-        
+        print(f"\n{Fore.YELLOW}Algoritmos disponiveis:")
+        print(f"{Fore.WHITE}   - ACO (Ant Colony Optimization)")
+        print(f"{Fore.WHITE}   - GA (Genetic Algorithm)")
+        print(f"{Fore.WHITE}   - PSO (Particle Swarm Optimization)")
+        print(f"{Fore.WHITE}   - GREEDY (Baseline)")
+
         print(f"\n{Fore.YELLOW}Base de dados:")
-        print(f"{Fore.WHITE}   • ChromaDB (RAG)")
-        print(f"{Fore.WHITE}   • 25 POIs em Lisboa")
-        
-        print(f"\n{Fore.YELLOW}Métricas calculadas:")
-        print(f"{Fore.WHITE}   • Coverage, Diversidade, Eficiência")
+        print(f"{Fore.WHITE}   - ChromaDB (RAG)")
+        print(f"{Fore.WHITE}   - 25 POIs em Lisboa")
+
+        print(f"\n{Fore.YELLOW}Metricas calculadas:")
+        print(f"{Fore.WHITE}   - Coverage, Diversidade, Eficiencia")
     
     def show_help(self):
         """Ajuda"""
-        print(f"\n{Fore.CYAN}{'─'*70}")
-        print(f"{Fore.CYAN}❓ AJUDA")
-        print(f"{Fore.CYAN}{'─'*70}\n")
+        print(f"\n{Fore.CYAN}{'-'*70}")
+        print(f"{Fore.CYAN}AJUDA")
+        print(f"{Fore.CYAN}{'-'*70}\n")
         
         print(f"{Fore.YELLOW}Como usar:")
         print(f"{Fore.WHITE}  1. Escreve a tua query em linguagem natural (PT ou EN)")
         print(f"{Fore.WHITE}  2. Escolhe o algoritmo (ACO/GA/PSO/GREEDY) ou deixa AUTO")
-        print(f"{Fore.WHITE}  3. O sistema processa e mostra resultado + métricas")
+        print(f"{Fore.WHITE}  3. O sistema processa e mostra resultado + metricas")
         print(f"{Fore.WHITE}  4. Opcionalmente, compara todos os algoritmos de uma vez")
         
         print(f"\n{Fore.YELLOW}Algoritmos:")
-        print(f"{Fore.WHITE}  • ACO: Otimização inspirada em formigas, boa exploração")
-        print(f"{Fore.WHITE}  • GA: Algoritmo genético, bom para espaços grandes")
-        print(f"{Fore.WHITE}  • PSO: Enxame de partículas, convergência rápida")
-        print(f"{Fore.WHITE}  • GREEDY: Baseline simples e rápido")
+        print(f"{Fore.WHITE}  - ACO: Otimizacao inspirada em formigas, boa exploracao")
+        print(f"{Fore.WHITE}  - GA: Algoritmo genetico, bom para espacos grandes")
+        print(f"{Fore.WHITE}  - PSO: Enxame de particulas, convergencia rapida")
+        print(f"{Fore.WHITE}  - GREEDY: Baseline simples e rapido")
         
     
     def run(self):
@@ -494,10 +494,10 @@ class InteractiveCLI:
             elif choice == '6':
                 self.show_help()
             elif choice == '7':
-                print(f"\n{Fore.CYAN}👋 Até breve!")
+                print(f"\n{Fore.CYAN}Ate breve!")
                 break
             else:
-                print(f"{Fore.RED}❌ Opção inválida!")
+                print(f"{Fore.RED}[ERRO] Opcao invalida!")
 
 if __name__ == "__main__":
     cli = InteractiveCLI()

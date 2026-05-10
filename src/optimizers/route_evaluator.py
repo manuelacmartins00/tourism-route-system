@@ -18,7 +18,7 @@ class POI:
     cost: float
 
 class RouteEvaluator:
-    """Avalia qualidade de rotas turísticas"""
+    """Avalia qualidade de rotas turisticas"""
     
     def __init__(self, pois: List[POI], distance_matrix: np.ndarray, user_prefs: Dict):
         self.pois = pois
@@ -55,16 +55,16 @@ class RouteEvaluator:
         
         if not self.pois:
             if not self._empty_warning_shown:
-                print("   ⚠️ [RouteEvaluator] Lista de POIs vazia!")
+                print("   AVISO: [RouteEvaluator] Lista de POIs vazia!")
                 self._empty_warning_shown = True
             return 0.0
-        
+
         if route:
             max_valid_index = len(self.pois) - 1
             for idx in route:
                 if idx > max_valid_index:
                     if self._debug_mode:
-                        print(f"   ⚠️ Índice {idx} inválido! Max: {max_valid_index}")
+                        print(f"   AVISO: Indice {idx} invalido! Max: {max_valid_index}")
                     return 0.0
         
         if not route or not self._is_feasible(route):
@@ -119,7 +119,7 @@ class RouteEvaluator:
 
     def _contextual_modifier(self, route: List[int]) -> float:
         """
-        Multiplica o fitness por um factor contextual (0.7–1.3) baseado em
+        Multiplica o fitness por um factor contextual (0.7-1.3) baseado em
         has_children e mobility_issues. Penaliza categorias inapropriadas e
         bonifica categorias adequadas ao contexto do utilizador.
         """
@@ -184,14 +184,14 @@ class RouteEvaluator:
         max_time = int(self.prefs.get('max_time', 480))
         if total_time > max_time:
             if self._debug_mode:
-                print(f"   ⚠️ Inviável (tempo): {total_time:.0f} > {max_time}")
+                print(f"   AVISO: Inviavel (tempo): {total_time:.0f} > {max_time}")
             return False
-        
+
         total_cost = sum(self.pois[poi_idx].cost for poi_idx in route)
         max_cost = float(self.prefs.get('max_cost', 1000))
         if total_cost > max_cost:
             if self._debug_mode:
-                print(f"   ⚠️ Inviável (custo): {total_cost:.2f} > {max_cost}")
+                print(f"   AVISO: Inviavel (custo): {total_cost:.2f} > {max_cost}")
             return False
         
         return True
@@ -212,8 +212,8 @@ class RouteEvaluator:
 
     def _elevation_component(self, route: List[int]) -> float:
         """
-        Penaliza rotas com elevado ganho de elevação acumulado entre POIs consecutivos.
-        Só activado se mobility_issues=True e elevation_matrix disponível.
+        Penaliza rotas com elevado ganho de elevacao acumulado entre POIs consecutivos.
+        So activado se mobility_issues=True e elevation_matrix disponivel.
         Devolve 0-100 (100 = rota plana, 0 = rota muito inclinada).
         """
         if self.elevation_matrix is None or len(route) < 2:

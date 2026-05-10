@@ -19,7 +19,7 @@ SCHEDULE_PATTERNS = [
 ]
 
 COST_PATTERNS = [
-    r'€\s*\d',
+    r'EUR\s*\d',
     r'\d+\s*(euro|eur)\b',
     r'\b(gratuito|gratis|entrada livre|free|sem custo|entrada gratuita)\b',
     r'\b(bilhete|ingresso|entrada)\s*[:\-]?\s*\d',
