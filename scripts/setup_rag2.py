@@ -1,8 +1,8 @@
 # scripts/setup_rag2.py
-# Cria um segundo índice ChromaDB (chroma_db2) usando apenas
-# nome + categoria + região + descrição no texto embedded.
-# Permite comparar com o índice original (chroma_db) que inclui
-# custo/duração/horário no texto. Os metadados são idênticos nos dois.
+# Cria um segundo indice ChromaDB (chroma_db2) usando apenas
+# nome + categoria + regiao + descricao no texto embedded.
+# Permite comparar com o indice original (chroma_db) que inclui
+# custo/duracao/horario no texto. Os metadados sao identicos nos dois.
 
 import sys, json
 from pathlib import Path
@@ -49,19 +49,19 @@ def main():
     documents, metadatas, ids = [], [], []
 
     for poi in pois:
-        # Texto embedded: apenas nome, categoria, região e descrição
+        # Texto embedded: apenas nome, categoria, regiao e descricao
         doc = f"""
 {poi['name']}
 
 Categoria: {poi.get('source', {}).get('bundle', '')}
-Região: {poi.get('source', {}).get('region', '')}
+Regiao: {poi.get('source', {}).get('region', '')}
 
 {poi.get('description', '')}
 """.strip()
 
         documents.append(doc)
 
-        # Metadados idênticos ao índice original (para os otimizadores)
+        # Metadados identicos ao indice original (para os otimizadores)
         metadatas.append({
             "poi_id":       str(poi['id']),
             "original_id":  str(poi['id']),
@@ -90,7 +90,7 @@ Região: {poi.get('source', {}).get('region', '')}
     print(f"\n{len(documents)} POIs indexados em {CHROMA_PATH}/{COLLECTION}")
     print("\nTeste de comparacao -- query: 'museus de arte em Lisboa'\n")
 
-    # Comparar os dois índices na mesma query
+    # Comparar os dois indices na mesma query
     import sys
     sys.path.insert(0, str(Path(__file__).parent.parent))
     from src.rag.rag_setup import POI_RAG
