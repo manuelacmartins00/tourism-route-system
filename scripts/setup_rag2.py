@@ -18,8 +18,8 @@ CHROMA_PATH = "./data/chroma_db2"
 COLLECTION  = "portugal_pois_v2"
 
 def main():
-    print(f"🔍 A criar índice RAG v2 em {CHROMA_PATH} ...")
-    print(f"   Diferença: sem custo/duração/horário no texto embedded\n")
+    print(f"A criar indice RAG v2 em {CHROMA_PATH} ...")
+    print(f"   Diferenca: sem custo/duracao/horario no texto embedded\n")
 
     client = chromadb.PersistentClient(
         path=CHROMA_PATH,
@@ -31,15 +31,15 @@ def main():
     )
 
     try:
-        client.delete_collection(COLLECTION)
-        print("🔄 Coleção antiga eliminada — a reindexar...")
-    except:
-        pass
+        client.reset()
+        print("Base de dados resetada -- a reindexar...")
+    except Exception as e:
+        print(f"Reset falhou ({e}) -- a continuar...")
 
-    collection = client.create_collection(
+    collection = client.get_or_create_collection(
         name=COLLECTION,
         embedding_function=embedding_fn,
-        metadata={"description": "POIs turísticos PT — sem campos operacionais no embedding"}
+        metadata={"description": "POIs turisticos PT -- sem campos operacionais no embedding"}
     )
 
     with open(DATA_FILE, "r", encoding="utf-8") as f:
@@ -87,8 +87,8 @@ Região: {poi.get('source', {}).get('region', '')}
         )
         print(f"   Indexados {min(i+batch_size, len(documents))}/{len(documents)} POIs...")
 
-    print(f"\n✅ {len(documents)} POIs indexados em {CHROMA_PATH}/{COLLECTION}")
-    print("\n🧪 Teste de comparação — query: 'museus de arte em Lisboa'\n")
+    print(f"\n{len(documents)} POIs indexados em {CHROMA_PATH}/{COLLECTION}")
+    print("\nTeste de comparacao -- query: 'museus de arte em Lisboa'\n")
 
     # Comparar os dois índices na mesma query
     import sys
@@ -98,24 +98,24 @@ Região: {poi.get('source', {}).get('region', '')}
     query_text = "museus de arte em Lisboa"
     n = 5
 
-    print(f"  {'─'*60}")
-    print(f"  ÍNDICE ORIGINAL (chroma_db) — com custo/duração/horário")
-    print(f"  {'─'*60}")
+    print(f"  {'-'*60}")
+    print(f"  INDICE ORIGINAL (chroma_db) -- com custo/duracao/horario")
+    print(f"  {'-'*60}")
     rag_original = POI_RAG(data_file=DATA_FILE)
     r1 = rag_original.query(text=query_text, n_results=n)
     for p in r1['pois']:
         print(f"  {p['relevance_score']:.3f}  {p['name']} ({p['category']})")
 
-    print(f"\n  {'─'*60}")
-    print(f"  ÍNDICE V2 (chroma_db2) — só nome/categoria/região/descrição")
-    print(f"  {'─'*60}")
+    print(f"\n  {'-'*60}")
+    print(f"  INDICE V2 (chroma_db2) -- so nome/categoria/regiao/descricao")
+    print(f"  {'-'*60}")
     r2 = collection.query(query_texts=[query_text], n_results=n)
     for i in range(len(r2['ids'][0])):
         m = r2['metadatas'][0][i]
         score = 1.0 - r2['distances'][0][i]
         print(f"  {score:.3f}  {m['name']} ({m['category']})")
 
-    print(f"\n  Experimenta outras queries editando query_text neste script.")
+    print("\n  Experimenta outras queries editando query_text neste script.")
 
 if __name__ == "__main__":
     main()

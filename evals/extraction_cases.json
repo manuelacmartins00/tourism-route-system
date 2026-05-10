@@ -1,0 +1,114 @@
+[
+  {
+    "id": "E001",
+    "query": "quero visitar museus em Lisboa durante 2 dias, tenho 50 euros por pessoa, vou de transportes publicos",
+    "expected": {
+      "location": "Lisboa",
+      "max_time": 960,
+      "max_cost": 50.0,
+      "transport_mode": "public_transport",
+      "preferred_categories": ["museus_e_palacios"],
+      "num_people": 1,
+      "missing_fields": []
+    }
+  },
+  {
+    "id": "E002",
+    "query": "somos 5 amigos a ir para coimbra de 6a a tarde ate domingo a tarde, 40 euros por pessoa por dia, transportes publicos",
+    "expected": {
+      "location": "Coimbra",
+      "max_time": 1440,
+      "transport_mode": "public_transport",
+      "num_people": 5,
+      "start_time": "16:00",
+      "last_day_end_time": "17:00",
+      "missing_fields": []
+    }
+  },
+  {
+    "id": "E003",
+    "query": "praia no algarve, 3 dias, carro, budget medio",
+    "expected": {
+      "location": "Algarve",
+      "max_time": 1440,
+      "transport_mode": "car",
+      "preferred_categories": ["praias"],
+      "missing_fields": []
+    }
+  },
+  {
+    "id": "E004",
+    "query": "quero ver o porto",
+    "expected": {
+      "location": "Porto",
+      "missing_fields": ["max_time", "max_cost", "transport_mode"]
+    }
+  },
+  {
+    "id": "E005",
+    "query": "familia com 2 criancas, sintra, fim de semana, 200 euros no total, de carro",
+    "expected": {
+      "location": "Sintra",
+      "max_time": 960,
+      "transport_mode": "car",
+      "has_children": true,
+      "num_people": 4,
+      "missing_fields": []
+    }
+  },
+  {
+    "id": "E006",
+    "query": "vida noturna em lisboa, sexta e sabado, 80 euros",
+    "expected": {
+      "location": "Lisboa",
+      "max_time": 960,
+      "preferred_categories": ["bares_e_discotecas"],
+      "missing_fields": ["transport_mode"]
+    }
+  },
+  {
+    "id": "E007",
+    "query": "museus e monumentos em evora, 1 dia, a pe, 20 euros",
+    "expected": {
+      "location": "Evora",
+      "max_time": 480,
+      "max_cost": 20.0,
+      "transport_mode": "foot",
+      "preferred_categories": ["museus_e_palacios", "monumentos"],
+      "missing_fields": []
+    }
+  },
+  {
+    "id": "E008",
+    "query": "eu e a minha namorada, Porto, 1 semana, 1000 euros para os dois, de carro",
+    "expected": {
+      "location": "Porto",
+      "max_time": 3360,
+      "transport_mode": "car",
+      "num_people": 2,
+      "missing_fields": []
+    }
+  },
+  {
+    "id": "E009",
+    "query": "rota de lisboa ao porto",
+    "expected": {
+      "start_location": "Lisboa",
+      "end_location": "Porto",
+      "missing_fields": ["max_time", "max_cost", "transport_mode"]
+    }
+  },
+  {
+    "id": "E010",
+    "query": "pessoa em cadeira de rodas, museus acessiveis em braga, 1 dia, 30 euros, transportes publicos",
+    "expected": {
+      "location": "Braga",
+      "max_time": 480,
+      "max_cost": 30.0,
+      "transport_mode": "public_transport",
+      "mobility_issues": true,
+      "preferred_categories": ["museus_e_palacios"],
+      "missing_fields": []
+    }
+  }
+]
