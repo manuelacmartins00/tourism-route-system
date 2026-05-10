@@ -58,7 +58,7 @@ def _download_zip(url: str, dest_zip: Path, timeout: int = 60) -> bool:
                 f.write(chunk)
         return True
     except Exception as e:
-        print(f"    ✗ Falhou: {e}")
+        print(f"    [FAIL] Falhou: {e}")
         return False
 
 
@@ -80,11 +80,11 @@ def download_all(force: bool = False) -> dict:
         dest_zip = GTFS_ROOT / f"{operator}.zip"
 
         if not force and _is_already_extracted(dest):
-            print(f"  ✓ {operator}: já existe, a saltar.")
+            print(f"  [OK] {operator}: ja existe, a saltar.")
             results[operator] = True
             continue
 
-        print(f"\n  ↓ {operator}")
+        print(f"\n  [D] {operator}")
 
         urls_to_try = [cfg["url"]]
         if cfg.get("fallback"):
@@ -98,7 +98,7 @@ def download_all(force: bool = False) -> dict:
             time.sleep(1)
 
         if not downloaded:
-            print(f"    ✗ {operator}: todos os URLs falharam.")
+            print(f"    [FAIL] {operator}: todos os URLs falharam.")
             results[operator] = False
             continue
 
@@ -114,14 +114,14 @@ def download_all(force: bool = False) -> dict:
             present = {f.name for f in dest.iterdir() if f.is_file()}
             missing = REQUIRED_FILES - present
             if missing:
-                print(f"    ⚠ {operator}: zip extraído mas faltam {missing}")
+                print(f"    AVISO: {operator}: zip extraido mas faltam {missing}")
                 results[operator] = False
             else:
-                print(f"    ✓ {operator}: OK ({len(list(dest.iterdir()))} ficheiros)")
+                print(f"    [OK] {operator}: OK ({len(list(dest.iterdir()))} ficheiros)")
                 results[operator] = True
 
         except Exception as e:
-            print(f"    ✗ {operator}: erro na extracção: {e}")
+            print(f"    [FAIL] {operator}: erro na extraccao: {e}")
             results[operator] = False
 
     return results
@@ -135,6 +135,6 @@ if __name__ == "__main__":
     ok = sum(v for v in results.values())
     print(f"\nResultado: {ok}/{len(results)} operadores OK")
     for op, status in results.items():
-        mark = "✓" if status else "✗"
+        mark = "[OK]" if status else "[FAIL]"
         print(f"  {mark} {op}")
     sys.exit(0 if ok > 0 else 1)

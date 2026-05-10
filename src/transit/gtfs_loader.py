@@ -20,12 +20,12 @@ def _haversine_minutes(lat1, lon1, lat2, lon2, speed_kmh=4.5) -> float:
 
 class GTFSLoader:
     """
-    Carrega um feed GTFS e constrói um MultiDiGraph NetworkX.
+    Carrega um feed GTFS e constroi um MultiDiGraph NetworkX.
 
-    Nós:  stop_id prefixado (ex: "ML_BC", "CP_94_2006")
-    Atributos do nó: lat, lon, name, operator, zone_id
+    Nos:  stop_id prefixado (ex: "ML_BC", "CP_94_2006")
+    Atributos do no: lat, lon, name, operator, zone_id
 
-    Arestas: stop_i → stop_j  (uma por trip — preserva service_id e departure_time)
+    Arestas: stop_i -> stop_j  (uma por trip - preserva service_id e departure_time)
     Atributos da aresta: weight (minutos), route_id, service_id, operator, departure_min
     """
 
@@ -71,7 +71,7 @@ class GTFSLoader:
         Carrega TODOS os trips do feed.
         Cada aresta guarda service_id para que o routing possa filtrar
         por data em tempo de consulta via calendar_resolver.
-        Por par de paragens e service_id guarda apenas a aresta mais rápida
+        Por par de paragens e service_id guarda apenas a aresta mais rapida
         para manter o grafo compacto.
         """
         trip_to_service: Dict[str, str] = {}
@@ -97,7 +97,7 @@ class GTFSLoader:
             dep = row.get("departure_time", row.get("arrival_time", ""))
             trip_stops.setdefault(tid, []).append((seq, sid, dep))
 
-        # Uma aresta por (pa, pb, service_id) — guarda a mais rápida
+        # Uma aresta por (pa, pb, service_id) - guarda a mais rapida
         best: Dict[tuple, float] = {}
 
         for tid, stops_seq in trip_stops.items():

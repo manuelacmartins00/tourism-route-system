@@ -20,8 +20,8 @@ class GreedyPlanner:
         """
         Strategies:
         - 'score': Maior score primeiro
-        - 'nearest': Mais próximo primeiro
-        - 'hybrid': Score / distância
+        - 'nearest': Mais proximo primeiro
+        - 'hybrid': Score / distancia
         """
         
         route = [start_poi]

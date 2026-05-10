@@ -7,11 +7,11 @@ from src.optimizers.route_evaluator import POI, RouteEvaluator
 
 class RouteExplainer:
     """
-    Explica decisões do otimizador usando SHAP (KernelExplainer).
+    Explica decisoes do otimizador usando SHAP (KernelExplainer).
 
-    Cada POI candidato é uma feature binária (1 = incluído, 0 = excluído).
-    O SHAP calcula a contribuição marginal de cada POI para o fitness final,
-    explicando o que o algoritmo de otimização "pensou" ao construir a rota.
+    Cada POI candidato e uma feature binaria (1 = incluido, 0 = excluido).
+    O SHAP calcula a contribuicao marginal de cada POI para o fitness final,
+    explicando o que o algoritmo de otimizacao "pensou" ao construir a rota.
     """
 
     def __init__(self,
@@ -23,7 +23,7 @@ class RouteExplainer:
 
     def _fitness_from_mask(self, mask_matrix: np.ndarray) -> np.ndarray:
         """
-        Função de predição para o KernelExplainer.
+        Funcao de predicao para o KernelExplainer.
         Recebe matriz (n_samples, n_pois) com valores 0/1.
         Devolve array (n_samples,) com fitness de cada amostra.
         """
@@ -38,15 +38,15 @@ class RouteExplainer:
 
     def explain_route(self, route: List[int]) -> Dict:
         """
-        Gera explicação SHAP para uma rota.
+        Gera explicacao SHAP para uma rota.
 
-        A instância explicada é o vector binário da rota atual.
-        O background é o vector zero (nenhum POI selecionado).
+        A instancia explicada e o vector binario da rota atual.
+        O background e o vector zero (nenhum POI selecionado).
         """
         if not route:
             return {'shap_values': {}, 'explanation': 'Rota vazia.'}
 
-        # Vector binário da rota atual
+        # Vector binario da rota atual
         instance = np.zeros(self.n_pois)
         for idx in route:
             if idx < self.n_pois:
@@ -55,14 +55,14 @@ class RouteExplainer:
         # Background: nenhum POI selecionado (baseline neutro)
         background = np.zeros((1, self.n_pois))
 
-        # KernelExplainer — model-agnostic, funciona com qualquer otimizador
+        # KernelExplainer - model-agnostic, funciona com qualquer otimizador
         explainer = shap.KernelExplainer(
             self._fitness_from_mask,
             background,
             silent=True
         )
 
-        # nsamples=100 é suficiente para baseline
+        # nsamples=100 e suficiente para baseline
         shap_vals = explainer.shap_values(
             instance.reshape(1, -1),
             nsamples=100,
@@ -70,7 +70,7 @@ class RouteExplainer:
         )
         shap_array = shap_vals[0] if isinstance(shap_vals, list) else shap_vals.flatten()
 
-        # Construir dicionário só com POIs da rota
+        # Construir dicionario so com POIs da rota
         shap_by_poi = {}
         for idx in route:
             if idx < self.n_pois:
@@ -91,12 +91,12 @@ class RouteExplainer:
 
     def _generate_explanation(self, route: List[int], shap_by_poi: Dict) -> str:
         """
-        Gera explicação textual ordenada por contribuição SHAP.
+        Gera explicacao textual ordenada por contribuicao SHAP.
         POIs com SHAP positivo alto foram os mais determinantes
         para o algoritmo construir esta rota.
         """
         if not shap_by_poi:
-            return 'Sem dados SHAP disponíveis.'
+            return 'Sem dados SHAP disponiveis.'
 
         sorted_pois = sorted(
             shap_by_poi.items(),
@@ -109,23 +109,23 @@ class RouteExplainer:
             if v['shap_value'] > 0
         )
 
-        explanation = "📊 Análise SHAP — Contribuição de cada POI:\n\n"
-        explanation += "🔝 POIs mais determinantes para o algoritmo:\n"
+        explanation = "Analise SHAP -- Contribuicao de cada POI:\n\n"
+        explanation += "POIs mais determinantes para o algoritmo:\n"
 
         for i, (name, data) in enumerate(sorted_pois, 1):
             val = data['shap_value']
             pct = (val / total_positive * 100) if total_positive > 0 else 0
-            direction = "▲" if val > 0 else "▼"
+            direction = "+" if val > 0 else "-"
             explanation += (
                 f"{i}. {name} ({data['category']})\n"
                 f"   {direction} SHAP: {val:+.4f} | "
-                f"Contribuição: {pct:.1f}%\n"
+                f"Contribuicao: {pct:.1f}%\n"
             )
 
-        explanation += f"\n💡 Total de POIs analisados: {len(route)}\n"
+        explanation += f"\nTotal de POIs analisados: {len(route)}\n"
         explanation += (
-            "   Valores SHAP positivos → POI aumentou o fitness da rota\n"
-            "   Valores SHAP negativos → POI foi incluído apesar de reduzir fitness\n"
+            "   Valores SHAP positivos -> POI aumentou o fitness da rota\n"
+            "   Valores SHAP negativos -> POI foi incluido apesar de reduzir fitness\n"
         )
 
         return explanation

@@ -16,14 +16,14 @@ class RouteMapGenerator:
     
     def get_real_route(self, coordinates: List[List[float]], profile: str = "foot") -> Dict:
         """
-        Obtém rota real usando OSRM
+        Obtem rota real usando OSRM
         
         Args:
             coordinates: [[lat, lon], [lat, lon], ...]
             profile: 'car', 'bike', 'foot'
         
         Returns:
-            Dict com geometria da rota e distância/duração
+            Dict com geometria da rota e distancia/duracao
         """
         
         if len(coordinates) < 2:
@@ -45,11 +45,11 @@ class RouteMapGenerator:
             
             if data['code'] == 'Ok':
                 route = data['routes'][0]
-                
+
                 # Descodificar polyline
                 geometry_encoded = route['geometry']
                 geometry_decoded = polyline.decode(geometry_encoded)
-                
+
                 return {
                     'geometry': geometry_decoded,
                     'distance': route['distance'] / 1000,
@@ -57,11 +57,11 @@ class RouteMapGenerator:
                     'steps': route.get('legs', [])
                 }
             else:
-                print(f"   ⚠️ OSRM erro: {data.get('message', 'Unknown')}")
+                print(f"   AVISO: OSRM erro: {data.get('message', 'Unknown')}")
                 return None
-        
+
         except Exception as e:
-            print(f"   ⚠️ Erro ao chamar OSRM: {e}")
+            print(f"   AVISO: Erro ao chamar OSRM: {e}")
             return None
     
     def generate_map(self, route: List[Dict], output_file: str = None, algorithm: str = "", transport_mode: str = "foot", day_plan: dict = None) -> str:
@@ -71,31 +71,31 @@ class RouteMapGenerator:
         Args:
             route: Lista de POIs com lat, lon, name, category
             output_file: Onde guardar o mapa HTML (se None, gera automaticamente com timestamp)
-            algorithm: Nome do algoritmo usado (incluído no nome do ficheiro)
+            algorithm: Nome do algoritmo usado (incluido no nome do ficheiro)
         
         Returns:
             Path do ficheiro HTML gerado
         """
         
         if not route:
-            print("⚠️ Rota vazia, não é possível gerar mapa")
+            print("AVISO: Rota vazia, nao e possivel gerar mapa")
             return None
-        
-        # ✅ CORREÇÃO 1: Gerar nome de ficheiro com timestamp se não especificado
+
+        # Gerar nome de ficheiro com timestamp se nao especificado
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             algo_suffix = f"_{algorithm}" if algorithm else ""
             output_file = f"outputs/route_map{algo_suffix}_{timestamp}.html"
         
-        print(f"\n🗺️  Gerando mapa com OSRM...")
-        
+        print(f"\nGerando mapa com OSRM...")
+
         MODE_LABELS = {
-            "foot":             ("Pedonal 🚶",              "foot"),
-            "car":              ("Carro 🚗",                "car"),
-            "public_transport": ("Transportes Públicos 🚌", "foot"),
-            "fastest":          ("Mais Rápido ⚡",           "car"),
+            "foot":             ("Pedonal",              "foot"),
+            "car":              ("Carro",                "car"),
+            "public_transport": ("Transportes Publicos", "foot"),
+            "fastest":          ("Mais Rapido",           "car"),
         }
-        mode_label, osrm_profile = MODE_LABELS.get(transport_mode, ("Pedonal 🚶", "foot"))
+        mode_label, osrm_profile = MODE_LABELS.get(transport_mode, ("Pedonal", "foot"))
         
         # Criar mapa centrado em Lisboa
         m = folium.Map(
@@ -127,11 +127,11 @@ class RouteMapGenerator:
         # Extrair coordenadas dos POIs
         poi_coordinates = [[poi['lat'], poi['lon']] for poi in route]
         
-        # ✅ OBTER ROTA REAL VIA OSRM
+        # [OK] OBTER ROTA REAL VIA OSRM
         osrm_route = self.get_real_route(poi_coordinates, profile=osrm_profile)
         
         if osrm_route and 'geometry' in osrm_route:
-            # ✅ Desenhar rota REAL
+            # Desenhar rota REAL
             folium.PolyLine(
                 osrm_route['geometry'],
                 color='#3388ff',
@@ -139,16 +139,16 @@ class RouteMapGenerator:
                 opacity=0.8,
                 popup=f"""
                     <b>Rota {mode_label}</b><br>
-                    Distância: {osrm_route['distance']:.2f} km<br>
-                    Duração: {osrm_route['duration']:.0f} min
+                    Distancia: {osrm_route['distance']:.2f} km<br>
+                    Duracao: {osrm_route['duration']:.0f} min
                 """,
                 tooltip="Rota calculada pelo OpenStreetMap"
             ).add_to(m)
             
-            print(f"   ✓ Rota OSRM: {osrm_route['distance']:.2f} km, {osrm_route['duration']:.0f} min")
+            print(f"   [OK] Rota OSRM: {osrm_route['distance']:.2f} km, {osrm_route['duration']:.0f} min")
         else:
             # Fallback: linha reta
-            print("   ⚠️ OSRM falhou, usando linha reta")
+            print("   AVISO: OSRM falhou, usando linha reta")
             folium.PolyLine(
                 poi_coordinates,
                 color='blue',
@@ -157,14 +157,14 @@ class RouteMapGenerator:
                 dash_array='5'
             ).add_to(m)
         
-        # Construir mapa de (poi_name → (dia, ordem_no_dia)) a partir do day_plan
+        # Construir mapa de (poi_name -> (dia, ordem_no_dia)) a partir do day_plan
         poi_day_label = {}
         if day_plan and day_plan.get("days"):
             for day in day_plan["days"]:
                 for p in day["pois"]:
                     poi_day_label[p["name"]] = (day["day"], p["order"])
 
-        # ✅ ADICIONAR MARCADORES para cada POI
+        # [OK] ADICIONAR MARCADORES para cada POI
         for i, poi in enumerate(route, 1):
             lat = poi['lat']
             lon = poi['lon']
@@ -183,8 +183,8 @@ class RouteMapGenerator:
                         </h4>
                         <p style="margin: 5px 0;">
                             <b>Categoria:</b> {category.title()}<br>
-                            <b>Duração:</b> {duration} min<br>
-                            <b>Custo:</b> €{cost:.2f}
+                            <b>Duracao:</b> {duration} min<br>
+                            <b>Custo:</b> EUR{cost:.2f}
                         </p>
                     </div>
                 """, max_width=300),
@@ -196,7 +196,7 @@ class RouteMapGenerator:
                 )
             ).add_to(m)
             
-            # Número do POI sobreposto
+            # Numero do POI sobreposto
             folium.Marker(
                 location=[lat, lon],
                 icon=folium.DivIcon(html=f"""
@@ -216,13 +216,13 @@ class RouteMapGenerator:
                 """)
             ).add_to(m)
         
-        # ✅ AJUSTAR ZOOM para mostrar toda a rota
+        # [OK] AJUSTAR ZOOM para mostrar toda a rota
         if osrm_route and 'geometry' in osrm_route:
             m.fit_bounds(osrm_route['geometry'])
         elif len(poi_coordinates) > 1:
             m.fit_bounds(poi_coordinates)
         
-        # ✅ ADICIONAR LEGENDA
+        # [OK] ADICIONAR LEGENDA
         legend_html = f'''
         <div style="
             position: fixed; 
@@ -245,8 +245,8 @@ class RouteMapGenerator:
         
         if osrm_route:
             legend_html += f'''
-            <p style="margin: 5px 0;"><b>Distância:</b> {osrm_route['distance']:.1f} km</p>
-            <p style="margin: 5px 0;"><b>Deslocação:</b> {osrm_route['duration']:.0f} min</p>
+            <p style="margin: 5px 0;"><b>Distancia:</b> {osrm_route['distance']:.1f} km</p>
+            <p style="margin: 5px 0;"><b>Deslocacao:</b> {osrm_route['duration']:.0f} min</p>
             '''
         
         legend_html += '<hr style="margin: 10px 0;">'
@@ -273,7 +273,7 @@ class RouteMapGenerator:
         
         m.get_root().html.add_child(folium.Element(legend_html))
         
-        # ✅ ADICIONAR INFO BOX no topo
+        # [OK] ADICIONAR INFO BOX no topo
         info_html = f'''
         <div style="
             position: fixed;
@@ -289,7 +289,7 @@ class RouteMapGenerator:
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         ">
         <h3 style="margin: 0 0 10px 0; color: #3388ff;">
-            🗺️ Rota Turística
+            🗺 Rota Turistica
         </h3>
         <p style="margin: 5px 0;">
             <b>Powered by:</b> OpenStreetMap + OSRM<br>
@@ -305,6 +305,6 @@ class RouteMapGenerator:
         output_path.parent.mkdir(exist_ok=True, parents=True)
         m.save(str(output_path))
         
-        print(f"   ✓ Mapa guardado: {output_path}")
+        print(f"   OK Mapa guardado: {output_path}")
         
         return str(output_path)

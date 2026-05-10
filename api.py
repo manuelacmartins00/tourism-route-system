@@ -18,15 +18,15 @@ load_dotenv()
 
 app = FastAPI(title="TourismRouteSystem API")
 
-# Store de sessões em memória: session_id → {last_result, original_query}
+# Store de sessoes em memoria: session_id -> {last_result, original_query}
 sessions: Dict[str, Dict[str, Any]] = {}
 
-# ── Health check ──────────────────────────────────────────────────────
+# -- Health check ------------------------------------------------------
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok"}
 
-# ── Inicializar sistema (uma vez ao arrancar) ─────────────────────────
+# -- Inicializar sistema (uma vez ao arrancar) -------------------------
 from main_system import TourismRouteSystem
 from src.transit.transit_service import TransitService
 
@@ -38,7 +38,7 @@ async def startup():
     global system, transit_service
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise RuntimeError("GROQ_API_KEY não configurada")
+        raise RuntimeError("GROQ_API_KEY nao configurada")
     system = TourismRouteSystem(api_key=api_key)
 
     try:
@@ -46,19 +46,19 @@ async def startup():
         transit_service = TransitService()
         transit_service.load(use_cache=True)
         if transit_service.graph and transit_service.graph.number_of_nodes() > 0:
-            print(f"🚌 TransitService OK: {transit_service.graph.number_of_nodes()} paragens")
+            print(f"TransitService OK: {transit_service.graph.number_of_nodes()} paragens")
         else:
-            print("⚠️  TransitService: grafo vazio — transportes públicos usarão Haversine")
+            print("AVISO: TransitService: grafo vazio - transportes publicos usarao Haversine")
         system.transit_service = transit_service
     except Exception as e:
-        print(f"⚠️  TransitService não disponível: {e}")
+        print(f"AVISO: TransitService nao disponivel: {e}")
 
-# ── Pastas de output ──────────────────────────────────────────────────
+# -- Pastas de output --------------------------------------------------
 Path("outputs/maps").mkdir(parents=True, exist_ok=True)
 Path("data/feedback").mkdir(parents=True, exist_ok=True)
 FEEDBACK_CSV = Path("data/feedback/responses.csv")
 
-# ── Modelos Pydantic ──────────────────────────────────────────────────
+# -- Modelos Pydantic --------------------------------------------------
 class QueryRequest(BaseModel):
     query: str
     session_id: Optional[str] = None
@@ -77,19 +77,19 @@ class FeedbackRequest(BaseModel):
     p23: Optional[str] = ""
     run_id: Optional[str] = None
 
-# ── ENDPOINT 1: GET / — serve index.html ─────────────────────────────
+# -- ENDPOINT 1: GET / - serve index.html -----------------------------
 @app.get("/", response_class=HTMLResponse)
 async def root():
     html_path = Path("index.html")
     if not html_path.exists():
-        raise HTTPException(status_code=404, detail="index.html não encontrado")
+        raise HTTPException(status_code=404, detail="index.html nao encontrado")
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
 
-# ── Aplica operação de refinamento sobre a rota existente ────────────
+# -- Aplica operacao de refinamento sobre a rota existente ------------
 def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Modifica a rota existente com base na operação devolvida pelo LLM.
-    Suporta: remove (POI específico) e filter_category (categoria inteira).
+    Modifica a rota existente com base na operacao devolvida pelo LLM.
+    Suporta: remove (POI especifico) e filter_category (categoria inteira).
     Devolve novo resultado com a rota modificada.
     """
     route = list(last_result.get("route", []))
@@ -109,41 +109,41 @@ def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any]) -> 
     return modified
 
 
-# ── ENDPOINT 2: POST /query — processa query e devolve rota ──────────
+# -- ENDPOINT 2: POST /query - processa query e devolve rota ----------
 @app.post("/query")
 async def query_route(req: QueryRequest, request: Request):
     if not system:
-        raise HTTPException(status_code=503, detail="Sistema não inicializado")
+        raise HTTPException(status_code=503, detail="Sistema nao inicializado")
     if not req.query.strip():
         raise HTTPException(status_code=400, detail="Query vazia")
 
     import time
     t_start = time.time()
 
-    # Detectar refinamento: sessão existente com resultado anterior
+    # Detectar refinamento: sessao existente com resultado anterior
     session_id = req.session_id
     is_refinement = session_id and session_id in sessions and sessions[session_id].get("last_result")
 
     result = None
-    effective_query = req.query  # pode ser substituída por query composta abaixo
+    effective_query = req.query  # pode ser substituida por query composta abaixo
 
     if is_refinement:
         last_result = sessions[session_id]["last_result"]
         try:
             operation = system.llm.interpret_refinement(req.query, last_result.get("route", []))
-            print(f"   🔄 Operação de refinamento: {operation}")
+            print(f"   Operacao de refinamento: {operation}")
             if operation.get("type") == "fresh_query":
-                # Manter contexto da sessão: juntar query original com a nova instrução
+                # Manter contexto da sessao: juntar query original com a nova instrucao
                 base_query = sessions[session_id].get("original_query", "")
                 if base_query and base_query.strip() != req.query.strip():
-                    effective_query = f"{base_query}. Actualização: {req.query}"
-                    print(f"   🔀 Contexto preservado — query combinada")
+                    effective_query = f"{base_query}. Actualizacao: {req.query}"
+                    print(f"   Contexto preservado - query combinada")
                 is_refinement = False
             else:
                 result = apply_refinement(operation, last_result)
                 result["is_refinement"] = True
         except Exception as e:
-            print(f"⚠️ Erro no refinamento: {e} — a processar como query nova")
+            print(f"AVISO: Erro no refinamento: {e} - a processar como query nova")
             is_refinement = False
 
     if not is_refinement:
@@ -166,7 +166,7 @@ async def query_route(req: QueryRequest, request: Request):
         result["session_id"] = session_id or str(uuid.uuid4())[:8]
         return JSONResponse(content=result)
 
-    # Gerar ID único para o mapa (apenas em rotas novas)
+    # Gerar ID unico para o mapa (apenas em rotas novas)
     if not is_refinement:
         map_id = str(uuid.uuid4())[:8]
         map_path = Path(f"outputs/maps/{map_id}.html")
@@ -180,7 +180,7 @@ async def query_route(req: QueryRequest, request: Request):
         else:
             result["map_id"] = None
 
-    # Limpar campos não serializáveis antes de devolver
+    # Limpar campos nao serializaveis antes de devolver
     result.pop("map_file", None)
     result.pop("shap_explanation", None)
 
@@ -200,7 +200,7 @@ async def query_route(req: QueryRequest, request: Request):
             pass
     result["run_id"] = run_id
 
-    # Guardar sessão para possíveis refinamentos futuros
+    # Guardar sessao para possiveis refinamentos futuros
     if not session_id:
         session_id = str(uuid.uuid4())[:8]
     sessions[session_id] = {"last_result": dict(result), "original_query": effective_query}
@@ -208,15 +208,15 @@ async def query_route(req: QueryRequest, request: Request):
 
     return JSONResponse(content=result)
 
-# ── ENDPOINT 3: GET /map/{map_id} — serve mapa HTML ──────────────────
+# -- ENDPOINT 3: GET /map/{map_id} - serve mapa HTML ------------------
 @app.get("/map/{map_id}", response_class=HTMLResponse)
 async def get_map(map_id: str):
     map_path = Path(f"outputs/maps/{map_id}.html")
     if not map_path.exists():
-        raise HTTPException(status_code=404, detail="Mapa não encontrado")
+        raise HTTPException(status_code=404, detail="Mapa nao encontrado")
     return HTMLResponse(content=map_path.read_text(encoding="utf-8"))
 
-# ── ENDPOINT 4: POST /feedback — guarda respostas SUS ────────────────
+# -- ENDPOINT 4: POST /feedback - guarda respostas SUS ----------------
 @app.post("/feedback")
 async def save_feedback(fb: FeedbackRequest):
     # Calcular score SUS
@@ -270,24 +270,24 @@ async def save_feedback(fb: FeedbackRequest):
 
     return {"status": "ok", "sus_score": sus_score}
 
-# ── ENDPOINT 5: GET /admin — descarregar CSV (password protegido) ─────
+# -- ENDPOINT 5: GET /admin - descarregar CSV (password protegido) -----
 @app.get("/admin")
 async def download_csv(x_admin_password: Optional[str] = Header(None)):
     admin_pw = os.getenv("ADMIN_PASSWORD", "thesis2025")
     if x_admin_password != admin_pw:
         raise HTTPException(status_code=401, detail="Password incorrecta")
     if not FEEDBACK_CSV.exists():
-        raise HTTPException(status_code=404, detail="Ainda não há respostas")
+        raise HTTPException(status_code=404, detail="Ainda nao ha respostas")
     return FileResponse(
         path=str(FEEDBACK_CSV),
         media_type="text/csv",
         filename="sus_responses.csv"
     )
 
-# ── ENDPOINT extra: GET /feedback — serve feedback.html ──────────────
+# -- ENDPOINT extra: GET /feedback - serve feedback.html --------------
 @app.get("/feedback", response_class=HTMLResponse)
 async def feedback_page():
     html_path = Path("feedback.html")
     if not html_path.exists():
-        raise HTTPException(status_code=404, detail="feedback.html não encontrado")
+        raise HTTPException(status_code=404, detail="feedback.html nao encontrado")
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))

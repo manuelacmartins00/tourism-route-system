@@ -1,15 +1,15 @@
-# src/utils/metrics_evaluator.py (VERSÃO CORRIGIDA)
+# src/utils/metrics_evaluator.py (VERSAO CORRIGIDA)
 
 import numpy as np
 from typing import Dict, List
 
 class MetricsEvaluator:
     """
-    Calcula métricas de avaliação para rotas turísticas
+    Calcula metricas de avaliacao para rotas turisticas
     
-    Métricas implementadas:
+    Metricas implementadas:
     - Coverage, Constraint Satisfaction
-    - Eficiência (POIs/custo, POIs/tempo)
+    - Eficiencia (POIs/custo, POIs/tempo)
     - Diversidade (Shannon entropy)
     """
     
@@ -18,13 +18,13 @@ class MetricsEvaluator:
     
     def calculate_metrics(self, result: Dict) -> Dict:
         """
-        Calcula todas as métricas para um resultado
+        Calcula todas as metricas para um resultado
         
         Args:
-            result: Dicionário com resultado do plan_route()
+            result: Dicionario com resultado do plan_route()
         
         Returns:
-            Dict com métricas calculadas
+            Dict com metricas calculadas
         """
         
         route = result['route']
@@ -53,8 +53,8 @@ class MetricsEvaluator:
         # Coverage - % de POIs candidatos selecionados
         coverage = (n_pois / n_candidates * 100) if n_candidates > 0 else 0
         
-        # ✅ CORRIGIDO: Constraint Satisfaction
-        # Mede quão bem os recursos foram utilizados (não o quanto sobrou!)
+        # [OK] CORRIGIDO: Constraint Satisfaction
+        # Mede quao bem os recursos foram utilizados (nao o quanto sobrou!)
         cost_usage = min(1.0, total_cost / expected_cost) if expected_cost > 0 else 0
         time_usage = min(1.0, total_time / expected_time) if expected_time > 0 else 0
         
@@ -66,7 +66,7 @@ class MetricsEvaluator:
         
         constraint_satisfaction = (cost_usage + time_usage) / 2 * 100
         
-        # ========== EFICIÊNCIA ==========
+        # ========== EFICIENCIA ==========
         
         # POIs por Euro
         pois_per_euro = n_pois / total_cost if total_cost > 0 else 0
@@ -76,14 +76,14 @@ class MetricsEvaluator:
         
         # ========== DIVERSIDADE ==========
         
-        # Categorias únicas
+        # Categorias unicas
         categories = [poi['category'] for poi in route]
         unique_categories = len(set(categories))
         
-        # Índice de Diversidade (Shannon Entropy)
+        # Indice de Diversidade (Shannon Entropy)
         diversity_index = self._calculate_diversity_index(categories)
         
-        # ========== UTILIZAÇÃO DE RECURSOS ==========
+        # ========== UTILIZACAO DE RECURSOS ==========
         
         cost_utilization = (total_cost / expected_cost * 100) if expected_cost > 0 else 0
         time_utilization = (total_time / expected_time * 100) if expected_time > 0 else 0
@@ -97,13 +97,13 @@ class MetricsEvaluator:
             'coverage': coverage,
             'constraint_satisfaction': constraint_satisfaction,
             
-            # Eficiência
+            # Eficiencia
             'total_cost': total_cost,
             'total_time': total_time,
             'pois_per_euro': pois_per_euro,
             'pois_per_hour': pois_per_hour,
             
-            # Utilização
+            # Utilizacao
             'cost_utilization': cost_utilization,
             'time_utilization': time_utilization,
             
@@ -118,10 +118,10 @@ class MetricsEvaluator:
     
     def _calculate_diversity_index(self, categories: List[str]) -> float:
         """
-        Calcula índice de diversidade Shannon
+        Calcula indice de diversidade Shannon
         
-        H = -Σ(pi * log(pi))
-        onde pi = proporção da categoria i
+        H = -Sigma(pi * log(pi))
+        onde pi = proporcao da categoria i
         """
         if not categories:
             return 0.0
@@ -137,7 +137,7 @@ class MetricsEvaluator:
         return entropy
     
     def _empty_metrics(self) -> Dict:
-        """Retorna métricas vazias quando não há rota"""
+        """Retorna metricas vazias quando nao ha rota"""
         return {
             'fitness_score': 0.0,
             'coverage': 0.0,
@@ -156,13 +156,13 @@ class MetricsEvaluator:
     
     def compare_algorithms(self, results_dict: Dict[str, Dict]) -> Dict:
         """
-        Compara métricas de múltiplos algoritmos
+        Compara metricas de multiplos algoritmos
         
         Args:
             results_dict: {algoritmo: result} para cada algoritmo
         
         Returns:
-            Dict com estatísticas comparativas
+            Dict com estatisticas comparativas
         """
         
         metrics_by_algo = {}
@@ -175,7 +175,7 @@ class MetricsEvaluator:
         if not metrics_by_algo:
             return {}
         
-        # Calcular estatísticas agregadas
+        # Calcular estatisticas agregadas
 
         all_fitness = [m['fitness_score'] for m in metrics_by_algo.values()]
         

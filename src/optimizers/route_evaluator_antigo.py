@@ -18,7 +18,7 @@ class POI:
     cost: float
 
 class RouteEvaluator:
-    """Avalia qualidade de rotas turísticas"""
+    """Avalia qualidade de rotas turisticas"""
     
     def __init__(self, pois: List[POI], distance_matrix: np.ndarray, user_prefs: Dict):
         self.pois = pois
@@ -35,7 +35,7 @@ class RouteEvaluator:
         self.center_lon = user_prefs.get("center_lon")
         self.max_radius_km = user_prefs.get("max_radius_km", 20.0)
             
-        # ✅ Flag para debug
+        # [OK] Flag para debug
         self._debug_mode = False
         self._empty_warning_shown = False
     
@@ -44,16 +44,16 @@ class RouteEvaluator:
         
         if not self.pois:
             if not self._empty_warning_shown:
-                print("   ⚠️ [RouteEvaluator] Lista de POIs vazia!")
+                print("   AVISO: [RouteEvaluator] Lista de POIs vazia!")
                 self._empty_warning_shown = True
             return 0.0
-        
+
         if route:
             max_valid_index = len(self.pois) - 1
             for idx in route:
                 if idx > max_valid_index:
                     if self._debug_mode:
-                        print(f"   ⚠️ Índice {idx} inválido! Max: {max_valid_index}")
+                        print(f"   AVISO: Indice {idx} invalido! Max: {max_valid_index}")
                     return 0.0
         
         if not route or not self._is_feasible(route):
@@ -76,11 +76,11 @@ class RouteEvaluator:
         
         time_used = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
-        # Recompensar rotas que usam entre 70% e 100% do tempo disponível
+        # Recompensar rotas que usam entre 70% e 100% do tempo disponivel
         time_utilization = min(100, (time_used / max_time) * 100)
         # Penalizar levemente rotas muito curtas (< 50% do tempo)
         if time_utilization < 70:
-            time_efficiency = time_utilization * 0.35            ####ATENÇÃO TESTAR, PSO E GA NÃO SE PORTAM BEM COM VALORES ALTOS (ACIMA DE 0.5) NEM COM TIME UTIL < 50
+            time_efficiency = time_utilization * 0.35            ####ATENCAO TESTAR, PSO E GA NAO SE PORTAM BEM COM VALORES ALTOS (ACIMA DE 0.5) NEM COM TIME UTIL < 50
         else:
             time_efficiency = time_utilization
         
@@ -102,7 +102,7 @@ class RouteEvaluator:
         Devolve valor entre 0 e 100 (100 = todos dentro do raio ideal).
         """
         if not route or self.center_lat is None:
-            return 100.0  # sem info de centro, não penaliza
+            return 100.0  # sem info de centro, nao penaliza
 
         import math
         def haversine_km(lat1, lon1, lat2, lon2):
@@ -111,12 +111,12 @@ class RouteEvaluator:
             a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
             return R * 2 * math.asin(math.sqrt(a))
 
-        # Penalização por distância ao centro
+        # Penalizacao por distancia ao centro
         dist_scores = []
         for i in route:
             poi = self.pois[i]
             d = haversine_km(self.center_lat, self.center_lon, poi.lat, poi.lon)
-            # Score decresce linearmente até max_radius_km, depois é 0
+            # Score decresce linearmente ate max_radius_km, depois e 0
             score = max(0.0, 1.0 - (d / self.max_radius_km) ** 2)
             dist_scores.append(score)
 
@@ -139,24 +139,24 @@ class RouteEvaluator:
         # 1. Verificar tempo total
         total_time = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
-        
+
         if total_time > max_time:
             if self._debug_mode:
-                print(f"   ⚠️ Inviável (tempo): {total_time:.0f} > {max_time}")
+                print(f"   AVISO: Inviavel (tempo): {total_time:.0f} > {max_time}")
             return False
-        
-        # 2. Verificar orçamento
+
+        # 2. Verificar orcamento
         total_cost = sum(self.pois[i].cost for i in route)
         max_cost = float(self.prefs.get('max_cost', 1000))
-        
+
         if total_cost > max_cost:
             if self._debug_mode:
-                print(f"   ⚠️ Inviável (custo): {total_cost:.2f} > {max_cost}")
+                print(f"   AVISO: Inviavel (custo): {total_cost:.2f} > {max_cost}")
             return False
         
-        # ✅ 3. HORÁRIOS REMOVIDOS (muito restritivo!)
-        # Assumir que todos os POIs estão abertos durante o horário de visita
-        # Se quiseres validar horários, adiciona aqui mas de forma mais flexível
+        # [OK] 3. HORARIOS REMOVIDOS (muito restritivo!)
+        # Assumir que todos os POIs estao abertos durante o horario de visita
+        # Se quiseres validar horarios, adiciona aqui mas de forma mais flexivel
         
         return True
     
@@ -168,9 +168,9 @@ class RouteEvaluator:
         
         total_time = sum(self.pois[i].duration for i in route)
         
-        # Tempo de deslocações (Haversine / 5km/h a pé)
+        # Tempo de deslocacoes (Haversine / 5km/h a pe)
         for i in range(len(route)-1):
-            travel_time = self.distances[route[i]][route[i+1]]  # já em minutos
+            travel_time = self.distances[route[i]][route[i+1]]  # ja em minutos
             total_time += travel_time
         
         return total_time

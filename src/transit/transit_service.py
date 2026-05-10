@@ -27,18 +27,18 @@ CACHE_PATH = Path("data/gtfs/unified_graph.pkl")
 
 class TransitService:
     """
-    Interface pública para routing de transportes públicos.
-    O grafo contém TODOS os trips de todos os operadores.
-    Ao fazer routing, filtra as arestas pelos serviços activos na data pedida.
+    Interface publica para routing de transportes publicos.
+    O grafo contem TODOS os trips de todos os operadores.
+    Ao fazer routing, filtra as arestas pelos servicos activos na data pedida.
     """
 
     def __init__(self):
         self.graph: Optional[nx.MultiDiGraph] = None
         self._stops: Dict[str, dict] = {}
 
-    # ──────────────────────────────────────────
-    # Inicialização
-    # ──────────────────────────────────────────
+    # ------------------------------------------
+    # Inicializacao
+    # ------------------------------------------
 
     def load(self, use_cache: bool = True):
         if use_cache and CACHE_PATH.exists():
@@ -47,7 +47,7 @@ class TransitService:
             self.graph = data["graph"]
             self._stops = data["stops"]
             print(f"[TransitService] Grafo carregado do cache: "
-                  f"{self.graph.number_of_nodes()} nós, "
+                  f"{self.graph.number_of_nodes()} nos, "
                   f"{self.graph.number_of_edges()} arestas")
             return
 
@@ -57,7 +57,7 @@ class TransitService:
         for operator, (prefix, gtfs_path) in OPERATORS.items():
             path = Path(gtfs_path)
             if not path.exists():
-                print(f"[TransitService] GTFS não encontrado: {gtfs_path}, a saltar.")
+                print(f"[TransitService] GTFS nao encontrado: {gtfs_path}, a saltar.")
                 continue
             print(f"[TransitService] A carregar {operator}...")
             loader = GTFSLoader(operator, path, prefix)
@@ -72,10 +72,10 @@ class TransitService:
 
         n_nodes = self.graph.number_of_nodes()
         n_edges = self.graph.number_of_edges()
-        print(f"[TransitService] Grafo unificado: {n_nodes} nós, {n_edges} arestas")
+        print(f"[TransitService] Grafo unificado: {n_nodes} nos, {n_edges} arestas")
 
         if n_nodes == 0:
-            print("[TransitService] Grafo vazio — cache não guardada.")
+            print("[TransitService] Grafo vazio - cache nao guardada.")
             return
 
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -83,7 +83,7 @@ class TransitService:
             pickle.dump({"graph": self.graph, "stops": self._stops}, f)
 
     def _add_transfer_edges(self):
-        """Liga paragens de operadores diferentes que estão a <300m a pé."""
+        """Liga paragens de operadores diferentes que estao a <300m a pe."""
         nodes = list(self.graph.nodes(data=True))
         threshold_km = TRANSFER_WALK_METERS / 1000
 
@@ -110,18 +110,18 @@ class TransitService:
                                         operator="walk",
                                         departure_min=0)
 
-    # ──────────────────────────────────────────
-    # Interface pública
-    # ──────────────────────────────────────────
+    # ------------------------------------------
+    # Interface publica
+    # ------------------------------------------
 
     def _active_subgraph(self, query_date: Optional[date]) -> nx.DiGraph:
         """
         Devolve um DiGraph simples com apenas as arestas activas na data pedida.
         Se query_date=None, usa todas as arestas (fallback para planeamento
-        sem data específica).
+        sem data especifica).
         """
         if query_date is None:
-            # Sem data: usar a aresta mais rápida por par de paragens
+            # Sem data: usar a aresta mais rapida por par de paragens
             simple = nx.DiGraph()
             simple.add_nodes_from(self.graph.nodes(data=True))
             for u, v, data in self.graph.edges(data=True):
@@ -129,7 +129,7 @@ class TransitService:
                     simple.add_edge(u, v, **data)
             return simple
 
-        # Determinar serviços activos por operador
+        # Determinar servicos activos por operador
         active_services: set = {"WALK"}
         for operator, (_, gtfs_path) in OPERATORS.items():
             path = Path(gtfs_path)
@@ -244,9 +244,9 @@ class TransitService:
         return matrix
 
 
-# ──────────────────────────────────────────
+# ------------------------------------------
 # Helpers
-# ──────────────────────────────────────────
+# ------------------------------------------
 
 def _haversine_km(lat1, lon1, lat2, lon2) -> float:
     R = 6371

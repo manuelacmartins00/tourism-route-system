@@ -1,18 +1,18 @@
-# src/optimizers/tourism_aco.py (FIX PARÂMETROS)
+# src/optimizers/tourism_aco.py (FIX PARAMETROS)
 
 import numpy as np
 from typing import List, Dict
 from .route_evaluator import POI, RouteEvaluator
 
 class TourismACO:
-    """Ant Colony Optimization para rotas turísticas"""
+    """Ant Colony Optimization para rotas turisticas"""
     
     def __init__(self,
                  pois: List[POI],
                  distance_matrix: np.ndarray,
                  evaluator: RouteEvaluator,
-                 n_ants: int = 30,        # ✅ Era 20, aumentado para 30
-                 n_iterations: int = 100,  # ✅ Era 50, aumentado para 100
+                 n_ants: int = 30,        # [OK] Era 20, aumentado para 30
+                 n_iterations: int = 100,  # [OK] Era 50, aumentado para 100
                  alpha: float = 1.0,
                  beta: float = 2.0,
                  evaporation: float = 0.5,
@@ -39,7 +39,7 @@ class TourismACO:
                     self.heuristic[i][j] = 1.0 / self.distances[i][j]
     
     def optimize(self, start_poi: int = 0) -> Dict:
-        """Executa otimização ACO"""
+        """Executa otimizacao ACO"""
         
         best_route = None
         best_fitness = -float('inf')
@@ -75,13 +75,13 @@ class TourismACO:
         }
     
     def _construct_solution(self, start_poi: int) -> List[int]:
-        """Uma formiga constrói uma solução"""
+        """Uma formiga constroi uma solucao"""
         
         visited = {start_poi}
         route = [start_poi]
         current = start_poi
         
-        # ✅ Aumentar tentativas máximas
+        # [OK] Aumentar tentativas maximas
         max_attempts = self.n_pois * 3  # Era n_pois * 2
         attempts = 0
         stagnation_count = 0
@@ -91,7 +91,7 @@ class TourismACO:
             
             if next_poi is None:
                 stagnation_count += 1
-                if stagnation_count > 5:  # ✅ Dar mais chances
+                if stagnation_count > 5:  # [OK] Dar mais chances
                     break
                 attempts += 1
                 continue
@@ -105,7 +105,7 @@ class TourismACO:
         return route
     
     def _select_next_poi(self, current: int, visited: set, current_route: List[int]) -> int:
-        """Seleciona próximo POI"""
+        """Seleciona proximo POI"""
         
         candidates = []
         probabilities = []

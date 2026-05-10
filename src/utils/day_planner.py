@@ -20,7 +20,7 @@ class DayPlanner:
         self.start_time = start_time
         self.lunch_break = lunch_break
 
-    # ── Public API ──────────────────────────────────────────────────────────
+    # -- Public API ----------------------------------------------------------
 
     def plan_days(self, route: List[Dict], distance_matrix: np.ndarray = None,
                   total_days: int = None, first_day_start_time: str = None,
@@ -35,19 +35,19 @@ class DayPlanner:
         diurnal  = [p for p in route if p.get("category") not in self.NOCTURNO_CATEGORIES]
         nocturnal = [p for p in route if p.get("category") in self.NOCTURNO_CATEGORIES]
 
-        print(f"\n📅 Planejando {len(route)} POIs em {total_days} dias "
+        print(f"\nPlaneando {len(route)} POIs em {total_days} dias "
               f"({len(diurnal)} diurnos, {len(nocturnal)} noturnos)...")
         print(f"   Tempo por dia: {self.minutes_per_day} min ({self.hours_per_day}h)\n")
         if first_day_start_time and first_day_start_time != self.start_time:
-            print(f"   🌅 Dia 1 começa às {first_day_start_time} (dias seguintes: {self.start_time})")
+            print(f"   Dia 1 comeca as {first_day_start_time} (dias seguintes: {self.start_time})")
         if last_day_end_time:
-            print(f"   🌆 Último dia termina às {last_day_end_time}")
+            print(f"   Ultimo dia termina as {last_day_end_time}")
 
-        # Distribuir POIs diurnos por dia (clustering geográfico se possível)
+        # Distribuir POIs diurnos por dia (clustering geografico se possivel)
         diurnal_by_day = self._distribute_diurnal(diurnal, total_days)
 
         # Distribuir POIs noturnos em round-robin pelos dias
-        # Se o último dia tem hora de fim antes de NOCTURNAL_START, redirecionar noturnos do último dia
+        # Se o ultimo dia tem hora de fim antes de NOCTURNAL_START, redirecionar noturnos do ultimo dia
         nocturnal_by_day: List[List[Dict]] = [[] for _ in range(total_days)]
         last_day_blocks_night = (
             last_day_end_time is not None and
@@ -76,7 +76,7 @@ class DayPlanner:
             "summary": self._generate_summary(days),
         }
 
-    # ── Distribution ────────────────────────────────────────────────────────
+    # -- Distribution --------------------------------------------------------
 
     def _distribute_diurnal(self, diurnal: List[Dict], n_days: int) -> List[List[Dict]]:
         if not diurnal:
@@ -100,7 +100,7 @@ class DayPlanner:
                           if len(d) > 1 else d for d in by_day]
             return by_day
         except Exception:
-            # Fallback: divisão sequencial
+            # Fallback: divisao sequencial
             by_day = [[] for _ in range(n_days)]
             for i, poi in enumerate(diurnal):
                 by_day[i % n_days].append(poi)
@@ -109,7 +109,7 @@ class DayPlanner:
     def _rebalance_category_diversity(self, by_day: List[List[Dict]], max_same_cat: int = 2) -> List[List[Dict]]:
         """
         Move POIs excedentes da mesma categoria para dias com menos dessa categoria,
-        respeitando o budget de tempo por dia. Máximo max_same_cat POIs da mesma
+        respeitando o budget de tempo por dia. Maximo max_same_cat POIs da mesma
         categoria por dia.
         """
         from collections import defaultdict
@@ -117,7 +117,7 @@ class DayPlanner:
         if n_days <= 1:
             return by_day
 
-        for _ in range(n_days * 3):  # iterações suficientes para convergir
+        for _ in range(n_days * 3):  # iteracoes suficientes para convergir
             moved = False
             for src in range(n_days):
                 cat_counts = defaultdict(list)
@@ -127,16 +127,16 @@ class DayPlanner:
                 for cat, pois_in_cat in cat_counts.items():
                     if len(pois_in_cat) <= max_same_cat:
                         continue
-                    # Mover os excedentes (os últimos da lista — menos prioritários)
+                    # Mover os excedentes (os ultimos da lista - menos prioritarios)
                     for poi in pois_in_cat[max_same_cat:]:
-                        # Encontrar o dia destino com menos desta categoria e com espaço
+                        # Encontrar o dia destino com menos desta categoria e com espaco
                         best_dst, best_count = None, float('inf')
                         for dst in range(n_days):
                             if dst == src:
                                 continue
                             dst_cat_count = sum(1 for p in by_day[dst] if p['category'] == cat)
                             dst_time = sum(p['duration'] for p in by_day[dst])
-                            # Só mover se o dia destino tem espaço e menos desta categoria
+                            # So mover se o dia destino tem espaco e menos desta categoria
                             if dst_cat_count < best_count and dst_time + poi['duration'] <= self.minutes_per_day:
                                 best_count = dst_cat_count
                                 best_dst = dst
@@ -144,7 +144,7 @@ class DayPlanner:
                             by_day[src].remove(poi)
                             by_day[best_dst].append(poi)
                             moved = True
-                            break  # recalcular cat_counts após cada movimento
+                            break  # recalcular cat_counts apos cada movimento
                     if moved:
                         break
             if not moved:
@@ -170,14 +170,14 @@ class DayPlanner:
         a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
         return R * 2 * math.asin(math.sqrt(a))
 
-    # ── Formatting ──────────────────────────────────────────────────────────
+    # -- Formatting ----------------------------------------------------------
 
     def _format_day(self, day_num: int, diurnal: List[Dict], nocturnal: List[Dict],
                     day_start_time: str = None) -> Dict:
         schedule = []
         order = 1
 
-        # Manhã/tarde — começa em day_start_time (ou start_time por defeito)
+        # Manha/tarde - comeca em day_start_time (ou start_time por defeito)
         current = self._parse_time(day_start_time if day_start_time else self.start_time)
         effective_start = day_start_time if day_start_time else self.start_time
         for i, poi in enumerate(diurnal):
@@ -186,11 +186,11 @@ class DayPlanner:
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
             order += 1
             current += poi['duration']
-            # pausa de almoço
+            # pausa de almoco
             if i < len(diurnal) - 1 and 12 * 60 < current < 14 * 60:
                 current += self.lunch_break
 
-        # Noite — começa às 21:00
+        # Noite - comeca as 21:00
         current = self._parse_time(self.NOCTURNAL_START)
         for poi in nocturnal:
             arr = self._fmt(current)
@@ -199,7 +199,7 @@ class DayPlanner:
             order += 1
             current += poi['duration']
 
-        # end_time: última saída (noturna se existir, senão diurna)
+        # end_time: ultima saida (noturna se existir, senao diurna)
         if schedule:
             end_time = schedule[-1]['departure_time']
         else:
@@ -218,7 +218,7 @@ class DayPlanner:
             "end_time": end_time,
         }
 
-    # ── Helpers ─────────────────────────────────────────────────────────────
+    # -- Helpers -------------------------------------------------------------
 
     def _parse_time(self, time_str: str) -> int:
         h, m = map(int, time_str.split(':'))
@@ -233,21 +233,21 @@ class DayPlanner:
         lines = []
         for d in days:
             lines.append(f"Dia {d['day']}: {d['n_pois']} POIs, {d['total_time']} min "
-                         f"({d['total_time']/60:.1f}h), €{d['total_cost']:.2f}")
+                         f"({d['total_time']/60:.1f}h), EUR{d['total_cost']:.2f}")
         return "\n".join(lines)
 
     def print_itinerary(self, day_plan: Dict):
         print(f"\n{'='*70}")
-        print(f"📅 ITINERÁRIO - {day_plan['total_days']} DIAS")
+        print(f"ITINERARIO - {day_plan['total_days']} DIAS")
         print(f"{'='*70}\n")
         for day in day_plan['days']:
-            print(f"📆 DIA {day['day']} - {day['start_time']} às {day['end_time']}")
-            print(f"   {day['n_pois']} POIs | {day['total_time']} min | €{day['total_cost']:.2f}\n")
+            print(f"DIA {day['day']} - {day['start_time']} as {day['end_time']}")
+            print(f"   {day['n_pois']} POIs | {day['total_time']} min | EUR{day['total_cost']:.2f}\n")
             for poi in day['pois']:
-                prefix = "🌙" if poi.get("category") in self.NOCTURNO_CATEGORIES else "  "
+                prefix = "[N]" if poi.get("category") in self.NOCTURNO_CATEGORIES else "   "
                 print(f"   {prefix} {poi['order']}. {poi['arrival_time']} - {poi['departure_time']}")
                 print(f"         {poi['name']} ({poi['category']})")
-                print(f"         Duração: {poi['duration']} min | Custo: €{poi['cost']:.2f}\n")
+                print(f"         Duracao: {poi['duration']} min | Custo: EUR{poi['cost']:.2f}\n")
         print(f"{'='*70}\n")
         print(day_plan['summary'])
         print(f"\n{'='*70}\n")

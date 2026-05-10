@@ -24,7 +24,7 @@ def _upload(local_path: str, repo_path: str):
             token=HF_TOKEN,
         )
     except Exception as e:
-        print(f"⚠️ log_to_hf upload erro: {e}")
+        print(f"AVISO: log_to_hf upload erro: {e}")
 
 def log_run(query: str, result: dict,
             clarification_fields: list = None,
@@ -36,9 +36,9 @@ def log_run(query: str, result: dict,
     Guarda uma run completa localmente e faz upload para HF Dataset.
 
     Guarda:
-    - runs_log.csv       — linha por run (resumo)
-    - runs/{run_id}.json — JSON completo da run
-    - maps/{run_id}.html — mapa HTML (cópia)
+    - runs_log.csv       - linha por run (resumo)
+    - runs/{run_id}.json - JSON completo da run
+    - maps/{run_id}.html - mapa HTML (copia)
     """
 
     RUNS_DIR.mkdir(parents=True, exist_ok=True)
@@ -49,7 +49,7 @@ def log_run(query: str, result: dict,
     opt       = result.get("optimization", {})
     route     = result.get("route", [])
 
-    # ── 1. CSV de resumo ──────────────────────────────────────────────
+    # -- 1. CSV de resumo ----------------------------------------------
     write_header = not RUNS_CSV.exists()
     with open(RUNS_CSV, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
@@ -96,7 +96,7 @@ def log_run(query: str, result: dict,
             user_ip or "",
         ])
 
-    # ── 2. JSON completo da run ───────────────────────────────────────
+    # -- 2. JSON completo da run ---------------------------------------
     run_json = {
         "run_id": run_id,
         "timestamp": timestamp,
@@ -112,7 +112,7 @@ def log_run(query: str, result: dict,
     with open(run_json_path, "w", encoding="utf-8") as f:
         json.dump(run_json, f, ensure_ascii=False, indent=2)
 
-    # ── 3. Upload ─────────────────────────────────────────────────────
+    # -- 3. Upload -----------------------------------------------------
     _upload(str(RUNS_CSV),      "runs_log.csv")
     _upload(str(run_json_path), f"runs/{run_id}.json")
 
@@ -127,7 +127,7 @@ def log_run(query: str, result: dict,
 
 def log_feedback(run_id: str, feedback_data: dict, sus_score: float):
     """
-    Associa um questionário SUS a uma run específica e faz upload.
+    Associa um questionario SUS a uma run especifica e faz upload.
     """
     FEEDBACK_DIR = Path("data/feedback")
     FEEDBACK_DIR.mkdir(parents=True, exist_ok=True)

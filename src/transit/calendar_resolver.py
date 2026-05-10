@@ -12,23 +12,23 @@ def _load_csv(path: Path) -> list[dict]:
         return list(csv.DictReader(f))
 
 
-# ─────────────────────────────────────────────
-# Metro Lisboa — 3 service_ids fixos (1/2/3)
+# ---------------------------------------------
+# Metro Lisboa - 3 service_ids fixos (1/2/3)
 # calendar.txt standard + calendar_dates.txt
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 def resolve_metro_lisboa(gtfs_dir: Path, query_date: date) -> Set[str]:
     active = set()
     day_name = query_date.strftime("%A").lower()  # "monday", "tuesday", ...
     date_str = query_date.strftime("%Y%m%d")
 
-    # 1. calendar.txt — regras semanais base
+    # 1. calendar.txt - regras semanais base
     for row in _load_csv(gtfs_dir / "calendar.txt"):
         start = datetime.strptime(row["start_date"], "%Y%m%d").date()
         end = datetime.strptime(row["end_date"], "%Y%m%d").date()
         if start <= query_date <= end and row[day_name] == "1":
             active.add(row["service_id"])
 
-    # 2. calendar_dates.txt — excepções (1=adicionar, 2=remover)
+    # 2. calendar_dates.txt - excepcoes (1=adicionar, 2=remover)
     for row in _load_csv(gtfs_dir / "calendar_dates.txt"):
         if row["date"] == date_str:
             if row["exception_type"] == "1":
@@ -39,19 +39,19 @@ def resolve_metro_lisboa(gtfs_dir: Path, query_date: date) -> Set[str]:
     return active
 
 
-# ─────────────────────────────────────────────
-# Metro Porto — 19 service_ids com sufixos U/S/DF por linha
+# ---------------------------------------------
+# Metro Porto - 19 service_ids com sufixos U/S/DF por linha
 # calendar.txt standard + calendar_dates.txt
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 def resolve_metro_porto(gtfs_dir: Path, query_date: date) -> Set[str]:
-    # Mesma lógica que Metro Lisboa — calendar.txt standard
+    # Mesma logica que Metro Lisboa - calendar.txt standard
     return resolve_metro_lisboa(gtfs_dir, query_date)
 
 
-# ─────────────────────────────────────────────
-# STCP — só calendar_dates.txt com datas explícitas
-# service_ids: "DIAS UTEIS", "SÁBADOS", "DOMINGOS|FERIADOS"
-# ─────────────────────────────────────────────
+# ---------------------------------------------
+# STCP - so calendar_dates.txt com datas explicitas
+# service_ids: "DIAS UTEIS", "SABADOS", "DOMINGOS|FERIADOS"
+# ---------------------------------------------
 def resolve_stcp(gtfs_dir: Path, query_date: date) -> Set[str]:
     active = set()
     date_str = query_date.strftime("%Y%m%d")
@@ -61,14 +61,14 @@ def resolve_stcp(gtfs_dir: Path, query_date: date) -> Set[str]:
     return active
 
 
-# ─────────────────────────────────────────────
-# CarrisMetropolitana — sistema proprietário [PLAN_ID]PATTERN
-# Usa dates.txt (não-standard) para classificar a data
-# ─────────────────────────────────────────────
+# ---------------------------------------------
+# CarrisMetropolitana - sistema proprietario [PLAN_ID]PATTERN
+# Usa dates.txt (nao-standard) para classificar a data
+# ---------------------------------------------
 def resolve_carris(gtfs_dir: Path, query_date: date) -> Set[str]:
     date_str = query_date.strftime("%Y%m%d")
 
-    # calendar_dates.txt already encodes which services run on each date —
+    # calendar_dates.txt already encodes which services run on each date -
     # both named-period services (e.g. [KFULM]ESC_DU) and numeric ones
     # (e.g. [89CJD]11). Just trust those explicit entries and filter by
     # whether the service's plan is currently active.
@@ -91,19 +91,19 @@ def resolve_carris(gtfs_dir: Path, query_date: date) -> Set[str]:
     return active
 
 
-# ─────────────────────────────────────────────
-# CP — 2500 service_ids individuais com datas próprias
+# ---------------------------------------------
+# CP - 2500 service_ids individuais com datas proprias
 # calendar.txt com start_date/end_date por service_id + dia da semana
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 def resolve_cp(gtfs_dir: Path, query_date: date) -> Set[str]:
-    # CP usa calendar.txt standard mas com um service_id por trip/frequência
-    # A lógica é igual ao Metro Lisboa — calendar.txt + calendar_dates.txt
+    # CP usa calendar.txt standard mas com um service_id por trip/frequencia
+    # A logica e igual ao Metro Lisboa - calendar.txt + calendar_dates.txt
     return resolve_metro_lisboa(gtfs_dir, query_date)
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Dispatcher
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 RESOLVERS = {
     "metro_lisboa":        resolve_metro_lisboa,
     "metro_porto":         resolve_metro_porto,
