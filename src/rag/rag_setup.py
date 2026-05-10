@@ -99,10 +99,11 @@ Horário: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('sch
         
         print(f"✓ {len(documents)} POIs indexados")
     
-    def query(self, 
-          text: str, 
+    def query(self,
+          text: str,
           n_results: int = 20,
           category_filter: List[str] = None,
+          category_exclude: List[str] = None,
           max_cost: float = None,
           min_score: float = None,
           lat_min: float = None,
@@ -120,6 +121,9 @@ Horário: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('sch
         
         if category_filter:
             filter_conditions.append({"category": {"$in": category_filter}})
+
+        if category_exclude:
+            filter_conditions.append({"category": {"$nin": category_exclude}})
         
         if max_cost is not None:
             filter_conditions.append({"cost": {"$lte": max_cost}})

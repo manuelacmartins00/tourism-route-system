@@ -1,0 +1,95 @@
+{
+  "description": "Layer 3 eval: tracks AI agent performance per task across sessions",
+  "schema": {
+    "date": "ISO date of the session",
+    "task_id": "sequential identifier",
+    "description": "what was asked",
+    "iterations": "number of back-and-forths until correct (1 = correct on first attempt)",
+    "regressions": "list of regressions introduced (empty if none)",
+    "over_engineered": "true if solution added unrequested features/abstractions",
+    "notes": "free text"
+  },
+  "tasks": [
+    {
+      "date": "2026-05-10",
+      "task_id": "T001",
+      "description": "Fix PDF button triggering print dialog instead of file download",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": "Used html2pdf.js CDN. Correct on first attempt."
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T002",
+      "description": "Fix LLM time extraction: 'de 6a a tarde ate domingo a tarde' planned until Sunday night",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": "Added last_day_end_time + first_day_start_time to LLM schema, UserPreferences, DayPlanner, and main_system."
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T003",
+      "description": "setup_rag2.py failing: UnicodeEncodeError with emojis in print statements on Windows cp1252",
+      "iterations": 3,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": "Root cause: emojis in Python scripts. Should never have been there. Also had ChromaDB NotFoundError after delete_collection — fixed with client.reset(). Three iterations to resolve both issues."
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T004",
+      "description": "Fix map labels: all POIs showing D1->D1->D1 instead of A1->A2->A3",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": "Single-line fix in map_generator.py: chr(64+day_num) converts 1->A, 2->B, etc."
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T005",
+      "description": "Remove fitness/algorithm/total travel time from UI metrics strip; show budget per person and total group",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": ""
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T006",
+      "description": "Exclude 'eventos' category (270 POIs) from all RAG queries via $nin filter",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": "Added category_exclude parameter to rag_setup.py; passed EXCLUDED_CATEGORIES constant to all 4 RAG query calls in main_system.py."
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T007",
+      "description": "Save user IP per run in runs_log.csv and run JSON",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": "Added Request to FastAPI /query endpoint; user_ip field added to log_to_hf.py."
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T008",
+      "description": "Replace Haversine fallback with static travel time lookup table per mode and distance bracket",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": ""
+    },
+    {
+      "date": "2026-05-10",
+      "task_id": "T009",
+      "description": "Rewrite check_poi_descriptions.py to classify descriptions by content (schedule, cost, general) using regex",
+      "iterations": 1,
+      "regressions": [],
+      "over_engineered": false,
+      "notes": "Free and instant vs Groq API approach."
+    }
+  ]
+}

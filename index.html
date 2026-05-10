@@ -713,14 +713,17 @@
     const maxCost = result.preferences?.max_cost || 0;
     const fitness = (opt.fitness || 0).toFixed(1);
 
+    const numPeople = result.preferences?.num_people || 1;
+    const totalGroupCost = totalCost * numPeople;
+    const costLabel = numPeople > 1
+      ? `€${totalCost.toFixed(0)} p.p. · €${totalGroupCost.toFixed(0)} total`
+      : `€${totalCost.toFixed(0)} / €${maxCost}`;
+
     const metricsHtml = `
       <div class="metrics-strip">
         <span class="metric-tag blue">⏱ ${formatMin(visitMin)} visitas</span>
-        <span class="metric-tag blue">🚶 ${formatMin(totalMin)} total</span>
-        <span class="metric-tag green">€${totalCost.toFixed(0)} / €${maxCost}</span>
+        <span class="metric-tag green">${costLabel}</span>
         <span class="metric-tag">${pois.length} POIs</span>
-        <span class="metric-tag">fitness ${fitness}</span>
-        <span class="algo-badge">${algo}</span>
       </div>`;
 
     // Botão mapa

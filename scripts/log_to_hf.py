@@ -30,7 +30,8 @@ def log_run(query: str, result: dict,
             clarification_fields: list = None,
             clarification_answers: dict = None,
             elapsed_seconds: float = None,
-            map_id: str = None):
+            map_id: str = None,
+            user_ip: str = None):
     """
     Guarda uma run completa localmente e faz upload para HF Dataset.
 
@@ -67,6 +68,7 @@ def log_run(query: str, result: dict,
                 "map_id",
                 "n_pois_na_rota",
                 "pois_nomes",
+                "user_ip",
             ])
         writer.writerow([
             run_id, timestamp,
@@ -91,6 +93,7 @@ def log_run(query: str, result: dict,
             map_id or "",
             len(route),
             json.dumps([p.get("name", "") for p in route], ensure_ascii=False),
+            user_ip or "",
         ])
 
     # ── 2. JSON completo da run ───────────────────────────────────────
@@ -102,6 +105,7 @@ def log_run(query: str, result: dict,
         "clarification_answers": clarification_answers or {},
         "elapsed_seconds": elapsed_seconds,
         "map_id": map_id,
+        "user_ip": user_ip or None,
         "result": result,
     }
     run_json_path = RUNS_DIR / f"{run_id}.json"

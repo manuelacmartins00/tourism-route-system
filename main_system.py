@@ -224,10 +224,12 @@ class TourismRouteSystem:
             lon_min = center_lon - delta
             lon_max = center_lon + delta
 
+        EXCLUDED_CATEGORIES = ["eventos"]
         rag_results = self.rag.query(
             text=rag_query,
             n_results=60,
             category_filter=preferences.preferred_categories,
+            category_exclude=EXCLUDED_CATEGORIES,
             max_cost=preferences.max_cost,
             lat_min=lat_min,
             lat_max=lat_max,
@@ -250,6 +252,7 @@ class TourismRouteSystem:
                         text=cat,
                         n_results=min_per_cat * 2,
                         category_filter=[cat],
+                        category_exclude=EXCLUDED_CATEGORIES,
                         max_cost=preferences.max_cost,
                         lat_min=lat_min, lat_max=lat_max,
                         lon_min=lon_min, lon_max=lon_max
@@ -271,6 +274,7 @@ class TourismRouteSystem:
                 text=rag_query,
                 n_results=80,
                 category_filter=None,
+                category_exclude=EXCLUDED_CATEGORIES,
                 max_cost=preferences.max_cost,
                 lat_min=lat_min,
                 lat_max=lat_max,
@@ -305,6 +309,7 @@ class TourismRouteSystem:
                     text=rag_query,
                     n_results=25,
                     category_filter=preferences.preferred_categories,
+                    category_exclude=EXCLUDED_CATEGORIES,
                     max_cost=preferences.max_cost,
                 )
                 candidate_pois = rag_results_nogeo['pois']
@@ -389,16 +394,29 @@ class TourismRouteSystem:
             )
         else:
             from src.utils.distance_calculator import haversine
-            TRANSPORT_SPEED = {"foot": 5, "car": 50, "public_transport": 20}
-            speed_kmh = TRANSPORT_SPEED.get(preferences.transport_mode, 5)
+            # Tabela estatica de tempos de viagem (minutos) por distancia e modo
+            # Formato: [(max_km, minutos), ...] — ultimo entry e o fallback
+            _TIME_TABLE = {
+                "foot":             [(1, 12), (2, 25), (5, 60), (float('inf'), 999)],
+                "car":              [(2, 8),  (5, 15), (15, 30), (50, 75), (float('inf'), 150)],
+                "public_transport": [(1, 12), (2, 20), (5, 35), (15, 55), (50, 110), (float('inf'), 180)],
+                "fastest":          [(2, 8),  (5, 15), (15, 30), (50, 75), (float('inf'), 150)],
+            }
+            def _travel_time(d_km, mode):
+                table = _TIME_TABLE.get(mode, _TIME_TABLE["public_transport"])
+                for max_km, t_min in table:
+                    if d_km <= max_km:
+                        return float(t_min)
+                return 240.0
+
             if verbose:
-                print(f"   🚗 Velocidade Haversine: {speed_kmh} km/h ({preferences.transport_mode})\n")
+                print(f"   Tabela estatica de tempos ({preferences.transport_mode})\n")
             sub_distance_matrix = np.zeros((n_pois, n_pois))
             for i, poi_i in enumerate(optimizer_pois):
                 for j, poi_j in enumerate(optimizer_pois):
                     if i != j:
                         d_km = haversine(poi_i.lat, poi_i.lon, poi_j.lat, poi_j.lon)
-                        sub_distance_matrix[i][j] = (d_km / speed_kmh) * 60
+                        sub_distance_matrix[i][j] = _travel_time(d_km, preferences.transport_mode)
 
         # Preferências — sem sentimento, pesos fixos no RouteEvaluator
         mobility_issues = getattr(preferences, 'mobility_issues', False) or False
