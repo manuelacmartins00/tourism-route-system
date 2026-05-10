@@ -25,18 +25,14 @@ class POI_RAG:
             model_name="paraphrase-multilingual-MiniLM-L12-v2"
         )
         
-        # Criar/carregar coleção
-        try:
-            self.client.delete_collection("portugal_pois")
-            print("🔄 Coleção antiga eliminada — a reindexar...")
-        except:
-            pass
-        self.collection = self.client.create_collection(
+        # Carregar colecao existente ou criar nova
+        self.collection = self.client.get_or_create_collection(
             name="portugal_pois",
             embedding_function=self.embedding_fn,
-            metadata={"description": "POIs turísticos de Portugal"}
+            metadata={"description": "POIs turisticos de Portugal"}
         )
-        self._index_data(data_file)
+        if self.collection.count() == 0:
+            self._index_data(data_file)
     
     def _index_data(self, data_file: str):
         """Indexa POIs no ChromaDB"""
@@ -97,7 +93,7 @@ Horário: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('sch
             )
             print(f"   Indexados {min(i+batch_size, len(documents))}/{len(documents)} POIs...")
         
-        print(f"✓ {len(documents)} POIs indexados")
+        print(f"{len(documents)} POIs indexados")
     
     def query(self,
           text: str,
