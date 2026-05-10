@@ -100,3 +100,21 @@ for cls in ["vazia", "muito_curta", "so_horario", "so_custo", "descricao_geral",
             print(f"    {name} ({cat}): \"{trunc}\"")
 
 print(f"\n{'='*65}\n")
+
+# Guardar JSONs por classe
+EXPORT_CLASSES = {
+    "horario+descricao": "data/pois_horario_descricao.json",
+    "horario+custo":     "data/pois_horario_custo.json",
+    "custo+descricao":   "data/pois_custo_descricao.json",
+}
+
+for cls, path in EXPORT_CLASSES.items():
+    subset = [
+        poi for poi in pois
+        if classify(poi.get("description", "") or "") == cls
+    ]
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(subset, f, ensure_ascii=False, indent=2)
+    print(f"Guardado: {path} ({len(subset)} POIs)")
+
+print()
