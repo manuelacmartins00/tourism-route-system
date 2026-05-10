@@ -31,6 +31,10 @@ data/gtfs/*/stop_times.txt
 
 # ChromaDB
 chroma_db/
+data/chroma_db2/
+
+# Claude Code
+.claude/
 
 # Outputs locais
 outputs/
