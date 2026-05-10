@@ -179,7 +179,7 @@ class RouteMapGenerator:
                 popup=folium.Popup(f"""
                     <div style="font-family: Arial; width: 200px;">
                         <h4 style="margin: 0 0 10px 0; color: {colors.get(category, 'gray')};">
-                            {f"D{poi_day_label[name][0]}-{poi_day_label[name][1]}" if name in poi_day_label else str(i)}. {name}
+                            {f"{chr(64+poi_day_label[name][0])}{poi_day_label[name][1]}" if name in poi_day_label else str(i)}. {name}
                         </h4>
                         <p style="margin: 5px 0;">
                             <b>Categoria:</b> {category.title()}<br>
@@ -212,7 +212,7 @@ class RouteMapGenerator:
                         line-height: 30px;
                         border: 3px solid white;
                         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-                    ">{f"D{poi_day_label[name][0]}<br>{poi_day_label[name][1]}" if name in poi_day_label else str(i)}</div>
+                    ">{f"{chr(64+poi_day_label[name][0])}{poi_day_label[name][1]}" if name in poi_day_label else str(i)}</div>
                 """)
             ).add_to(m)
         

@@ -7,7 +7,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -111,7 +111,7 @@ def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any]) -> 
 
 # ── ENDPOINT 2: POST /query — processa query e devolve rota ──────────
 @app.post("/query")
-async def query_route(req: QueryRequest):
+async def query_route(req: QueryRequest, request: Request):
     if not system:
         raise HTTPException(status_code=503, detail="Sistema não inicializado")
     if not req.query.strip():
@@ -188,11 +188,13 @@ async def query_route(req: QueryRequest):
     if not is_refinement:
         try:
             from scripts.log_to_hf import log_run
+            client_ip = request.client.host if request.client else None
             run_id = log_run(
                 query=req.query,
                 result=result,
                 elapsed_seconds=time.time() - t_start,
                 map_id=result.get("map_id"),
+                user_ip=client_ip,
             )
         except Exception:
             pass
