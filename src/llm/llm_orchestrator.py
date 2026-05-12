@@ -23,6 +23,7 @@ class UserPreferences:
     num_people: int = 1
     has_children: bool = False
     last_day_end_time: str = None
+    end_location: str = None
 
 class LlamaOrchestrator:
     """
@@ -186,6 +187,7 @@ Devolve APENAS JSON (sem texto adicional):
   "start_time": "09:00",
   "last_day_end_time": null,
   "location": "Lisboa",
+  "end_location": null,
   "transport_mode": "foot",
   "start_location": null,
   "mobility_issues": false,
@@ -218,12 +220,15 @@ REGRAS:
 - Se a query for muito curta ou vaga, inclui mais campos
 - Se a query for detalhada, missing_fields pode ser []
 
-REGRAS PARA location:
-- "quero visitar museus em Lisboa" -> "Lisboa"
-- "praia no Algarve" -> "Algarve"
-- "casal em Sintra, 6 horas" -> "Sintra"
-- "Serra da Estrela" -> "Serra da Estrela"
-- Se nao mencionar localizacao -> null
+REGRAS PARA location e end_location:
+- "quero visitar museus em Lisboa" -> location: "Lisboa", end_location: null
+- "praia no Algarve" -> location: "Algarve", end_location: null
+- "de Lisboa ao Porto" -> location: "Lisboa", end_location: "Porto"
+- "de Porto a Vila Real" -> location: "Porto", end_location: "Vila Real"
+- "entre Coimbra e Aveiro" -> location: "Coimbra", end_location: "Aveiro"
+- "rota de Faro a Lisboa" -> location: "Faro", end_location: "Lisboa"
+- Se mencionar apenas uma localizacao -> end_location: null
+- Se mencionar duas localidades ligadas por "a", "ate", "para", "e" em contexto de rota -> extrair as duas
 
 REGRAS IMPORTANTES:
 - Usa APENAS tags da lista VALIDA acima
@@ -373,6 +378,32 @@ Responde APENAS com o JSON, sem explicacoes."""
                 start_location = None
             if start_location:
                 print(f"   Ponto de partida: '{start_location}'")
+
+            # Extrair localizacao de destino (rota A->B)
+            end_location = data.get("end_location", None)
+            if end_location and not isinstance(end_location, str):
+                end_location = None
+            # Fallback regex: detetar "de X a Y" / "entre X e Y" se LLM nao extraiu
+            if not end_location:
+                _route_patterns = [
+                    r'\bde\s+([A-Za-zÀ-ÿ\s]+?)\s+(?:a|ate|para|->)\s+([A-Za-zÀ-ÿ\s]+?)(?:\s*,|\s*$|\s+\d)',
+                    r'\bentre\s+([A-Za-zÀ-ÿ\s]+?)\s+e\s+([A-Za-zÀ-ÿ\s]+?)(?:\s*,|\s*$|\s+\d)',
+                    r'\brota\s+(?:de\s+)?([A-Za-zÀ-ÿ\s]+?)\s+(?:ao?|ate)\s+([A-Za-zÀ-ÿ\s]+?)(?:\s*,|\s*$)',
+                ]
+                import re as _re2
+                for pat in _route_patterns:
+                    m = _re2.search(pat, user_query, _re2.IGNORECASE)
+                    if m:
+                        candidate_start = m.group(1).strip()
+                        candidate_end   = m.group(2).strip()
+                        if len(candidate_start) > 2 and len(candidate_end) > 2:
+                            if not extracted_location:
+                                extracted_location = candidate_start
+                            end_location = candidate_end
+                            print(f"   Rota A->B detectada por regex: '{extracted_location}' -> '{end_location}'")
+                            break
+            if end_location:
+                print(f"   Destino final: '{end_location}'")
             
             # Extrair campos em falta
             missing_fields = data.get("missing_fields", [])
@@ -431,6 +462,7 @@ Responde APENAS com o JSON, sem explicacoes."""
                 num_people=num_people,
                 has_children=has_children,
                 last_day_end_time=last_day_end_time,
+                end_location=end_location,
             )
         
         except Exception as e:

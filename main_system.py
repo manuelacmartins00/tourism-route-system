@@ -215,8 +215,28 @@ class TourismRouteSystem:
             print(f"   Category filter: {preferences.preferred_categories}")
             print(f"   Max cost: {preferences.max_cost}\n")
 
+        # Resolucao do destino final (rota A->B)
+        end_geo = None
+        end_location = getattr(preferences, 'end_location', None)
+        if end_location:
+            end_geo = self.location_resolver.resolve(end_location)
+            if end_geo and verbose:
+                print(f"   Destino final '{end_location}' -> ({end_geo[0]:.4f}, {end_geo[1]:.4f})\n")
+
         lat_min = lat_max = lon_min = lon_max = None
-        if geo:
+        is_corridor = geo is not None and end_geo is not None
+        CORRIDOR_BUFFER_DEG = 0.45  # ~50km lateral buffer
+
+        if is_corridor:
+            lat_a, lon_a, _ = geo
+            lat_b, lon_b, _ = end_geo
+            lat_min = min(lat_a, lat_b) - CORRIDOR_BUFFER_DEG
+            lat_max = max(lat_a, lat_b) + CORRIDOR_BUFFER_DEG
+            lon_min = min(lon_a, lon_b) - CORRIDOR_BUFFER_DEG
+            lon_max = max(lon_a, lon_b) + CORRIDOR_BUFFER_DEG
+            if verbose:
+                print(f"   Modo corredor A->B: bbox ({lat_min:.2f},{lon_min:.2f}) -> ({lat_max:.2f},{lon_max:.2f})\n")
+        elif geo:
             center_lat, center_lon, radius_km = geo
             delta = radius_km / 111.0
             lat_min = center_lat - delta
@@ -290,9 +310,46 @@ class TourismRouteSystem:
             if verbose:
                 print(f"   [OK] Candidatos apos fallback: {len(candidate_pois)}")
                 
-        # Hard filter geografico pos-RAG - remove POIs fora do raio exacto
-        # (o bounding box do RAG e um quadrado; este filtro corta os cantos)
-        if geo:
+        # Hard filter geografico pos-RAG
+        if is_corridor:
+            # Modo corredor: manter POIs dentro de MAX_DIST_KM da linha A->B
+            MAX_DIST_KM = 55.0
+            lat_a, lon_a, _ = geo
+            lat_b, lon_b, _ = end_geo
+            from src.utils.distance_calculator import haversine as _hav
+
+            def _dist_to_segment(plat, plon):
+                abx, aby = lon_b - lon_a, lat_b - lat_a
+                apx, apy = plon - lon_a, plat - lat_a
+                denom = abx**2 + aby**2
+                t = max(0.0, min(1.0, (apx*abx + apy*aby) / denom)) if denom > 1e-10 else 0.0
+                nlat = lat_a + t * aby
+                nlon = lon_a + t * abx
+                return _hav(plat, plon, nlat, nlon)
+
+            before = len(candidate_pois)
+            candidate_pois = [p for p in candidate_pois
+                              if _dist_to_segment(p['lat'], p['lon']) <= MAX_DIST_KM]
+            if verbose:
+                print(f"   Filtro corredor: {before} -> {len(candidate_pois)} POIs (max {MAX_DIST_KM:.0f}km da linha)\n")
+
+            # Density boost: reponderar por densidade local (POIs num raio de 20km)
+            if candidate_pois:
+                DENSITY_RADIUS_KM = 20.0
+                DENSITY_WEIGHT    = 0.25
+                for poi in candidate_pois:
+                    nearby = sum(1 for other in candidate_pois
+                                 if _hav(poi['lat'], poi['lon'], other['lat'], other['lon']) <= DENSITY_RADIUS_KM)
+                    poi['_density'] = nearby
+                max_density = max(p['_density'] for p in candidate_pois) or 1
+                for poi in candidate_pois:
+                    poi['relevance_score'] = poi.get('relevance_score', 0.5) * (
+                        1 + DENSITY_WEIGHT * poi['_density'] / max_density)
+                candidate_pois.sort(key=lambda p: -p.get('relevance_score', 0))
+                if verbose:
+                    print(f"   Density boost aplicado (raio {DENSITY_RADIUS_KM:.0f}km, peso {DENSITY_WEIGHT})\n")
+
+        elif geo:
             center_lat, center_lon, radius_km = geo
             before = len(candidate_pois)
             candidate_pois = [
