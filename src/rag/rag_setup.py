@@ -11,25 +11,25 @@ class POI_RAG:
     """Sistema RAG para POIs turisticos"""
     
     def __init__(self, data_file: str = "data/pois_structured_for_rag.json"):
-        # Inicializar ChromaDB (persistente)
+        # Inicializar ChromaDB (persistente) -- v2: sem campos operacionais no embedding
         self.client = chromadb.PersistentClient(
-            path="./data/chroma_db",
+            path="./data/chroma_db2",
             settings=Settings(
                 anonymized_telemetry=False,
                 allow_reset=True
             )
         )
-        
+
         # Embedding function (multilingue - suporta PT e EN)
         self.embedding_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
             model_name="paraphrase-multilingual-MiniLM-L12-v2"
         )
-        
+
         # Carregar colecao existente ou criar nova
         self.collection = self.client.get_or_create_collection(
-            name="portugal_pois",
+            name="portugal_pois_v2",
             embedding_function=self.embedding_fn,
-            metadata={"description": "POIs turisticos de Portugal"}
+            metadata={"description": "POIs turisticos de Portugal -- so nome/categoria/regiao/descricao"}
         )
         if self.collection.count() == 0:
             self._index_data(data_file)
@@ -49,7 +49,8 @@ class POI_RAG:
         ids = []
         
         for i, poi in enumerate(pois):
-            # Criar documento rico para embedding
+            # Texto embedded: apenas nome, categoria, regiao e descricao
+            # (sem custo/duracao/horario -- evita poluicao semantica)
             doc = f"""
 {poi['name']}
 
@@ -57,10 +58,6 @@ Categoria: {poi.get('source', {}).get('bundle', '')}
 Regiao: {poi.get('source', {}).get('region', '')}
 
 {poi.get('description', '')}
-
-Duracao tipica: {poi['attributes'].get('duration_minutes', 60)} minutos
-Custo: EUR{poi['attributes'].get('cost_euros', 0.0)}
-Horario: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('schedule', {}).get('closing_time', '18:00')}
 """.strip()
             
             documents.append(doc)
@@ -177,5 +174,5 @@ Horario: {poi.get('schedule', {}).get('opening_time', '09:00')} - {poi.get('sche
     
     def reset(self):
         """Reset da base de dados"""
-        self.client.delete_collection("portugal_pois")
+        self.client.delete_collection("portugal_pois_v2")
         print("[OK] Colecao eliminada")
