@@ -31,7 +31,22 @@ from src.optimizers.greedy_planner import GreedyPlanner
 from src.utils.data_loader import load_pois_from_json
 from src.utils.shap_explainer import RouteExplainer
 
+ACCOMMODATION_BUNDLES = [
+    "hotelaria", "alojamento_local", "turismo_habitacao",
+    "turismo_espaco_rural", "apartamento_turistico",
+    "pousadas_da_juventude", "aldeamento_turistico", "parques_de_campismo",
+]
+
 DURATION_RANGES = {
+    # Alojamento: apenas check-in, nao conta como visita
+    "hotelaria":             (30, 30),
+    "alojamento_local":      (30, 30),
+    "turismo_habitacao":     (30, 30),
+    "turismo_espaco_rural":  (30, 30),
+    "apartamento_turistico": (30, 30),
+    "pousadas_da_juventude": (30, 30),
+    "aldeamento_turistico":  (30, 30),
+    "parques_de_campismo":   (30, 30),
     "restaurantes_e_cafes":   (45,  90),
     "monumentos":             (15,  60),
     "turismo_activo":         (90, 300),
@@ -310,6 +325,27 @@ class TourismRouteSystem:
             if verbose:
                 print(f"   [OK] Candidatos apos fallback: {len(candidate_pois)}")
                 
+        # Forcar candidatos de alojamento (independente das categorias pedidas)
+        num_days = max(1, int(np.ceil(preferences.max_time / 480)))
+        accom_needed = max(5, num_days + 3)
+        accom_results = self.rag.query(
+            text=f"hotel alojamento {preferences.location or ''}",
+            n_results=accom_needed * 2,
+            category_filter=ACCOMMODATION_BUNDLES,
+            max_cost=preferences.max_cost,
+            lat_min=lat_min, lat_max=lat_max,
+            lon_min=lon_min, lon_max=lon_max,
+        )
+        existing_ids = {p['id'] for p in candidate_pois}
+        accom_added = 0
+        for p in accom_results['pois']:
+            if p['id'] not in existing_ids:
+                candidate_pois.append(p)
+                existing_ids.add(p['id'])
+                accom_added += 1
+        if verbose:
+            print(f"   Alojamento: +{accom_added} candidatos forcados (total {len(candidate_pois)})\n")
+
         # Hard filter geografico pos-RAG
         if is_corridor:
             # Modo corredor: manter POIs dentro de MAX_DIST_KM da linha A->B
@@ -488,10 +524,14 @@ class TourismRouteSystem:
                 print("   A calcular perfis de elevacao (mobilidade reduzida)...\n")
             elevation_matrix = self._build_elevation_matrix(optimizer_pois, verbose)
 
+        _num_people = getattr(preferences, "num_people", 1)
+        _num_rooms  = getattr(preferences, "num_rooms",  max(1, math.ceil(_num_people / 2)))
+
         user_prefs_dict = {
-            "max_time": preferences.max_time,
-            "max_cost": preferences.max_cost,
-            "num_people": getattr(preferences, "num_people", 1),
+            "max_time":   preferences.max_time,
+            "max_cost":   preferences.max_cost,
+            "num_people": _num_people,
+            "num_rooms":  _num_rooms,
             "preferred_categories": preferences.preferred_categories,
             "category_weights": preferences.category_weights,
             "start_location": (optimizer_pois[0].lat, optimizer_pois[0].lon),
