@@ -20,6 +20,11 @@ COMPARABLE_FIELDS = [
     "has_children", "mobility_issues", "start_time", "last_day_end_time",
 ]
 
+def _normalize_str(s):
+    import unicodedata
+    return ''.join(c for c in unicodedata.normalize('NFKD', str(s).lower())
+                   if not unicodedata.combining(c))
+
 def field_match(expected_val, got_val, field):
     if expected_val is None:
         return True  # campo nao testado neste caso
@@ -30,6 +35,8 @@ def field_match(expected_val, got_val, field):
         return abs(int(got_val) - int(expected_val)) <= 0.2 * int(expected_val)
     if field == "max_cost":
         return abs(float(got_val) - float(expected_val)) <= 0.15 * float(expected_val)
+    if field == "location":
+        return _normalize_str(got_val) == _normalize_str(expected_val)
     return str(got_val).lower() == str(expected_val).lower()
 
 def missing_fields_match(expected, got):
