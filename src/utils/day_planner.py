@@ -6,7 +6,12 @@ import math
 
 
 class DayPlanner:
-    NOCTURNO_CATEGORIES = {"bares_e_discotecas", "casinos"}
+    NOCTURNO_CATEGORIES    = {"bares_e_discotecas", "casinos"}
+    ACCOMMODATION_CATEGORIES = frozenset({
+        "hotelaria", "alojamento_local", "turismo_habitacao",
+        "turismo_espaco_rural", "apartamento_turistico",
+        "pousadas_da_juventude", "aldeamento_turistico", "parques_de_campismo",
+    })
     DIURNO_CATEGORIES = {"monumentos", "museus_e_palacios", "espacos_verdes",
                           "parques_e_reservas", "arqueologia", "grutas",
                           "turismo_activo", "praias", "zoos_e_aquarios"}
@@ -32,8 +37,13 @@ class DayPlanner:
             total_time = sum(p['duration'] for p in route)
             total_days = max(1, math.ceil(total_time / self.minutes_per_day))
 
-        diurnal  = [p for p in route if p.get("category") not in self.NOCTURNO_CATEGORIES]
-        nocturnal = [p for p in route if p.get("category") in self.NOCTURNO_CATEGORIES]
+        accommodation = [p for p in route if p.get("category") in self.ACCOMMODATION_CATEGORIES]
+        non_accom     = [p for p in route if p.get("category") not in self.ACCOMMODATION_CATEGORIES]
+        diurnal   = [p for p in non_accom if p.get("category") not in self.NOCTURNO_CATEGORIES]
+        nocturnal = [p for p in non_accom if p.get("category") in self.NOCTURNO_CATEGORIES]
+
+        # Selecionar alojamento por dia: mesmo hotel em dias consecutivos na mesma zona
+        day_hotels = self._assign_hotels(accommodation, total_days)
 
         print(f"\nPlaneando {len(route)} POIs em {total_days} dias "
               f"({len(diurnal)} diurnos, {len(nocturnal)} noturnos)...")
@@ -65,9 +75,10 @@ class DayPlanner:
         for day_num in range(1, total_days + 1):
             d = diurnal_by_day[day_num - 1] if day_num <= len(diurnal_by_day) else []
             n = nocturnal_by_day[day_num - 1]
+            hotel = day_hotels[day_num - 1] if day_num <= len(day_hotels) else None
             day_start = first_day_start_time if day_num == 1 and first_day_start_time else self.start_time
-            if d or n:
-                days.append(self._format_day(day_num, d, n, day_start_time=day_start))
+            if d or n or hotel:
+                days.append(self._format_day(day_num, d, n, day_start_time=day_start, hotel=hotel))
 
         return {
             "days": days,
@@ -77,6 +88,30 @@ class DayPlanner:
         }
 
     # -- Distribution --------------------------------------------------------
+
+    def _assign_hotels(self, accommodation: List[Dict], n_days: int) -> List[Dict]:
+        """
+        Atribui 1 hotel por dia. Se ha apenas 1 hotel, repete-o em todos os dias.
+        Se ha varios, agrupa dias geograficamente e usa o mais proximo por cluster.
+        """
+        if not accommodation:
+            return [None] * n_days
+        if len(accommodation) == 1:
+            return [accommodation[0]] * n_days
+        # Ordenar por score decrescente e usar round-robin por zona
+        sorted_hotels = sorted(accommodation, key=lambda p: -p.get("score", 0.5))
+        result = []
+        prev = None
+        for i in range(n_days):
+            hotel = sorted_hotels[i % len(sorted_hotels)]
+            # Manter o mesmo hotel se zona for proxima (< 30km do anterior)
+            if prev is not None and self._haversine(
+                prev["lat"], prev["lon"], hotel["lat"], hotel["lon"]
+            ) < 30.0:
+                hotel = prev
+            result.append(hotel)
+            prev = hotel
+        return result
 
     def _distribute_diurnal(self, diurnal: List[Dict], n_days: int) -> List[List[Dict]]:
         if not diurnal:
@@ -173,7 +208,7 @@ class DayPlanner:
     # -- Formatting ----------------------------------------------------------
 
     def _format_day(self, day_num: int, diurnal: List[Dict], nocturnal: List[Dict],
-                    day_start_time: str = None) -> Dict:
+                    day_start_time: str = None, hotel: Dict = None) -> Dict:
         schedule = []
         order = 1
 
@@ -199,13 +234,23 @@ class DayPlanner:
             order += 1
             current += poi['duration']
 
-        # end_time: ultima saida (noturna se existir, senao diurna)
+        # Hotel: colocar no fim do dia (apos vida noturna)
+        if hotel:
+            arr = self._fmt(current)
+            dep = self._fmt(current + hotel.get('duration', 30))
+            schedule.append({**hotel, "arrival_time": arr, "departure_time": dep,
+                             "order": order, "is_accommodation": True})
+            order += 1
+            current += hotel.get('duration', 30)
+
+        # end_time: ultima saida
         if schedule:
             end_time = schedule[-1]['departure_time']
         else:
-            end_time = self.start_time
+            end_time = effective_start
 
         total_cost = sum(p['cost'] for p in diurnal + nocturnal)
+        total_cost += hotel['cost'] if hotel else 0
         total_time = sum(p['duration'] for p in diurnal + nocturnal)
 
         return {
