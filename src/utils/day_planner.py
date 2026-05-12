@@ -42,8 +42,8 @@ class DayPlanner:
         diurnal   = [p for p in non_accom if p.get("category") not in self.NOCTURNO_CATEGORIES]
         nocturnal = [p for p in non_accom if p.get("category") in self.NOCTURNO_CATEGORIES]
 
-        # Selecionar alojamento por dia: mesmo hotel em dias consecutivos na mesma zona
-        day_hotels = self._assign_hotels(accommodation, total_days)
+        # Selecionar alojamento por dia: hotel mais proximo do centroide de cada dia
+        day_hotels = self._assign_hotels(accommodation, total_days, diurnal_by_day)
 
         print(f"\nPlaneando {len(route)} POIs em {total_days} dias "
               f"({len(diurnal)} diurnos, {len(nocturnal)} noturnos)...")
@@ -89,28 +89,39 @@ class DayPlanner:
 
     # -- Distribution --------------------------------------------------------
 
-    def _assign_hotels(self, accommodation: List[Dict], n_days: int) -> List[Dict]:
+    def _assign_hotels(self, accommodation: List[Dict], n_days: int,
+                        diurnal_by_day: List[List[Dict]] = None) -> List[Dict]:
         """
-        Atribui 1 hotel por dia. Se ha apenas 1 hotel, repete-o em todos os dias.
-        Se ha varios, agrupa dias geograficamente e usa o mais proximo por cluster.
+        Atribui 1 hotel por dia. Escolhe o hotel mais proximo do centroide
+        dos POIs de cada dia. Para rotas A->B, os primeiros dias ficam com
+        hoteis perto de A e os ultimos perto de B.
         """
         if not accommodation:
             return [None] * n_days
         if len(accommodation) == 1:
             return [accommodation[0]] * n_days
-        # Ordenar por score decrescente e usar round-robin por zona
-        sorted_hotels = sorted(accommodation, key=lambda p: -p.get("score", 0.5))
+
         result = []
-        prev = None
-        for i in range(n_days):
-            hotel = sorted_hotels[i % len(sorted_hotels)]
-            # Manter o mesmo hotel se zona for proxima (< 30km do anterior)
-            if prev is not None and self._haversine(
-                prev["lat"], prev["lon"], hotel["lat"], hotel["lon"]
+        for day_idx in range(n_days):
+            day_pois = (diurnal_by_day[day_idx]
+                        if diurnal_by_day and day_idx < len(diurnal_by_day)
+                        else [])
+
+            if day_pois:
+                clat = sum(p["lat"] for p in day_pois) / len(day_pois)
+                clon = sum(p["lon"] for p in day_pois) / len(day_pois)
+                best = min(accommodation,
+                           key=lambda h: self._haversine(clat, clon, h["lat"], h["lon"]))
+            else:
+                best = max(accommodation, key=lambda h: h.get("score", 0.5))
+
+            # Manter o mesmo hotel se a zona do dia anterior for proxima (< 30km)
+            if result and self._haversine(
+                result[-1]["lat"], result[-1]["lon"], best["lat"], best["lon"]
             ) < 30.0:
-                hotel = prev
-            result.append(hotel)
-            prev = hotel
+                best = result[-1]
+
+            result.append(best)
         return result
 
     def _distribute_diurnal(self, diurnal: List[Dict], n_days: int) -> List[List[Dict]]:

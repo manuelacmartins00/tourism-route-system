@@ -95,19 +95,56 @@ class LlamaOrchestrator:
         """
         Extrai preferencias com mapeamento semantico de tags
         """
-        # Pre-processar: substituir ordinais de dia-da-semana (ex: 6a feira, 6ª)
-        # Apenas quando ha sufixo ordinal (ª/º) ou a palavra "feira" a seguir
+        # Pre-processar: substituir ordinais de dia-da-semana
+        # Aceita: 6ª, 6ª feira, 6a feira, 6a tarde/manha/noite (informal)
         import re as _pre
+        import unicodedata as _ud
         _ordinal_map = {'2': 'segunda-feira', '3': 'terca-feira', '4': 'quarta-feira',
                         '5': 'quinta-feira',  '6': 'sexta-feira'}
         def _replace_ordinal(m):
             return _ordinal_map.get(m.group(1), m.group(0))
         user_query = _pre.sub(
-            r'\b([2-6])(?:[\xaa\xba]\s*(?:-?\s*feira)?|a\s+-?\s*feira|\s+-?\s*feira)\b',
+            r'\b([2-6])(?:[\xaa\xba]\s*(?:-?\s*feira)?'
+            r'|a\s*(?:-?\s*feira|tarde|manha|noite|de\s+tarde|de\s+manha)'
+            r'|\s+-?\s*feira)\b',
             _replace_ordinal,
             user_query,
             flags=_pre.IGNORECASE
         )
+
+        # Pre-processar: detetar intervalos de dias da semana implicitos
+        # "de sexta-feira ... ate domingo" -> extrair duracao em dias
+        _DAY_NUM = {
+            'segunda': 1, 'terca': 2, 'quarta': 3, 'quinta': 4,
+            'sexta': 5, 'sabado': 6, 'domingo': 7,
+        }
+        def _norm(s):
+            return ''.join(c for c in _ud.normalize('NFKD', s.lower()) if not _ud.combining(c))
+        def _day_n(name):
+            return _DAY_NUM.get(_norm(name.replace('-feira', '').strip()))
+
+        _implicit_days = None
+        # Padrao: de [dia1] ... (a|ate) ... [dia2]
+        _range_m = _pre.search(
+            r'\bde\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b'
+            r'.{0,30}?\b(?:a|ate)\b.{0,15}?\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+            _norm(user_query), _pre.IGNORECASE
+        )
+        if _range_m:
+            d1, d2 = _day_n(_range_m.group(1)), _day_n(_range_m.group(2))
+            if d1 and d2:
+                diff = (d2 - d1) % 7
+                _implicit_days = max(1, diff + 1)
+        # Padrao: [dia1] e [dia2] (ex: "sexta e sabado")
+        if _implicit_days is None:
+            _enum = _pre.findall(
+                r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                _norm(user_query), _pre.IGNORECASE
+            )
+            if len(_enum) >= 2:
+                nums = sorted({_day_n(d) for d in _enum if _day_n(d)})
+                if nums:
+                    _implicit_days = (max(nums) - min(nums)) + 1
 
         valid_tags_str = ", ".join(self.VALID_TAGS)
         
@@ -186,6 +223,8 @@ EXEMPLOS DE CONVERSAO:
 - "5 amigos" -> num_people: 5
 - "somos 3" -> num_people: 3
 - "eu e a minha namorada" -> num_people: 2
+- "familia com 2 criancas" -> num_people: 4 (2 adultos + 2 criancas)
+- "casal com 1 filho" -> num_people: 3
 - "de 6 a tarde ate domingo a tarde" -> start_time: "16:00", last_day_end_time: "17:00"
 - "de sabado de manha ate domingo ao meio-dia" -> start_time: "09:00", last_day_end_time: "12:00"
 
@@ -482,11 +521,16 @@ Responde APENAS com o JSON, sem explicacoes."""
                     extracted_time = int(_n * 60)
                 elif "semana" in _unit or "week" in _unit:
                     extracted_time = int(_n * 7 * 480)
-                else:  # dias / noites / nights
+                else:
                     extracted_time = int(_n * 480)
                 missing_fields = [f for f in missing_fields if f != "max_time"]
                 print(f"   max_time extraido por regex: {extracted_time} min ({_n} {_unit})")
-            elif not _has_explicit_duration and data.get("max_time") is None:
+            elif _implicit_days and data.get("max_time") is None:
+                # Duracao implicita por intervalo de dias da semana
+                extracted_time = _implicit_days * 480
+                missing_fields = [f for f in missing_fields if f != "max_time"]
+                print(f"   max_time por intervalo de dias: {extracted_time} min ({_implicit_days} dias)")
+            elif not _has_explicit_duration and not _implicit_days and data.get("max_time") is None:
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
                     print("   max_time adicionado: duracao nao mencionada na query")
@@ -495,6 +539,15 @@ Responde APENAS com o JSON, sem explicacoes."""
                 if "max_cost" not in missing_fields:
                     missing_fields.append("max_cost")
                     print("   max_cost adicionado: orcamento nao mencionado na query")
+
+            # num_rooms: perguntar sempre que num_people > 2 e alojamento provavel
+            _accom_hints = ["hotel", "hostel", "alojamento", "quarto", "noite", "noites",
+                            "dormir", "ficar", "hospedado", "campismo", "airbnb"]
+            _needs_accom = (num_people > 2 and
+                            any(h in user_query.lower() for h in _accom_hints))
+            if _needs_accom and "num_rooms" not in missing_fields:
+                missing_fields.append("num_rooms")
+                print(f"   num_rooms adicionado: {num_people} pessoas, alojamento provavel")
 
             # 4. Ordenar por prioridade
             FIELD_PRIORITY = ["location", "max_time", "max_cost", "budget_type", "transport_mode"]
