@@ -450,13 +450,28 @@ Responde APENAS com o JSON, sem explicacoes."""
             if data.get("max_time") is not None:
                 missing_fields = [f for f in missing_fields if f != "max_time"]
 
-            # 3. Forcar missing_fields se LLM nao extraiu (devolveu null)
+            # 3. Se LLM devolveu null para max_time mas a duração está explícita na query, extrair
             import re as _re
-            _has_explicit_duration = bool(_re.search(
-                r'\b(\d+|um|uma|dois|duas|tr[ee]s|quatro|cinco|seis|sete|oito|nove|dez|meio)\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin\s+de\s+semana|weekend|dia)\b',
-                user_query.lower()
-            ))
-            if not _has_explicit_duration and data.get("max_time") is None:
+            _WORD_TO_NUM = {"um": 1, "uma": 1, "dois": 2, "duas": 2, "tres": 3,
+                            "quatro": 4, "cinco": 5, "seis": 6, "sete": 7,
+                            "oito": 8, "nove": 9, "dez": 10, "meio": 0.5}
+            _DUR_PATTERN = r'\b(\d+|um|uma|dois|duas|tr[ee]s|quatro|cinco|seis|sete|oito|nove|dez|meio)\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin\s+de\s+semana|weekend)\b'
+            _dur_match = _re.search(_DUR_PATTERN, user_query.lower())
+            _has_explicit_duration = bool(_dur_match)
+
+            if _has_explicit_duration and data.get("max_time") is None:
+                # Parse valor da duracao diretamente da query
+                _n_raw, _unit = _dur_match.group(1), _dur_match.group(2).lower()
+                _n = float(_n_raw) if _n_raw.isdigit() else _WORD_TO_NUM.get(_n_raw, 1)
+                if "hora" in _unit or "hour" in _unit:
+                    extracted_time = int(_n * 60)
+                elif "semana" in _unit or "week" in _unit:
+                    extracted_time = int(_n * 7 * 480)
+                else:  # dias / noites / nights
+                    extracted_time = int(_n * 480)
+                missing_fields = [f for f in missing_fields if f != "max_time"]
+                print(f"   max_time extraido por regex: {extracted_time} min ({_n} {_unit})")
+            elif not _has_explicit_duration and data.get("max_time") is None:
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
                     print("   max_time adicionado: duracao nao mencionada na query")
