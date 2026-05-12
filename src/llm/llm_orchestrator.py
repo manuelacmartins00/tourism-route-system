@@ -366,13 +366,27 @@ Responde APENAS com o JSON, sem explicacoes."""
 
             # Extrair modo de transporte
             transport_mode = data.get("transport_mode", None)
+            # Verificar se ha keyword explicita de transporte na query
+            _transport_kws = [
+                "a pe", "a andar", "walking", "foot",
+                "carro", "de carro", "a carro", "car", "driving", "automovel",
+                "transportes publicos", "transporte publico", "metro", "autocarro",
+                "comboio", "autobus", "bus", "public transport",
+                "bicicleta", "bike", "cycling", "mais rapido", "fastest",
+            ]
+            _has_transport_kw = any(kw in user_query.lower() for kw in _transport_kws)
+
             if not transport_mode or transport_mode not in ["foot", "car", "public_transport", "fastest"]:
                 transport_mode = None
-                # Garantir que esta em missing_fields independentemente do que o LLM devolveu
+            elif not _has_transport_kw:
+                # LLM adivinhou — anular e perguntar
+                transport_mode = None
+
+            if transport_mode is None:
                 if "transport_mode" not in data.get("missing_fields", []):
                     data.setdefault("missing_fields", []).append("transport_mode")
                 print(f"   Modo de transporte nao identificado - sera pedido ao utilizador")
-            if transport_mode:
+            else:
                 print(f"   Modo de transporte: '{transport_mode}'")
 
             # Extrair problemas de mobilidade
