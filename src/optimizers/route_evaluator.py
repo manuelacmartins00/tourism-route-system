@@ -1,6 +1,7 @@
 # src/optimizers/route_evaluator.py (FIX CONSTRAINTS RELAXADOS)
 
 import numpy as np
+import math
 from typing import List, Dict
 from dataclasses import dataclass
 
@@ -16,6 +17,12 @@ class POI:
     opening_time: str
     closing_time: str
     cost: float
+
+ACCOMMODATION_CATEGORIES = frozenset({
+    "hotelaria", "alojamento_local", "turismo_habitacao",
+    "turismo_espaco_rural", "apartamento_turistico",
+    "pousadas_da_juventude", "aldeamento_turistico", "parques_de_campismo",
+})
 
 class RouteEvaluator:
     """Avalia qualidade de rotas turisticas"""
@@ -33,9 +40,12 @@ class RouteEvaluator:
 
         self.center_lat = user_prefs.get("center_lat")
         self.center_lon = user_prefs.get("center_lon")
-        self.max_radius_km = user_prefs.get("max_radius_km", 20.0)
+        self.max_radius_km   = user_prefs.get("max_radius_km", 20.0)
         self.mobility_issues = user_prefs.get("mobility_issues", False)
         self.has_children    = user_prefs.get("has_children", False)
+        self.num_people      = max(1, user_prefs.get("num_people", 1))
+        self.num_rooms       = max(1, user_prefs.get("num_rooms", max(1, math.ceil(self.num_people / 2))))
+        self.people_per_room = self.num_people / self.num_rooms
         self.elevation_matrix = user_prefs.get("elevation_matrix", None)
         self.w_elevation = 0.15
 
@@ -167,19 +177,16 @@ class RouteEvaluator:
         return (sum(dist_scores) / len(dist_scores)) * 100
 
     def _is_feasible(self, route: List[int]) -> bool:
-        """Verifica se a rota respeita constraints (RELAXADO)"""
-        
-        if not route:
+        """Verifica se a rota respeita constraints"""
+
+        if not route or not self.pois:
             return False
-        
-        if not self.pois:
-            return False
-        
+
         max_valid_index = len(self.pois) - 1
         for idx in route:
             if idx > max_valid_index or idx < 0:
                 return False
-        
+
         total_time = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
         if total_time > max_time:
@@ -187,13 +194,27 @@ class RouteEvaluator:
                 print(f"   AVISO: Inviavel (tempo): {total_time:.0f} > {max_time}")
             return False
 
-        total_cost = sum(self.pois[poi_idx].cost for poi_idx in route)
+        # Custo: alojamento dividido por pessoas/quarto, restantes por pessoa
+        total_cost = 0.0
+        for poi_idx in route:
+            poi = self.pois[poi_idx]
+            if poi.category in ACCOMMODATION_CATEGORIES:
+                total_cost += poi.cost / self.people_per_room
+            else:
+                total_cost += poi.cost
         max_cost = float(self.prefs.get('max_cost', 1000))
         if total_cost > max_cost:
             if self._debug_mode:
                 print(f"   AVISO: Inviavel (custo): {total_cost:.2f} > {max_cost}")
             return False
-        
+
+        # Hard constraint: pelo menos 1 POI de alojamento
+        has_accommodation = any(
+            self.pois[idx].category in ACCOMMODATION_CATEGORIES for idx in route
+        )
+        if not has_accommodation:
+            return False
+
         return True
 
     def _calculate_time(self, route: List[int]) -> float:

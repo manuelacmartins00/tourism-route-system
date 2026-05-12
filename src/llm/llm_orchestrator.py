@@ -95,7 +95,19 @@ class LlamaOrchestrator:
         """
         Extrai preferencias com mapeamento semantico de tags
         """
-        
+        # Pre-processar: substituir ordinais de dia-da-semana para evitar confusao com numeros
+        import re as _pre
+        _ordinal_map = {'2': 'segunda-feira', '3': 'terca-feira', '4': 'quarta-feira',
+                        '5': 'quinta-feira',  '6': 'sexta-feira'}
+        def _replace_ordinal(m):
+            return _ordinal_map.get(m.group(1), m.group(0))
+        user_query = _pre.sub(
+            r'\b([2-6])[\xaa\xba a]?\s*(?:feira)?\b',
+            _replace_ordinal,
+            user_query,
+            flags=_pre.IGNORECASE
+        )
+
         valid_tags_str = ", ".join(self.VALID_TAGS)
         
         prompt = f"""Tu es um assistente de turismo inteligente. Analisa a query do utilizador e extrai preferencias.
@@ -176,10 +188,16 @@ EXEMPLOS DE CONVERSAO:
 - "de 6 a tarde ate domingo a tarde" -> start_time: "16:00", last_day_end_time: "17:00"
 - "de sabado de manha ate domingo ao meio-dia" -> start_time: "09:00", last_day_end_time: "12:00"
 
+REGRA CRITICA PARA missing_fields:
+- Se max_time nao foi mencionado: max_time deve ser null E "max_time" em missing_fields
+- Se budget nao foi mencionado: budget_value deve ser null E "max_cost" em missing_fields
+- NUNCA inventar valores para estes campos — null obrigatorio se nao mencionados
+- "carro", "de carro", "a carro", "carro proprio", "carro alugado" -> transport_mode: "car"
+
 Devolve APENAS JSON (sem texto adicional):
 {{
-  "max_time": 300,
-  "budget_value": 50.0,
+  "max_time": null,
+  "budget_value": null,
   "budget_type": "per_person",
   "num_people": 1,
   "tags": ["tag1", "tag2", "tag3"],
@@ -295,11 +313,15 @@ Responde APENAS com o JSON, sem explicacoes."""
                 for category in main_categories:
                     category_weights[category] = 0.8
             
-            # Validar tempo extraido
-            extracted_time = data.get("max_time", 300)
-            if extracted_time > 5000:
-                print(f"   AVISO: Tempo extraido parece errado: {extracted_time} min - limitando a 1440 min")
-                extracted_time = 1440
+            # Validar tempo extraido — null significa nao mencionado
+            extracted_time = data.get("max_time")
+            if extracted_time is None:
+                extracted_time = 300  # placeholder; missing_fields tratara isto
+            else:
+                extracted_time = int(extracted_time)
+                if extracted_time > 5000:
+                    print(f"   AVISO: Tempo extraido parece errado: {extracted_time} min - limitando a 1440 min")
+                    extracted_time = 1440
 
             # Numero de pessoas
             num_people = max(1, int(data.get("num_people", 1) or 1))
@@ -307,7 +329,8 @@ Responde APENAS com o JSON, sem explicacoes."""
             # Calcular orcamento per-person total com base no tipo declarado
             import math as _math
             num_days = max(1, _math.ceil(extracted_time / 480))
-            budget_value = float(data.get("budget_value", data.get("max_cost", 50.0)) or 50.0)
+            raw_budget = data.get("budget_value") or data.get("max_cost")
+            budget_value = float(raw_budget) if raw_budget is not None else None
             budget_type  = data.get("budget_type", "per_person") or "per_person"
 
             # Corrigir budget_type: se LLM retornou "per_person" mas a query diz "por dia"
@@ -317,7 +340,9 @@ Responde APENAS com o JSON, sem explicacoes."""
                 budget_type = "per_person_per_day"
                 print(f"   [INFO] budget_type corrigido: 'por dia' detectado na query")
 
-            if budget_type == "per_person":
+            if budget_value is None:
+                extracted_cost = 50.0  # placeholder; missing_fields tratara isto
+            elif budget_type == "per_person":
                 extracted_cost = budget_value
             elif budget_type == "per_person_per_day":
                 extracted_cost = budget_value * num_days
@@ -326,9 +351,10 @@ Responde APENAS com o JSON, sem explicacoes."""
             else:  # "total"
                 extracted_cost = budget_value / num_people
 
-            if extracted_cost > 1000:
-                print(f"   AVISO: Orcamento por pessoa calculado parece alto: EUR{extracted_cost:.0f}")
-            print(f"   Budget: EUR{budget_value} ({budget_type}) x {num_days}d / {num_people}p -> EUR{extracted_cost:.2f}/pessoa")
+            if budget_value is not None:
+                if extracted_cost > 1000:
+                    print(f"   AVISO: Orcamento por pessoa calculado parece alto: EUR{extracted_cost:.0f}")
+                print(f"   Budget: EUR{budget_value} ({budget_type}) x {num_days}d / {num_people}p -> EUR{extracted_cost:.2f}/pessoa")
 
             # Extrair localizacao
             extracted_location = data.get("location", None)
@@ -417,24 +443,28 @@ Responde APENAS com o JSON, sem explicacoes."""
                 missing_fields = [f for f in missing_fields if f != "transport_mode"]
             if extracted_location:
                 missing_fields = [f for f in missing_fields if f != "location"]
-            if budget_value != 50.0:
+            if budget_value is not None:
                 missing_fields = [f for f in missing_fields if f not in ("max_cost", "budget_value")]
-            if data.get("budget_type"):  # LLM devolveu um budget_type explicito
+            if data.get("budget_type"):
                 missing_fields = [f for f in missing_fields if f != "budget_type"]
-            if extracted_time != 300:
+            if data.get("max_time") is not None:
                 missing_fields = [f for f in missing_fields if f != "max_time"]
 
-            # 3. max_time e sempre obrigatorio se nao foi explicitamente mencionado
+            # 3. Forcar missing_fields se LLM nao extraiu (devolveu null)
             import re as _re
             _has_explicit_duration = bool(_re.search(
                 r'\b(\d+|um|uma|dois|duas|tr[ee]s|quatro|cinco|seis|sete|oito|nove|dez|meio)\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin\s+de\s+semana|weekend|dia)\b',
                 user_query.lower()
             ))
-            # So forcar se o regex tambem nao encontrou E o LLM nao extraiu nada util
-            if not _has_explicit_duration and extracted_time == 300:
+            if not _has_explicit_duration and data.get("max_time") is None:
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
                     print("   max_time adicionado: duracao nao mencionada na query")
+
+            if budget_value is None:
+                if "max_cost" not in missing_fields:
+                    missing_fields.append("max_cost")
+                    print("   max_cost adicionado: orcamento nao mencionado na query")
 
             # 4. Ordenar por prioridade
             FIELD_PRIORITY = ["location", "max_time", "max_cost", "budget_type", "transport_mode"]
