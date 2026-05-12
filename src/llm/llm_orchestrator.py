@@ -96,7 +96,7 @@ class LlamaOrchestrator:
         Extrai preferencias com mapeamento semantico de tags
         """
         # Pre-processar: substituir ordinais de dia-da-semana
-        # Aceita: 6ª, 6ª feira, 6a feira, 6a tarde/manha/noite (informal)
+        # Aceita: 6ª, 6ª feira, 6a feira, 6a tarde/manha/noite, 6a a tarde (informal)
         import re as _pre
         import unicodedata as _ud
         _ordinal_map = {'2': 'segunda-feira', '3': 'terca-feira', '4': 'quarta-feira',
@@ -105,6 +105,7 @@ class LlamaOrchestrator:
             return _ordinal_map.get(m.group(1), m.group(0))
         user_query = _pre.sub(
             r'\b([2-6])(?:[\xaa\xba]\s*(?:-?\s*feira)?'
+            r'|a\s+a\s+(?:tarde|manha|noite)'
             r'|a\s*(?:-?\s*feira|tarde|manha|noite|de\s+tarde|de\s+manha)'
             r'|\s+-?\s*feira)\b',
             _replace_ordinal,
@@ -112,8 +113,10 @@ class LlamaOrchestrator:
             flags=_pre.IGNORECASE
         )
 
+        # Pre-processar: "fim de semana" = 2 dias fixo
+        _fim_semana = bool(_pre.search(r'\bfim\s+de\s+semana\b', user_query, _pre.IGNORECASE))
+
         # Pre-processar: detetar intervalos de dias da semana implicitos
-        # "de sexta-feira ... ate domingo" -> extrair duracao em dias
         _DAY_NUM = {
             'segunda': 1, 'terca': 2, 'quarta': 3, 'quinta': 4,
             'sexta': 5, 'sabado': 6, 'domingo': 7,
@@ -124,27 +127,30 @@ class LlamaOrchestrator:
             return _DAY_NUM.get(_norm(name.replace('-feira', '').strip()))
 
         _implicit_days = None
-        # Padrao: de [dia1] ... (a|ate) ... [dia2]
-        _range_m = _pre.search(
-            r'\bde\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b'
-            r'.{0,30}?\b(?:a|ate)\b.{0,15}?\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
-            _norm(user_query), _pre.IGNORECASE
-        )
-        if _range_m:
-            d1, d2 = _day_n(_range_m.group(1)), _day_n(_range_m.group(2))
-            if d1 and d2:
-                diff = (d2 - d1) % 7
-                _implicit_days = max(1, diff + 1)
-        # Padrao: [dia1] e [dia2] (ex: "sexta e sabado")
-        if _implicit_days is None:
-            _enum = _pre.findall(
-                r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+        if _fim_semana:
+            _implicit_days = 2
+        else:
+            # Padrao: de [dia1] ... (a|ate) ... [dia2]
+            _range_m = _pre.search(
+                r'\bde\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b'
+                r'.{0,30}?\b(?:a|ate)\b.{0,15}?\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
                 _norm(user_query), _pre.IGNORECASE
             )
-            if len(_enum) >= 2:
-                nums = sorted({_day_n(d) for d in _enum if _day_n(d)})
-                if nums:
-                    _implicit_days = (max(nums) - min(nums)) + 1
+            if _range_m:
+                d1, d2 = _day_n(_range_m.group(1)), _day_n(_range_m.group(2))
+                if d1 and d2:
+                    diff = (d2 - d1) % 7
+                    _implicit_days = max(1, diff + 1)
+            # Padrao: [dia1] e [dia2] (ex: "sexta e sabado")
+            if _implicit_days is None:
+                _enum = _pre.findall(
+                    r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                    _norm(user_query), _pre.IGNORECASE
+                )
+                if len(_enum) >= 2:
+                    nums = sorted({_day_n(d) for d in _enum if _day_n(d)})
+                    if nums:
+                        _implicit_days = (max(nums) - min(nums)) + 1
 
         valid_tags_str = ", ".join(self.VALID_TAGS)
         
@@ -225,8 +231,10 @@ EXEMPLOS DE CONVERSAO:
 - "eu e a minha namorada" -> num_people: 2
 - "familia com 2 criancas" -> num_people: 4 (2 adultos + 2 criancas)
 - "casal com 1 filho" -> num_people: 3
-- "de 6 a tarde ate domingo a tarde" -> start_time: "16:00", last_day_end_time: "17:00"
-- "de sabado de manha ate domingo ao meio-dia" -> start_time: "09:00", last_day_end_time: "12:00"
+- "de 6a a tarde ate domingo a tarde" -> start_time: "16:00", last_day_end_time: "17:00", max_time: 1440
+- "de sabado de manha ate domingo ao meio-dia" -> start_time: "09:00", last_day_end_time: "12:00", max_time: 960
+- "fim de semana" -> max_time: 960 (sabado + domingo = 2 dias)
+- "familia com 2 criancas" -> num_people: 4 (2 adultos + 2 criancas)
 
 REGRA CRITICA PARA missing_fields:
 - Se max_time nao foi mencionado: max_time deve ser null E "max_time" em missing_fields
