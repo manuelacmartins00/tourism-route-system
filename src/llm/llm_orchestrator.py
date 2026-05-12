@@ -95,14 +95,15 @@ class LlamaOrchestrator:
         """
         Extrai preferencias com mapeamento semantico de tags
         """
-        # Pre-processar: substituir ordinais de dia-da-semana para evitar confusao com numeros
+        # Pre-processar: substituir ordinais de dia-da-semana (ex: 6a feira, 6ª)
+        # Apenas quando ha sufixo ordinal (ª/º) ou a palavra "feira" a seguir
         import re as _pre
         _ordinal_map = {'2': 'segunda-feira', '3': 'terca-feira', '4': 'quarta-feira',
                         '5': 'quinta-feira',  '6': 'sexta-feira'}
         def _replace_ordinal(m):
             return _ordinal_map.get(m.group(1), m.group(0))
         user_query = _pre.sub(
-            r'\b([2-6])[\xaa\xba a]?\s*(?:feira)?\b',
+            r'\b([2-6])(?:[\xaa\xba]\s*(?:-?\s*feira)?|a\s+-?\s*feira|\s+-?\s*feira)\b',
             _replace_ordinal,
             user_query,
             flags=_pre.IGNORECASE
