@@ -25,6 +25,7 @@ class UserPreferences:
     last_day_end_time: str = None
     end_location: str = None
     locations: List[str] = None
+    locations_ordered: bool = False
 
 class LlamaOrchestrator:
     """
@@ -304,6 +305,7 @@ Devolve APENAS JSON (sem texto adicional):
   "start_time": "09:00",
   "last_day_end_time": null,
   "locations": ["Lisboa"],
+  "locations_ordered": false,
   "transport_mode": "foot",
   "start_location": null,
   "mobility_issues": false,
@@ -343,11 +345,14 @@ REGRAS PARA locations (lista ordenada de 1 a 4 localidades):
 - "de Porto a Vila Real" -> locations: ["Porto", "Vila Real"]
 - "entre Coimbra e Aveiro" -> locations: ["Coimbra", "Aveiro"]
 - "rota de Faro a Lisboa" -> locations: ["Faro", "Lisboa"]
-- "de Lisboa a Coimbra e depois ao Porto" -> locations: ["Lisboa", "Coimbra", "Porto"]
-- "road trip de Faro a Evora a Lisboa ao Porto" -> locations: ["Faro", "Evora", "Lisboa", "Porto"]
-- "passando por Coimbra e Aveiro" -> locations: [..., "Coimbra", "Aveiro"]
-- Se mencionar apenas uma localizacao -> locations: ["Localidade"]
-- Maximo 4 localidades. Ordenar pela ordem em que serao visitadas.
+- "de Lisboa a Coimbra e depois ao Porto" -> locations: ["Lisboa", "Coimbra", "Porto"], locations_ordered: true
+- "road trip de Faro a Evora a Lisboa ao Porto" -> locations: ["Faro", "Evora", "Lisboa", "Porto"], locations_ordered: true
+- "quero visitar Lisboa, Porto e Coimbra" -> locations: ["Lisboa", "Porto", "Coimbra"], locations_ordered: false
+- "passando por Coimbra e Aveiro" -> locations: [..., "Coimbra", "Aveiro"], locations_ordered: true
+- Se mencionar apenas uma localizacao -> locations: ["Localidade"], locations_ordered: false
+- Maximo 4 localidades.
+- locations_ordered: true se o utilizador especificou a ordem de visita explicitamente ("de X a Y", "primeiro X depois Y", "comecar em X acabar em Y")
+- locations_ordered: false se o utilizador apenas listou cidades sem ordem definida
 
 REGRAS IMPORTANTES:
 - Usa APENAS tags da lista VALIDA acima
@@ -476,10 +481,12 @@ Responde APENAS com o JSON, sem explicacoes."""
             extracted_location = extracted_locations[0] if extracted_locations else None
             end_location_from_llm = extracted_locations[-1] if len(extracted_locations) > 1 else None
 
+            locations_ordered = bool(data.get("locations_ordered", False))
+            # Se o regex detectou a ordem explicitamente, marcar como ordenado
             if extracted_location:
                 print(f"   Localizacao principal: '{extracted_location}'")
             if len(extracted_locations) > 1:
-                print(f"   Rota com {len(extracted_locations)} localidades: {extracted_locations}")
+                print(f"   Rota com {len(extracted_locations)} localidades {('(ordenada)' if locations_ordered else '(sem ordem)')}: {extracted_locations}")
 
             # Extrair modo de transporte — Python-level keyword override (nao depender so do LLM)
             _TRANSPORT_KW_MAP = [
@@ -580,6 +587,7 @@ Responde APENAS com o JSON, sem explicacoes."""
                                 extracted_location = groups[0]
                             extracted_locations = [g for g in groups if g]
                             end_location = extracted_locations[-1]
+                            locations_ordered = True  # regex deteta ordem explicita
                             print(f"   Rota {len(extracted_locations)} localidades por regex: {extracted_locations}")
                             break
 
@@ -712,6 +720,7 @@ Responde APENAS com o JSON, sem explicacoes."""
                 last_day_end_time=last_day_end_time,
                 end_location=end_location,
                 locations=extracted_locations if extracted_locations else ([extracted_location] if extracted_location else []),
+                locations_ordered=locations_ordered,
             )
         
         except Exception as e:
