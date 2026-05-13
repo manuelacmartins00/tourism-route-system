@@ -118,23 +118,31 @@ class LlamaOrchestrator:
 
         # Pre-processar: palavras de periodo do dia -> start_time + duracao implicita
         _TIME_OF_DAY = [
-            (r'\bmanha\s+cedo\b',    '08:00', 240),
-            (r'\bde\s+manha\b',      '09:00', 240),
-            (r'\bpela\s+manha\b',    '09:00', 240),
-            (r'\bde\s+manhã\b',      '09:00', 240),
-            (r'\bmanha\b',           '09:00', 240),
-            (r'\bao\s+almoco\b',     '12:00', 120),
-            (r'\bmeio[- ]dia\b',     '12:00', 120),
-            (r'\bfinal\s+da\s+tarde\b', '17:00', 120),
-            (r'\bao\s+fim\s+da\s+tarde\b', '17:00', 120),
-            (r'\bda\s+tarde\b',      '14:00', 240),
-            (r'\bde\s+tarde\b',      '14:00', 240),
-            (r'\bpela\s+tarde\b',    '14:00', 240),
-            (r'\ba\s+tarde\b',       '14:00', 240),
-            (r'\btarde\b',           '14:00', 240),
-            (r'\bao\s+jantar\b',     '19:00', 120),
-            (r'\ba\s+noite\b',       '20:00', None),
-            (r'\bnoite\b',           '20:00', None),
+            (r'\bmanha\s+cedo\b',        '08:00', 240),
+            (r'\bearly\s+morning\b',      '08:00', 240),
+            (r'\bde\s+manha\b',          '09:00', 240),
+            (r'\bpela\s+manha\b',        '09:00', 240),
+            (r'\bmorning\b',             '09:00', 240),
+            (r'\bmanha\b',               '09:00', 240),
+            (r'\bhalf\s+day\b',          '09:00', 240),
+            (r'\bmeio\s+dia\b',          '09:00', 240),
+            (r'\bao\s+almoco\b',         '12:00', 120),
+            (r'\bmeio[- ]dia\b',         '12:00', 120),
+            (r'\blunch\b',               '12:00', 120),
+            (r'\bfinal\s+da\s+tarde\b',  '17:00', 120),
+            (r'\bao\s+fim\s+da\s+tarde\b','17:00', 120),
+            (r'\bevening\b',             '18:00', None),
+            (r'\bda\s+tarde\b',          '16:00', 240),
+            (r'\bde\s+tarde\b',          '16:00', 240),
+            (r'\bpela\s+tarde\b',        '16:00', 240),
+            (r'\ba\s+tarde\b',           '16:00', 240),
+            (r'\bafternoon\b',           '14:00', 240),
+            (r'\btarde\b',               '16:00', 240),
+            (r'\bao\s+jantar\b',         '19:00', 120),
+            (r'\bdinner\b',              '19:00', 120),
+            (r'\ba\s+noite\b',           '20:00', None),
+            (r'\bnoite\b',               '20:00', None),
+            (r'\bnight\b',               '20:00', None),
         ]
         _inferred_start_time = None
         _inferred_duration_min = None
@@ -159,6 +167,19 @@ class LlamaOrchestrator:
         if _fim_semana:
             _implicit_days = 2
         else:
+            # Dia unico isolado: "sabado", "domingo", "segunda-feira", etc.
+            _single_day_m = _pre.search(
+                r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                _norm(user_query), _pre.IGNORECASE
+            )
+            if _single_day_m:
+                # Verificar que nao ha mais dias (range) ja tratado
+                all_days = _pre.findall(
+                    r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                    _norm(user_query), _pre.IGNORECASE
+                )
+                if len({_day_n(d) for d in all_days if _day_n(d)}) == 1:
+                    _implicit_days = 1
             # Padrao: de [dia1] ... (a|ate) ... [dia2]
             _range_m = _pre.search(
                 r'\bde\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b'
@@ -440,30 +461,35 @@ Responde APENAS com o JSON, sem explicacoes."""
             if extracted_location:
                 print(f"   Localizacao extraida: '{extracted_location}'")
 
-            # Extrair modo de transporte
-            transport_mode = data.get("transport_mode", None)
-            # Verificar se ha keyword explicita de transporte na query
-            _transport_kws = [
-                "a pe", "a andar", "walking", "foot",
-                "carro", "de carro", "a carro", "car", "driving", "automovel",
-                "transportes publicos", "transporte publico", "metro", "autocarro",
-                "comboio", "autobus", "bus", "public transport",
-                "bicicleta", "bike", "cycling", "mais rapido", "fastest",
+            # Extrair modo de transporte — Python-level keyword override (nao depender so do LLM)
+            _TRANSPORT_KW_MAP = [
+                (["transportes publicos", "transporte publico", "metro", "autocarro",
+                  "comboio", "autobus", "bus", "public transport", "cp "], "public_transport"),
+                (["de carro", "a carro", "carro proprio", "carro alugado",
+                  "de mota", "mota", "moto", "motorizada", "carro", "car", "driving"], "car"),
+                (["a pe", "a andar", "walking", "a caminhar"], "foot"),
+                (["bicicleta", "bike", "cycling", "velocipede"], "foot"),
+                (["mais rapido", "qualquer meio", "fastest"], "fastest"),
             ]
-            _has_transport_kw = any(kw in user_query.lower() for kw in _transport_kws)
+            _inferred_transport = None
+            for _kws, _mode in _TRANSPORT_KW_MAP:
+                if any(kw in user_query.lower() for kw in _kws):
+                    _inferred_transport = _mode
+                    break
 
-            if not transport_mode or transport_mode not in ["foot", "car", "public_transport", "fastest"]:
-                transport_mode = None
-            elif not _has_transport_kw:
-                # LLM adivinhou — anular e perguntar
-                transport_mode = None
-
-            if transport_mode is None:
-                if "transport_mode" not in data.get("missing_fields", []):
-                    data.setdefault("missing_fields", []).append("transport_mode")
-                print(f"   Modo de transporte nao identificado - sera pedido ao utilizador")
-            else:
+            if _inferred_transport:
+                transport_mode = _inferred_transport
                 print(f"   Modo de transporte: '{transport_mode}'")
+            else:
+                transport_mode = data.get("transport_mode", None)
+                if not transport_mode or transport_mode not in ["foot", "car", "public_transport", "fastest"]:
+                    transport_mode = None
+                if transport_mode is None:
+                    if "transport_mode" not in data.get("missing_fields", []):
+                        data.setdefault("missing_fields", []).append("transport_mode")
+                    print(f"   Modo de transporte nao identificado - sera pedido ao utilizador")
+                else:
+                    print(f"   Modo de transporte: '{transport_mode}'")
 
             # Extrair problemas de mobilidade
             mobility_issues = bool(data.get("mobility_issues", False))
@@ -556,23 +582,34 @@ Responde APENAS com o JSON, sem explicacoes."""
             _dur_match = _re.search(_DUR_PATTERN, user_query.lower())
             _has_explicit_duration = bool(_dur_match)
 
-            if _has_explicit_duration and data.get("max_time") is None:
-                # Parse valor da duracao diretamente da query
-                _n_raw, _unit = _dur_match.group(1), _dur_match.group(2).lower()
+            def _parse_regex_time(dur_match):
+                _n_raw, _unit = dur_match.group(1), dur_match.group(2).lower()
                 _n = float(_n_raw) if _n_raw.isdigit() else _WORD_TO_NUM.get(_n_raw, 1)
                 if "hora" in _unit or "hour" in _unit:
-                    extracted_time = int(_n * 60)
+                    return int(_n * 60)
                 elif "semana" in _unit or "week" in _unit:
-                    extracted_time = int(_n * 7 * 480)
+                    return int(_n * 7 * 480)
                 else:
-                    extracted_time = int(_n * 480)
-                missing_fields = [f for f in missing_fields if f != "max_time"]
-                print(f"   max_time extraido por regex: {extracted_time} min ({_n} {_unit})")
-            elif _implicit_days and data.get("max_time") is None:
-                # Duracao implicita por intervalo de dias da semana
-                extracted_time = _implicit_days * 480
-                missing_fields = [f for f in missing_fields if f != "max_time"]
-                print(f"   max_time por intervalo de dias: {extracted_time} min ({_implicit_days} dias)")
+                    return int(_n * 480)
+
+            if _has_explicit_duration:
+                _regex_time = _parse_regex_time(_dur_match)
+                if data.get("max_time") is None:
+                    extracted_time = _regex_time
+                    missing_fields = [f for f in missing_fields if f != "max_time"]
+                    print(f"   max_time extraido por regex: {extracted_time} min")
+                elif abs(_regex_time - extracted_time) > 0.25 * _regex_time:
+                    # Regex contradiz LLM — preferir regex para duracao explicita com numero
+                    print(f"   max_time corrigido por regex: {_regex_time} min (LLM tinha {extracted_time})")
+                    extracted_time = _regex_time
+                    missing_fields = [f for f in missing_fields if f != "max_time"]
+            elif _implicit_days is not None:
+                # Duracao implicita (dia da semana ou fim de semana) — override mesmo se LLM deu valor
+                _implicit_time = _implicit_days * 480
+                if data.get("max_time") is None or _fim_semana:
+                    extracted_time = _implicit_time
+                    missing_fields = [f for f in missing_fields if f != "max_time"]
+                    print(f"   max_time por intervalo de dias: {extracted_time} min ({_implicit_days} dias)")
             elif _inferred_duration_min and data.get("max_time") is None:
                 # Duracao implicita por periodo do dia (manha / tarde)
                 extracted_time = _inferred_duration_min
