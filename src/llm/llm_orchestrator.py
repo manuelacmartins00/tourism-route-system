@@ -24,6 +24,7 @@ class UserPreferences:
     has_children: bool = False
     last_day_end_time: str = None
     end_location: str = None
+    locations: List[str] = None
 
 class LlamaOrchestrator:
     """
@@ -302,8 +303,7 @@ Devolve APENAS JSON (sem texto adicional):
   "interests": ["interest1", "interest2"],
   "start_time": "09:00",
   "last_day_end_time": null,
-  "location": "Lisboa",
-  "end_location": null,
+  "locations": ["Lisboa"],
   "transport_mode": "foot",
   "start_location": null,
   "mobility_issues": false,
@@ -336,15 +336,18 @@ REGRAS:
 - Se a query for muito curta ou vaga, inclui mais campos
 - Se a query for detalhada, missing_fields pode ser []
 
-REGRAS PARA location e end_location:
-- "quero visitar museus em Lisboa" -> location: "Lisboa", end_location: null
-- "praia no Algarve" -> location: "Algarve", end_location: null
-- "de Lisboa ao Porto" -> location: "Lisboa", end_location: "Porto"
-- "de Porto a Vila Real" -> location: "Porto", end_location: "Vila Real"
-- "entre Coimbra e Aveiro" -> location: "Coimbra", end_location: "Aveiro"
-- "rota de Faro a Lisboa" -> location: "Faro", end_location: "Lisboa"
-- Se mencionar apenas uma localizacao -> end_location: null
-- Se mencionar duas localidades ligadas por "a", "ate", "para", "e" em contexto de rota -> extrair as duas
+REGRAS PARA locations (lista ordenada de 1 a 4 localidades):
+- "quero visitar museus em Lisboa" -> locations: ["Lisboa"]
+- "praia no Algarve" -> locations: ["Algarve"]
+- "de Lisboa ao Porto" -> locations: ["Lisboa", "Porto"]
+- "de Porto a Vila Real" -> locations: ["Porto", "Vila Real"]
+- "entre Coimbra e Aveiro" -> locations: ["Coimbra", "Aveiro"]
+- "rota de Faro a Lisboa" -> locations: ["Faro", "Lisboa"]
+- "de Lisboa a Coimbra e depois ao Porto" -> locations: ["Lisboa", "Coimbra", "Porto"]
+- "road trip de Faro a Evora a Lisboa ao Porto" -> locations: ["Faro", "Evora", "Lisboa", "Porto"]
+- "passando por Coimbra e Aveiro" -> locations: [..., "Coimbra", "Aveiro"]
+- Se mencionar apenas uma localizacao -> locations: ["Localidade"]
+- Maximo 4 localidades. Ordenar pela ordem em que serao visitadas.
 
 REGRAS IMPORTANTES:
 - Usa APENAS tags da lista VALIDA acima
@@ -454,12 +457,29 @@ Responde APENAS com o JSON, sem explicacoes."""
                     print(f"   AVISO: Orcamento por pessoa calculado parece alto: EUR{extracted_cost:.0f}")
                 print(f"   Budget: EUR{budget_value} ({budget_type}) x {num_days}d / {num_people}p -> EUR{extracted_cost:.2f}/pessoa")
 
-            # Extrair localizacao
-            extracted_location = data.get("location", None)
-            if extracted_location and not isinstance(extracted_location, str):
-                extracted_location = None
+            # Extrair localidades (lista ordenada de 1 a 4)
+            raw_locations = data.get("locations", None)
+            if isinstance(raw_locations, list):
+                extracted_locations = [l for l in raw_locations if isinstance(l, str) and l.strip()][:4]
+            elif isinstance(raw_locations, str) and raw_locations.strip():
+                extracted_locations = [raw_locations.strip()]
+            else:
+                extracted_locations = []
+
+            # Fallback para o campo legado "location" se locations vazio
+            if not extracted_locations:
+                _leg = data.get("location", None)
+                if isinstance(_leg, str) and _leg.strip():
+                    extracted_locations = [_leg.strip()]
+
+            # Derivar location e end_location para backward compat
+            extracted_location = extracted_locations[0] if extracted_locations else None
+            end_location_from_llm = extracted_locations[-1] if len(extracted_locations) > 1 else None
+
             if extracted_location:
-                print(f"   Localizacao extraida: '{extracted_location}'")
+                print(f"   Localizacao principal: '{extracted_location}'")
+            if len(extracted_locations) > 1:
+                print(f"   Rota com {len(extracted_locations)} localidades: {extracted_locations}")
 
             # Extrair modo de transporte — Python-level keyword override (nao depender so do LLM)
             _TRANSPORT_KW_MAP = [
@@ -522,36 +542,56 @@ Responde APENAS com o JSON, sem explicacoes."""
             if start_location:
                 print(f"   Ponto de partida: '{start_location}'")
 
-            # Extrair localizacao de destino (rota A->B)
-            end_location = data.get("end_location", None)
-            if end_location and not isinstance(end_location, str):
-                end_location = None
-            # Fallback regex: detetar "de X a Y" / "entre X e Y" se LLM nao extraiu
-            if not end_location:
-                _route_patterns = [
-                    r'\bde\s+([A-Za-zÀ-ÿ\s]+?)\s+(?:a|ate|para|->)\s+([A-Za-zÀ-ÿ\s]+?)(?:\s*,|\s*$|\s+\d)',
+            # Localidades: combinar LLM + regex fallback para ate 4 locais
+            import re as _re2
+            _DAY_NAMES_SET = set(_DAY_NUM.keys()) | {'sabado', 'domingo'}
+
+            def _is_day(s):
+                return _norm(s.split()[0]) in _DAY_NAMES_SET
+
+            def _valid_loc(s):
+                return isinstance(s, str) and len(s.strip()) > 2 and not _is_day(s)
+
+            # Se LLM devolveu locations com >= 2, usar directamente
+            if len(extracted_locations) >= 2:
+                end_location = extracted_locations[-1]
+            else:
+                # Fallback regex: padroes de rota com ate 4 localidades
+                end_location = end_location_from_llm  # None se nao havia no LLM
+
+                _ROUTE_RE = [
+                    # A a B a C [a D]
+                    r'\bde\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s]{1,25}?)'
+                    r'(?:\s+(?:a|ate|para)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s]{1,25}?))'
+                    r'(?:\s+(?:a|ate|e)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s]{1,25}))?'
+                    r'(?:\s+(?:a|ate|e)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s]{1,25}))?'
+                    r'(?:\s*,|\s*$|\s+\d)',
+                    # entre X e Y
                     r'\bentre\s+([A-Za-zÀ-ÿ\s]+?)\s+e\s+([A-Za-zÀ-ÿ\s]+?)(?:\s*,|\s*$|\s+\d)',
+                    # rota de X ao Y
                     r'\brota\s+(?:de\s+)?([A-Za-zÀ-ÿ\s]+?)\s+(?:ao?|ate)\s+([A-Za-zÀ-ÿ\s]+?)(?:\s*,|\s*$)',
                 ]
-                import re as _re2
-                _DAY_NAMES_SET = set(_DAY_NUM.keys()) | {'sabado', 'domingo'}
-                for pat in _route_patterns:
+                for pat in _ROUTE_RE:
                     m = _re2.search(pat, user_query, _re2.IGNORECASE)
                     if m:
-                        candidate_start = m.group(1).strip()
-                        candidate_end   = m.group(2).strip()
-                        # Ignorar se os candidatos sao nomes de dias da semana
-                        cs_norm = _norm(candidate_start.split()[0])
-                        ce_norm = _norm(candidate_end.split()[0])
-                        if cs_norm in _DAY_NAMES_SET or ce_norm in _DAY_NAMES_SET:
-                            continue
-                        if len(candidate_start) > 2 and len(candidate_end) > 2:
+                        groups = [g.strip() for g in m.groups() if g and _valid_loc(g.strip())]
+                        if len(groups) >= 2:
                             if not extracted_location:
-                                extracted_location = candidate_start
-                            end_location = candidate_end
-                            print(f"   Rota A->B detectada por regex: '{extracted_location}' -> '{end_location}'")
+                                extracted_location = groups[0]
+                            extracted_locations = [g for g in groups if g]
+                            end_location = extracted_locations[-1]
+                            print(f"   Rota {len(extracted_locations)} localidades por regex: {extracted_locations}")
                             break
-            if end_location:
+
+            # Garantir que locations esta consistente com location + end_location
+            if extracted_locations:
+                pass  # ja esta correcto
+            elif extracted_location:
+                extracted_locations = [extracted_location]
+                if end_location and end_location != extracted_location:
+                    extracted_locations.append(end_location)
+
+            if end_location and len(extracted_locations) > 1:
                 print(f"   Destino final: '{end_location}'")
             
             # Extrair campos em falta
@@ -559,7 +599,9 @@ Responde APENAS com o JSON, sem explicacoes."""
 
             # 1. Remover campos nunca obrigatorios
             missing_fields = [f for f in missing_fields if f not in
-                              ("has_children", "mobility_issues", "group_size", "num_people", "start_location")]
+                              ("has_children", "mobility_issues", "group_size", "num_people",
+                               "start_location", "end_location", "locations", "location_2",
+                               "location_3", "location_4")]
 
             # 2. Remover campos que foram extraidos com sucesso pelo LLM
             if transport_mode:
@@ -669,6 +711,7 @@ Responde APENAS com o JSON, sem explicacoes."""
                 has_children=has_children,
                 last_day_end_time=last_day_end_time,
                 end_location=end_location,
+                locations=extracted_locations if extracted_locations else ([extracted_location] if extracted_location else []),
             )
         
         except Exception as e:
