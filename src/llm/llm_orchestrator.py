@@ -116,6 +116,35 @@ class LlamaOrchestrator:
         # Pre-processar: "fim de semana" = 2 dias fixo
         _fim_semana = bool(_pre.search(r'\bfim\s+de\s+semana\b', user_query, _pre.IGNORECASE))
 
+        # Pre-processar: palavras de periodo do dia -> start_time + duracao implicita
+        _TIME_OF_DAY = [
+            (r'\bmanha\s+cedo\b',    '08:00', 240),
+            (r'\bde\s+manha\b',      '09:00', 240),
+            (r'\bpela\s+manha\b',    '09:00', 240),
+            (r'\bde\s+manhã\b',      '09:00', 240),
+            (r'\bmanha\b',           '09:00', 240),
+            (r'\bao\s+almoco\b',     '12:00', 120),
+            (r'\bmeio[- ]dia\b',     '12:00', 120),
+            (r'\bfinal\s+da\s+tarde\b', '17:00', 120),
+            (r'\bao\s+fim\s+da\s+tarde\b', '17:00', 120),
+            (r'\bda\s+tarde\b',      '14:00', 240),
+            (r'\bde\s+tarde\b',      '14:00', 240),
+            (r'\bpela\s+tarde\b',    '14:00', 240),
+            (r'\ba\s+tarde\b',       '14:00', 240),
+            (r'\btarde\b',           '14:00', 240),
+            (r'\bao\s+jantar\b',     '19:00', 120),
+            (r'\ba\s+noite\b',       '20:00', None),
+            (r'\bnoite\b',           '20:00', None),
+        ]
+        _inferred_start_time = None
+        _inferred_duration_min = None
+        _q_lower = user_query.lower()
+        for _pat, _t, _d in _TIME_OF_DAY:
+            if _pre.search(_pat, _q_lower):
+                _inferred_start_time = _t
+                _inferred_duration_min = _d
+                break
+
         # Pre-processar: detetar intervalos de dias da semana implicitos
         _DAY_NUM = {
             'segunda': 1, 'terca': 2, 'quarta': 3, 'quinta': 4,
@@ -479,11 +508,17 @@ Responde APENAS com o JSON, sem explicacoes."""
                     r'\brota\s+(?:de\s+)?([A-Za-zÀ-ÿ\s]+?)\s+(?:ao?|ate)\s+([A-Za-zÀ-ÿ\s]+?)(?:\s*,|\s*$)',
                 ]
                 import re as _re2
+                _DAY_NAMES_SET = set(_DAY_NUM.keys()) | {'sabado', 'domingo'}
                 for pat in _route_patterns:
                     m = _re2.search(pat, user_query, _re2.IGNORECASE)
                     if m:
                         candidate_start = m.group(1).strip()
                         candidate_end   = m.group(2).strip()
+                        # Ignorar se os candidatos sao nomes de dias da semana
+                        cs_norm = _norm(candidate_start.split()[0])
+                        ce_norm = _norm(candidate_end.split()[0])
+                        if cs_norm in _DAY_NAMES_SET or ce_norm in _DAY_NAMES_SET:
+                            continue
                         if len(candidate_start) > 2 and len(candidate_end) > 2:
                             if not extracted_location:
                                 extracted_location = candidate_start
@@ -538,6 +573,11 @@ Responde APENAS com o JSON, sem explicacoes."""
                 extracted_time = _implicit_days * 480
                 missing_fields = [f for f in missing_fields if f != "max_time"]
                 print(f"   max_time por intervalo de dias: {extracted_time} min ({_implicit_days} dias)")
+            elif _inferred_duration_min and data.get("max_time") is None:
+                # Duracao implicita por periodo do dia (manha / tarde)
+                extracted_time = _inferred_duration_min
+                missing_fields = [f for f in missing_fields if f != "max_time"]
+                print(f"   max_time por periodo do dia: {extracted_time} min")
             elif not _has_explicit_duration and not _implicit_days and data.get("max_time") is None:
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
@@ -567,12 +607,20 @@ Responde APENAS com o JSON, sem explicacoes."""
             print(f"   Categorias principais (filtro): {main_categories}")
             print(f"   Tags secundarias (semantica): {secondary_tags}")
 
+            # start_time: LLM > periodo do dia hardcoded > default 09:00
+            llm_start_time = data.get("start_time", "09:00") or "09:00"
+            resolved_start_time = llm_start_time if llm_start_time != "09:00" else (_inferred_start_time or "09:00")
+
+            # end_location: default para location se nao detectado (rota de ponto unico)
+            if not end_location and extracted_location:
+                end_location = extracted_location
+
             return UserPreferences(
                 max_time=extracted_time,
                 max_cost=extracted_cost,
                 preferred_categories=main_categories,
                 category_weights=category_weights,
-                start_time=data.get("start_time", "09:00"),
+                start_time=resolved_start_time,
                 interests=data.get("interests", []),
                 secondary_tags=secondary_tags,
                 location=extracted_location,

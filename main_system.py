@@ -239,7 +239,12 @@ class TourismRouteSystem:
                 print(f"   Destino final '{end_location}' -> ({end_geo[0]:.4f}, {end_geo[1]:.4f})\n")
 
         lat_min = lat_max = lon_min = lon_max = None
-        is_corridor = geo is not None and end_geo is not None
+        # Corredor so activo se A e B sao locais diferentes (distancia > 5km)
+        _same_location = (
+            geo is not None and end_geo is not None and
+            abs(geo[0] - end_geo[0]) < 0.05 and abs(geo[1] - end_geo[1]) < 0.05
+        )
+        is_corridor = geo is not None and end_geo is not None and not _same_location
         CORRIDOR_BUFFER_DEG = 0.45  # ~50km lateral buffer
 
         if is_corridor:
