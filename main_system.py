@@ -230,32 +230,67 @@ class TourismRouteSystem:
             print(f"   Category filter: {preferences.preferred_categories}")
             print(f"   Max cost: {preferences.max_cost}\n")
 
-        # Resolucao do destino final (rota A->B)
-        end_geo = None
-        end_location = getattr(preferences, 'end_location', None)
-        if end_location:
-            end_geo = self.location_resolver.resolve(end_location)
-            if end_geo and verbose:
-                print(f"   Destino final '{end_location}' -> ({end_geo[0]:.4f}, {end_geo[1]:.4f})\n")
+        # Resolucao de todas as localidades (ate 4) e TSP se nao ordenadas
+        from itertools import permutations as _perms
+        from src.utils.distance_calculator import haversine as _hav_tsp
+
+        _locations_list = getattr(preferences, 'locations', []) or []
+        _locations_ordered = getattr(preferences, 'locations_ordered', False)
+
+        # Resolver coordenadas de todas as localidades
+        all_geos = []
+        all_loc_names = []
+        for loc_name in _locations_list:
+            g = self.location_resolver.resolve(loc_name)
+            if g:
+                all_geos.append(g)
+                all_loc_names.append(loc_name)
+
+        # Se so temos geo do location principal, adicionar
+        if geo and (not all_geos or all_geos[0] != geo):
+            all_geos = [geo] + [g for g in all_geos if g != geo]
+
+        # TSP: se mais de 1 local e ordem nao especificada, optimizar
+        if len(all_geos) > 1 and not _locations_ordered:
+            best_order = list(range(len(all_geos)))
+            best_dist = float('inf')
+            for perm in _perms(range(len(all_geos))):
+                d = sum(_hav_tsp(all_geos[perm[i]][0], all_geos[perm[i]][1],
+                                 all_geos[perm[i+1]][0], all_geos[perm[i+1]][1])
+                        for i in range(len(perm)-1))
+                if d < best_dist:
+                    best_dist = d
+                    best_order = list(perm)
+            all_geos = [all_geos[i] for i in best_order]
+            all_loc_names = [all_loc_names[i] for i in best_order] if all_loc_names else []
+            if verbose and len(all_geos) > 1:
+                print(f"   TSP ordem optima: {all_loc_names} ({best_dist:.0f}km total)\n")
+
+        # Actualizar geo e end_geo para primeiro e ultimo
+        if all_geos:
+            geo = all_geos[0]
+        end_geo = all_geos[-1] if len(all_geos) > 1 else None
 
         lat_min = lat_max = lon_min = lon_max = None
-        # Corredor so activo se A e B sao locais diferentes (distancia > 5km)
+        CORRIDOR_BUFFER_DEG = 0.45  # ~50km lateral buffer
+
+        # Corredor activo se ha 2+ locais diferentes
         _same_location = (
             geo is not None and end_geo is not None and
             abs(geo[0] - end_geo[0]) < 0.05 and abs(geo[1] - end_geo[1]) < 0.05
         )
-        is_corridor = geo is not None and end_geo is not None and not _same_location
-        CORRIDOR_BUFFER_DEG = 0.45  # ~50km lateral buffer
+        is_corridor = len(all_geos) > 1 and not _same_location
 
         if is_corridor:
-            lat_a, lon_a, _ = geo
-            lat_b, lon_b, _ = end_geo
-            lat_min = min(lat_a, lat_b) - CORRIDOR_BUFFER_DEG
-            lat_max = max(lat_a, lat_b) + CORRIDOR_BUFFER_DEG
-            lon_min = min(lon_a, lon_b) - CORRIDOR_BUFFER_DEG
-            lon_max = max(lon_a, lon_b) + CORRIDOR_BUFFER_DEG
+            # Bounding box sobre TODAS as localidades (nao so A e D)
+            all_lats = [g[0] for g in all_geos]
+            all_lons = [g[1] for g in all_geos]
+            lat_min = min(all_lats) - CORRIDOR_BUFFER_DEG
+            lat_max = max(all_lats) + CORRIDOR_BUFFER_DEG
+            lon_min = min(all_lons) - CORRIDOR_BUFFER_DEG
+            lon_max = max(all_lons) + CORRIDOR_BUFFER_DEG
             if verbose:
-                print(f"   Modo corredor A->B: bbox ({lat_min:.2f},{lon_min:.2f}) -> ({lat_max:.2f},{lon_max:.2f})\n")
+                print(f"   Modo corredor {len(all_geos)} localidades: bbox ({lat_min:.2f},{lon_min:.2f}) -> ({lat_max:.2f},{lon_max:.2f})\n")
         elif geo:
             center_lat, center_lon, radius_km = geo
             delta = radius_km / 111.0
@@ -353,24 +388,31 @@ class TourismRouteSystem:
 
         # Hard filter geografico pos-RAG
         if is_corridor:
-            # Modo corredor: manter POIs dentro de MAX_DIST_KM da linha A->B
+            # Modo multi-corredor: manter POIs dentro de MAX_DIST_KM de QUALQUER segmento
             MAX_DIST_KM = 55.0
-            lat_a, lon_a, _ = geo
-            lat_b, lon_b, _ = end_geo
             from src.utils.distance_calculator import haversine as _hav
 
-            def _dist_to_segment(plat, plon):
-                abx, aby = lon_b - lon_a, lat_b - lat_a
-                apx, apy = plon - lon_a, plat - lat_a
+            def _dist_to_segment(plat, plon, alat, alon, blat, blon):
+                abx, aby = blon - alon, blat - alat
+                apx, apy = plon - alon, plat - alat
                 denom = abx**2 + aby**2
                 t = max(0.0, min(1.0, (apx*abx + apy*aby) / denom)) if denom > 1e-10 else 0.0
-                nlat = lat_a + t * aby
-                nlon = lon_a + t * abx
+                nlat = alat + t * aby
+                nlon = alon + t * abx
                 return _hav(plat, plon, nlat, nlon)
+
+            def _min_dist_to_route(plat, plon):
+                min_d = float('inf')
+                for i in range(len(all_geos) - 1):
+                    la, loa, _ = all_geos[i]
+                    lb, lob, _ = all_geos[i+1]
+                    d = _dist_to_segment(plat, plon, la, loa, lb, lob)
+                    min_d = min(min_d, d)
+                return min_d
 
             before = len(candidate_pois)
             candidate_pois = [p for p in candidate_pois
-                              if _dist_to_segment(p['lat'], p['lon']) <= MAX_DIST_KM]
+                              if _min_dist_to_route(p['lat'], p['lon']) <= MAX_DIST_KM]
             if verbose:
                 print(f"   Filtro corredor: {before} -> {len(candidate_pois)} POIs (max {MAX_DIST_KM:.0f}km da linha)\n")
 
