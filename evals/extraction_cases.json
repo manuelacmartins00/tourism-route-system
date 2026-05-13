@@ -1,114 +1,52 @@
 [
-  {
-    "id": "E001",
-    "query": "quero visitar museus em Lisboa durante 2 dias, tenho 50 euros por pessoa, vou de transportes publicos",
-    "expected": {
-      "location": "Lisboa",
-      "max_time": 960,
-      "max_cost": 50.0,
-      "transport_mode": "public_transport",
-      "preferred_categories": ["museus_e_palacios"],
-      "num_people": 1,
-      "missing_fields": []
-    }
-  },
-  {
-    "id": "E002",
-    "query": "somos 5 amigos a ir para coimbra de 6a a tarde ate domingo a tarde, 40 euros por pessoa por dia, transportes publicos",
-    "expected": {
-      "location": "Coimbra",
-      "max_time": 1440,
-      "transport_mode": "public_transport",
-      "num_people": 5,
-      "start_time": "16:00",
-      "last_day_end_time": "17:00",
-      "missing_fields": []
-    }
-  },
-  {
-    "id": "E003",
-    "query": "praia no algarve, 3 dias, carro, budget medio",
-    "expected": {
-      "location": "Algarve",
-      "max_time": 1440,
-      "transport_mode": "car",
-      "preferred_categories": ["praias"],
-      "missing_fields": []
-    }
-  },
-  {
-    "id": "E004",
-    "query": "quero ver o porto",
-    "expected": {
-      "location": "Porto",
-      "missing_fields": ["max_time", "max_cost", "transport_mode"]
-    }
-  },
-  {
-    "id": "E005",
-    "query": "familia com 2 criancas, sintra, fim de semana, 200 euros no total, de carro",
-    "expected": {
-      "location": "Sintra",
-      "max_time": 960,
-      "transport_mode": "car",
-      "has_children": true,
-      "num_people": 4,
-      "missing_fields": []
-    }
-  },
-  {
-    "id": "E006",
-    "query": "vida noturna em lisboa, sexta e sabado, 80 euros",
-    "expected": {
-      "location": "Lisboa",
-      "max_time": 960,
-      "preferred_categories": ["bares_e_discotecas"],
-      "missing_fields": ["transport_mode"]
-    }
-  },
-  {
-    "id": "E007",
-    "query": "museus e monumentos em evora, 1 dia, a pe, 20 euros",
-    "expected": {
-      "location": "Evora",
-      "max_time": 480,
-      "max_cost": 20.0,
-      "transport_mode": "foot",
-      "preferred_categories": ["museus_e_palacios", "monumentos"],
-      "missing_fields": []
-    }
-  },
-  {
-    "id": "E008",
-    "query": "eu e a minha namorada, Porto, 1 semana, 1000 euros para os dois, de carro",
-    "expected": {
-      "location": "Porto",
-      "max_time": 3360,
-      "transport_mode": "car",
-      "num_people": 2,
-      "missing_fields": []
-    }
-  },
-  {
-    "id": "E009",
-    "query": "rota de lisboa ao porto",
-    "expected": {
-      "start_location": "Lisboa",
-      "end_location": "Porto",
-      "missing_fields": ["max_time", "max_cost", "transport_mode"]
-    }
-  },
-  {
-    "id": "E010",
-    "query": "pessoa em cadeira de rodas, museus acessiveis em braga, 1 dia, 30 euros, transportes publicos",
-    "expected": {
-      "location": "Braga",
-      "max_time": 480,
-      "max_cost": 30.0,
-      "transport_mode": "public_transport",
-      "mobility_issues": true,
-      "preferred_categories": ["museus_e_palacios"],
-      "missing_fields": []
-    }
-  }
+  {"id":"E001","query":"quero visitar museus em Lisboa durante 2 dias, tenho 50 euros por dia, vou de transportes publicos","expected":{"location":"Lisboa","max_time":960,"transport_mode":"public_transport","preferred_categories":["museus_e_palacios"],"num_people":1,"missing_fields":[]}},
+  {"id":"E002","query":"somos 5 amigos a ir para coimbra de 6a a tarde ate domingo a tarde, 40 euros por pessoa por dia, transportes publicos","expected":{"location":"Coimbra","max_time":1440,"transport_mode":"public_transport","num_people":5,"start_time":"16:00","last_day_end_time":"17:00","missing_fields":[]}},
+  {"id":"E003","query":"praia no algarve, 3 dias, carro, budget medio","expected":{"location":"Algarve","max_time":1440,"transport_mode":"car","preferred_categories":["praias"],"missing_fields":[]}},
+  {"id":"E004","query":"quero ver o porto","expected":{"location":"Porto","missing_fields":["max_time","max_cost","transport_mode"]}},
+  {"id":"E005","query":"familia com 2 criancas, sintra, fim de semana, 200 euros no total, de carro","expected":{"location":"Sintra","max_time":960,"transport_mode":"car","has_children":true,"num_people":4,"missing_fields":[]}},
+  {"id":"E006","query":"vida noturna em lisboa, sexta e sabado, 80 euros","expected":{"location":"Lisboa","max_time":960,"missing_fields":["transport_mode"]}},
+  {"id":"E007","query":"museus e monumentos em evora, 1 dia, a pe, 20 euros","expected":{"location":"Evora","max_time":480,"max_cost":20.0,"transport_mode":"foot","preferred_categories":["museus_e_palacios","monumentos"],"missing_fields":[]}},
+  {"id":"E008","query":"eu e a minha namorada, Porto, 1 semana, 1000 euros para os dois, de carro","expected":{"location":"Porto","max_time":3360,"transport_mode":"car","num_people":2,"missing_fields":[]}},
+  {"id":"E009","query":"rota de lisboa ao porto","expected":{"location":"Lisboa","missing_fields":["max_time","max_cost","transport_mode"]}},
+  {"id":"E010","query":"pessoa em cadeira de rodas, museus acessiveis em braga, 1 dia, 30 euros, transportes publicos","expected":{"location":"Braga","max_time":480,"max_cost":30.0,"transport_mode":"public_transport","mobility_issues":true,"missing_fields":[]}},
+  {"id":"E011","query":"quero explorar o alentejo de carro, tenho 5 dias e 300 euros","expected":{"location":"Alentejo","max_time":2400,"max_cost":300.0,"transport_mode":"car","missing_fields":[]}},
+  {"id":"E012","query":"madeira 1 semana mergulho e natureza, orcamento medio","expected":{"location":"Madeira","max_time":3360,"missing_fields":["transport_mode"]}},
+  {"id":"E013","query":"acores sao miguel, trekking e paisagens, 4 dias, 200 euros, de carro alugado","expected":{"location":"Acores","max_time":1920,"max_cost":200.0,"transport_mode":"car","missing_fields":[]}},
+  {"id":"E014","query":"visitar cascais e setubal num dia, a pe","expected":{"max_time":480,"transport_mode":"foot","missing_fields":["max_cost"]}},
+  {"id":"E015","query":"somos 3 pessoas, queremos fazer enoturismo no douro, fim de semana, 150 euros por pessoa","expected":{"max_time":960,"max_cost":150.0,"num_people":3,"missing_fields":["transport_mode"]}},
+  {"id":"E016","query":"guimaraes historico, 1 dia, a pe, entrada nos museus, 25 euros","expected":{"location":"Guimaraes","max_time":480,"max_cost":25.0,"transport_mode":"foot","preferred_categories":["monumentos","museus_e_palacios"],"missing_fields":[]}},
+  {"id":"E017","query":"aveiro e moliceiros, meio dia, de carro, sem orcamento definido","expected":{"location":"Aveiro","max_time":240,"transport_mode":"car","missing_fields":["max_cost"]}},
+  {"id":"E018","query":"visita ao jardim botanico de coimbra, 2 horas, a pe","expected":{"location":"Coimbra","max_time":120,"transport_mode":"foot","missing_fields":["max_cost"]}},
+  {"id":"E019","query":"obidos medieval, 3 horas, vamos de comboio, 15 euros por pessoa","expected":{"location":"Obidos","max_time":180,"max_cost":15.0,"transport_mode":"public_transport","missing_fields":[]}},
+  {"id":"E020","query":"beja monumentos e museus, 1 dia, 20 euros, de carro","expected":{"location":"Beja","max_time":480,"max_cost":20.0,"transport_mode":"car","preferred_categories":["monumentos","museus_e_palacios"],"missing_fields":[]}},
+  {"id":"E021","query":"4 dias no algarve com criancas, parques aquaticos e praias, 800 euros total para a familia de 4, de carro","expected":{"location":"Algarve","max_time":1920,"transport_mode":"car","has_children":true,"num_people":4,"missing_fields":[]}},
+  {"id":"E022","query":"fim de semana no douro, quinta e sabado","expected":{"max_time":960,"missing_fields":["location","max_cost","transport_mode"]}},
+  {"id":"E023","query":"tomar convento de cristo e castelo, manha, a pe","expected":{"location":"Tomar","max_time":240,"transport_mode":"foot","preferred_categories":["monumentos"],"missing_fields":["max_cost"]}},
+  {"id":"E024","query":"passeio de kayak no rio minho, 3 horas, 30 euros","expected":{"max_time":180,"max_cost":30.0,"preferred_categories":["turismo_activo"],"missing_fields":["location","transport_mode"]}},
+  {"id":"E025","query":"grupo de 10 pessoas, team building no alentejo, 2 dias, 100 euros por pessoa, carro","expected":{"location":"Alentejo","max_time":960,"max_cost":100.0,"transport_mode":"car","num_people":10,"missing_fields":[]}},
+  {"id":"E026","query":"eu e o meu marido, 3 dias em faro e tavira, 200 euros, de carro","expected":{"max_time":1440,"max_cost":200.0,"transport_mode":"car","num_people":2,"missing_fields":[]}},
+  {"id":"E027","query":"lisboa em 1 dia, monumentos e pasteis de belem, transportes publicos","expected":{"location":"Lisboa","max_time":480,"transport_mode":"public_transport","preferred_categories":["monumentos","restaurantes_e_cafes"],"missing_fields":["max_cost"]}},
+  {"id":"E028","query":"festival de jazz no porto este fim de semana","expected":{"location":"Porto","max_time":960,"preferred_categories":["bares_e_discotecas","eventos"],"missing_fields":["max_cost","transport_mode"]}},
+  {"id":"E029","query":"termas da curia e mealhada, 1 dia, 60 euros, carro","expected":{"max_time":480,"max_cost":60.0,"transport_mode":"car","preferred_categories":["termas"],"missing_fields":["location"]}},
+  {"id":"E030","query":"visita ao jardim da estrela e museu da marioneta em lisboa, tarde, a pe","expected":{"location":"Lisboa","max_time":240,"transport_mode":"foot","start_time":"16:00","preferred_categories":["espacos_verdes","museus_e_palacios"],"missing_fields":["max_cost"]}},
+  {"id":"E031","query":"escapada romantica para a comporta, 2 noites, 400 euros casal, de carro","expected":{"max_time":960,"max_cost":400.0,"transport_mode":"car","num_people":2,"missing_fields":["location"]}},
+  {"id":"E032","query":"vou de mota, quero ver o vale do douro, 3 dias","expected":{"max_time":1440,"transport_mode":"car","missing_fields":["max_cost"]}},
+  {"id":"E033","query":"5 horas em sintra, palacios e jardins, transportes publicos, 40 euros","expected":{"location":"Sintra","max_time":300,"max_cost":40.0,"transport_mode":"public_transport","preferred_categories":["museus_e_palacios","espacos_verdes"],"missing_fields":[]}},
+  {"id":"E034","query":"quero fazer surf no peniche, fim de semana, 150 euros, com carro","expected":{"location":"Peniche","max_time":960,"max_cost":150.0,"transport_mode":"car","preferred_categories":["turismo_activo","praias"],"missing_fields":[]}},
+  {"id":"E035","query":"rota do vinho verde, de braga a viana do castelo, 2 dias, carro","expected":{"location":"Braga","max_time":960,"transport_mode":"car","missing_fields":["max_cost"]}},
+  {"id":"E036","query":"idoso com mobilidade reduzida, museus acessiveis em porto, 1 dia, transportes publicos, 20 euros","expected":{"location":"Porto","max_time":480,"max_cost":20.0,"transport_mode":"public_transport","mobility_issues":true,"preferred_categories":["museus_e_palacios"],"missing_fields":[]}},
+  {"id":"E037","query":"mochileiro, hostel, porto, 1 semana, 50 euros","expected":{"location":"Porto","max_time":3360,"max_cost":50.0,"missing_fields":["transport_mode"]}},
+  {"id":"E038","query":"casamento em tomar, visita antes da cerimonia, 3 horas, a pe","expected":{"location":"Tomar","max_time":180,"transport_mode":"foot","missing_fields":["max_cost"]}},
+  {"id":"E039","query":"parque natural da arrabida, praia e natureza, sabado, de carro, 2 pessoas, 60 euros","expected":{"max_time":480,"max_cost":60.0,"transport_mode":"car","num_people":2,"preferred_categories":["praias","parques_e_reservas"],"missing_fields":["location"]}},
+  {"id":"E040","query":"visita ao museu do azulejo e mosteiro dos jeronimos em lisboa, manha, a pe, 20 euros","expected":{"location":"Lisboa","max_time":240,"max_cost":20.0,"transport_mode":"foot","start_time":"09:00","preferred_categories":["museus_e_palacios","monumentos"],"missing_fields":[]}},
+  {"id":"E041","query":"we are 6 friends going to lisbon for 3 days, budget 200 euros each, public transport","expected":{"location":"Lisboa","max_time":1440,"max_cost":200.0,"transport_mode":"public_transport","num_people":6,"missing_fields":[]}},
+  {"id":"E042","query":"I want to visit monuments in Porto, half day, walking, 15 euros","expected":{"location":"Porto","max_time":240,"max_cost":15.0,"transport_mode":"foot","preferred_categories":["monumentos"],"missing_fields":[]}},
+  {"id":"E043","query":"family trip to algarve, 1 week, car, 2 adults 3 kids, 1500 euros total","expected":{"location":"Algarve","max_time":3360,"transport_mode":"car","has_children":true,"num_people":5,"missing_fields":[]}},
+  {"id":"E044","query":"weekend in porto, friday evening to sunday afternoon","expected":{"location":"Porto","max_time":960,"start_time":"18:00","last_day_end_time":"17:00","missing_fields":["max_cost","transport_mode"]}},
+  {"id":"E045","query":"road trip de faro ao porto, 5 dias, carro, 100 euros por dia","expected":{"location":"Faro","max_time":2400,"transport_mode":"car","missing_fields":[]}},
+  {"id":"E046","query":"espetaculo de fado em lisboa, sabado a noite, 40 euros","expected":{"location":"Lisboa","max_time":180,"max_cost":40.0,"start_time":"20:00","missing_fields":["transport_mode"]}},
+  {"id":"E047","query":"4 adultos, atividades aquaticas no algarve, 3 dias, 80 euros por pessoa por dia, carro","expected":{"location":"Algarve","max_time":1440,"max_cost":240.0,"transport_mode":"car","num_people":4,"preferred_categories":["praias","turismo_activo"],"missing_fields":[]}},
+  {"id":"E048","query":"preciso de um passeio rapido por coimbra, 2 horas, a pe, sem gastar muito","expected":{"location":"Coimbra","max_time":120,"transport_mode":"foot","missing_fields":["max_cost"]}},
+  {"id":"E049","query":"de segunda a quarta em setubal, ecoturismo, carro, 150 euros","expected":{"location":"Setubal","max_time":1440,"max_cost":150.0,"transport_mode":"car","missing_fields":[]}},
+  {"id":"E050","query":"casal seniores, mobilidade reduzida, jardins e monumentos em sintra, 1 dia, carro, 30 euros","expected":{"location":"Sintra","max_time":480,"max_cost":30.0,"transport_mode":"car","num_people":2,"mobility_issues":true,"preferred_categories":["espacos_verdes","monumentos"],"missing_fields":[]}}
 ]
