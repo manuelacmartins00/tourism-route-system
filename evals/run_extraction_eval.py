@@ -64,6 +64,7 @@ def run_eval():
     print(f"{'ID':<8} {'Query':<55} {'Campos OK':<12} {'Missing OK'}")
     print(f"{'-'*90}")
 
+    import time as _time
     for case in cases:
         cid = case["id"]
         query = case["query"]
@@ -71,8 +72,10 @@ def run_eval():
 
         try:
             prefs = llm.extract_preferences(query)
+            _time.sleep(1.5)  # throttle: ~40 req/min, bem abaixo do limite
         except Exception as e:
             print(f"{cid:<8} ERRO: {e}")
+            _time.sleep(5)  # backoff em caso de erro
             continue
 
         got = {
