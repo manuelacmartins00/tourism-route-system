@@ -18,6 +18,7 @@ RESULTS_FILE = Path(__file__).parent / "extraction_results.json"
 COMPARABLE_FIELDS = [
     "location", "max_time", "transport_mode", "num_people",
     "has_children", "mobility_issues", "start_time", "last_day_end_time",
+    "locations_ordered",
 ]
 
 def _normalize_str(s):
@@ -75,15 +76,16 @@ def run_eval():
             continue
 
         got = {
-            "location":          prefs.location,
-            "max_time":          prefs.max_time,
-            "max_cost":          prefs.max_cost,
-            "transport_mode":    prefs.transport_mode,
-            "num_people":        prefs.num_people,
-            "has_children":      prefs.has_children,
-            "mobility_issues":   prefs.mobility_issues,
-            "start_time":        prefs.start_time,
-            "last_day_end_time": prefs.last_day_end_time,
+            "location":           prefs.location,
+            "max_time":           prefs.max_time,
+            "max_cost":           prefs.max_cost,
+            "transport_mode":     prefs.transport_mode,
+            "num_people":         prefs.num_people,
+            "has_children":       prefs.has_children,
+            "mobility_issues":    prefs.mobility_issues,
+            "start_time":         prefs.start_time,
+            "last_day_end_time":  prefs.last_day_end_time,
+            "locations_ordered":  getattr(prefs, "locations_ordered", False),
         }
 
         field_results = {}
