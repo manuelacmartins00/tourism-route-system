@@ -12,7 +12,7 @@ def main():
     print("Inicializando sistema RAG...")
 
     # Criar RAG (vai indexar automaticamente)
-    rag = POI_RAG(data_file="data/portugal_todos_pois_limpos_enriched.json")
+    rag = POI_RAG(data_file="data/portugal_todos_pois_final_enriched.json")
 
     # Teste
     print("\nTeste de query...")
