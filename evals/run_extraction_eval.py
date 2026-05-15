@@ -72,10 +72,10 @@ def run_eval():
 
         try:
             prefs = llm.extract_preferences(query)
-            _time.sleep(1.5)  # throttle: ~40 req/min, bem abaixo do limite
+            _time.sleep(40)  # throttle: ~1.5 req/min, seguro para 6K TPM
         except Exception as e:
             print(f"{cid:<8} ERRO: {e}")
-            _time.sleep(5)  # backoff em caso de erro
+            _time.sleep(60)  # backoff em caso de erro
             continue
 
         got = {
