@@ -13,7 +13,7 @@ import math
 import numpy as np
 import json
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Optional
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -69,6 +69,20 @@ DURATION_RANGES = {
     "academias":              (60, 120),
     "barragens":              (20,  60),
 }
+
+def _trip_spans_meal_window(start_time: str, max_time_min: int) -> bool:
+    """True se a rota sobrepoe uma janela de refeicao (almoco 12-14h ou jantar 19-22h)."""
+    try:
+        h, m = map(int, (start_time or "09:00").split(":"))
+        start_min = h * 60 + m
+    except Exception:
+        start_min = 9 * 60
+    end_min = start_min + max_time_min
+    if end_min >= 24 * 60:
+        return True
+    WINDOWS = [(12 * 60, 14 * 60), (19 * 60, 22 * 60)]
+    return any(start_min < w_end and end_min > w_start for w_start, w_end in WINDOWS)
+
 
 def _within_radius(poi_lat: float, poi_lon: float,
                    center_lat: float, center_lon: float,
@@ -147,15 +161,19 @@ class TourismRouteSystem:
                user_query: str,
                use_shap: bool = True,
                verbose: bool = True,
-               force_algorithm: str = None) -> Dict:
+               force_algorithm: str = None,
+               include_accommodation: Optional[bool] = None,
+               include_meals: Optional[bool] = None) -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
         Args:
-            user_query:      Query em linguagem natural (PT ou EN)
-            use_shap:        Se True, gera analise SHAP
-            verbose:         Se True, imprime progresso
-            force_algorithm: "ACO", "GA", "PSO", "GREEDY", ou None (LLM escolhe)
+            user_query:             Query em linguagem natural (PT ou EN)
+            use_shap:               Se True, gera analise SHAP
+            verbose:                Se True, imprime progresso
+            force_algorithm:        "ACO", "GA", "PSO", "GREEDY", ou None (LLM escolhe)
+            include_accommodation:  True/False=resposta do user; None=pergunta automatica se relevante
+            include_meals:          True/False=resposta do user; None=pergunta automatica se relevante
 
         Returns:
             Dict com rota, metricas, explicacoes SHAP, LLM, mapa e planeamento por dias
@@ -200,6 +218,35 @@ class TourismRouteSystem:
                     "categories": preferences.preferred_categories,
                 }
             }
+
+        # -- Perguntas de scope: alojamento e refeicoes ---------------
+        # Determinadas aqui porque precisamos de start_time e max_time das preferencias.
+        scope_questions = []
+        if include_accommodation is None:
+            if preferences.max_time > 480:
+                scope_questions.append("include_accommodation")
+            else:
+                include_accommodation = True
+        if include_meals is None:
+            if _trip_spans_meal_window(preferences.start_time, preferences.max_time):
+                scope_questions.append("include_meals")
+            else:
+                include_meals = True
+        if scope_questions:
+            return {
+                "status": "needs_scope_clarification",
+                "scope_questions": scope_questions,
+                "query": user_query,
+                "preferences_so_far": {
+                    "max_time": preferences.max_time,
+                    "location": preferences.location,
+                    "start_time": preferences.start_time,
+                },
+            }
+        if include_accommodation is None:
+            include_accommodation = True
+        if include_meals is None:
+            include_meals = True
 
         # -- Resolucao geografica --------------------------------------
         geo = None
@@ -300,6 +347,17 @@ class TourismRouteSystem:
             lon_max = center_lon + delta
 
         EXCLUDED_CATEGORIES = ["eventos"]
+        if not include_accommodation:
+            EXCLUDED_CATEGORIES.extend(ACCOMMODATION_BUNDLES)
+            if verbose:
+                print("   [INFO] Alojamento excluido da rota (user trata autonomamente)\n")
+        if not include_meals:
+            EXCLUDED_CATEGORIES.append("restaurantes_e_cafes")
+            if preferences.preferred_categories and "restaurantes_e_cafes" in preferences.preferred_categories:
+                preferences.preferred_categories.remove("restaurantes_e_cafes")
+            if verbose:
+                print("   [INFO] Refeicoes excluidas da rota (user trata autonomamente)\n")
+
         rag_results = self.rag.query(
             text=rag_query,
             n_results=60,
@@ -366,25 +424,26 @@ class TourismRouteSystem:
                 print(f"   [OK] Candidatos apos fallback: {len(candidate_pois)}")
                 
         # Forcar candidatos de alojamento (independente das categorias pedidas)
-        num_days = max(1, int(np.ceil(preferences.max_time / 480)))
-        accom_needed = max(5, num_days + 3)
-        accom_results = self.rag.query(
-            text=f"hotel alojamento {preferences.location or ''}",
-            n_results=accom_needed * 2,
-            category_filter=ACCOMMODATION_BUNDLES,
-            max_cost=preferences.max_cost,
-            lat_min=lat_min, lat_max=lat_max,
-            lon_min=lon_min, lon_max=lon_max,
-        )
-        existing_ids = {p['id'] for p in candidate_pois}
-        accom_added = 0
-        for p in accom_results['pois']:
-            if p['id'] not in existing_ids:
-                candidate_pois.append(p)
-                existing_ids.add(p['id'])
-                accom_added += 1
-        if verbose:
-            print(f"   Alojamento: +{accom_added} candidatos forcados (total {len(candidate_pois)})\n")
+        if include_accommodation:
+            num_days = max(1, int(np.ceil(preferences.max_time / 480)))
+            accom_needed = max(5, num_days + 3)
+            accom_results = self.rag.query(
+                text=f"hotel alojamento {preferences.location or ''}",
+                n_results=accom_needed * 2,
+                category_filter=ACCOMMODATION_BUNDLES,
+                max_cost=preferences.max_cost,
+                lat_min=lat_min, lat_max=lat_max,
+                lon_min=lon_min, lon_max=lon_max,
+            )
+            existing_ids = {p['id'] for p in candidate_pois}
+            accom_added = 0
+            for p in accom_results['pois']:
+                if p['id'] not in existing_ids:
+                    candidate_pois.append(p)
+                    existing_ids.add(p['id'])
+                    accom_added += 1
+            if verbose:
+                print(f"   Alojamento: +{accom_added} candidatos forcados (total {len(candidate_pois)})\n")
 
         # Hard filter geografico pos-RAG
         if is_corridor:

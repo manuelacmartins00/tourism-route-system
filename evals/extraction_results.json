@@ -1,6 +1,2557 @@
 {
-  "accuracy_pct": 0,
-  "correct_fields": 0,
-  "total_fields": 0,
-  "cases": []
+  "accuracy_pct": 92.4,
+  "correct_fields": 342,
+  "total_fields": 370,
+  "cases": [
+    {
+      "id": "E001",
+      "query": "quero visitar museus em Lisboa durante 2 dias, tenho 50 euros por dia, vou de transportes publicos",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "num_people": {
+          "expected": 1,
+          "got": 1,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E002",
+      "query": "somos 5 amigos a ir para coimbra de 6a a tarde ate domingo a tarde, 40 euros por pessoa por dia, transportes publicos",
+      "fields": {
+        "location": {
+          "expected": "Coimbra",
+          "got": "Coimbra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "num_people": {
+          "expected": 5,
+          "got": 5,
+          "match": true
+        },
+        "start_time": {
+          "expected": "16:00",
+          "got": "16:00",
+          "match": true
+        },
+        "last_day_end_time": {
+          "expected": "17:00",
+          "got": "17:00",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E003",
+      "query": "praia no algarve, 3 dias, carro, budget medio",
+      "fields": {
+        "location": {
+          "expected": "Algarve",
+          "got": "Algarve",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E004",
+      "query": "quero ver o porto",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E005",
+      "query": "familia com 2 criancas, sintra, fim de semana, 200 euros no total, de carro",
+      "fields": {
+        "location": {
+          "expected": "Sintra",
+          "got": "Sintra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 4,
+          "got": 4,
+          "match": true
+        },
+        "has_children": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E006",
+      "query": "vida noturna em lisboa, sexta e sabado, 80 euros",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E007",
+      "query": "museus e monumentos em evora, 1 dia, a pe, 20 euros",
+      "fields": {
+        "location": {
+          "expected": "Evora",
+          "got": "Évora",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E008",
+      "query": "eu e a minha namorada, Porto, 1 semana, 1000 euros para os dois, de carro",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 3360,
+          "got": 3360,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E009",
+      "query": "rota de lisboa ao porto",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E010",
+      "query": "pessoa em cadeira de rodas, museus acessiveis em braga, 1 dia, 30 euros, transportes publicos",
+      "fields": {
+        "location": {
+          "expected": "Braga",
+          "got": "Braga",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "mobility_issues": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E011",
+      "query": "quero explorar o alentejo de carro, tenho 5 dias e 300 euros",
+      "fields": {
+        "location": {
+          "expected": "Alentejo",
+          "got": "Alentejo",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2400,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E012",
+      "query": "madeira 1 semana mergulho e natureza, orcamento medio",
+      "fields": {
+        "location": {
+          "expected": "Madeira",
+          "got": "Madeira",
+          "match": true
+        },
+        "max_time": {
+          "expected": 3360,
+          "got": 3360,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E013",
+      "query": "acores sao miguel, trekking e paisagens, 4 dias, 200 euros, de carro alugado",
+      "fields": {
+        "location": {
+          "expected": "Acores",
+          "got": "Açores",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E014",
+      "query": "visitar cascais e setubal num dia, a pe",
+      "fields": {
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E015",
+      "query": "somos 3 pessoas, queremos fazer enoturismo no douro, fim de semana, 150 euros por pessoa",
+      "fields": {
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "num_people": {
+          "expected": 3,
+          "got": 3,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E016",
+      "query": "guimaraes historico, 1 dia, a pe, entrada nos museus, 25 euros",
+      "fields": {
+        "location": {
+          "expected": "Guimaraes",
+          "got": "Guimarães",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E017",
+      "query": "aveiro e moliceiros, meio dia, de carro, sem orcamento definido",
+      "fields": {
+        "location": {
+          "expected": "Aveiro",
+          "got": "Aveiro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 240,
+          "got": 240,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E018",
+      "query": "visita ao jardim botanico de coimbra, 2 horas, a pe",
+      "fields": {
+        "location": {
+          "expected": "Coimbra",
+          "got": "Coimbra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 120,
+          "got": 120,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E019",
+      "query": "obidos medieval, 3 horas, vamos de comboio, 15 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Obidos",
+          "got": "Óbidos",
+          "match": true
+        },
+        "max_time": {
+          "expected": 180,
+          "got": 180,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E020",
+      "query": "beja monumentos e museus, 1 dia, 20 euros, de carro",
+      "fields": {
+        "location": {
+          "expected": "Beja",
+          "got": "Beja",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E021",
+      "query": "4 dias no algarve com criancas, parques aquaticos e praias, 800 euros total para a familia de 4, de carro",
+      "fields": {
+        "location": {
+          "expected": "Algarve",
+          "got": "Algarve",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 4,
+          "got": 4,
+          "match": true
+        },
+        "has_children": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E022",
+      "query": "fim de semana no douro, quinta e sabado",
+      "fields": {
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E023",
+      "query": "tomar convento de cristo e castelo, manha, a pe",
+      "fields": {
+        "location": {
+          "expected": "Tomar",
+          "got": "Lisboa",
+          "match": false
+        },
+        "max_time": {
+          "expected": 240,
+          "got": 240,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E024",
+      "query": "passeio de kayak no rio minho, 3 horas, 30 euros",
+      "fields": {
+        "max_time": {
+          "expected": 180,
+          "got": 180,
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E025",
+      "query": "grupo de 10 pessoas, team building no alentejo, 2 dias, 100 euros por pessoa, carro",
+      "fields": {
+        "location": {
+          "expected": "Alentejo",
+          "got": "Alentejo",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 10,
+          "got": 10,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E026",
+      "query": "eu e o meu marido, 3 dias em faro e tavira, 200 euros, de carro",
+      "fields": {
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E027",
+      "query": "lisboa em 1 dia, monumentos e pasteis de belem, transportes publicos",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E028",
+      "query": "festival de jazz no porto este fim de semana",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E029",
+      "query": "termas da curia e mealhada, 1 dia, 60 euros, carro",
+      "fields": {
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E030",
+      "query": "visita ao jardim da estrela e museu da marioneta em lisboa, tarde, a pe",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 240,
+          "got": 240,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        },
+        "start_time": {
+          "expected": "16:00",
+          "got": "16:00",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E031",
+      "query": "escapada romantica para a comporta, 2 noites, 400 euros casal, de carro",
+      "fields": {
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E032",
+      "query": "vou de mota, quero ver o vale do douro, 3 dias",
+      "fields": {
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E033",
+      "query": "5 horas em sintra, palacios e jardins, transportes publicos, 40 euros",
+      "fields": {
+        "location": {
+          "expected": "Sintra",
+          "got": "Sintra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 300,
+          "got": 300,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E034",
+      "query": "quero fazer surf no peniche, fim de semana, 150 euros, com carro",
+      "fields": {
+        "location": {
+          "expected": "Peniche",
+          "got": "Peniche",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E035",
+      "query": "rota do vinho verde, de braga a viana do castelo, 2 dias, carro",
+      "fields": {
+        "location": {
+          "expected": "Braga",
+          "got": "Braga",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E036",
+      "query": "idoso com mobilidade reduzida, museus acessiveis em porto, 1 dia, transportes publicos, 20 euros",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "mobility_issues": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E037",
+      "query": "mochileiro, hostel, porto, 1 semana, 50 euros",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 3360,
+          "got": 3360,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E038",
+      "query": "casamento em tomar, visita antes da cerimonia, 3 horas, a pe",
+      "fields": {
+        "location": {
+          "expected": "Tomar",
+          "got": "Tomar",
+          "match": true
+        },
+        "max_time": {
+          "expected": 180,
+          "got": 180,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E039",
+      "query": "parque natural da arrabida, praia e natureza, sabado, de carro, 2 pessoas, 60 euros",
+      "fields": {
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E040",
+      "query": "visita ao museu do azulejo e mosteiro dos jeronimos em lisboa, manha, a pe, 20 euros",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 240,
+          "got": 240,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        },
+        "start_time": {
+          "expected": "09:00",
+          "got": "09:00",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E041",
+      "query": "we are 6 friends going to lisbon for 3 days, budget 200 euros each, public transport",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "num_people": {
+          "expected": 6,
+          "got": 6,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E042",
+      "query": "I want to visit monuments in Porto, half day, walking, 15 euros",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 240,
+          "got": 240,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E043",
+      "query": "family trip to algarve, 1 week, car, 2 adults 3 kids, 1500 euros total",
+      "fields": {
+        "location": {
+          "expected": "Algarve",
+          "got": "Algarve",
+          "match": true
+        },
+        "max_time": {
+          "expected": 3360,
+          "got": 3360,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 5,
+          "got": 5,
+          "match": true
+        },
+        "has_children": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E044",
+      "query": "weekend in porto, friday evening to sunday afternoon",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 1440,
+          "match": false
+        },
+        "start_time": {
+          "expected": "18:00",
+          "got": "18:00",
+          "match": true
+        },
+        "last_day_end_time": {
+          "expected": "17:00",
+          "got": "17:00",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E045",
+      "query": "road trip de faro ao porto, 5 dias, carro, 100 euros por dia",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Faro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2400,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E046",
+      "query": "espetaculo de fado em lisboa, sabado a noite, 40 euros",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 180,
+          "got": 480,
+          "match": false
+        },
+        "start_time": {
+          "expected": "20:00",
+          "got": "20:00",
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E047",
+      "query": "4 adultos, atividades aquaticas no algarve, 3 dias, 80 euros por pessoa por dia, carro",
+      "fields": {
+        "location": {
+          "expected": "Algarve",
+          "got": "Algarve",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 4,
+          "got": 4,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E048",
+      "query": "preciso de um passeio rapido por coimbra, 2 horas, a pe, sem gastar muito",
+      "fields": {
+        "location": {
+          "expected": "Coimbra",
+          "got": "Coimbra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 120,
+          "got": 120,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "E049",
+      "query": "de segunda a quarta em setubal, ecoturismo, carro, 150 euros",
+      "fields": {
+        "location": {
+          "expected": "Setubal",
+          "got": "Setúbal",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "E050",
+      "query": "casal seniores, mobilidade reduzida, jardins e monumentos em sintra, 1 dia, carro, 30 euros",
+      "fields": {
+        "location": {
+          "expected": "Sintra",
+          "got": "Sintra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 1,
+          "match": false
+        },
+        "mobility_issues": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M001",
+      "query": "road trip de Faro ao Porto, passando por Evora e Lisboa, 7 dias, de carro, 100 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Faro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 3360,
+          "got": 3360,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M002",
+      "query": "de Lisboa a Coimbra e depois ao Porto, 4 dias, comboio, 150 euros",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M003",
+      "query": "quero visitar Porto, Braga e Viana do Castelo, 3 dias, carro, 200 euros total para 2 pessoas",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M004",
+      "query": "de Braga a Guimaraes, 1 dia, a pe, 20 euros",
+      "fields": {
+        "location": {
+          "expected": "Braga",
+          "got": "Braga",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "foot",
+          "got": "foot",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M005",
+      "query": "viagem de Faro a Lagos e Portimao, 2 dias, carro, 80 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Faro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M006",
+      "query": "visitar Setubal, Sesimbra e Arrabida, fim de semana, de carro, 60 euros",
+      "fields": {
+        "location": {
+          "expected": "Setubal",
+          "got": "Setubal",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M007",
+      "query": "de Lisboa a Setubal a Evora a Beja, 5 dias, carro, 100 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2400,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M008",
+      "query": "quero ver Obidos, Nazare e Alcobaca num dia, de carro",
+      "fields": {
+        "location": {
+          "expected": "Obidos",
+          "got": "Óbidos",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 1440,
+          "match": false
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M009",
+      "query": "somos 4 amigos, Porto a Vigo passando por Braga, 3 dias, transportes publicos, 200 euros total",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "num_people": {
+          "expected": 4,
+          "got": 4,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M010",
+      "query": "de Coimbra a Aveiro e Viseu, 2 dias, carro, 50 euros por pessoa por dia",
+      "fields": {
+        "location": {
+          "expected": "Coimbra",
+          "got": "Coimbra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M011",
+      "query": "familia de 4, Lisboa Sintra e Cascais, fim de semana, carro, 300 euros total",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 4,
+          "got": 4,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M012",
+      "query": "de Faro a Tavira e Vila Real de Santo Antonio, 1 dia, carro, 40 euros",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Faro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M013",
+      "query": "rota do vinho do Porto: Regua, Lamego e Pinhao, 3 dias, carro, 150 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Regua",
+          "got": "Regua",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M014",
+      "query": "de Evora a Monsaraz e Mertola, 2 dias, de carro, 80 euros",
+      "fields": {
+        "location": {
+          "expected": "Evora",
+          "got": "Evora",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M015",
+      "query": "Porto Braga Guimaraes Barcelos, quatro dias, carro, sem orcamento definido",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M016",
+      "query": "road trip Lisboa Porto Coimbra Aveiro, 6 dias, carro, 80 euros por pessoa por dia",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2880,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M017",
+      "query": "de Lisboa a Setubal, 1 dia, transportes publicos, 30 euros",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M018",
+      "query": "eu e a minha namorada, de Viana do Castelo a Braga e Guimaraes, 3 dias, carro, 200 euros",
+      "fields": {
+        "location": {
+          "expected": "Viana do Castelo",
+          "got": "Viana do Castelo",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M019",
+      "query": "visitar Batalha, Fatima e Tomar, 1 dia, carro",
+      "fields": {
+        "location": {
+          "expected": "Batalha",
+          "got": "Batalha",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M020",
+      "query": "de Braganca a Chaves e Vila Real, 2 dias, carro, 100 euros",
+      "fields": {
+        "location": {
+          "expected": "Braganca",
+          "got": "Braganca",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M021",
+      "query": "trip from Lisbon to Porto and Coimbra, 5 days, train, 200 euros each",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2400,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "foot",
+          "match": false
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": false
+    },
+    {
+      "id": "M022",
+      "query": "from Porto to Vigo passing through Braga and Ponte de Lima, car, 3 days",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M023",
+      "query": "quero Sevilha e Huelva a partir de Faro, 2 dias, carro, 100 euros",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Sevilha",
+          "match": false
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M024",
+      "query": "Lisboa, Evora, Beja e Faro, 7 dias, carro, 70 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 3360,
+          "got": 3360,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M025",
+      "query": "de Peniche a Obidos e Caldas da Rainha, manha, carro, 30 euros",
+      "fields": {
+        "location": {
+          "expected": "Peniche",
+          "got": "Peniche",
+          "match": true
+        },
+        "max_time": {
+          "expected": 240,
+          "got": 240,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "start_time": {
+          "expected": "09:00",
+          "got": "09:00",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M026",
+      "query": "somos 6 pessoas, Algarve completo: Faro, Lagos, Sagres e Tavira, 5 dias, carro, 100 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Faro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2400,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 6,
+          "got": 6,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M027",
+      "query": "de Setubal ao Sado e Alcacer do Sal, 1 dia, carro, 40 euros",
+      "fields": {
+        "location": {
+          "expected": "Setubal",
+          "got": "Setubal",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M028",
+      "query": "norte de Portugal: Viana do Castelo, Braga, Guimaraes e Porto, 4 dias, comboio, 150 euros",
+      "fields": {
+        "location": {
+          "expected": "Viana do Castelo",
+          "got": "Viana do Castelo",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M029",
+      "query": "de Coimbra a Conimbriga e Montemor-o-Velho, tarde, carro, 20 euros",
+      "fields": {
+        "location": {
+          "expected": "Coimbra",
+          "got": "Coimbra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 240,
+          "got": 240,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "start_time": {
+          "expected": "16:00",
+          "got": "16:00",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M030",
+      "query": "3 pessoas, Alentejo: Evora, Estremoz e Elvas, 3 dias, carro, 250 euros total",
+      "fields": {
+        "location": {
+          "expected": "Evora",
+          "got": "Evora",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 3,
+          "got": 3,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M031",
+      "query": "de Lisboa ao Algarve passando pelo Alentejo, 1 semana, carro, 500 euros para 2",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 3360,
+          "got": 3360,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M032",
+      "query": "Douro: Peso da Regua, Pinhao e Pocinho, 3 dias, comboio historico, 200 euros",
+      "fields": {
+        "location": {
+          "expected": "Peso da Regua",
+          "got": "Peso da Regua",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M033",
+      "query": "Porto e arredores: Amarante, Penafiel, carro, fim de semana, 100 euros casal",
+      "fields": {
+        "location": {
+          "expected": "Porto",
+          "got": "Porto",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M034",
+      "query": "de Leiria a Batalha e Fatima, 1 dia, autocarro, 15 euros",
+      "fields": {
+        "location": {
+          "expected": "Leiria",
+          "got": "Leiria",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M035",
+      "query": "quatro cidades: Beja, Evora, Portalegre e Castelo Branco, 4 dias, carro, 100 euros",
+      "fields": {
+        "location": {
+          "expected": "Beja",
+          "got": "Beja",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M036",
+      "query": "de Vila Real a Chaves e Braganca, 2 dias, carro, sem budget definido",
+      "fields": {
+        "location": {
+          "expected": "Vila Real",
+          "got": "Vila Real",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M037",
+      "query": "familia, Parque Natural da Arrabida, Setubal e Palmela, fim de semana, carro, 200 euros total, com criancas",
+      "fields": {
+        "location": {
+          "expected": "Setubal",
+          "got": "Setubal",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "has_children": {
+          "expected": true,
+          "got": true,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M038",
+      "query": "de Aveiro a Coimbra e Leiria, 2 dias, comboio, 80 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Aveiro",
+          "got": "Aveiro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M039",
+      "query": "Lisboa, Setubal, Evora e Faro, ordem livre, 6 dias, carro, 90 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2880,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M040",
+      "query": "de Castelo Branco a Covilha e Guarda, 2 dias, carro, 60 euros",
+      "fields": {
+        "location": {
+          "expected": "Castelo Branco",
+          "got": "Castelo Branco",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M041",
+      "query": "road trip Algarve: Lagos, Sagres, Portimao, 3 dias, carro, 150 euros por pessoa",
+      "fields": {
+        "location": {
+          "expected": "Lagos",
+          "got": "Lagos",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1440,
+          "got": 1440,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M042",
+      "query": "de Faro a Portimao, 1 dia, autocarro, 25 euros",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Faro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 480,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M043",
+      "query": "5 pessoas, de Lisboa ao Porto passando por Coimbra e Aveiro, 4 dias, comboio, 100 euros cada",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "public_transport",
+          "match": true
+        },
+        "num_people": {
+          "expected": 5,
+          "got": 5,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M044",
+      "query": "Viana Braga Guimaraes Porto, 4 dias, sem carro, 150 euros",
+      "fields": {
+        "location": {
+          "expected": "Viana do Castelo",
+          "got": "Viana do Castelo",
+          "match": true
+        },
+        "max_time": {
+          "expected": 1920,
+          "got": 1920,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "public_transport",
+          "got": "car",
+          "match": false
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M045",
+      "query": "de Santarem a Tomar e Fatima, manha ate tarde, carro, 30 euros",
+      "fields": {
+        "location": {
+          "expected": "Santarem",
+          "got": "Santarem",
+          "match": true
+        },
+        "max_time": {
+          "expected": 480,
+          "got": 240,
+          "match": false
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M046",
+      "query": "quero ver Sintra, Cascais e Setubal, nao sei a ordem, carro, 2 dias, 100 euros",
+      "fields": {
+        "location": {
+          "expected": "Sintra",
+          "got": "Sintra",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": true,
+          "match": false
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M047",
+      "query": "de Viseu a Lamego e Peso da Regua, 2 dias, carro, 80 euros",
+      "fields": {
+        "location": {
+          "expected": "Viseu",
+          "got": "Viseu",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M048",
+      "query": "eu, o meu marido e os 2 filhos, de Lisboa ao Algarve parando em Evora e Beja, 5 dias, carro, 1000 euros total",
+      "fields": {
+        "location": {
+          "expected": "Lisboa",
+          "got": "Lisboa",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2400,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 4,
+          "got": 4,
+          "match": true
+        },
+        "has_children": {
+          "expected": true,
+          "got": true,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M049",
+      "query": "Setubal, Comporta e Alcacer do Sal, fim de semana, carro, 150 euros casal",
+      "fields": {
+        "location": {
+          "expected": "Setubal",
+          "got": "Setubal",
+          "match": true
+        },
+        "max_time": {
+          "expected": 960,
+          "got": 960,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "num_people": {
+          "expected": 2,
+          "got": 2,
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": false,
+          "got": false,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    },
+    {
+      "id": "M050",
+      "query": "de Faro a Beja a Evora a Lisboa, 5 dias, carro, 80 euros por pessoa por dia",
+      "fields": {
+        "location": {
+          "expected": "Faro",
+          "got": "Faro",
+          "match": true
+        },
+        "max_time": {
+          "expected": 2400,
+          "got": 2880,
+          "match": true
+        },
+        "transport_mode": {
+          "expected": "car",
+          "got": "car",
+          "match": true
+        },
+        "locations_ordered": {
+          "expected": true,
+          "got": true,
+          "match": true
+        }
+      },
+      "missing_fields_match": true
+    }
+  ]
 }

@@ -26,6 +26,8 @@ class UserPreferences:
     end_location: str = None
     locations: List[str] = None
     locations_ordered: bool = False
+    include_accommodation: bool = True
+    include_meals: bool = True
 
 class LlamaOrchestrator:
     """

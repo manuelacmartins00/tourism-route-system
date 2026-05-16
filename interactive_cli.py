@@ -48,13 +48,13 @@ class InteractiveCLI:
         print(f"{Fore.YELLOW}A inicializar sistema...\n")
 
         # Verificar API key
-        api_key = os.getenv("HF_TOKEN")
+        api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
-            print(f"{Fore.RED}[ERRO] HF_TOKEN nao configurada!")
+            print(f"{Fore.RED}[ERRO] GROQ_API_KEY nao configurada!")
             print(f"{Fore.YELLOW}\nPara configurar:")
-            print(f"{Fore.WHITE}  1. Vai a https://huggingface.co/settings/tokens")
-            print(f"{Fore.WHITE}  2. Cria um token (role: read)")
-            print(f"{Fore.WHITE}  3. Adiciona ao .env: HF_TOKEN=hf_...")
+            print(f"{Fore.WHITE}  1. Vai a https://console.groq.com")
+            print(f"{Fore.WHITE}  2. Cria uma API Key")
+            print(f"{Fore.WHITE}  3. Adiciona ao .env: GROQ_API_KEY=gsk_...")
             print(f"{Fore.WHITE}  4. Reinicia o terminal\n")
             return False
         
@@ -131,53 +131,146 @@ class InteractiveCLI:
         if not query:
             print(f"{Fore.RED}[ERRO] Query vazia!")
             return
-        
+
         # Escolher algoritmo
         force_algorithm = self.choose_algorithm()
-        
+
         if force_algorithm:
             print(f"\n{Fore.YELLOW}OK Algoritmo selecionado: {Fore.GREEN}{force_algorithm}")
         else:
             print(f"\n{Fore.YELLOW}OK Modo AUTO - LLM vai escolher o algoritmo")
-        
+
         print(f"\n{Fore.YELLOW}A processar (pode demorar 10-30 segundos)...\n")
-        
-        # Processar
-        start_time = time.time()
-        
+
+        # Estado das respostas de scope (None = ainda nao respondido)
+        include_accommodation = None
+        include_meals = None
+
+        t_start = time.time()
+
         try:
+            # --- Passagem 1: extrair preferencias e detetar campos em falta + scope ---
             result = self.system.plan_route(
-                query, 
+                query,
                 use_shap=True,
                 verbose=True,
-                force_algorithm=force_algorithm
+                force_algorithm=force_algorithm,
+                include_accommodation=include_accommodation,
+                include_meals=include_meals,
             )
-            
-            elapsed = time.time() - start_time
-            
+
+            # -- Campos obrigatorios em falta (location, max_time, etc.) --
+            if result.get("status") == "needs_clarification":
+                print(f"\n{Fore.YELLOW}Precisamos de mais informacao para planear a rota:\n")
+                field_questions = {
+                    "location":       "Qual a localizacao / cidade?",
+                    "max_time":       "Qual a duracao da viagem? (ex: 2 dias, 5 horas)",
+                    "max_cost":       "Qual o orcamento disponivel? (ex: 50 euros por pessoa)",
+                    "budget_type":    "O orcamento e por pessoa, por dia ou total?",
+                    "transport_mode": "Como se vai deslocar? (a pe / carro / transportes publicos)",
+                }
+                clarifications = []
+                for field in result.get("missing_fields", []):
+                    q = field_questions.get(field, f"Podes especificar '{field}'?")
+                    ans = input(f"{Fore.GREEN}  {q} {Fore.WHITE}").strip()
+                    if ans:
+                        clarifications.append(ans)
+
+                if not clarifications:
+                    print(f"{Fore.RED}Sem informacao adicional — nao e possivel planear a rota.")
+                    return
+
+                query = query + ". " + ". ".join(clarifications)
+                print(f"\n{Fore.YELLOW}A reprocessar...\n")
+                result = self.system.plan_route(
+                    query,
+                    use_shap=True,
+                    verbose=True,
+                    force_algorithm=force_algorithm,
+                    include_accommodation=include_accommodation,
+                    include_meals=include_meals,
+                )
+
+            if result.get("status") == "needs_clarification":
+                print(f"{Fore.RED}[ERRO] Ainda faltam campos: {result.get('missing_fields')}")
+                return
+
+            # -- Perguntas de scope: alojamento e/ou refeicoes --
+            if result.get("status") == "needs_scope_clarification":
+                scope_qs = result.get("scope_questions", [])
+                prefs = result.get("preferences_so_far", {})
+
+                print(f"\n{Fore.CYAN}{'-'*70}")
+                print(f"{Fore.CYAN}ALOJAMENTO E REFEICOES")
+                print(f"{Fore.CYAN}{'-'*70}")
+                print(f"{Fore.YELLOW}Nota: {Fore.WHITE}Muitos utilizadores preferem escolher alojamento e refeicoes")
+                print(f"{Fore.WHITE}autonomamente via Booking, Airbnb, Google Maps, TripAdvisor, etc.")
+                print()
+
+                if "include_accommodation" in scope_qs:
+                    days = max(1, prefs.get("max_time", 480) // 480)
+                    ans = input(
+                        f"{Fore.GREEN}A tua viagem tem {days}+ dia(s). Incluir sugestoes de "
+                        f"{Fore.CYAN}alojamento{Fore.GREEN} na rota? (s/n): {Fore.WHITE}"
+                    ).strip().lower()
+                    include_accommodation = ans in ("s", "sim", "y", "yes", "1")
+                else:
+                    include_accommodation = True
+
+                if "include_meals" in scope_qs:
+                    ans = input(
+                        f"{Fore.GREEN}A rota inclui horas de refeicao. Incluir sugestoes de "
+                        f"{Fore.CYAN}restaurantes/cafes{Fore.GREEN} na rota? (s/n): {Fore.WHITE}"
+                    ).strip().lower()
+                    include_meals = ans in ("s", "sim", "y", "yes", "1")
+                else:
+                    include_meals = True
+
+                print()
+                if not include_accommodation:
+                    print(f"{Fore.YELLOW}  Alojamento: {Fore.WHITE}tratas autonomamente (Booking/Airbnb)")
+                if not include_meals:
+                    print(f"{Fore.YELLOW}  Refeicoes:  {Fore.WHITE}tratas autonomamente (Google Maps/TripAdvisor)")
+                print()
+
+                print(f"{Fore.YELLOW}A gerar a rota final...\n")
+                result = self.system.plan_route(
+                    query,
+                    use_shap=True,
+                    verbose=True,
+                    force_algorithm=force_algorithm,
+                    include_accommodation=include_accommodation,
+                    include_meals=include_meals,
+                )
+
+            if result.get("status") in ("needs_clarification", "needs_scope_clarification"):
+                print(f"{Fore.RED}[ERRO] Nao foi possivel completar o planeamento.")
+                return
+
+            elapsed = time.time() - t_start
+
             # Calcular metricas
             metrics = self.metrics_evaluator.calculate_metrics(result)
-            
+
             # Guardar no historico
             self.history.append({
                 'query': query,
                 'result': result,
                 'metrics': metrics,
-                'algorithm': result['algorithm_used'],
+                'algorithm': result.get('algorithm_used', '-'),
                 'forced': force_algorithm is not None,
                 'timestamp': time.strftime("%Y-%m-%d %H:%M:%S"),
                 'elapsed_seconds': elapsed
             })
-            
+
             # Mostrar metricas
-            self._display_metrics(metrics, result['algorithm_used'])
-            
+            self._display_metrics(metrics, result.get('algorithm_used', '-'))
+
             # Perguntar se quer guardar
             save = input(f"\n{Fore.YELLOW}Guardar resultado em ficheiro? (s/n): {Fore.WHITE}").strip().lower()
-            
             if save == 's':
                 self.save_result(result, metrics)
-        
+
         except Exception as e:
             print(f"{Fore.RED}[ERRO] Erro ao processar: {e}")
             import traceback
@@ -217,17 +310,25 @@ class InteractiveCLI:
                     query,
                     use_shap=False,  # Desativar SHAP para ser mais rapido
                     verbose=False,
-                    force_algorithm=algo
+                    force_algorithm=algo,
+                    include_accommodation=True,
+                    include_meals=True,
                 )
-                
+
+                if result.get("status") in ("needs_clarification", "needs_scope_clarification"):
+                    print(f"{Fore.RED}X {algo} — query incompleta: {result.get('missing_fields') or result.get('scope_questions')}")
+                    results[algo] = None
+                    metrics_all[algo] = None
+                    continue
+
                 elapsed = time.time() - start_time
-                
+
                 # Calcular metricas
                 metrics = self.metrics_evaluator.calculate_metrics(result)
-                
+
                 results[algo] = result
                 metrics_all[algo] = metrics
-                
+
                 print(f"{Fore.GREEN}OK {algo} completado em {elapsed:.1f}s")
                 print(f"  Fitness: {result['optimization']['fitness']:.2f}")
                 print(f"  POIs: {len(result['route'])}")
@@ -435,7 +536,7 @@ class InteractiveCLI:
             print(f"{Fore.RED}   [N/A] Nao configurada")
         
         print(f"\n{Fore.YELLOW}Modelo LLM:")
-        print(f"{Fore.WHITE}   Meta-Llama-3.1-8B-Instruct (Hugging Face)")
+        print(f"{Fore.WHITE}   llama-3.1-8b-instant (Groq)")
         
         print(f"\n{Fore.YELLOW}Algoritmos disponiveis:")
         print(f"{Fore.WHITE}   - ACO (Ant Colony Optimization)")
