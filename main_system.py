@@ -715,6 +715,13 @@ class TourismRouteSystem:
         travel_time = total_time_with_travel - visit_time
 
         # ========== RESULTADO FINAL ==========
+        fitness_components = {}
+        if optimization_result['route']:
+            try:
+                fitness_components = evaluator.calculate_fitness_components(optimization_result['route'])
+            except Exception:
+                pass
+
         result = {
             "query": user_query,
             "preferences": {
@@ -732,7 +739,8 @@ class TourismRouteSystem:
                 "visit_time_min": visit_time,
                 "travel_time_min": travel_time,
                 "total_time_min": total_time_with_travel,
-                "fitness_history": optimization_result.get('fitness_history', [])
+                "fitness_history": optimization_result.get('fitness_history', []),
+                "fitness_components": fitness_components,
             },
             "shap_explanation": shap_explanation,
             "explanation": explanation
