@@ -62,6 +62,8 @@ FEEDBACK_CSV = Path("data/feedback/responses.csv")
 class QueryRequest(BaseModel):
     query: str
     session_id: Optional[str] = None
+    include_accommodation: Optional[bool] = None
+    include_meals: Optional[bool] = None
 
 class FeedbackRequest(BaseModel):
     p1: int; p2: int; p3: int; p4: int; p5: int
@@ -153,6 +155,8 @@ async def query_route(req: QueryRequest, request: Request):
                 use_shap=False,
                 verbose=True,
                 force_algorithm=None,
+                include_accommodation=req.include_accommodation,
+                include_meals=req.include_meals,
             )
         except Exception as e:
             import traceback
@@ -162,7 +166,7 @@ async def query_route(req: QueryRequest, request: Request):
     if "error" in result:
         raise HTTPException(status_code=422, detail=result["error"])
 
-    if result.get("status") == "needs_clarification":
+    if result.get("status") in ("needs_clarification", "needs_scope_clarification"):
         result["session_id"] = session_id or str(uuid.uuid4())[:8]
         return JSONResponse(content=result)
 
