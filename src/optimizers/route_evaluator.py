@@ -127,6 +127,43 @@ class RouteEvaluator:
         
         return fitness * self._contextual_modifier(route)
 
+    def calculate_fitness_components(self, route: List[int]) -> dict:
+        """Devolve breakdown dos componentes de fitness (para debug e eval)."""
+        if not route or not self._is_feasible(route):
+            return {"feasible": False, "fitness": 0.0}
+        total_distance = sum(
+            self.distances[route[pos]][route[pos+1]]
+            for pos in range(len(route)-1)
+        ) if len(route) > 1 else 0
+        distance_penalty = max(0, 100 - (total_distance / 50) * 100)
+        category_matches = sum(
+            self.prefs.get('category_weights', {}).get(self.pois[poi_idx].category, 0)
+            for poi_idx in route
+        )
+        category_component = (category_matches / len(route)) * 100 if route else 0
+        unique_categories = len(set(self.pois[poi_idx].category for poi_idx in route))
+        diversity_component = (unique_categories / len(route)) * 100 if route else 0
+        time_used = self._calculate_time(route)
+        max_time = int(self.prefs.get('max_time', 480))
+        time_utilization = min(100, (time_used / max_time) * 100)
+        time_efficiency = time_utilization if time_utilization >= 70 else time_utilization * 0.35
+        proximity_component = self._proximity_component(route)
+        modifier = self._contextual_modifier(route)
+        fitness = self.calculate_fitness(route)
+        return {
+            "feasible": True,
+            "fitness": round(fitness, 3),
+            "time_utilization": round(time_utilization, 1),
+            "time_efficiency": round(time_efficiency, 1),
+            "category_component": round(category_component, 1),
+            "diversity_component": round(diversity_component, 1),
+            "distance_penalty": round(distance_penalty, 1),
+            "proximity_component": round(proximity_component, 1),
+            "contextual_modifier": round(modifier, 3),
+            "n_route": len(route),
+            "unique_categories": unique_categories,
+        }
+
     def _contextual_modifier(self, route: List[int]) -> float:
         """
         Multiplica o fitness por um factor contextual (0.7-1.3) baseado em
