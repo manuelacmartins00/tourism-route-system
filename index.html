@@ -428,6 +428,56 @@
     #printArea .print-night { font-size: 11px; color: #555; font-style: italic; margin: 8px 0 4px; }
   }
 
+  /* SCOPE CLARIFICATION (alojamento / refeições) */
+  .scope-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .scope-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .scope-card-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .scope-toggle {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .scope-btn {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .scope-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .scope-btn.selected-yes {
+    background: #1a3a22;
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .scope-btn.selected-no {
+    background: #2a1e1e;
+    border-color: #c084a0;
+    color: #e8a0b8;
+  }
+
   /* FEEDBACK BANNER */
   .feedback-banner {
     position: fixed;
@@ -812,6 +862,8 @@
         const result = await res.json();
         if (result.status === 'needs_clarification') {
           addClarificationForm(result);
+        } else if (result.status === 'needs_scope_clarification') {
+          addScopeForm(result);
         } else {
           currentRunId = result.run_id || null;
           currentSessionId = result.session_id || null;
@@ -1076,6 +1128,152 @@
     has_children:    v => v === 'Sim' ? 'viajamos com crianças' : 'viajamos sem crianças',
     mobility_issues: v => v === 'Sim' ? 'temos pessoas com mobilidade reduzida' : 'sem problemas de mobilidade',
 };
+
+  // ── Formulário de scope (alojamento / refeições) ──────────────
+  function addScopeForm(result) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.id = 'scopeRow';
+
+    const qs = result.scope_questions || [];
+    const prefs = result.preferences_so_far || {};
+    const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
+
+    let cardsHtml = '';
+    if (qs.includes('include_accommodation')) {
+      cardsHtml += `
+        <div class="scope-card">
+          <div class="scope-card-title">🏨 Alojamento</div>
+          <div class="scope-card-sub">
+            A sua viagem tem <strong>${days} dia${days > 1 ? 's' : ''}</strong>.
+            Quer incluir sugestões de alojamento na rota,
+            ou prefere escolher pelo Booking / Airbnb?
+          </div>
+          <div class="scope-toggle">
+            <button class="scope-btn" id="accom_yes" onclick="toggleScope('accom','yes')">✓ Incluir na rota</button>
+            <button class="scope-btn" id="accom_no"  onclick="toggleScope('accom','no')">✗ Trato eu mesmo</button>
+          </div>
+        </div>`;
+    }
+    if (qs.includes('include_meals')) {
+      cardsHtml += `
+        <div class="scope-card">
+          <div class="scope-card-title">🍽️ Refeições</div>
+          <div class="scope-card-sub">
+            A rota inclui horas de refeição.
+            Quer sugestões de restaurantes e cafés incluídas,
+            ou prefere escolher pelo Google Maps / TripAdvisor?
+          </div>
+          <div class="scope-toggle">
+            <button class="scope-btn" id="meals_yes" onclick="toggleScope('meals','yes')">✓ Incluir na rota</button>
+            <button class="scope-btn" id="meals_no"  onclick="toggleScope('meals','no')">✗ Trato eu mesmo</button>
+          </div>
+        </div>`;
+    }
+
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <p style="font-size:13px;margin-bottom:12px;">Antes de gerar a rota, duas preferências rápidas:</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${cardsHtml}
+        </div>
+        <div style="margin-top:14px;display:flex;justify-content:flex-end;">
+          <button id="scopeSubmitBtn" onclick="submitScopeAnswers('${escapeHtml(result.query)}', ${JSON.stringify(qs).replace(/"/g, '&quot;')})"
+            style="padding:8px 18px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;opacity:.45;" disabled>
+            Gerar rota →
+          </button>
+        </div>
+      </div>
+    `;
+    msgs.appendChild(row);
+    scrollToBottom();
+  }
+
+  const _scopeAnswers = {};
+
+  function toggleScope(key, val) {
+    _scopeAnswers[key] = val;
+    const yes = document.getElementById(`${key}_yes`);
+    const no  = document.getElementById(`${key}_no`);
+    if (yes && no) {
+      yes.className = 'scope-btn' + (val === 'yes' ? ' selected-yes' : '');
+      no.className  = 'scope-btn' + (val === 'no'  ? ' selected-no'  : '');
+    }
+    // Activar botão quando todas as perguntas respondidas
+    const btn = document.getElementById('scopeSubmitBtn');
+    if (!btn) return;
+    const needed = Array.from(document.querySelectorAll('.scope-card')).length;
+    const answered = Object.keys(_scopeAnswers).length;
+    btn.disabled = answered < needed;
+    btn.style.opacity = answered < needed ? '.45' : '1';
+  }
+
+  async function submitScopeAnswers(originalQuery, scopeQuestions) {
+    const inclAccom = scopeQuestions.includes('include_accommodation')
+      ? _scopeAnswers['accom'] === 'yes'
+      : true;
+    const inclMeals = scopeQuestions.includes('include_meals')
+      ? _scopeAnswers['meals'] === 'yes'
+      : true;
+
+    // Remover o card de scope
+    const scopeRow = document.getElementById('scopeRow');
+    if (scopeRow) scopeRow.remove();
+
+    // Mostrar resumo como mensagem do user
+    const parts = [];
+    if (scopeQuestions.includes('include_accommodation'))
+      parts.push(inclAccom ? 'alojamento incluído' : 'alojamento: trato eu');
+    if (scopeQuestions.includes('include_meals'))
+      parts.push(inclMeals ? 'refeições incluídas' : 'refeições: trato eu');
+    addUserMessage(parts.join(' · '));
+    addTypingIndicator();
+
+    isLoading = true;
+    inputBox.disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    try {
+      const res = await fetch('/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: originalQuery,
+          session_id: currentSessionId,
+          include_accommodation: inclAccom,
+          include_meals: inclMeals,
+        })
+      });
+
+      removeTypingIndicator();
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Erro desconhecido' }));
+        addErrorMessage(err.detail || 'Ocorreu um erro.');
+      } else {
+        const result = await res.json();
+        if (result.status === 'needs_clarification') {
+          addClarificationForm(result);
+        } else {
+          currentRunId = result.run_id || null;
+          currentSessionId = result.session_id || null;
+          addBotMessage(result);
+          if (currentSessionId) showRefinementHint();
+        }
+      }
+    } catch (e) {
+      removeTypingIndicator();
+      addErrorMessage('Não foi possível ligar ao servidor. Tenta novamente.');
+    } finally {
+      isLoading = false;
+      inputBox.disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      inputBox.focus();
+    }
+  }
 
   function submitClarification(originalQuery, fields) {
       let extras = [];
