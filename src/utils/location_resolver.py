@@ -108,7 +108,8 @@ class LocationResolver:
             geom  = feature.get("geometry", {})
 
             # Tentar varios campos de nome comuns em GeoJSON de municipios PT
-            name = (props.get("NAME_2") or props.get("NAME_1") or
+            name = (props.get("Concelho") or props.get("MUNICIPIO") or
+                    props.get("NAME_2") or props.get("NAME_1") or
                     props.get("Municipio") or props.get("name") or
                     props.get("NOME") or props.get("concelho") or "")
 

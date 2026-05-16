@@ -42,9 +42,6 @@ class DayPlanner:
         diurnal   = [p for p in non_accom if p.get("category") not in self.NOCTURNO_CATEGORIES]
         nocturnal = [p for p in non_accom if p.get("category") in self.NOCTURNO_CATEGORIES]
 
-        # Selecionar alojamento por dia: hotel mais proximo do centroide de cada dia
-        day_hotels = self._assign_hotels(accommodation, total_days, diurnal_by_day)
-
         print(f"\nPlaneando {len(route)} POIs em {total_days} dias "
               f"({len(diurnal)} diurnos, {len(nocturnal)} noturnos)...")
         print(f"   Tempo por dia: {self.minutes_per_day} min ({self.hours_per_day}h)\n")
@@ -55,6 +52,9 @@ class DayPlanner:
 
         # Distribuir POIs diurnos por dia (clustering geografico se possivel)
         diurnal_by_day = self._distribute_diurnal(diurnal, total_days)
+
+        # Selecionar alojamento por dia: hotel mais proximo do centroide de cada dia
+        day_hotels = self._assign_hotels(accommodation, total_days, diurnal_by_day)
 
         # Distribuir POIs noturnos em round-robin pelos dias
         # Se o ultimo dia tem hora de fim antes de NOCTURNAL_START, redirecionar noturnos do ultimo dia

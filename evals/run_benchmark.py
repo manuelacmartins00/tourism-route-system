@@ -25,6 +25,9 @@ from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 
+# Forcar stdout sem buffer (necessario quando output e redirigido para ficheiro)
+sys.stdout.reconfigure(line_buffering=True)
+
 load_dotenv()
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -210,18 +213,27 @@ def main():
     output_dir.mkdir(parents=True, exist_ok=True)
     summary_path = output_dir / "summary.txt"
 
-    print(f"\n{'='*65}")
-    print(f"BENCHMARK DE PROMPTS TURISTICAS")
-    print(f"  Input    : {args.input}")
-    print(f"  Prompts  : {len(prompts)}")
-    print(f"  Throttle : {args.throttle}s entre requests")
-    print(f"  Output   : {output_dir}")
-    print(f"{'='*65}\n")
+    # Log file para monitorizar progresso em background
+    log_path = output_dir / "progress.log"
+    _log_f = open(log_path, "w", encoding="utf-8", buffering=1)
+
+    def log(msg: str):
+        print(msg)
+        _log_f.write(msg + "\n")
+
+    log(f"\n{'='*65}")
+    log(f"BENCHMARK DE PROMPTS TURISTICAS")
+    log(f"  Input    : {args.input}")
+    log(f"  Prompts  : {len(prompts)}")
+    log(f"  Throttle : {args.throttle}s entre requests")
+    log(f"  Output   : {output_dir}")
+    log(f"  Log      : {log_path}")
+    log(f"{'='*65}\n")
 
     done = set()
     if args.resume:
         done = load_done(output_dir)
-        print(f"  Resume: {len(done)} prompts ja processadas\n")
+        log(f"  Resume: {len(done)} prompts ja processadas\n")
 
     system = TourismRouteSystem(api_key=api_key)
     total   = len(prompts)
@@ -237,8 +249,8 @@ def main():
             skipped += 1
             continue
 
-        print(f"\n[{i+1}/{total}] P{pid.zfill(4)} | {perfil[:25]}")
-        print(f"  {prompt[:80]}{'...' if len(prompt) > 80 else ''}")
+        log(f"\n[{i+1}/{total}] P{pid.zfill(4)} | {perfil[:25]}")
+        log(f"  {prompt[:80]}{'...' if len(prompt) > 80 else ''}")
 
         t_start = time.time()
         try:
@@ -289,16 +301,16 @@ def main():
             })
 
             if status == "ok":
-                print(f"  OK {algoritmo} | fitness={fitness:.3f} | POIs={n_pois} | {elapsed}s")
+                log(f"  OK {algoritmo} | fitness={fitness:.3f} | POIs={n_pois} | {elapsed}s")
             elif status == "clarification":
-                print(f"  CLARIF missing={n_missing} | {elapsed}s")
+                log(f"  CLARIF missing={n_missing} | {elapsed}s")
             else:
-                print(f"  ERROR | {elapsed}s")
+                log(f"  ERROR | {elapsed}s")
 
         except Exception as e:
             elapsed = round(time.time() - t_start, 1)
             errors += 1
-            print(f"  EXCECAO: {e}")
+            log(f"  EXCECAO: {e}")
             save_summary_line(summary_path, {
                 "prompt_id": pid, "perfil": perfil, "status": "exception",
                 "algoritmo": "-", "fitness": 0, "n_pois": 0,
@@ -314,10 +326,10 @@ def main():
         processadas = i + 1 - skipped
         if processadas % 100 == 0:
             interim = analyse_results(summary_path)
-            print(f"\n  --- Checkpoint {processadas} prompts ---")
-            print(f"  Fitness medio ate agora: {interim.get('fitness_mean', 0):.3f}")
-            print(f"  Clarification rate:      {interim.get('clarification_rate', 0):.1f}%")
-            print(f"  Erros:                   {interim.get('error', 0)}\n")
+            log(f"\n  --- Checkpoint {processadas} prompts ---")
+            log(f"  Fitness medio ate agora: {interim.get('fitness_mean', 0):.3f}")
+            log(f"  Clarification rate:      {interim.get('clarification_rate', 0):.1f}%")
+            log(f"  Erros:                   {interim.get('error', 0)}\n")
 
     # Relatorio final
     final_metrics = analyse_results(summary_path)
@@ -327,7 +339,8 @@ def main():
     metrics_path = output_dir / "metrics.json"
     with open(metrics_path, "w", encoding="utf-8") as f:
         json.dump(final_metrics, f, indent=2, ensure_ascii=False)
-    print(f"Metricas JSON: {metrics_path}")
+    log(f"Metricas JSON: {metrics_path}")
+    _log_f.close()
 
 
 if __name__ == "__main__":
