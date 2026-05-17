@@ -197,6 +197,8 @@ def main():
     parser.add_argument("--max",    type=int, default=0, help="Limitar a N prompts (0 = todas)")
     parser.add_argument("--throttle", type=float, default=1.5,
                         help="Segundos entre requests Groq (default 1.5)")
+    parser.add_argument("--timeout", type=int, default=180,
+                        help="Timeout por prompt em segundos (default 180)")
     args = parser.parse_args()
 
     prompts = load_prompts(args.input)
@@ -254,14 +256,44 @@ def main():
 
         t_start = time.time()
         try:
-            result  = system.plan_route(
-                prompt,
-                use_shap=False,
-                verbose=False,
-                force_algorithm=None,
-                include_accommodation=True,
-                include_meals=True,
-            )
+            import signal as _sig
+            def _timeout_handler(signum, frame):
+                raise TimeoutError(f"Prompt excedeu {args.timeout}s")
+            # signal.alarm apenas disponivel em Unix; em Windows usa thread
+            import threading as _threading
+            _result_holder = [None]
+            _exc_holder    = [None]
+            def _run():
+                try:
+                    _result_holder[0] = system.plan_route(
+                        prompt,
+                        use_shap=False,
+                        verbose=False,
+                        force_algorithm=None,
+                        include_accommodation=True,
+                        include_meals=True,
+                    )
+                except Exception as exc:
+                    _exc_holder[0] = exc
+            t = _threading.Thread(target=_run, daemon=True)
+            t.start()
+            t.join(timeout=args.timeout)
+            if t.is_alive():
+                elapsed = round(time.time() - t_start, 1)
+                errors += 1
+                log(f"  TIMEOUT (>{args.timeout}s) | {elapsed}s")
+                save_summary_line(summary_path, {
+                    "prompt_id": pid, "perfil": perfil, "status": "timeout",
+                    "algoritmo": "-", "fitness": 0, "n_pois": 0,
+                    "visit_min": 0, "total_min": 0, "custo": 0,
+                    "n_missing": 0, "fields_extracted": "0/0",
+                    "elapsed_s": elapsed,
+                })
+                time.sleep(args.throttle)
+                continue
+            if _exc_holder[0]:
+                raise _exc_holder[0]
+            result  = _result_holder[0]
             elapsed = round(time.time() - t_start, 1)
 
             save_result(result, output_dir, pid)

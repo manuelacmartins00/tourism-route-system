@@ -623,12 +623,9 @@ class TourismRouteSystem:
         if has_children:
             print("   has_children=True -> modificador contextual activado\n")
 
-        # Matriz de elevacao - so calculada se mobilidade reduzida
+        # Matriz de elevacao - calculada pos-optimizacao (so POIs selecionados, max 20)
+        # NAO calcular pre-optimizacao: com 60+ candidatos sao milhares de chamadas HTTP
         elevation_matrix = None
-        if mobility_issues:
-            if verbose:
-                print("   A calcular perfis de elevacao (mobilidade reduzida)...\n")
-            elevation_matrix = self._build_elevation_matrix(optimizer_pois, verbose)
 
         _num_people = getattr(preferences, "num_people", 1)
         _num_rooms  = getattr(preferences, "num_rooms",  max(1, math.ceil(_num_people / 2)))
@@ -673,6 +670,18 @@ class TourismRouteSystem:
         if verbose:
             print(f"\n   [OK] Fitness: {optimization_result['fitness']:.2f}")
             print(f"   [OK] POIs selecionados: {len(optimization_result['route'])}\n")
+
+        # Calcular elevacao pos-optimizacao (so POIs selecionados, max 20)
+        if mobility_issues and optimization_result['pois']:
+            selected_pois = optimization_result['pois'][:20]
+            if verbose:
+                print(f"   A calcular elevacao para {len(selected_pois)} POIs selecionados...\n")
+            try:
+                elev_matrix = self._build_elevation_matrix(selected_pois, verbose=False)
+                evaluator.elevation_matrix = elev_matrix
+                evaluator.mobility_issues = True
+            except Exception as e:
+                print(f"AVISO: Elevacao ignorada: {e}\n")
 
         # ========== PASSO 6: ANALISE SHAP ==========
         shap_explanation = None
