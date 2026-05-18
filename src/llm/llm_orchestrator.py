@@ -757,43 +757,61 @@ Responde APENAS com o JSON, sem explicacoes."""
         return query
     
     def explain_route(self, route: List[Dict], preferences: UserPreferences,
-                     algorithm_used: str, optimization_metadata: Dict) -> str:
-        """Gera explicacao em portugues sobre a rota gerada"""
-        
-        route_summary = []
-        total_cost = 0
-        total_duration = 0
-        
-        for poi in route:
-            route_summary.append(f"{poi['name']} ({poi['category']})")
-            total_cost += poi['cost']
-            total_duration += poi['duration']
-        
-        route_str = ", ".join(route_summary)
-        
-        prompt = f"""Gera uma explicacao CURTA e AMIGAVEL em portugues sobre esta rota turistica.
+                     algorithm_used: str, optimization_metadata: Dict,
+                     fitness_components: Dict = None, shap_values: Dict = None) -> str:
+        """Gera explicacao em portugues fundamentada nos componentes AHP e valores SHAP."""
+
+        total_cost = sum(p['cost'] for p in route)
+        total_duration = sum(p['duration'] for p in route)
+        route_str = ", ".join(f"{p['name']} ({p['category']})" for p in route)
+
+        # Secao de componentes AHP (sempre disponivel)
+        componentes_str = ""
+        if fitness_components and fitness_components.get('feasible', True):
+            componentes_str = f"""
+COMPONENTES DO FITNESS (pesos AHP):
+- Utilizacao do tempo : {fitness_components.get('time_utilization', 'N/A')}%  (peso 48.1%)
+- Correspondencia categorias: {fitness_components.get('category_component', 'N/A')}%  (peso 18.85%)
+- Proximidade geografica: {fitness_components.get('proximity_component', 'N/A')}%  (peso 18.85%)
+- Eficiencia de distancia: {fitness_components.get('distance_penalty', 'N/A')}%  (peso 10.95%)
+- Diversidade de categorias: {fitness_components.get('diversity_component', 'N/A')}%  (peso 3.24%)
+- Modificador contextual: {fitness_components.get('contextual_modifier', 'N/A')}x
+- Categorias unicas na rota: {fitness_components.get('unique_categories', 'N/A')}"""
+
+        # Secao SHAP — top 3 POIs mais determinantes (se disponivel)
+        shap_str = ""
+        if shap_values:
+            top_shap = sorted(shap_values.items(), key=lambda x: x[1]['shap_value'], reverse=True)[:3]
+            shap_lines = [
+                f"  {i+1}. {name}: SHAP={data['shap_value']:+.3f} ({data['category']})"
+                for i, (name, data) in enumerate(top_shap)
+            ]
+            shap_str = "\nPOIs mais determinantes para o fitness (SHAP):\n" + "\n".join(shap_lines)
+
+        prompt = f"""Gera uma explicacao CURTA e FUNDAMENTADA em portugues de Portugal sobre esta rota turistica.
 
 ROTA GERADA:
 {route_str}
 
-DETALHES:
-- Algoritmo usado: {algorithm_used}
-- Fitness score: {optimization_metadata.get('fitness', 0):.2f}
+DETALHES DA ROTA:
+- Fitness score: {optimization_metadata.get('fitness', 0):.2f}/100
 - POIs selecionados: {len(route)}
-- Duracao total: {total_duration} minutos
+- Duracao total visitas: {total_duration} minutos
 - Custo total: EUR{total_cost:.2f}
-- Preferencias utilizador: {', '.join(preferences.interests)}
+- Preferencias do utilizador: {', '.join(preferences.interests)}
+{componentes_str}
+{shap_str}
 
 TAREFA:
-Escreve um paragrafo curto (3-4 frases) explicando:
-1. Por que esta rota e adequada para o utilizador
-2. Destaca 1-2 POIs principais
-3. Menciona a diversidade ou caracteristicas especiais
+Escreve 3-4 frases explicando:
+1. Por que esta rota responde as preferencias do utilizador (usa os componentes AHP para justificar)
+2. Destaca os POIs mais importantes (usa os valores SHAP se disponiveis)
+3. Menciona o criterio que mais pesou na selecao (componente AHP mais alto)
 
-TOM: Amigavel, informativo, portugues de Portugal
-TAMANHO: Maximo 4 frases
+TOM: Amigavel, informativo, portugues de Portugal. NAO uses jargao tecnico (nao menciones SHAP, AHP, fitness).
+TAMANHO: Maximo 4 frases.
 
-Responde APENAS com o texto da explicacao, sem introducoes."""
+Responde APENAS com o texto da explicacao."""
 
         try:
             explanation = self._call_llm(prompt, max_tokens=300, temperature=0.7).strip()

@@ -661,7 +661,7 @@ class TourismRouteSystem:
                                   population_size=80, n_generations=50)
         elif selected_algo == "PSO":
             optimizer = TourismPSOA(optimizer_pois, sub_distance_matrix, evaluator,
-                                    n_particles=30, n_iterations=50)
+                                    n_particles=20, n_iterations=30)
         else:  # GREEDY
             optimizer = GreedyPlanner(optimizer_pois, sub_distance_matrix, evaluator)
 
@@ -683,7 +683,15 @@ class TourismRouteSystem:
             except Exception as e:
                 print(f"AVISO: Elevacao ignorada: {e}\n")
 
-        # ========== PASSO 6: ANALISE SHAP ==========
+        # ========== PASSO 6: COMPONENTES FITNESS + SHAP ==========
+        # fitness_components calculado ANTES da explicacao LLM para alimentar o prompt
+        fitness_components = {}
+        if optimization_result['route']:
+            try:
+                fitness_components = evaluator.calculate_fitness_components(optimization_result['route'])
+            except Exception:
+                pass
+
         shap_explanation = None
         if use_shap and optimization_result['route']:
             if verbose:
@@ -710,7 +718,9 @@ class TourismRouteSystem:
             route=route_dicts,
             preferences=preferences,
             algorithm_used=selected_algo,
-            optimization_metadata=optimization_result
+            optimization_metadata=optimization_result,
+            fitness_components=fitness_components,
+            shap_values=shap_explanation.get('shap_values') if shap_explanation else None,
         )
 
         route_pois_list = [
@@ -722,14 +732,6 @@ class TourismRouteSystem:
         visit_time = sum(p['duration'] for p in route_pois_list)
         total_time_with_travel = evaluator._calculate_time(optimization_result['route'])
         travel_time = total_time_with_travel - visit_time
-
-        # ========== RESULTADO FINAL ==========
-        fitness_components = {}
-        if optimization_result['route']:
-            try:
-                fitness_components = evaluator.calculate_fitness_components(optimization_result['route'])
-            except Exception:
-                pass
 
         result = {
             "query": user_query,
