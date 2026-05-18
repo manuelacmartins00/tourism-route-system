@@ -163,7 +163,8 @@ class TourismRouteSystem:
                verbose: bool = True,
                force_algorithm: str = None,
                include_accommodation: Optional[bool] = None,
-               include_meals: Optional[bool] = None) -> Dict:
+               include_meals: Optional[bool] = None,
+               generate_map: bool = True) -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
@@ -645,6 +646,7 @@ class TourismRouteSystem:
             "mobility_issues": mobility_issues,
             "has_children": has_children,
             "elevation_matrix": elevation_matrix,
+            "include_accommodation": include_accommodation,
         }
 
         evaluator = RouteEvaluator(optimizer_pois, sub_distance_matrix, user_prefs_dict)
@@ -801,29 +803,31 @@ class TourismRouteSystem:
             traceback.print_exc()
 
         # ========== PASSO 9: GERAR MAPA OSRM ==========
-        if verbose:
-            print("[MAP] Gerando mapa interativo com OSRM...\n")
-
-        try:
-            from src.utils.map_generator import RouteMapGenerator
-            map_gen = RouteMapGenerator()
-            map_path = map_gen.generate_map(
-                result['route'],
-                output_file=None,
-                algorithm=selected_algo,
-                transport_mode=preferences.transport_mode,
-                day_plan=day_plan,
-            )
-            if map_path:
-                result['map_file'] = map_path
-                if verbose:
-                    print(f"[OK] Mapa disponivel em: {map_path}")
-                    print(f"   Abre no browser: file:///{Path(map_path).absolute()}\n")
-        except ImportError as e:
-            print(f"AVISO: Modulos de mapa nao instalados: {e}")
-            print(f"   Execute: pip install folium requests polyline\n")
-        except Exception as e:
-            print(f"AVISO: Erro ao gerar mapa: {e}\n")
+        if not generate_map:
+            result["map_file"] = None
+        else:
+            if verbose:
+                print("[MAP] Gerando mapa interativo com OSRM...\n")
+            try:
+                from src.utils.map_generator import RouteMapGenerator
+                map_gen = RouteMapGenerator()
+                map_path = map_gen.generate_map(
+                    result['route'],
+                    output_file=None,
+                    algorithm=selected_algo,
+                    transport_mode=preferences.transport_mode,
+                    day_plan=day_plan,
+                )
+                if map_path:
+                    result['map_file'] = map_path
+                    if verbose:
+                        print(f"[OK] Mapa disponivel em: {map_path}")
+                        print(f"   Abre no browser: file:///{Path(map_path).absolute()}\n")
+            except ImportError as e:
+                print(f"AVISO: Modulos de mapa nao instalados: {e}")
+                print(f"   Execute: pip install folium requests polyline\n")
+            except Exception as e:
+                print(f"AVISO: Erro ao gerar mapa: {e}\n")
 
         if verbose:
             self._print_result(result)

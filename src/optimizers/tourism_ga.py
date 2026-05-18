@@ -98,8 +98,6 @@ class TourismGA:
             temp_route = route + [poi_idx]
             if self.evaluator._is_feasible(temp_route):
                 route.append(poi_idx)
-            if len(route) >= 10:  # max POIs
-                break
         
         return route
     

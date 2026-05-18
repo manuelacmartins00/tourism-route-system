@@ -427,9 +427,9 @@ Responde APENAS com o JSON, sem explicacoes."""
                 extracted_time = 300  # placeholder; missing_fields tratara isto
             else:
                 extracted_time = int(extracted_time)
-                if extracted_time > 5000:
-                    print(f"   AVISO: Tempo extraido parece errado: {extracted_time} min - limitando a 1440 min")
-                    extracted_time = 1440
+                if extracted_time > 20160:  # > 42 dias (42 × 480 min)
+                    print(f"   AVISO: Tempo extraido parece errado: {extracted_time} min - limitando a 20160 min")
+                    extracted_time = 20160
 
             # Numero de pessoas
             num_people = max(1, int(data.get("num_people", 1) or 1))

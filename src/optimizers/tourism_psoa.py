@@ -129,9 +129,6 @@ class TourismPSOA:
             
             if self.evaluator._is_feasible(temp_route):
                 route.append(poi_idx)
-            
-            if len(route) >= 10:  # max POIs
-                break
         
         return route
     
@@ -217,7 +214,7 @@ class TourismPSOA:
                 if i != 0 and j != 0 and i < len(new_position) and j < len(new_position):
                     new_position[i], new_position[j] = new_position[j], new_position[i]
             
-            elif op[0] == 'insert' and len(new_position) < 15:
+            elif op[0] == 'insert' and len(new_position) < self.n_pois:
                 # Insert
                 poi_id, pos = op[1], op[2] % (len(new_position) + 1)
                 if poi_id not in new_position and poi_id < self.n_pois:

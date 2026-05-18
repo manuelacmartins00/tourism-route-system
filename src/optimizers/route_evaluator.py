@@ -79,22 +79,25 @@ class RouteEvaluator:
         
         if not route or not self._is_feasible(route):
             return 0.0
-        
-        total_distance = sum(
-            self.distances[route[pos]][route[pos+1]]
-            for pos in range(len(route)-1)
-        ) if len(route) > 1 else 0
-        distance_penalty = max(0, 100 - (total_distance / 50) * 100)
-        
+
+        activity_route = [idx for idx in route
+                          if self.pois[idx].category not in ACCOMMODATION_CATEGORIES]
+        total_km = sum(
+            self._haversine_km(self.pois[activity_route[pos]], self.pois[activity_route[pos+1]])
+            for pos in range(len(activity_route)-1)
+        ) if len(activity_route) > 1 else 0
+        threshold_km = max(1.0, self.max_radius_km) * 4
+        distance_penalty = max(0.0, 100.0 - (total_km / threshold_km) * 100.0)
+
         category_matches = sum(
             self.prefs.get('category_weights', {}).get(self.pois[poi_idx].category, 0)
             for poi_idx in route
         )
         category_component = (category_matches / len(route)) * 100 if route else 0
-        
+
         unique_categories = len(set(self.pois[poi_idx].category for poi_idx in route))
         diversity_component = (unique_categories / len(route)) * 100 if route else 0
-        
+
         time_used = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
         time_utilization = min(100, (time_used / max_time) * 100)
@@ -125,17 +128,20 @@ class RouteEvaluator:
                 self.w_proximity * proximity_component
             )
         
-        return fitness * self._contextual_modifier(route)
+        return min(100.0, fitness * self._contextual_modifier(route))
 
     def calculate_fitness_components(self, route: List[int]) -> dict:
         """Devolve breakdown dos componentes de fitness (para debug e eval)."""
         if not route or not self._is_feasible(route):
             return {"feasible": False, "fitness": 0.0}
-        total_distance = sum(
-            self.distances[route[pos]][route[pos+1]]
-            for pos in range(len(route)-1)
-        ) if len(route) > 1 else 0
-        distance_penalty = max(0, 100 - (total_distance / 50) * 100)
+        activity_route = [idx for idx in route
+                          if self.pois[idx].category not in ACCOMMODATION_CATEGORIES]
+        total_km = sum(
+            self._haversine_km(self.pois[activity_route[pos]], self.pois[activity_route[pos+1]])
+            for pos in range(len(activity_route)-1)
+        ) if len(activity_route) > 1 else 0
+        threshold_km = max(1.0, self.max_radius_km) * 4
+        distance_penalty = max(0.0, 100.0 - (total_km / threshold_km) * 100.0)
         category_matches = sum(
             self.prefs.get('category_weights', {}).get(self.pois[poi_idx].category, 0)
             for poi_idx in route
@@ -245,12 +251,13 @@ class RouteEvaluator:
                 print(f"   AVISO: Inviavel (custo): {total_cost:.2f} > {max_cost}")
             return False
 
-        # Hard constraint: pelo menos 1 POI de alojamento
-        has_accommodation = any(
-            self.pois[idx].category in ACCOMMODATION_CATEGORIES for idx in route
-        )
-        if not has_accommodation:
-            return False
+        # Hard constraint: pelo menos 1 POI de alojamento (só se include_accommodation=True)
+        if self.prefs.get("include_accommodation", True):
+            has_accommodation = any(
+                self.pois[idx].category in ACCOMMODATION_CATEGORIES for idx in route
+            )
+            if not has_accommodation:
+                return False
 
         return True
 
@@ -293,6 +300,16 @@ class RouteEvaluator:
         score = max(0.0, 1.0 - (total_gain - THRESHOLD_M) / (MAX_GAIN_M - THRESHOLD_M))
         return score * 100
     
+    @staticmethod
+    def _haversine_km(poi_a, poi_b) -> float:
+        import math
+        R = 6371.0
+        r = math.radians
+        lat1, lon1 = poi_a.lat, poi_a.lon
+        lat2, lon2 = poi_b.lat, poi_b.lon
+        a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
+        return R * 2 * math.asin(math.sqrt(a))
+
     def _parse_time(self, time_str: str) -> float:
         """Converte "09:30" para minutos desde meia-noite"""
         try:
