@@ -152,7 +152,7 @@ async def query_route(req: QueryRequest, request: Request):
         try:
             result = system.plan_route(
                 effective_query,
-                use_shap=False,
+                use_shap=True,
                 verbose=True,
                 force_algorithm=None,
                 include_accommodation=req.include_accommodation,

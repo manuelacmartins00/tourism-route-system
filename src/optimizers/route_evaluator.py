@@ -280,10 +280,13 @@ class RouteEvaluator:
         THRESHOLD_M = 50
         MAX_GAIN_M  = 200
 
-        total_gain = sum(
-            self.elevation_matrix[route[i]][route[i+1]]
-            for i in range(len(route) - 1)
-        )
+        n = len(self.elevation_matrix)
+        total_gain = 0.0
+        for i in range(len(route) - 1):
+            a, b = route[i], route[i + 1]
+            if a >= n or b >= n:
+                return 100.0  # índices fora da matriz pós-otimização → sem penalização
+            total_gain += self.elevation_matrix[a][b]
 
         if total_gain <= THRESHOLD_M:
             return 100.0
