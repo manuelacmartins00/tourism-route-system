@@ -649,9 +649,30 @@ Responde APENAS com o JSON, sem explicacoes."""
                 missing_fields = [f for f in missing_fields if f != "budget_type"]
 
             # Forcar budget_type em missing_fields se montante dado sem tipo explicito
-            if (budget_value is not None
+            # Verificar se o utilizador mencionou explicitamente um valor de orcamento
+            import re as _bre
+            _AMOUNT_KEYWORDS = ["€", "eur", "euro", "euros",
+                                 "budget baixo", "budget medio", "budget alto",
+                                 "barato", "economico", "acessivel"]
+            _budget_amount_explicit = (
+                any(h in _q for h in _AMOUNT_KEYWORDS)
+                or bool(_bre.search(r'\d+\s*(?:€|eur|euro)', _q))
+                or bool(_bre.search(r'(?:€|eur|euro[s]?)\s*\d+', _q))
+            )
+
+            if budget_value is not None and not _budget_amount_explicit:
+                # LLM inferiu um valor (nao mencionado pelo utilizador) — pedir ambos
+                if "max_cost" not in missing_fields:
+                    missing_fields.append("max_cost")
+                if "budget_type" not in missing_fields:
+                    missing_fields.append("budget_type")
+                budget_value = None
+                extracted_cost = 50.0
+                print(f"   [INFO] max_cost + budget_type: valor inferido pelo LLM, a pedir ao utilizador")
+            elif (budget_value is not None
                     and not any(h in _q for h in _EXPLICIT_TYPE_HINTS)
                     and "budget_type" not in missing_fields):
+                # Valor explicito mas tipo ambiguo — pedir apenas tipo
                 missing_fields.append("budget_type")
                 print(f"   [INFO] budget_type adicionado: tipo nao explicito na query")
 
