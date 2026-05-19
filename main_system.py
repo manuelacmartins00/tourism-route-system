@@ -613,8 +613,13 @@ class TourismRouteSystem:
         if verbose:
             print(f"   [OK] POIs para otimizacao: {n_pois}\n")
 
-        # Sub-matriz de tempos reais (TransitService) ou Haversine (fallback)
-        if self.transit_service is not None:
+        # Sub-matriz de tempos reais (TransitService apenas para public_transport/fastest)
+        # Para car/foot usar tabela Haversine: OSRM table com 60+ POIs excede 60s no proxy HF
+        _use_transit = (
+            self.transit_service is not None
+            and preferences.transport_mode in ("public_transport", "fastest")
+        )
+        if _use_transit:
             if verbose:
                 print(f"   A construir matriz de tempos reais ({preferences.transport_mode})...\n")
             sub_distance_matrix = self.transit_service.build_cost_matrix(
@@ -691,7 +696,7 @@ class TourismRouteSystem:
                                    n_ants=30, n_iterations=100)
         elif selected_algo == "GA":
             optimizer = TourismGA(optimizer_pois, sub_distance_matrix, evaluator,
-                                  population_size=80, n_generations=50)
+                                  population_size=50, n_generations=30)
         elif selected_algo == "PSO":
             optimizer = TourismPSOA(optimizer_pois, sub_distance_matrix, evaluator,
                                     n_particles=20, n_iterations=30)
