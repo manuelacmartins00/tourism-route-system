@@ -70,16 +70,40 @@ class RouteExplainer:
         )
         shap_array = shap_vals[0] if isinstance(shap_vals, list) else shap_vals.flatten()
 
+        # Categorias com efeito contextual (espelha route_evaluator)
+        _CHILDREN_PENALTY  = {"bares_e_discotecas", "casinos", "turismo_activo"}
+        _CHILDREN_BONUS    = {"espacos_verdes", "parques_e_reservas", "parques_de_diversao",
+                               "zoos_e_aquarios", "ciencia_e_conhecimento"}
+        _MOBILITY_PENALTY  = {"turismo_activo", "campos", "parques_e_reservas",
+                               "parques_de_diversao", "grutas"}
+        _MOBILITY_BONUS    = {"restaurantes_e_cafes", "monumentos", "museus_e_palacios",
+                               "espacos_verdes", "termas", "ciencia_e_conhecimento", "talassoterapia"}
+
+        has_children    = getattr(self.evaluator, 'has_children', False)
+        mobility_issues = getattr(self.evaluator, 'mobility_issues', False)
+
         # Construir dicionario so com POIs da rota
         shap_by_poi = {}
         for idx in route:
             if idx < self.n_pois:
                 poi = self.pois[idx]
+                reasons = []
+                if has_children:
+                    if poi.category in _CHILDREN_PENALTY:
+                        reasons.append("penalizado (viagem com crianças)")
+                    elif poi.category in _CHILDREN_BONUS:
+                        reasons.append("bónus (adequado para crianças)")
+                if mobility_issues:
+                    if poi.category in _MOBILITY_PENALTY:
+                        reasons.append("penalizado (mobilidade reduzida)")
+                    elif poi.category in _MOBILITY_BONUS:
+                        reasons.append("bónus (acessível com mobilidade reduzida)")
                 shap_by_poi[poi.name] = {
                     'shap_value': float(shap_array[idx]),
                     'category': poi.category,
                     'cost': poi.cost,
-                    'duration': poi.duration
+                    'duration': poi.duration,
+                    'contextual_reason': ', '.join(reasons) if reasons else None,
                 }
 
         explanation = self._generate_explanation(route, shap_by_poi)

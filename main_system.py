@@ -734,6 +734,9 @@ class TourismRouteSystem:
             optimization_metadata=optimization_result,
             fitness_components=fitness_components,
             shap_values=shap_explanation.get('shap_values') if shap_explanation else None,
+            mobility_issues=mobility_issues,
+            has_children=has_children,
+            num_people=getattr(preferences, 'num_people', 1),
         )
 
         route_pois_list = [
