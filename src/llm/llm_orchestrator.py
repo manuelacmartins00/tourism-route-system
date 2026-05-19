@@ -173,7 +173,9 @@ class LlamaOrchestrator:
         if _fim_semana_grande:
             _implicit_days = 3  # sexta + sabado + domingo
         elif _fim_semana:
-            _implicit_days = 2
+            # Se houver menção a "sexta" junto com fim de semana → começa 6a, é 3 dias
+            _has_sexta = bool(_pre.search(r'\bsexta\b', _norm(user_query)))
+            _implicit_days = 3 if _has_sexta else 2
         else:
             # Dia unico isolado: "sabado", "domingo", "segunda-feira", etc.
             _single_day_m = _pre.search(
@@ -683,10 +685,12 @@ Responde APENAS com o JSON, sem explicacoes."""
                 extracted_time = _inferred_duration_min
                 missing_fields = [f for f in missing_fields if f != "max_time"]
                 print(f"   max_time por periodo do dia: {extracted_time} min")
-            elif not _has_explicit_duration and not _implicit_days and data.get("max_time") is None:
+            elif not _has_explicit_duration and not _implicit_days:
+                # Sem duracao explicita nem implicita: forcar null independente do que o LLM deu
                 if "max_time" not in missing_fields:
                     missing_fields.append("max_time")
                     print("   max_time adicionado: duracao nao mencionada na query")
+                extracted_time = None  # ignorar valor LLM hallucinated
 
             if budget_value is None:
                 if "max_cost" not in missing_fields:
