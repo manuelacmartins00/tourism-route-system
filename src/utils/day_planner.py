@@ -7,6 +7,9 @@ import math
 
 class DayPlanner:
     NOCTURNO_CATEGORIES    = {"bares_e_discotecas", "casinos"}
+    NOCTURNAL_START = "21:00"
+    NOCTURNAL_END   = "03:00"   # hora de fim da vida noturna (dia seguinte)
+    MAX_NOCTURNAL_PER_DAY = 3   # máximo de POIs noturnos por dia
     ACCOMMODATION_CATEGORIES = frozenset({
         "hotelaria", "alojamento_local", "turismo_habitacao",
         "turismo_espaco_rural", "apartamento_turistico",
@@ -15,7 +18,6 @@ class DayPlanner:
     DIURNO_CATEGORIES = {"monumentos", "museus_e_palacios", "espacos_verdes",
                           "parques_e_reservas", "arqueologia", "grutas",
                           "turismo_activo", "praias", "zoos_e_aquarios"}
-    NOCTURNAL_START = "21:00"
 
     def __init__(self, hours_per_day: int = 8, start_time: str = "09:00", lunch_break: int = 60):
         self.start_lat = None
@@ -236,14 +238,21 @@ class DayPlanner:
             if i < len(diurnal) - 1 and 12 * 60 < current < 14 * 60:
                 current += self.lunch_break
 
-        # Noite - comeca as 21:00
+        # Noite - comeca as 21:00, termina no maximo as 03:00 (dia seguinte)
         current = self._parse_time(self.NOCTURNAL_START)
+        nocturnal_end_min = 24 * 60 + self._parse_time(self.NOCTURNAL_END)  # 03:00 do dia seguinte
+        nocturnal_count = 0
         for poi in nocturnal:
+            if nocturnal_count >= self.MAX_NOCTURNAL_PER_DAY:
+                break
+            if current + poi['duration'] > nocturnal_end_min:
+                break
             arr = self._fmt(current)
             dep = self._fmt(current + poi['duration'])
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
             order += 1
             current += poi['duration']
+            nocturnal_count += 1
 
         # Hotel: colocar no fim do dia (apos vida noturna)
         if hotel:

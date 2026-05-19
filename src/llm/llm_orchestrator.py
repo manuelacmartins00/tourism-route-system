@@ -117,7 +117,9 @@ class LlamaOrchestrator:
             flags=_pre.IGNORECASE
         )
 
-        # Pre-processar: "fim de semana" = 2 dias fixo
+        # Pre-processar: "fim de semana grande/longo/alargado" = 3 dias; "fim de semana" = 2 dias
+        _fim_semana_grande = bool(_pre.search(
+            r'\bfim\s+de\s+semana\s+(grande|longo|alargado)\b', user_query, _pre.IGNORECASE))
         _fim_semana = bool(_pre.search(r'\bfim\s+de\s+semana\b', user_query, _pre.IGNORECASE))
 
         # Pre-processar: palavras de periodo do dia -> start_time + duracao implicita
@@ -168,7 +170,9 @@ class LlamaOrchestrator:
             return _DAY_NUM.get(_norm(name.replace('-feira', '').strip()))
 
         _implicit_days = None
-        if _fim_semana:
+        if _fim_semana_grande:
+            _implicit_days = 3  # sexta + sabado + domingo
+        elif _fim_semana:
             _implicit_days = 2
         else:
             # Dia unico isolado: "sabado", "domingo", "segunda-feira", etc.
@@ -288,6 +292,7 @@ EXEMPLOS DE CONVERSAO:
 - "de 6a a tarde ate domingo a tarde" -> start_time: "16:00", last_day_end_time: "17:00", max_time: 1440
 - "de sabado de manha ate domingo ao meio-dia" -> start_time: "09:00", last_day_end_time: "12:00", max_time: 960
 - "fim de semana" -> max_time: 960 (sabado + domingo = 2 dias)
+- "fim de semana grande" / "longo fim de semana" -> max_time: 1440 (sexta + sabado + domingo = 3 dias)
 - "familia com 2 criancas" -> num_people: 4 (2 adultos + 2 criancas)
 
 REGRA CRITICA PARA missing_fields:
