@@ -40,35 +40,46 @@ class RouteExplainer:
         """
         Gera explicacao SHAP para uma rota.
 
-        A instancia explicada e o vector binario da rota atual.
-        O background e o vector zero (nenhum POI selecionado).
+        Feature set limitado: POIs da rota + até 0.5x extras aleatórios.
+        Reduz o espaço de features de n_candidatos para ~1.5x n_selecionados,
+        tornando as estimativas SHAP mais representativas com o mesmo nsamples.
         """
         if not route:
             return {'shap_values': {}, 'explanation': 'Rota vazia.'}
 
-        # Vector binario da rota atual
-        instance = np.zeros(self.n_pois)
-        for idx in route:
-            if idx < self.n_pois:
-                instance[idx] = 1
+        import random as _rnd
 
-        # Background: nenhum POI selecionado (baseline neutro)
-        background = np.zeros((1, self.n_pois))
+        # Limitar feature set: route POIs + sample dos restantes (max 0.5x route)
+        route_set = set(route)
+        other_idx = [i for i in range(self.n_pois) if i not in route_set]
+        max_extra  = max(3, round(0.5 * len(route)))
+        _rnd.seed(42)
+        extra_idx  = _rnd.sample(other_idx, min(max_extra, len(other_idx)))
+        feat_idx   = sorted(route_set) + extra_idx  # indices originais
+        n_feat     = len(feat_idx)
 
-        # KernelExplainer - model-agnostic, funciona com qualquer otimizador
-        explainer = shap.KernelExplainer(
-            self._fitness_from_mask,
-            background,
-            silent=True
-        )
+        # Mapeamento: posição na feature mask -> índice original do POI
+        feat_to_poi = {fi: poi_idx for fi, poi_idx in enumerate(feat_idx)}
 
-        # nsamples=10: equilibrio entre velocidade e representatividade
-        # HF Space proxy corta ligacoes apos 60s; GA+SHAP nao pode exceder isso
-        shap_vals = explainer.shap_values(
-            instance.reshape(1, -1),
-            nsamples=10,
-            silent=True
-        )
+        def _fitness_reduced(mask_matrix: np.ndarray) -> np.ndarray:
+            results = []
+            for mask in mask_matrix:
+                r = [feat_to_poi[fi] for fi, inc in enumerate(mask) if inc == 1]
+                results.append(self.evaluator.calculate_fitness(r) if len(r) >= 2 else 0.0)
+            return np.array(results)
+
+        # Instance: posições correspondentes à rota = 1
+        instance   = np.zeros(n_feat)
+        for fi, poi_idx in feat_to_poi.items():
+            if poi_idx in route_set:
+                instance[fi] = 1
+
+        background = np.zeros((1, n_feat))
+        # nsamples adaptado: ~4x o número de features (mínimo 20)
+        nsamples   = min(200, max(20, 4 * n_feat))
+
+        explainer = shap.KernelExplainer(_fitness_reduced, background, silent=True)
+        shap_vals  = explainer.shap_values(instance.reshape(1, -1), nsamples=nsamples, silent=True)
         shap_array = shap_vals[0] if isinstance(shap_vals, list) else shap_vals.flatten()
 
         # Categorias com efeito contextual (espelha route_evaluator)
@@ -83,29 +94,34 @@ class RouteExplainer:
         has_children    = getattr(self.evaluator, 'has_children', False)
         mobility_issues = getattr(self.evaluator, 'mobility_issues', False)
 
+        # Reverse map: original poi_idx -> feature position (para indexar shap_array)
+        poi_to_feat = {poi_idx: fi for fi, poi_idx in feat_to_poi.items()}
+
         # Construir dicionario so com POIs da rota
         shap_by_poi = {}
         for idx in route:
-            if idx < self.n_pois:
-                poi = self.pois[idx]
-                reasons = []
-                if has_children:
-                    if poi.category in _CHILDREN_PENALTY:
-                        reasons.append("penalizado (viagem com crianças)")
-                    elif poi.category in _CHILDREN_BONUS:
-                        reasons.append("bónus (adequado para crianças)")
-                if mobility_issues:
-                    if poi.category in _MOBILITY_PENALTY:
-                        reasons.append("penalizado (mobilidade reduzida)")
-                    elif poi.category in _MOBILITY_BONUS:
-                        reasons.append("bónus (acessível com mobilidade reduzida)")
-                shap_by_poi[poi.name] = {
-                    'shap_value': float(shap_array[idx]),
-                    'category': poi.category,
-                    'cost': poi.cost,
-                    'duration': poi.duration,
-                    'contextual_reason': ', '.join(reasons) if reasons else None,
-                }
+            if idx not in poi_to_feat:
+                continue
+            fi  = poi_to_feat[idx]
+            poi = self.pois[idx]
+            reasons = []
+            if has_children:
+                if poi.category in _CHILDREN_PENALTY:
+                    reasons.append("penalizado (viagem com crianças)")
+                elif poi.category in _CHILDREN_BONUS:
+                    reasons.append("bónus (adequado para crianças)")
+            if mobility_issues:
+                if poi.category in _MOBILITY_PENALTY:
+                    reasons.append("penalizado (mobilidade reduzida)")
+                elif poi.category in _MOBILITY_BONUS:
+                    reasons.append("bónus (acessível com mobilidade reduzida)")
+            shap_by_poi[poi.name] = {
+                'shap_value': float(shap_array[fi]),
+                'category': poi.category,
+                'cost': poi.cost,
+                'duration': poi.duration,
+                'contextual_reason': ', '.join(reasons) if reasons else None,
+            }
 
         explanation = self._generate_explanation(route, shap_by_poi)
 
