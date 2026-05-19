@@ -1129,7 +1129,9 @@
     mobility_issues: v => v === 'Sim' ? 'temos pessoas com mobilidade reduzida' : 'sem problemas de mobilidade',
 };
 
-  // ── Formulário de scope (alojamento / refeições) ──────────────
+  // ── Formulário de scope (alojamento / refeições + missing fields) ──
+  let _scopeMissingFields = [];
+
   function addScopeForm(result) {
     const msgs = document.getElementById('messages');
     const row = document.createElement('div');
@@ -1137,6 +1139,7 @@
     row.id = 'scopeRow';
 
     const qs = result.scope_questions || [];
+    _scopeMissingFields = result.missing_fields || [];
     const prefs = result.preferences_so_far || {};
     const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
 
@@ -1172,18 +1175,42 @@
         </div>`;
     }
 
+    // Missing fields abaixo das scope cards
+    let missingHtml = '';
+    if (_scopeMissingFields.length > 0) {
+      missingHtml = `<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Também preciso de mais alguns detalhes:</p>`;
+      _scopeMissingFields.forEach(f => {
+        const cfg = FIELD_LABELS[f] || { label: f, placeholder: 'Responder...', type: 'text' };
+        missingHtml += `<div style="margin-bottom:8px;">
+          <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">${cfg.label}</label>`;
+        if (cfg.type === 'select') {
+          missingHtml += `<select class="clarif-input" id="scope_missing_${f}" onchange="checkScopeReady()">
+            <option value="">Selecionar...</option>
+            ${(cfg.options||[]).map(o=>`<option value="${o.value}">${o.label}</option>`).join('')}
+          </select>`;
+        } else {
+          missingHtml += `<input class="clarif-input" type="text" id="scope_missing_${f}"
+            placeholder="${cfg.placeholder}" oninput="checkScopeReady()">`;
+        }
+        missingHtml += `</div>`;
+      });
+      missingHtml += `</div>`;
+    }
+
     row.innerHTML = `
       <div class="avatar bot">🤖</div>
       <div class="bubble bot">
         <div class="bubble-meta">Tourism Route Assistant</div>
-        <p style="font-size:13px;margin-bottom:12px;">Antes de gerar a rota, duas preferências rápidas:</p>
+        <p style="font-size:13px;margin-bottom:12px;">Para gerar a melhor rota possível, preciso de mais alguns detalhes:</p>
         <div style="display:flex;flex-direction:column;gap:10px;">
           ${cardsHtml}
         </div>
+        ${missingHtml}
         <div style="margin-top:14px;display:flex;justify-content:flex-end;">
           <button id="scopeSubmitBtn" onclick="submitScopeAnswers('${escapeHtml(result.query)}', ${JSON.stringify(qs).replace(/"/g, '&quot;')})"
             style="padding:8px 18px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;opacity:.45;" disabled>
-            Gerar rota →
+            Continuar →
           </button>
         </div>
       </div>
@@ -1194,6 +1221,20 @@
 
   const _scopeAnswers = {};
 
+  function checkScopeReady() {
+    const btn = document.getElementById('scopeSubmitBtn');
+    if (!btn) return;
+    const neededScope = document.querySelectorAll('.scope-card').length;
+    const answeredScope = Object.keys(_scopeAnswers).length;
+    const answeredMissing = _scopeMissingFields.filter(f => {
+      const el = document.getElementById(`scope_missing_${f}`);
+      return el && el.value.trim().length > 0;
+    }).length;
+    const allDone = answeredScope >= neededScope && answeredMissing >= _scopeMissingFields.length;
+    btn.disabled = !allDone;
+    btn.style.opacity = allDone ? '1' : '.45';
+  }
+
   function toggleScope(key, val) {
     _scopeAnswers[key] = val;
     const yes = document.getElementById(`${key}_yes`);
@@ -1202,13 +1243,7 @@
       yes.className = 'scope-btn' + (val === 'yes' ? ' selected-yes' : '');
       no.className  = 'scope-btn' + (val === 'no'  ? ' selected-no'  : '');
     }
-    // Activar botão quando todas as perguntas respondidas
-    const btn = document.getElementById('scopeSubmitBtn');
-    if (!btn) return;
-    const needed = Array.from(document.querySelectorAll('.scope-card')).length;
-    const answered = Object.keys(_scopeAnswers).length;
-    btn.disabled = answered < needed;
-    btn.style.opacity = answered < needed ? '.45' : '1';
+    checkScopeReady();
   }
 
   async function submitScopeAnswers(originalQuery, scopeQuestions) {
@@ -1219,16 +1254,29 @@
       ? _scopeAnswers['meals'] === 'yes'
       : true;
 
-    // Remover o card de scope
-    const scopeRow = document.getElementById('scopeRow');
-    if (scopeRow) scopeRow.remove();
-
-    // Mostrar resumo como mensagem do user
+    // Construir query extendida com valores dos missing fields
+    let extendedQuery = originalQuery;
     const parts = [];
     if (scopeQuestions.includes('include_accommodation'))
       parts.push(inclAccom ? 'alojamento incluído' : 'alojamento: trato eu');
     if (scopeQuestions.includes('include_meals'))
       parts.push(inclMeals ? 'refeições incluídas' : 'refeições: trato eu');
+
+    _scopeMissingFields.forEach(f => {
+      const el = document.getElementById(`scope_missing_${f}`);
+      if (el && el.value.trim()) {
+        const cfg = FIELD_LABELS[f] || { label: f };
+        const summarizer = FIELD_SUMMARIZERS[f];
+        if (summarizer) parts.push(summarizer(el.value.trim()));
+        extendedQuery += `. ${cfg.label}: ${el.value.trim()}`;
+      }
+    });
+    _scopeMissingFields = [];
+
+    // Remover o card de scope
+    const scopeRow = document.getElementById('scopeRow');
+    if (scopeRow) scopeRow.remove();
+
     addUserMessage(parts.join(' · '));
     addTypingIndicator();
 
@@ -1241,7 +1289,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: originalQuery,
+          query: extendedQuery,
           session_id: currentSessionId,
           include_accommodation: inclAccom,
           include_meals: inclMeals,
