@@ -43,6 +43,8 @@ class RouteEvaluator:
         self.max_radius_km   = user_prefs.get("max_radius_km", 20.0)
         self.mobility_issues = user_prefs.get("mobility_issues", False)
         self.has_children    = user_prefs.get("has_children", False)
+        self.has_nightlife   = user_prefs.get("has_nightlife", False)
+        self.max_days        = user_prefs.get("max_days", 1)
         self.num_people      = max(1, user_prefs.get("num_people", 1))
         self.num_rooms       = max(1, user_prefs.get("num_rooms", max(1, math.ceil(self.num_people / 2))))
         self.people_per_room = self.num_people / self.num_rooms
@@ -258,6 +260,13 @@ class RouteEvaluator:
             )
             if not has_accommodation:
                 return False
+
+        # Limite de POIs noturnos: MAX_NOCTURNAL_PER_DAY por dia
+        NOCTURNAL_CATS = {"bares_e_discotecas", "casinos"}
+        max_nocturnal = 3 * self.max_days  # 3 bares/noite × n_dias
+        n_nocturnal = sum(1 for idx in route if self.pois[idx].category in NOCTURNAL_CATS)
+        if n_nocturnal > max_nocturnal:
+            return False
 
         return True
 

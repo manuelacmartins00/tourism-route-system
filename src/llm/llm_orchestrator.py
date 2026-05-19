@@ -825,9 +825,13 @@ TAREFA:
 Escreve 3-4 frases explicando:
 1. Por que esta rota responde as preferencias do utilizador
 2. Se ha contexto especial (criancas, mobilidade), menciona EXPLICITAMENTE como a rota foi adaptada
-3. Destaca os POIs mais importantes
+3. Destaca 1-2 POIs mais importantes (APENAS os que estao na lista acima, NUNCA inventar nomes)
 4. Menciona o criterio que mais pesou na selecao
 
+REGRAS ESTRITAS:
+- NUNCA mencionar POIs que nao estejam na lista ROTA GERADA acima
+- NUNCA inventar nomes de hoteis, restaurantes ou atrações
+- Usar APENAS os nomes exatos da lista
 TOM: Amigavel, informativo, portugues de Portugal. NAO uses jargao tecnico (nao menciones SHAP, AHP, fitness).
 TAMANHO: Maximo 4 frases.
 

@@ -1140,9 +1140,12 @@
 
     const qs = result.scope_questions || [];
     _scopeMissingFields = result.missing_fields || [];
-    // Garantir que transport_mode é sempre pedido se não estiver já nos missing_fields
+    // Garantir que transport_mode e max_cost são sempre pedidos
     if (!_scopeMissingFields.includes('transport_mode')) {
       _scopeMissingFields = ['transport_mode', ..._scopeMissingFields];
+    }
+    if (!_scopeMissingFields.includes('max_cost')) {
+      _scopeMissingFields = [..._scopeMissingFields, 'max_cost'];
     }
     const prefs = result.preferences_so_far || {};
     const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
