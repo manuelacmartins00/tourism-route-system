@@ -74,10 +74,13 @@ class DayPlanner:
                 nocturnal_by_day[0].append(poi)
 
         days = []
+        is_last_day_departure = bool(last_day_end_time)
         for day_num in range(1, total_days + 1):
             d = diurnal_by_day[day_num - 1] if day_num <= len(diurnal_by_day) else []
             n = nocturnal_by_day[day_num - 1]
-            hotel = day_hotels[day_num - 1] if day_num <= len(day_hotels) else None
+            # Sem hotel no último dia se o utilizador parte nesse dia
+            is_last = (day_num == total_days)
+            hotel = (day_hotels[day_num - 1] if day_num <= len(day_hotels) else None) if not (is_last and is_last_day_departure) else None
             day_start = first_day_start_time if day_num == 1 and first_day_start_time else self.start_time
             if d or n or hotel:
                 days.append(self._format_day(day_num, d, n, day_start_time=day_start, hotel=hotel))
@@ -238,7 +241,12 @@ class DayPlanner:
             if i < len(diurnal) - 1 and 12 * 60 < current < 14 * 60:
                 current += self.lunch_break
 
-        # Noite - comeca as 21:00, termina no maximo as 03:00 (dia seguinte)
+        # Noite: se houver POIs noturnos, começa às 21:00 e acaba às 03:00
+        # Se não houver vida noturna, o dia termina naturalmente às 22:00
+        if not nocturnal and current < self._parse_time("22:00"):
+            # Sem bares: estender POIs diurnos até às 22h se houver tempo
+            pass  # diurnal já foi agendado, day ends naturally
+
         current = self._parse_time(self.NOCTURNAL_START)
         nocturnal_end_min = 24 * 60 + self._parse_time(self.NOCTURNAL_END)  # 03:00 do dia seguinte
         nocturnal_count = 0

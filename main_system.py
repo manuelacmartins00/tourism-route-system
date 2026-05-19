@@ -207,6 +207,17 @@ class TourismRouteSystem:
             print(f"   [OK] Interesses: {preferences.interests}")
             print(f"   [OK] Transporte: {label}\n")
 
+        # Detectar vida noturna nas preferencias
+        NIGHTLIFE_CATS = {"bares_e_discotecas", "casinos"}
+        has_nightlife = any(c in NIGHTLIFE_CATS for c in (preferences.preferred_categories or []))
+
+        # Se ha vida noturna, aumentar max_time para acomodar noites (3h/noite)
+        if has_nightlife and preferences.max_time:
+            num_days = max(1, round(preferences.max_time / 480))
+            preferences.max_time += num_days * 180  # +3h por noite
+            if verbose:
+                print(f"   [OK] max_time ajustado para vida noturna: {preferences.max_time} min ({num_days} noites)")
+
         # Filtro de seguranca: remover campos que nunca devem ser pedidos
         NEVER_ASK = {"num_rooms", "mobility_issues", "start_location"}
         if preferences.missing_fields:
@@ -574,8 +585,12 @@ class TourismRouteSystem:
                 print(f"   [OK] Algoritmo (deterministico): {selected_algo}\n")
 
         # ========== PASSO 4: PREPARAR OTIMIZACAO ==========
+        ACCOMMODATION_MIN_COST = 60.0  # custo minimo por noite para alojamento
         optimizer_pois = []
         for p in candidate_pois:
+            poi_cost = p['cost']
+            if p['category'] in ACCOMMODATION_BUNDLES and poi_cost < ACCOMMODATION_MIN_COST:
+                poi_cost = ACCOMMODATION_MIN_COST
             poi_obj = POI(
                 id=int(p['id']), name=p['name'],
                 lat=p['lat'], lon=p['lon'],
@@ -583,7 +598,7 @@ class TourismRouteSystem:
                 duration=p['duration'],
                 opening_time=p['opening_time'],
                 closing_time=p['closing_time'],
-                cost=p['cost']
+                cost=poi_cost
             )
             optimizer_pois.append(poi_obj)
 
@@ -659,6 +674,8 @@ class TourismRouteSystem:
             "has_children": has_children,
             "elevation_matrix": elevation_matrix,
             "include_accommodation": include_accommodation,
+            "has_nightlife": has_nightlife,
+            "max_days": max(1, round(preferences.max_time / 480)),
         }
 
         evaluator = RouteEvaluator(optimizer_pois, sub_distance_matrix, user_prefs_dict)
