@@ -43,12 +43,23 @@ def load_prompts(txt_path: str):
         linhas = [l.strip() for l in f if l.strip() and not l.startswith("#")]
     prompts = []
     for linha in linhas:
-        partes = linha.split("|", 2)
-        if len(partes) == 3:
+        # Suporta formato antigo (3 campos) e novo (5 campos com include_accommodation/meals)
+        partes = linha.split("|", 4)
+        if len(partes) == 5:
             prompts.append({
-                "prompt_id": partes[0].strip(),
-                "perfil":    partes[1].strip(),
-                "prompt":    partes[2].strip(),
+                "prompt_id":             partes[0].strip(),
+                "perfil":                partes[1].strip(),
+                "include_accommodation": partes[2].strip().lower() == "true",
+                "include_meals":         partes[3].strip().lower() == "true",
+                "prompt":                partes[4].strip(),
+            })
+        elif len(partes) == 3:
+            prompts.append({
+                "prompt_id":             partes[0].strip(),
+                "perfil":                partes[1].strip(),
+                "include_accommodation": True,
+                "include_meals":         True,
+                "prompt":                partes[2].strip(),
             })
     return prompts
 
@@ -78,13 +89,19 @@ def save_summary_line(summary_path: Path, entry: dict):
         if write_header:
             f.write(
                 "prompt_id|perfil|status|algoritmo|fitness|n_pois|"
-                "visit_min|total_min|custo|n_missing|fields_extracted|elapsed_s\n"
+                "visit_min|total_min|custo|n_missing|fields_extracted|elapsed_s|"
+                "time_util|time_eff|cat_comp|div_comp|dist_pen|prox_comp|ctx_mod|unique_cats\n"
             )
+        fc = entry.get("fitness_components", {})
         f.write(
             f"{entry['prompt_id']}|{entry['perfil']}|{entry['status']}|"
             f"{entry['algoritmo']}|{entry['fitness']}|{entry['n_pois']}|"
             f"{entry['visit_min']}|{entry['total_min']}|{entry['custo']}|"
-            f"{entry['n_missing']}|{entry['fields_extracted']}|{entry['elapsed_s']}\n"
+            f"{entry['n_missing']}|{entry['fields_extracted']}|{entry['elapsed_s']}|"
+            f"{fc.get('time_utilization','')}|{fc.get('time_efficiency','')}|"
+            f"{fc.get('category_component','')}|{fc.get('diversity_component','')}|"
+            f"{fc.get('distance_penalty','')}|{fc.get('proximity_component','')}|"
+            f"{fc.get('contextual_modifier','')}|{fc.get('unique_categories','')}\n"
         )
 
 
@@ -152,6 +169,20 @@ def analyse_results(summary_path: Path) -> dict:
         except (ValueError, IndexError):
             pass
 
+    def _mean(vals):
+        return round(sum(vals) / len(vals), 3) if vals else 0
+
+    def _floats(rows, col):
+        out = []
+        for r in rows:
+            try:
+                v = r.get(col, "")
+                if v != "":
+                    out.append(float(v))
+            except (ValueError, KeyError):
+                pass
+        return out
+
     return {
         "total":               total,
         "ok":                  len(ok_rows),
@@ -159,11 +190,20 @@ def analyse_results(summary_path: Path) -> dict:
         "error":               len(error_rows),
         "clarification_rate":  round(len(clarif_rows) / total * 100, 1) if total else 0,
         "error_rate":          round(len(error_rows) / total * 100, 1) if total else 0,
-        "fitness_mean":        round(sum(fitness_vals) / len(fitness_vals), 3) if fitness_vals else 0,
-        "fitness_min":         round(min(fitness_vals), 3) if fitness_vals else 0,
-        "fitness_max":         round(max(fitness_vals), 3) if fitness_vals else 0,
+        "fitness_mean":        _mean(_floats(ok_rows, "fitness")),
+        "fitness_min":         round(min(_floats(ok_rows, "fitness")), 3) if _floats(ok_rows, "fitness") else 0,
+        "fitness_max":         round(max(_floats(ok_rows, "fitness")), 3) if _floats(ok_rows, "fitness") else 0,
         "extraction_mean":     round(sum(extracted_vals) / len(extracted_vals), 1) if extracted_vals else 0,
         "avg_missing_fields":  round(sum(missing_vals) / len(missing_vals), 2) if missing_vals else 0,
+        # Componentes AHP (apenas nas prompts OK)
+        "time_util_mean":      _mean(_floats(ok_rows, "time_util")),
+        "time_eff_mean":       _mean(_floats(ok_rows, "time_eff")),
+        "cat_comp_mean":       _mean(_floats(ok_rows, "cat_comp")),
+        "div_comp_mean":       _mean(_floats(ok_rows, "div_comp")),
+        "dist_pen_mean":       _mean(_floats(ok_rows, "dist_pen")),
+        "prox_comp_mean":      _mean(_floats(ok_rows, "prox_comp")),
+        "ctx_mod_mean":        _mean(_floats(ok_rows, "ctx_mod")),
+        "unique_cats_mean":    _mean(_floats(ok_rows, "unique_cats")),
     }
 
 
@@ -182,6 +222,16 @@ def print_final_report(metrics: dict, output_dir: Path):
     print(f"  Fitness min/max     : {metrics.get('fitness_min', 0):.3f} / "
           f"{metrics.get('fitness_max', 0):.3f}")
     print()
+    print("  -- Componentes AHP (media, prompts OK) --")
+    print(f"  Time utilization    : {metrics.get('time_util_mean', 0):.1f}")
+    print(f"  Time efficiency     : {metrics.get('time_eff_mean', 0):.1f}")
+    print(f"  Category match      : {metrics.get('cat_comp_mean', 0):.1f}")
+    print(f"  Diversity           : {metrics.get('div_comp_mean', 0):.1f}")
+    print(f"  Distance penalty    : {metrics.get('dist_pen_mean', 0):.1f}")
+    print(f"  Proximity           : {metrics.get('prox_comp_mean', 0):.1f}")
+    print(f"  Contextual modifier : {metrics.get('ctx_mod_mean', 0):.3f}")
+    print(f"  Unique categories   : {metrics.get('unique_cats_mean', 0):.1f}")
+    print()
     print(f"  Campos extraidos (media) : {metrics.get('extraction_mean', 0):.1f} / "
           f"{len(REQUIRED_FIELDS)}")
     print(f"  Campos em falta (media)  : {metrics.get('avg_missing_fields', 0):.2f}")
@@ -193,7 +243,8 @@ def print_final_report(metrics: dict, output_dir: Path):
 def main():
     parser = argparse.ArgumentParser(description="Benchmark completo das 2000 prompts")
     parser.add_argument("--input",  required=True, help="Ficheiro TXT de prompts (prompt_id|perfil|prompt)")
-    parser.add_argument("--resume", action="store_true", help="Retomar de onde parou")
+    parser.add_argument("--resume", action="store_true", help="Retomar de onde parou (salta prompts com result.json)")
+    parser.add_argument("--output-dir", default=None, help="Reutilizar pasta de output existente (para --resume)")
     parser.add_argument("--max",    type=int, default=0, help="Limitar a N prompts (0 = todas)")
     parser.add_argument("--throttle", type=float, default=1.5,
                         help="Segundos entre requests Groq (default 1.5)")
@@ -210,9 +261,13 @@ def main():
         print("ERRO: GROQ_API_KEY nao definida no .env")
         sys.exit(1)
 
-    benchmark_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir   = Path(f"outputs/benchmark_{benchmark_id}")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if args.output_dir:
+        output_dir = Path(args.output_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        benchmark_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir   = Path(f"outputs/benchmark_{benchmark_id}")
+        output_dir.mkdir(parents=True, exist_ok=True)
     summary_path = output_dir / "summary.txt"
 
     # Log file para monitorizar progresso em background
@@ -270,8 +325,9 @@ def main():
                         use_shap=False,
                         verbose=False,
                         force_algorithm=None,
-                        include_accommodation=True,
-                        include_meals=True,
+                        include_accommodation=p["include_accommodation"],
+                        include_meals=p["include_meals"],
+                        generate_map=False,
                     )
                 except Exception as exc:
                     _exc_holder[0] = exc
@@ -298,6 +354,7 @@ def main():
 
             save_result(result, output_dir, pid)
 
+            fitness_components = {}
             if result.get("status") == "needs_clarification":
                 status    = "clarification"
                 algoritmo = "-"
@@ -322,6 +379,7 @@ def main():
                 custo     = round(sum(poi.get("cost", 0) for poi in result.get("route", [])), 2)
                 n_missing = 0
                 fields_extracted = f"{len(REQUIRED_FIELDS)}/{len(REQUIRED_FIELDS)}"
+                fitness_components = opt.get("fitness_components", {})
 
             save_summary_line(summary_path, {
                 "prompt_id": pid, "perfil": perfil, "status": status,
@@ -330,6 +388,7 @@ def main():
                 "total_min": total_min, "custo": custo,
                 "n_missing": n_missing, "fields_extracted": fields_extracted,
                 "elapsed_s": elapsed,
+                "fitness_components": fitness_components,
             })
 
             if status == "ok":
@@ -359,9 +418,13 @@ def main():
         if processadas % 100 == 0:
             interim = analyse_results(summary_path)
             log(f"\n  --- Checkpoint {processadas} prompts ---")
-            log(f"  Fitness medio ate agora: {interim.get('fitness_mean', 0):.3f}")
-            log(f"  Clarification rate:      {interim.get('clarification_rate', 0):.1f}%")
-            log(f"  Erros:                   {interim.get('error', 0)}\n")
+            log(f"  Fitness medio:       {interim.get('fitness_mean', 0):.3f}")
+            log(f"  Time util (media):   {interim.get('time_util_mean', 0):.1f}")
+            log(f"  Category (media):    {interim.get('cat_comp_mean', 0):.1f}")
+            log(f"  Diversity (media):   {interim.get('div_comp_mean', 0):.1f}")
+            log(f"  Proximity (media):   {interim.get('prox_comp_mean', 0):.1f}")
+            log(f"  Clarification rate:  {interim.get('clarification_rate', 0):.1f}%")
+            log(f"  Erros:               {interim.get('error', 0)}\n")
 
     # Relatorio final
     final_metrics = analyse_results(summary_path)

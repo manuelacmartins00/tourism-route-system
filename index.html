@@ -477,6 +477,27 @@
     border-color: #c084a0;
     color: #e8a0b8;
   }
+  .option-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .option-pill {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .option-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .option-pill.selected {
+    background: #1a2542;
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
 
   /* FEEDBACK BANNER */
   .feedback-banner {
@@ -1035,6 +1056,16 @@
       .replace(/"/g, '&quot;');
   }
 
+  function selectOptionPill(btn) {
+    const inputId = btn.dataset.input;
+    const value   = btn.dataset.value;
+    btn.closest('.option-pills').querySelectorAll('.option-pill').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const inp = document.getElementById(inputId);
+    if (inp) inp.value = value;
+    if (inputId && inputId.startsWith('scope_missing_')) checkScopeReady();
+  }
+
   function formatMin(min) {
     min = Math.round(min);
     if (min < 60) return `${min}min`;
@@ -1066,12 +1097,12 @@
       const cfg = FIELD_LABELS[f] || { label: f, placeholder: '', type: 'text' };
       if (cfg.type === 'select') {
         fieldsHtml += `
-          <div style="display:flex;flex-direction:column;gap:4px;">
+          <div style="display:flex;flex-direction:column;gap:6px;">
             <label style="font-size:12px;color:var(--text-muted);">${cfg.label}</label>
-            <select id="clarif_${f}" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;">
-              <option value="">— Selecciona —</option>
-              ${cfg.options.map(o => `<option value="${o}">${o}</option>`).join('')}
-            </select>
+            <input type="hidden" id="clarif_${f}" value="">
+            <div class="option-pills">
+              ${cfg.options.map(o => `<button class="option-pill" data-input="clarif_${f}" data-value="${escapeHtml(o)}" onclick="selectOptionPill(this)" type="button">${o}</button>`).join('')}
+            </div>
           </div>`;
       } else {
         fieldsHtml += `
@@ -1198,10 +1229,10 @@
         missingHtml += `<div style="margin-bottom:8px;">
           <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">${cfg.label}</label>`;
         if (cfg.type === 'select') {
-          missingHtml += `<select class="clarif-input" id="scope_missing_${f}" onchange="checkScopeReady()">
-            <option value="">Selecionar...</option>
-            ${(cfg.options||[]).map(o=>`<option value="${o}">${o}</option>`).join('')}
-          </select>`;
+          missingHtml += `<input type="hidden" id="scope_missing_${f}" value="">
+          <div class="option-pills">
+            ${(cfg.options||[]).map(o=>`<button class="option-pill" data-input="scope_missing_${f}" data-value="${escapeHtml(o)}" onclick="selectOptionPill(this)" type="button">${o}</button>`).join('')}
+          </div>`;
         } else {
           missingHtml += `<input class="clarif-input" type="text" id="scope_missing_${f}"
             placeholder="${cfg.placeholder}" oninput="checkScopeReady()">`;
