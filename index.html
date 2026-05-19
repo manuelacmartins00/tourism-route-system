@@ -1288,10 +1288,10 @@
     _scopeMissingFields.forEach(f => {
       const el = document.getElementById(`scope_missing_${f}`);
       if (el && el.value.trim()) {
-        const cfg = FIELD_LABELS[f] || { label: f };
         const summarizer = FIELD_PHRASES[f];
-        if (summarizer) parts.push(summarizer(el.value.trim()));
-        extendedQuery += `. ${cfg.label}: ${el.value.trim()}`;
+        const phrase = summarizer ? summarizer(el.value.trim()) : el.value.trim();
+        parts.push(phrase);
+        extendedQuery += `. ${phrase}`;
       }
     });
     _scopeMissingFields = [];
