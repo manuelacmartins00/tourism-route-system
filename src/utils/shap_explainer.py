@@ -62,10 +62,11 @@ class RouteExplainer:
             silent=True
         )
 
-        # nsamples=100 e suficiente para baseline
+        # nsamples=20: rapido para producao (~10x menos amostras que 100,
+        # ainda representativo para destacar os POIs mais determinantes)
         shap_vals = explainer.shap_values(
             instance.reshape(1, -1),
-            nsamples=100,
+            nsamples=20,
             silent=True
         )
         shap_array = shap_vals[0] if isinstance(shap_vals, list) else shap_vals.flatten()
