@@ -206,6 +206,41 @@ class TourismRouteSystem:
             print(f"   [OK] Interesses: {preferences.interests}")
             print(f"   [OK] Transporte: {label}\n")
 
+        # Filtro de seguranca: remover campos que nunca devem ser pedidos
+        NEVER_ASK = {"num_rooms", "mobility_issues", "start_location"}
+        if preferences.missing_fields:
+            preferences.missing_fields = [f for f in preferences.missing_fields
+                                          if f not in NEVER_ASK]
+
+        # -- Perguntas de scope: alojamento e refeicoes ---------------
+        # Verificadas ANTES dos missing_fields para aparecerem na primeira interacao.
+        scope_questions = []
+        if include_accommodation is None:
+            if preferences.max_time and preferences.max_time > 480:
+                scope_questions.append("include_accommodation")
+            else:
+                include_accommodation = True
+        if include_meals is None:
+            if _trip_spans_meal_window(preferences.start_time, preferences.max_time or 480):
+                scope_questions.append("include_meals")
+            else:
+                include_meals = True
+
+        # Se ha scope questions, devolver juntas com eventuais missing_fields
+        if scope_questions:
+            return {
+                "status": "needs_scope_clarification",
+                "scope_questions": scope_questions,
+                "missing_fields": preferences.missing_fields or [],
+                "query": user_query,
+                "preferences_so_far": {
+                    "max_time": preferences.max_time,
+                    "max_cost": preferences.max_cost,
+                    "location": preferences.location,
+                    "start_time": preferences.start_time,
+                },
+            }
+
         # -- Verificar campos em falta ---------------------------------
         if preferences.missing_fields:
             return {
@@ -220,30 +255,6 @@ class TourismRouteSystem:
                 }
             }
 
-        # -- Perguntas de scope: alojamento e refeicoes ---------------
-        # Determinadas aqui porque precisamos de start_time e max_time das preferencias.
-        scope_questions = []
-        if include_accommodation is None:
-            if preferences.max_time > 480:
-                scope_questions.append("include_accommodation")
-            else:
-                include_accommodation = True
-        if include_meals is None:
-            if _trip_spans_meal_window(preferences.start_time, preferences.max_time):
-                scope_questions.append("include_meals")
-            else:
-                include_meals = True
-        if scope_questions:
-            return {
-                "status": "needs_scope_clarification",
-                "scope_questions": scope_questions,
-                "query": user_query,
-                "preferences_so_far": {
-                    "max_time": preferences.max_time,
-                    "location": preferences.location,
-                    "start_time": preferences.start_time,
-                },
-            }
         if include_accommodation is None:
             include_accommodation = True
         if include_meals is None:

@@ -334,6 +334,7 @@ CAMPOS A VERIFICAR PARA missing_fields:
   * true se o utilizador mencionar cadeira de rodas, mobilidade reduzida, dificuldades a andar, problemas de locomocao, idoso com mobilidade limitada, bengala, andarilho
   * false em todos os outros casos (incluindo "sem problemas de mobilidade", "mobilidade normal", "grupo de amigos")
 - "start_location": extrair se o utilizador mencionar onde esta hospedado, o hotel, a residencia ou o ponto de partida diario (ex: "estou hospedado no centro do Porto", "hotel em Alfama"). NUNCA obrigatorio - NUNCA incluir em missing_fields. Se nao mencionado, devolver null.
+- "num_rooms": NUNCA incluir em missing_fields. E calculado automaticamente a partir do numero de pessoas.
   
 REGRAS:
 - So inclui em missing_fields campos que realmente faltam e sao relevantes para a query
