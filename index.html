@@ -1140,6 +1140,10 @@
 
     const qs = result.scope_questions || [];
     _scopeMissingFields = result.missing_fields || [];
+    // Garantir que transport_mode é sempre pedido se não estiver já nos missing_fields
+    if (!_scopeMissingFields.includes('transport_mode')) {
+      _scopeMissingFields = ['transport_mode', ..._scopeMissingFields];
+    }
     const prefs = result.preferences_so_far || {};
     const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
 
@@ -1266,7 +1270,7 @@
       const el = document.getElementById(`scope_missing_${f}`);
       if (el && el.value.trim()) {
         const cfg = FIELD_LABELS[f] || { label: f };
-        const summarizer = FIELD_SUMMARIZERS[f];
+        const summarizer = FIELD_PHRASES[f];
         if (summarizer) parts.push(summarizer(el.value.trim()));
         extendedQuery += `. ${cfg.label}: ${el.value.trim()}`;
       }
