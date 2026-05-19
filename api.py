@@ -153,7 +153,7 @@ async def query_route(req: QueryRequest, request: Request):
         try:
             result = system.plan_route(
                 effective_query,
-                use_shap=True,
+                use_shap=False,  # SHAP desactivado: latencia >60s causa timeout no proxy HF
                 verbose=True,
                 force_algorithm=None,
                 include_accommodation=req.include_accommodation,
