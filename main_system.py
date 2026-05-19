@@ -212,11 +212,12 @@ class TourismRouteSystem:
         has_nightlife = any(c in NIGHTLIFE_CATS for c in (preferences.preferred_categories or []))
 
         # Se ha vida noturna, aumentar max_time para acomodar noites (3h/noite)
+        # num_days calculado ANTES do ajuste para nao inflar max_days no evaluator
+        num_days_base = max(1, round(preferences.max_time / 480)) if preferences.max_time else 1
         if has_nightlife and preferences.max_time:
-            num_days = max(1, round(preferences.max_time / 480))
-            preferences.max_time += num_days * 180  # +3h por noite
+            preferences.max_time += num_days_base * 180  # +3h por noite
             if verbose:
-                print(f"   [OK] max_time ajustado para vida noturna: {preferences.max_time} min ({num_days} noites)")
+                print(f"   [OK] max_time ajustado para vida noturna: {preferences.max_time} min ({num_days_base} noites)")
 
         # Filtro de seguranca: remover campos que nunca devem ser pedidos
         NEVER_ASK = {"num_rooms", "mobility_issues", "start_location"}
@@ -676,7 +677,7 @@ class TourismRouteSystem:
             "elevation_matrix": elevation_matrix,
             "include_accommodation": include_accommodation,
             "has_nightlife": has_nightlife,
-            "max_days": max(1, round(preferences.max_time / 480)),
+            "max_days": num_days_base,  # dias base sem o bonus de nightlife
         }
 
         evaluator = RouteEvaluator(optimizer_pois, sub_distance_matrix, user_prefs_dict)
@@ -801,9 +802,7 @@ class TourismRouteSystem:
             from src.utils.day_planner import DayPlanner
 
             requested_days = max(1, int(np.ceil(preferences.max_time / 480)))
-            actual_route_time = sum(p['duration'] for p in result['route'])
-            actual_days_needed = max(1, int(np.ceil(actual_route_time / 480)))
-            total_days = min(requested_days, actual_days_needed)
+            total_days = requested_days  # respeitar sempre o numero de dias pedido
 
             planner = DayPlanner(
                 hours_per_day=8,
