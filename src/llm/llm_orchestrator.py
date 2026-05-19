@@ -564,8 +564,18 @@ Responde APENAS com o JSON, sem explicacoes."""
             def _is_day(s):
                 return _norm(s.split()[0]) in _DAY_NAMES_SET
 
+            _NOT_LOC_STARTS = {
+                'ver', 'visitar', 'fazer', 'jantar', 'sair', 'dormir', 'conhecer',
+                'semana', 'noite', 'dia', 'dias', 'fim', 'inicio', 'com', 'sem',
+                'para', 'por', 'que', 'mas', 'os', 'as', 'um', 'uma', 'uns', 'umas',
+            }
             def _valid_loc(s):
-                return isinstance(s, str) and len(s.strip()) > 2 and not _is_day(s)
+                if not isinstance(s, str) or len(s.strip()) <= 2:
+                    return False
+                if _is_day(s):
+                    return False
+                first_word = _norm(s.strip().split()[0])
+                return first_word not in _NOT_LOC_STARTS
 
             # Se LLM devolveu locations com >= 2, usar directamente
             if len(extracted_locations) >= 2:
