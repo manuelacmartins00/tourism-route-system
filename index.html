@@ -737,7 +737,7 @@
                 <div class="poi-num">${p.order}</div>
                 <div style="flex:1;min-width:0;">
                   <div class="poi-name">${escapeHtml(p.name)}</div>
-                  <div class="poi-meta">${p.arrival_time} · ${p.duration}min · €${p.cost.toFixed(2)}</div>
+                  <div class="poi-meta">${p.arrival_time}${p.is_accommodation ? '' : ' · ' + p.duration + 'min'} · €${p.cost.toFixed(2)}</div>
                 </div>
               </div>`;
         });
@@ -957,7 +957,7 @@
               <div class="print-poi-num">${p.order}.</div>
               <div style="flex:1">
                 <div class="print-poi-name">${p.name}</div>
-                <div class="print-poi-meta">${p.arrival_time}–${p.departure_time} · ${p.duration} min · €${p.cost.toFixed(2)} · ${p.category}</div>
+                <div class="print-poi-meta">${p.arrival_time}${p.is_accommodation ? '' : '–' + p.departure_time + ' · ' + p.duration + ' min'} · €${p.cost.toFixed(2)} · ${p.category}</div>
               </div>
             </div>`;
         });

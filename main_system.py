@@ -250,6 +250,7 @@ class TourismRouteSystem:
                     "max_cost": preferences.max_cost,
                     "location": preferences.location,
                     "start_time": preferences.start_time,
+                    "num_people": getattr(preferences, "num_people", 1),
                 },
             }
 
