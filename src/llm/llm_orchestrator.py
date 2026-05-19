@@ -759,12 +759,24 @@ Responde APENAS com o JSON, sem explicacoes."""
     
     def explain_route(self, route: List[Dict], preferences: UserPreferences,
                      algorithm_used: str, optimization_metadata: Dict,
-                     fitness_components: Dict = None, shap_values: Dict = None) -> str:
-        """Gera explicacao em portugues fundamentada nos componentes AHP e valores SHAP."""
+                     fitness_components: Dict = None, shap_values: Dict = None,
+                     mobility_issues: bool = False, has_children: bool = False,
+                     num_people: int = 1) -> str:
+        """Gera explicacao em portugues fundamentada nos componentes AHP, SHAP e contexto do utilizador."""
 
         total_cost = sum(p['cost'] for p in route)
         total_duration = sum(p['duration'] for p in route)
         route_str = ", ".join(f"{p['name']} ({p['category']})" for p in route)
+
+        # Contexto do utilizador
+        contexto_lines = []
+        if num_people > 1:
+            contexto_lines.append(f"Grupo de {num_people} pessoas")
+        if has_children:
+            contexto_lines.append("viagem com crianças — POIs infantis priorizados, locais inadequados evitados")
+        if mobility_issues:
+            contexto_lines.append("mobilidade reduzida — percursos acessíveis priorizados, elevação minimizada, locais com degraus evitados")
+        contexto_str = ("\nCONTEXTO DO UTILIZADOR:\n- " + "\n- ".join(contexto_lines)) if contexto_lines else ""
 
         # Secao de componentes AHP (sempre disponivel)
         componentes_str = ""
@@ -779,15 +791,17 @@ COMPONENTES DO FITNESS (pesos AHP):
 - Modificador contextual: {fitness_components.get('contextual_modifier', 'N/A')}x
 - Categorias unicas na rota: {fitness_components.get('unique_categories', 'N/A')}"""
 
-        # Secao SHAP — top 3 POIs mais determinantes (se disponivel)
+        # Secao SHAP — top 3 POIs com anotacoes contextuais
         shap_str = ""
         if shap_values:
             top_shap = sorted(shap_values.items(), key=lambda x: x[1]['shap_value'], reverse=True)[:3]
-            shap_lines = [
-                f"  {i+1}. {name}: SHAP={data['shap_value']:+.3f} ({data['category']})"
-                for i, (name, data) in enumerate(top_shap)
-            ]
-            shap_str = "\nPOIs mais determinantes para o fitness (SHAP):\n" + "\n".join(shap_lines)
+            shap_lines = []
+            for i, (name, data) in enumerate(top_shap):
+                line = f"  {i+1}. {name}: SHAP={data['shap_value']:+.3f} ({data['category']})"
+                if data.get('contextual_reason'):
+                    line += f" [{data['contextual_reason']}]"
+                shap_lines.append(line)
+            shap_str = "\nPOIs mais determinantes (SHAP):\n" + "\n".join(shap_lines)
 
         prompt = f"""Gera uma explicacao CURTA e FUNDAMENTADA em portugues de Portugal sobre esta rota turistica.
 
@@ -800,14 +814,16 @@ DETALHES DA ROTA:
 - Duracao total visitas: {total_duration} minutos
 - Custo total: EUR{total_cost:.2f}
 - Preferencias do utilizador: {', '.join(preferences.interests)}
+{contexto_str}
 {componentes_str}
 {shap_str}
 
 TAREFA:
 Escreve 3-4 frases explicando:
-1. Por que esta rota responde as preferencias do utilizador (usa os componentes AHP para justificar)
-2. Destaca os POIs mais importantes (usa os valores SHAP se disponiveis)
-3. Menciona o criterio que mais pesou na selecao (componente AHP mais alto)
+1. Por que esta rota responde as preferencias do utilizador
+2. Se ha contexto especial (criancas, mobilidade), menciona EXPLICITAMENTE como a rota foi adaptada
+3. Destaca os POIs mais importantes
+4. Menciona o criterio que mais pesou na selecao
 
 TOM: Amigavel, informativo, portugues de Portugal. NAO uses jargao tecnico (nao menciones SHAP, AHP, fitness).
 TAMANHO: Maximo 4 frases.
