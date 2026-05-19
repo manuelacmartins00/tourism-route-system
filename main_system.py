@@ -801,8 +801,9 @@ class TourismRouteSystem:
         try:
             from src.utils.day_planner import DayPlanner
 
-            requested_days = max(1, int(np.ceil(preferences.max_time / 480)))
-            total_days = requested_days  # respeitar sempre o numero de dias pedido
+            # Usar num_days_base (antes do ajuste nightlife) para nao inflar os dias
+            requested_days = num_days_base
+            total_days = requested_days
 
             planner = DayPlanner(
                 hours_per_day=8,

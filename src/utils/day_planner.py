@@ -39,6 +39,15 @@ class DayPlanner:
             total_time = sum(p['duration'] for p in route)
             total_days = max(1, math.ceil(total_time / self.minutes_per_day))
 
+        # Quando o 1o dia começa à tarde/noite (>=18h), reduzir quota de POIs diurnos
+        # para evitar museus e monumentos às 22-04h
+        self._day1_max_diurnal = None
+        if first_day_start_time:
+            start_h = self._parse_time(first_day_start_time)
+            if start_h >= self._parse_time("18:00"):
+                available_min = self._parse_time("21:00") - start_h  # até às 21h
+                self._day1_max_diurnal = max(1, available_min // 90)  # ~1 POI por 90min
+
         accommodation = [p for p in route if p.get("category") in self.ACCOMMODATION_CATEGORIES]
         non_accom     = [p for p in route if p.get("category") not in self.ACCOMMODATION_CATEGORIES]
         diurnal   = [p for p in non_accom if p.get("category") not in self.NOCTURNO_CATEGORIES]
@@ -54,6 +63,14 @@ class DayPlanner:
 
         # Distribuir POIs diurnos por dia (clustering geografico se possivel)
         diurnal_by_day = self._distribute_diurnal(diurnal, total_days)
+        # Limitar POIs no Dia 1 se começa à tarde (ex: sexta à noite)
+        if self._day1_max_diurnal is not None and diurnal_by_day and len(diurnal_by_day[0]) > self._day1_max_diurnal:
+            overflow = diurnal_by_day[0][self._day1_max_diurnal:]
+            diurnal_by_day[0] = diurnal_by_day[0][:self._day1_max_diurnal]
+            # Redistribuir overflow pelos outros dias
+            if len(diurnal_by_day) > 1:
+                for i, poi in enumerate(overflow):
+                    diurnal_by_day[1 + (i % (len(diurnal_by_day) - 1))].append(poi)
 
         # Selecionar alojamento por dia: hotel mais proximo do centroide de cada dia
         day_hotels = self._assign_hotels(accommodation, total_days, diurnal_by_day)
