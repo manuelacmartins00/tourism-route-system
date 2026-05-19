@@ -683,15 +683,6 @@ Responde APENAS com o JSON, sem explicacoes."""
                     missing_fields.append("max_cost")
                     print("   max_cost adicionado: orcamento nao mencionado na query")
 
-            # num_rooms: perguntar sempre que num_people > 2 e alojamento provavel
-            _accom_hints = ["hotel", "hostel", "alojamento", "quarto", "noite", "noites",
-                            "dormir", "ficar", "hospedado", "campismo", "airbnb"]
-            _needs_accom = (num_people > 2 and
-                            any(h in user_query.lower() for h in _accom_hints))
-            if _needs_accom and "num_rooms" not in missing_fields:
-                missing_fields.append("num_rooms")
-                print(f"   num_rooms adicionado: {num_people} pessoas, alojamento provavel")
-
             # 4. Ordenar por prioridade
             FIELD_PRIORITY = ["location", "max_time", "max_cost", "budget_type", "transport_mode"]
             missing_fields.sort(key=lambda f: FIELD_PRIORITY.index(f) if f in FIELD_PRIORITY else 99)
@@ -705,6 +696,13 @@ Responde APENAS com o JSON, sem explicacoes."""
             # start_time: LLM > periodo do dia hardcoded > default 09:00
             llm_start_time = data.get("start_time", "09:00") or "09:00"
             resolved_start_time = llm_start_time if llm_start_time != "09:00" else (_inferred_start_time or "09:00")
+
+            # fim de semana grande: começa 6a tarde, acaba domingo tarde
+            if _fim_semana_grande:
+                if resolved_start_time == "09:00":
+                    resolved_start_time = "17:00"
+                if not last_day_end_time:
+                    last_day_end_time = "17:00"
 
             # end_location: default para location se nao detectado (rota de ponto unico)
             if not end_location and extracted_location:
