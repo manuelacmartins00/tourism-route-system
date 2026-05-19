@@ -732,10 +732,10 @@ Responde APENAS com o JSON, sem explicacoes."""
             return UserPreferences(
                 max_time=480,
                 max_cost=50.0,
-                preferred_categories=["museum", "monument", "park"],
-                category_weights={"museum": 0.8, "monument": 0.8, "park": 0.8},
+                preferred_categories=["monumentos", "museus_e_palacios", "espacos_verdes"],
+                category_weights={"monumentos": 0.8, "museus_e_palacios": 0.8, "espacos_verdes": 0.8},
                 start_time="09:00",
-                interests=["culture", "history"],
+                interests=["cultura", "historia"],
                 secondary_tags=[]
             )
     
