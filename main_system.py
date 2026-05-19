@@ -164,7 +164,8 @@ class TourismRouteSystem:
                force_algorithm: str = None,
                include_accommodation: Optional[bool] = None,
                include_meals: Optional[bool] = None,
-               generate_map: bool = True) -> Dict:
+               generate_map: bool = True,
+               num_rooms: Optional[int] = None) -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
@@ -640,7 +641,7 @@ class TourismRouteSystem:
         elevation_matrix = None
 
         _num_people = getattr(preferences, "num_people", 1)
-        _num_rooms  = getattr(preferences, "num_rooms",  max(1, math.ceil(_num_people / 2)))
+        _num_rooms  = num_rooms if num_rooms else getattr(preferences, "num_rooms", max(1, math.ceil(_num_people / 2)))
 
         user_prefs_dict = {
             "max_time":   preferences.max_time,
