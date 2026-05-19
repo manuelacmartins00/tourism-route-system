@@ -1187,7 +1187,7 @@
         if (cfg.type === 'select') {
           missingHtml += `<select class="clarif-input" id="scope_missing_${f}" onchange="checkScopeReady()">
             <option value="">Selecionar...</option>
-            ${(cfg.options||[]).map(o=>`<option value="${o.value}">${o.label}</option>`).join('')}
+            ${(cfg.options||[]).map(o=>`<option value="${o}">${o}</option>`).join('')}
           </select>`;
         } else {
           missingHtml += `<input class="clarif-input" type="text" id="scope_missing_${f}"
