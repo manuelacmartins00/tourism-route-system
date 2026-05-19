@@ -652,6 +652,7 @@ Responde APENAS com o JSON, sem explicacoes."""
             # Verificar se o utilizador mencionou explicitamente um valor de orcamento
             import re as _bre
             _AMOUNT_KEYWORDS = ["€", "eur", "euro", "euros",
+                                 "orcamento", "orçamento",
                                  "budget baixo", "budget medio", "budget alto",
                                  "barato", "economico", "acessivel"]
             _budget_amount_explicit = (
