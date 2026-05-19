@@ -456,18 +456,12 @@ Responde APENAS com o JSON, sem explicacoes."""
                 budget_type = "per_person_per_day"
                 print(f"   [INFO] budget_type corrigido: 'por dia' detectado na query")
 
-            # Forcar budget_type em missing_fields se montante dado sem tipo explicito
             _EXPLICIT_TYPE_HINTS = [
                 "por pessoa", "per person", "cada pessoa", "p/pessoa",
                 "por dia", "per day", "diario", "/dia", "daily",
                 "por pessoa por dia", "per person per day",
                 "total", "para o grupo", "para todos", "no total",
             ]
-            if (budget_value is not None
-                    and not any(h in _q for h in _EXPLICIT_TYPE_HINTS)
-                    and "budget_type" not in data.get("missing_fields", [])):
-                data.setdefault("missing_fields", []).append("budget_type")
-                print(f"   [INFO] budget_type adicionado a missing_fields (tipo nao explicito na query)")
 
             if budget_value is None:
                 extracted_cost = 50.0  # placeholder; missing_fields tratara isto
@@ -653,6 +647,14 @@ Responde APENAS com o JSON, sem explicacoes."""
                 missing_fields = [f for f in missing_fields if f not in ("max_cost", "budget_value")]
             if data.get("budget_type"):
                 missing_fields = [f for f in missing_fields if f != "budget_type"]
+
+            # Forcar budget_type em missing_fields se montante dado sem tipo explicito
+            if (budget_value is not None
+                    and not any(h in _q for h in _EXPLICIT_TYPE_HINTS)
+                    and "budget_type" not in missing_fields):
+                missing_fields.append("budget_type")
+                print(f"   [INFO] budget_type adicionado: tipo nao explicito na query")
+
             if data.get("max_time") is not None:
                 missing_fields = [f for f in missing_fields if f != "max_time"]
 
