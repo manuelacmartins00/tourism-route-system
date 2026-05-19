@@ -64,6 +64,7 @@ class QueryRequest(BaseModel):
     session_id: Optional[str] = None
     include_accommodation: Optional[bool] = None
     include_meals: Optional[bool] = None
+    num_rooms: Optional[int] = None
 
 class FeedbackRequest(BaseModel):
     p1: int; p2: int; p3: int; p4: int; p5: int
@@ -157,6 +158,7 @@ async def query_route(req: QueryRequest, request: Request):
                 force_algorithm=None,
                 include_accommodation=req.include_accommodation,
                 include_meals=req.include_meals,
+                num_rooms=req.num_rooms,
             )
         except Exception as e:
             import traceback

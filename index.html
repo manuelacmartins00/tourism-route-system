@@ -1148,7 +1148,17 @@
     const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
 
     let cardsHtml = '';
+    const numPeople = prefs.num_people || 1;
     if (qs.includes('include_accommodation')) {
+      const roomsHtml = numPeople > 1 ? `
+        <div id="accom_rooms_row" style="display:none;margin-top:8px;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">Quantos quartos precisam?</label>
+          <select id="accom_rooms" class="clarif-input" onchange="checkScopeReady()" style="width:100%;">
+            ${[1,2,3,4,5,6].filter(n => n <= numPeople).map(n =>
+              `<option value="${n}" ${n === Math.ceil(numPeople/2) ? 'selected' : ''}>${n} quarto${n>1?'s':''}</option>`
+            ).join('')}
+          </select>
+        </div>` : '';
       cardsHtml += `
         <div class="scope-card">
           <div class="scope-card-title">🏨 Alojamento</div>
@@ -1161,6 +1171,7 @@
             <button class="scope-btn" id="accom_yes" onclick="toggleScope('accom','yes')">✓ Incluir na rota</button>
             <button class="scope-btn" id="accom_no"  onclick="toggleScope('accom','no')">✗ Trato eu mesmo</button>
           </div>
+          ${roomsHtml}
         </div>`;
     }
     if (qs.includes('include_meals')) {
@@ -1247,6 +1258,11 @@
       yes.className = 'scope-btn' + (val === 'yes' ? ' selected-yes' : '');
       no.className  = 'scope-btn' + (val === 'no'  ? ' selected-no'  : '');
     }
+    // Mostrar selector de quartos quando alojamento é incluído
+    if (key === 'accom') {
+      const roomsRow = document.getElementById('accom_rooms_row');
+      if (roomsRow) roomsRow.style.display = val === 'yes' ? 'block' : 'none';
+    }
     checkScopeReady();
   }
 
@@ -1297,6 +1313,7 @@
           session_id: currentSessionId,
           include_accommodation: inclAccom,
           include_meals: inclMeals,
+          num_rooms: inclAccom ? (parseInt(document.getElementById('accom_rooms')?.value) || null) : null,
         })
       });
 
