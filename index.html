@@ -757,21 +757,15 @@
     }
 
     // Métricas
-    const visitMin = opt.visit_time_min || 0;
-    const totalMin = opt.total_time_min || 0;
     const totalCost = pois.reduce((s, p) => s + (p.cost || 0), 0);
     const maxCost = result.preferences?.max_cost || 0;
     const fitness = (opt.fitness || 0).toFixed(1);
-
-    const numPeople = result.preferences?.num_people || 1;
-    const totalGroupCost = totalCost * numPeople;
-    const costLabel = numPeople > 1
-      ? `€${totalCost.toFixed(0)} p.p. · €${totalGroupCost.toFixed(0)} total`
-      : `€${totalCost.toFixed(0)} / €${maxCost}`;
+    const costLabel = maxCost > 0
+      ? `€${totalCost.toFixed(0)} / €${maxCost.toFixed(0)}`
+      : `€${totalCost.toFixed(0)}`;
 
     const metricsHtml = `
       <div class="metrics-strip">
-        <span class="metric-tag blue">⏱ ${formatMin(visitMin)} visitas</span>
         <span class="metric-tag green">${costLabel}</span>
         <span class="metric-tag">${pois.length} POIs</span>
       </div>`;
@@ -1131,6 +1125,10 @@
 
   // ── Formulário de scope (alojamento / refeições + missing fields) ──
   let _scopeMissingFields = [];
+  // Guardados após scope form para passar em chamadas subsequentes (clarification)
+  let _savedInclAccom = null;
+  let _savedInclMeals = null;
+  let _savedNumRooms  = null;
 
   function addScopeForm(result) {
     const msgs = document.getElementById('messages');
@@ -1140,14 +1138,11 @@
 
     const qs = result.scope_questions || [];
     _scopeMissingFields = result.missing_fields || [];
-    // Garantir que transport_mode e max_cost são sempre pedidos
-    if (!_scopeMissingFields.includes('transport_mode')) {
-      _scopeMissingFields = ['transport_mode', ..._scopeMissingFields];
-    }
-    if (!_scopeMissingFields.includes('max_cost')) {
+    const prefs = result.preferences_so_far || {};
+    // Só forçar max_cost se o backend não o extraiu (null/0)
+    if (!_scopeMissingFields.includes('max_cost') && !(prefs.max_cost > 0)) {
       _scopeMissingFields = [..._scopeMissingFields, 'max_cost'];
     }
-    const prefs = result.preferences_so_far || {};
     const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
 
     let cardsHtml = '';
@@ -1295,6 +1290,10 @@
       }
     });
     _scopeMissingFields = [];
+    // Guardar para reutilizar em chamadas de clarification seguintes
+    _savedInclAccom = inclAccom;
+    _savedInclMeals = inclMeals;
+    _savedNumRooms  = inclAccom ? (parseInt(document.getElementById('accom_rooms')?.value) || null) : null;
 
     // Remover o card de scope
     const scopeRow = document.getElementById('scopeRow');
@@ -1347,7 +1346,7 @@
     }
   }
 
-  function submitClarification(originalQuery, fields) {
+  async function submitClarification(originalQuery, fields) {
       let extras = [];
       fields.forEach(f => {
           const el = document.getElementById(`clarif_${f}`);
@@ -1356,9 +1355,49 @@
               extras.push(phrase ? phrase(el.value.trim()) : el.value.trim());
           }
       });
-      const newQuery = originalQuery + (extras.length > 0 ? '. ' + extras.join(', ') + '.' : '');
-      inputBox.value = newQuery;
-      sendQuery();
+      const newQuery = originalQuery + (extras.length > 0 ? '. ' + extras.join('. ') + '.' : '');
+      addUserMessage(extras.join(' · '));
+      addTypingIndicator();
+      isLoading = true;
+      inputBox.disabled = true;
+      document.getElementById('sendBtn').disabled = true;
+      try {
+          const res = await fetch('/query', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  query: newQuery,
+                  session_id: currentSessionId,
+                  include_accommodation: _savedInclAccom,
+                  include_meals: _savedInclMeals,
+                  num_rooms: _savedNumRooms,
+              })
+          });
+          removeTypingIndicator();
+          if (!res.ok) {
+              const err = await res.json().catch(() => ({ detail: 'Erro desconhecido' }));
+              addErrorMessage(err.detail || 'Ocorreu um erro.');
+          } else {
+              const result = await res.json();
+              if (result.status === 'needs_clarification') {
+                  addClarificationForm(result);
+              } else if (result.status === 'needs_scope_clarification') {
+                  addScopeForm(result);
+              } else {
+                  currentRunId = result.run_id || null;
+                  currentSessionId = result.session_id || null;
+                  addBotMessage(result);
+                  if (currentSessionId) showRefinementHint();
+              }
+          }
+      } catch (e) {
+          removeTypingIndicator();
+          addErrorMessage('Não foi possível ligar ao servidor. Tenta novamente.');
+      } finally {
+          isLoading = false;
+          inputBox.disabled = false;
+          document.getElementById('sendBtn').disabled = false;
+      }
   }
 </script>
 </body>
