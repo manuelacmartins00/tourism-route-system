@@ -62,11 +62,11 @@ class RouteExplainer:
             silent=True
         )
 
-        # nsamples=20: rapido para producao (~10x menos amostras que 100,
-        # ainda representativo para destacar os POIs mais determinantes)
+        # nsamples=10: equilibrio entre velocidade e representatividade
+        # HF Space proxy corta ligacoes apos 60s; GA+SHAP nao pode exceder isso
         shap_vals = explainer.shap_values(
             instance.reshape(1, -1),
-            nsamples=20,
+            nsamples=10,
             silent=True
         )
         shap_array = shap_vals[0] if isinstance(shap_vals, list) else shap_vals.flatten()
