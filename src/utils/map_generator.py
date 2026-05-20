@@ -3,9 +3,10 @@
 import folium
 import requests
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 import polyline
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
 
 class RouteMapGenerator:
     """Gera mapas interativos com rotas reais via OSRM"""
@@ -64,7 +65,18 @@ class RouteMapGenerator:
             print(f"   AVISO: Erro ao chamar OSRM: {e}")
             return None
     
-    def generate_map(self, route: List[Dict], output_file: str = None, algorithm: str = "", transport_mode: str = "foot", day_plan: dict = None) -> str:
+    def _transit_geometry_safe(self, transit_service, coords_a, coords_b, timeout=4):
+        """Chama get_route_geometry com timeout para evitar bloquear o mapa."""
+        with ThreadPoolExecutor(max_workers=1) as ex:
+            future = ex.submit(transit_service.get_route_geometry, coords_a, coords_b)
+            try:
+                return future.result(timeout=timeout)
+            except (FuturesTimeout, Exception):
+                return None
+
+    def generate_map(self, route: List[Dict], output_file: str = None, algorithm: str = "",
+                     transport_mode: str = "foot", day_plan: dict = None,
+                     transit_service=None) -> str:
         """
         Gera mapa interativo com rota REAL via OSRM
         
@@ -131,7 +143,6 @@ class RouteMapGenerator:
         osrm_route = self.get_real_route(poi_coordinates, profile=osrm_profile)
         
         if osrm_route and 'geometry' in osrm_route:
-            # Desenhar rota REAL
             folium.PolyLine(
                 osrm_route['geometry'],
                 color='#3388ff',
@@ -144,10 +155,8 @@ class RouteMapGenerator:
                 """,
                 tooltip="Rota calculada pelo OpenStreetMap"
             ).add_to(m)
-            
             print(f"   [OK] Rota OSRM: {osrm_route['distance']:.2f} km, {osrm_route['duration']:.0f} min")
         else:
-            # Fallback: linha reta
             print("   AVISO: OSRM falhou, usando linha reta")
             folium.PolyLine(
                 poi_coordinates,
@@ -156,6 +165,42 @@ class RouteMapGenerator:
                 opacity=0.5,
                 dash_array='5'
             ).add_to(m)
+
+        # Paragens GTFS para transportes públicos
+        if transport_mode == "public_transport" and transit_service is not None:
+            n_transit = 0
+            for idx in range(len(route) - 1):
+                a = route[idx]
+                b = route[idx + 1]
+                geom = self._transit_geometry_safe(
+                    transit_service,
+                    (a['lat'], a['lon']),
+                    (b['lat'], b['lon'])
+                )
+                if geom and len(geom) >= 2:
+                    # Linha de trânsito em laranja sobre a rota OSRM
+                    folium.PolyLine(
+                        geom,
+                        color='#ff6600',
+                        weight=4,
+                        opacity=0.9,
+                        dash_array=None,
+                        tooltip="Rota transportes públicos (GTFS)"
+                    ).add_to(m)
+                    # Marcadores de paragem (círculos pequenos)
+                    for stop in geom[1:-1]:  # excluir primeiro e último (são os POIs)
+                        folium.CircleMarker(
+                            location=stop,
+                            radius=4,
+                            color='#ff6600',
+                            fill=True,
+                            fill_color='white',
+                            fill_opacity=1.0,
+                            tooltip="Paragem / Estação"
+                        ).add_to(m)
+                    n_transit += 1
+            if n_transit:
+                print(f"   [OK] Rotas GTFS desenhadas: {n_transit} segmentos")
         
         # Construir mapa de (poi_name -> (dia, ordem_no_dia)) a partir do day_plan
         poi_day_label = {}
