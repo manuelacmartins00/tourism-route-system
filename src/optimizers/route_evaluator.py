@@ -34,8 +34,8 @@ class RouteEvaluator:
         
         self.w_distance  = 0.1095  # AHP 5x5 CR=0.0081
         self.w_category  = 0.1885  # AHP 5x5 CR=0.0081
-        self.w_diversity = 0.0324  # AHP 5x5 CR=0.0081
-        self.w_time      = 0.4810  # AHP 5x5 CR=0.0081
+        self.w_diversity = 0.1200  # aumentado de 0.0324 para penalizar rotas mono-categoria
+        self.w_time      = 0.3934  # reduzido proporcionalmente (original 0.4810)
         self.w_proximity = 0.1885  # AHP 5x5 CR=0.0081
 
         self.center_lat = user_prefs.get("center_lat")
@@ -267,17 +267,6 @@ class RouteEvaluator:
         n_nocturnal = sum(1 for idx in route if self.pois[idx].category in NOCTURNAL_CATS)
         if n_nocturnal > max_nocturnal:
             return False
-
-        # Cap de diversidade: max 40% de uma categoria em rotas multi-categoria
-        preferred = self.prefs.get('preferred_categories') or []
-        if len(preferred) > 1:
-            activity_idx = [i for i in route
-                            if self.pois[i].category not in ACCOMMODATION_CATEGORIES]
-            if len(activity_idx) >= 4:
-                from collections import Counter
-                cat_counts = Counter(self.pois[i].category for i in activity_idx)
-                if max(cat_counts.values()) / len(activity_idx) > 0.40:
-                    return False
 
         return True
 

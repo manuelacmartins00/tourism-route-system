@@ -415,6 +415,10 @@ Responde APENAS com o JSON, sem explicacoes."""
                 "bares_e_discotecas": ["vida noturna", "noturno", "bar ", "bares", "discoteca", "night", "beber copos", "sair a noite"],
                 "restaurantes_e_cafes": ["comer", "jantar", "restaurante", "gastronomia", "almoco"],
                 "museus_e_palacios": ["museu", "museus", "palacio", "palacios"],
+                "praias": ["praia", "praias", "beach", "surf", "mergulho", "litoral", "areias", "mar ", "costeira"],
+                "parques_e_reservas": ["parque natural", "reserva natural", "parque nacional"],
+                "zoos_e_aquarios": ["zoo", "zoologico", "aquario", "animais"],
+                "parques_de_diversao": ["parque tematico", "parque de diversao", "diversoes"],
             }
             for cat, hints in _keyword_cats.items():
                 if any(h in _q for h in hints) and cat not in main_categories:
