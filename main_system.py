@@ -613,14 +613,9 @@ class TourismRouteSystem:
         if verbose:
             print(f"   [OK] POIs para otimizacao: {n_pois}\n")
 
-        # Sub-matriz de tempos reais (TransitService apenas para public_transport/fastest
-        # com conjuntos pequenos - N² Dijkstra em 15818 nos causa timeout no proxy HF)
-        MAX_POIS_TRANSIT = 25
-        _use_transit = (
-            self.transit_service is not None
-            and preferences.transport_mode in ("public_transport", "fastest")
-            and len(optimizer_pois) <= MAX_POIS_TRANSIT
-        )
+        # Matriz sempre com Haversine — TransitService reservado para visualização do mapa
+        # (N² Dijkstra em 15818 nós causa timeout independentemente do nº de POIs)
+        _use_transit = False
         if _use_transit:
             if verbose:
                 print(f"   A construir matriz de tempos reais ({preferences.transport_mode})...\n")
@@ -857,6 +852,7 @@ class TourismRouteSystem:
                     algorithm=selected_algo,
                     transport_mode=preferences.transport_mode,
                     day_plan=day_plan,
+                    transit_service=self.transit_service,
                 )
                 if map_path:
                     result['map_file'] = map_path

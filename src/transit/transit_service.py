@@ -224,6 +224,33 @@ class TransitService:
 
         return matrix
 
+    def get_route_geometry(self,
+                           origin_coords: Tuple[float, float],
+                           dest_coords: Tuple[float, float],
+                           query_date: Optional[date] = None) -> Optional[List]:
+        """
+        Devolve lista [[lat,lon],...] das paragens ao longo da rota de TP,
+        ou None se não existir rota ou cobertura GTFS.
+        Usado pelo mapa para visualizar paragens reais.
+        """
+        if self.graph is None:
+            return None
+        stop_a = self.nearest_stop(*origin_coords, max_dist_km=2.0)
+        stop_b = self.nearest_stop(*dest_coords, max_dist_km=2.0)
+        if not stop_a or not stop_b or stop_a == stop_b:
+            return None
+        subgraph = self._active_subgraph(query_date)
+        try:
+            path = nx.dijkstra_path(subgraph, stop_a, stop_b, weight="weight")
+        except Exception:
+            return None
+        geometry = []
+        for nid in path:
+            d = subgraph.nodes[nid]
+            if d.get("lat") and d.get("lon"):
+                geometry.append([d["lat"], d["lon"]])
+        return geometry if len(geometry) >= 2 else None
+
     def _build_tp_matrix(self, pois: List, query_date: Optional[date] = None) -> np.ndarray:
         k = len(pois)
         matrix = np.zeros((k, k))
