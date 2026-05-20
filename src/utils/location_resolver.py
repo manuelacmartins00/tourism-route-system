@@ -86,6 +86,26 @@ class LocationResolver:
     # Throttle: Nominatim exige max 1 req/s
     _last_nominatim_call: float = 0.0
 
+    # Paises/regioes grandes: overrides estaticos para evitar que Nominatim
+    # devolva o centro geográfico com raio <30km (ex: "Portugal" -> Santarém, r=30km)
+    _COUNTRY_REGION_OVERRIDES: dict = {
+        "portugal":         (39.60, -8.00, 350.0),
+        "algarve":          (37.10, -8.10, 120.0),
+        "alentejo":         (38.20, -7.80, 150.0),
+        "alentejo litoral": (37.80, -8.50, 80.0),
+        "ribatejo":         (39.30, -8.40, 80.0),
+        "beiras":           (40.30, -7.70, 120.0),
+        "centro":           (40.00, -8.00, 120.0),
+        "norte":            (41.50, -8.00, 120.0),
+        "minho":            (41.70, -8.30, 80.0),
+        "tras-os-montes":   (41.80, -7.00, 100.0),
+        "douro":            (41.10, -7.50, 80.0),
+        "madeira":          (32.76, -16.96, 80.0),
+        "ilha da madeira":  (32.76, -16.96, 80.0),
+        "acores":           (38.66, -27.22, 200.0),
+        "arquipelago dos acores": (38.66, -27.22, 200.0),
+    }
+
     def __init__(self):
         self._geojson_index: dict = {}   # nome_normalizado -> {lat, lon, radius}
         self._loaded = False
@@ -220,6 +240,13 @@ class LocationResolver:
         self._load_geojson()
 
         key = _normalize(location)
+
+        # 0. Override para paises/regioes grandes (tem prioridade sobre GeoJSON e Nominatim)
+        if key in self._COUNTRY_REGION_OVERRIDES:
+            lat, lon, radius = self._COUNTRY_REGION_OVERRIDES[key]
+            print(f"   [OK] [LocationResolver] '{location}' -> override regional "
+                  f"({lat:.4f}, {lon:.4f}, r={radius:.0f}km)")
+            return lat, lon, radius
 
         # 1. Tentativa GeoJSON (exact match)
         if key in self._geojson_index:
