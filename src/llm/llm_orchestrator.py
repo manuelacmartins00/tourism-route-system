@@ -705,7 +705,7 @@ Responde APENAS com o JSON, sem explicacoes."""
                     extracted_time = _regex_time
                     missing_fields = [f for f in missing_fields if f != "max_time"]
                     print(f"   max_time extraido por regex: {extracted_time} min")
-                elif abs(_regex_time - extracted_time) > 0.25 * _regex_time:
+                elif abs(_regex_time - extracted_time) > 0.10 * _regex_time:
                     # Regex contradiz LLM — preferir regex para duracao explicita com numero
                     print(f"   max_time corrigido por regex: {_regex_time} min (LLM tinha {extracted_time})")
                     extracted_time = _regex_time
