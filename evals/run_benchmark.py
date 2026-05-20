@@ -75,10 +75,10 @@ def save_result(result: dict, output_dir: Path, prompt_id: str):
     result_dir = output_dir / f"P{prompt_id.zfill(4)}"
     result_dir.mkdir(parents=True, exist_ok=True)
     result_to_save = json.loads(json.dumps(result, default=str))
+    # Apenas remover ficheiro de mapa (não existe em benchmark) e fitness_history (redundante)
     result_to_save.get("optimization", {}).pop("fitness_history", None)
-    result_to_save.pop("shap_explanation", None)
-    result_to_save.pop("day_plan", None)
     result_to_save.pop("map_file", None)
+    # day_plan, shap_explanation e explanation são guardados integralmente
     with open(result_dir / "result.json", "w", encoding="utf-8") as f:
         json.dump(result_to_save, f, indent=2, ensure_ascii=False)
 
@@ -248,8 +248,8 @@ def main():
     parser.add_argument("--max",    type=int, default=0, help="Limitar a N prompts (0 = todas)")
     parser.add_argument("--throttle", type=float, default=1.5,
                         help="Segundos entre requests Groq (default 1.5)")
-    parser.add_argument("--timeout", type=int, default=180,
-                        help="Timeout por prompt em segundos (default 180)")
+    parser.add_argument("--timeout", type=int, default=300,
+                        help="Timeout por prompt em segundos (default 300)")
     args = parser.parse_args()
 
     prompts = load_prompts(args.input)
@@ -322,7 +322,7 @@ def main():
                 try:
                     _result_holder[0] = system.plan_route(
                         prompt,
-                        use_shap=False,
+                        use_shap=True,
                         verbose=False,
                         force_algorithm=None,
                         include_accommodation=p["include_accommodation"],
