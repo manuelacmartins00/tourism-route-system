@@ -272,16 +272,14 @@ class RouteEvaluator:
 
     def _calculate_time(self, route: List[int]) -> float:
         """Calcula tempo total da rota em minutos"""
-        
         if not route:
             return 0
-        
-        total_time = sum(self.pois[poi_idx].duration for poi_idx in route)
-        
-        for pos in range(len(route)-1):
-            travel_time = self.distances[route[pos]][route[pos+1]]
-            total_time += travel_time
-        
+        n = len(self.pois)
+        total_time = sum(self.pois[poi_idx].duration for poi_idx in route if poi_idx < n)
+        for pos in range(len(route) - 1):
+            a, b = route[pos], route[pos + 1]
+            if a < n and b < n:
+                total_time += self.distances[a][b]
         return total_time
 
     def _elevation_component(self, route: List[int]) -> float:

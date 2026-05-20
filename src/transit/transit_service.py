@@ -137,8 +137,8 @@ class TransitService:
                 continue
             try:
                 active_services |= get_active_services(operator, path, query_date)
-            except Exception:
-                pass
+            except Exception as _e:
+                print(f"[TransitService] Aviso ao carregar servicos de {operator}: {_e}")
 
         # Construir subgrafo simples com apenas essas arestas
         simple = nx.DiGraph()
@@ -187,14 +187,20 @@ class TransitService:
 
         segments = []
         for i in range(len(path) - 1):
-            edge_data = subgraph[path[i]][path[i+1]]
-            segments.append({
-                "from": subgraph.nodes[path[i]].get("name", path[i]),
-                "to": subgraph.nodes[path[i+1]].get("name", path[i+1]),
-                "route": edge_data.get("route_id", ""),
-                "operator": edge_data.get("operator", ""),
-                "minutes": round(edge_data["weight"], 1),
-            })
+            try:
+                edge_data = subgraph[path[i]][path[i+1]]
+                # MultiDiGraph devolve dict de dicts — pegar o primeiro edge
+                if isinstance(edge_data, dict) and edge_data and not isinstance(next(iter(edge_data.values())), (int, float, str)):
+                    edge_data = next(iter(edge_data.values()))
+                segments.append({
+                    "from": subgraph.nodes[path[i]].get("name", path[i]),
+                    "to": subgraph.nodes[path[i+1]].get("name", path[i+1]),
+                    "route": edge_data.get("route_id", ""),
+                    "operator": edge_data.get("operator", ""),
+                    "minutes": round(edge_data.get("weight", 0), 1),
+                })
+            except (KeyError, StopIteration):
+                continue
 
         return {
             "origin_stop": subgraph.nodes[stop_a].get("name", stop_a),
