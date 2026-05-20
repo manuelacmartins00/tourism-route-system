@@ -268,6 +268,17 @@ class RouteEvaluator:
         if n_nocturnal > max_nocturnal:
             return False
 
+        # Cap de diversidade: max 40% de uma categoria em rotas multi-categoria
+        preferred = self.prefs.get('preferred_categories') or []
+        if len(preferred) > 1:
+            activity_idx = [i for i in route
+                            if self.pois[i].category not in ACCOMMODATION_CATEGORIES]
+            if len(activity_idx) >= 4:
+                from collections import Counter
+                cat_counts = Counter(self.pois[i].category for i in activity_idx)
+                if max(cat_counts.values()) / len(activity_idx) > 0.40:
+                    return False
+
         return True
 
     def _calculate_time(self, route: List[int]) -> float:
