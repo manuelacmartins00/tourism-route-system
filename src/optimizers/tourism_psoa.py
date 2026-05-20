@@ -57,24 +57,25 @@ class TourismPSOA:
         gbest_fitness = pbest_fitness[gbest_idx]
         
         fitness_history = []
-        
+        best_history = []
+
         # Iteracoes PSO
         for iteration in range(self.n_iterations):
-            
+
             for i in range(self.n_particles):
                 # Calcular fitness atual
                 fitness = self.evaluator.calculate_fitness(particles[i])
-                
+
                 # Atualizar pbest
                 if fitness > pbest_fitness[i]:
                     pbest_fitness[i] = fitness
                     pbest_positions[i] = particles[i].copy()
-                
+
                 # Atualizar gbest
                 if fitness > gbest_fitness:
                     gbest_fitness = fitness
                     gbest_position = particles[i].copy()
-                
+
                 # Atualizar velocidade
                 velocities[i] = self._update_velocity(
                     velocities[i],
@@ -82,17 +83,18 @@ class TourismPSOA:
                     pbest_positions[i],
                     gbest_position
                 )
-                
+
                 # Atualizar posicao
                 particles[i] = self._update_position(
                     particles[i],
                     velocities[i]
                 )
-            
+
             # Logging
             avg_fitness = np.mean([self.evaluator.calculate_fitness(p) for p in particles])
             fitness_history.append(avg_fitness)
-            
+            best_history.append(gbest_fitness)
+
             if iteration % 10 == 0:
                 print(f"  PSO Iter {iteration}: Best={gbest_fitness:.2f}, Avg={avg_fitness:.2f}")
         
@@ -101,6 +103,7 @@ class TourismPSOA:
             'fitness': gbest_fitness,
             'pois': [self.pois[i] for i in gbest_position],
             'fitness_history': fitness_history,
+            'best_history': best_history,
             'algorithm': 'PSOA'
         }
     

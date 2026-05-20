@@ -702,6 +702,25 @@ class TourismRouteSystem:
 
         optimization_result = optimizer.optimize()
 
+        # Fallback GA se PSO estagna (best fitness nao melhora em nenhuma iteracao)
+        if selected_algo == "PSO":
+            best_hist = optimization_result.get('best_history', [])
+            pso_stagnated = (
+                len(best_hist) >= 2
+                and best_hist[-1] <= best_hist[0] * 1.005  # <0.5% melhoria total
+            )
+            if pso_stagnated:
+                if verbose:
+                    print(f"   PSO estagnado (best={optimization_result['fitness']:.2f}) — fallback GA\n")
+                fallback = TourismGA(optimizer_pois, sub_distance_matrix, evaluator,
+                                     population_size=50, n_generations=30)
+                ga_result = fallback.optimize()
+                if ga_result['fitness'] >= optimization_result['fitness']:
+                    optimization_result = ga_result
+                    selected_algo = "GA"
+                    if verbose:
+                        print(f"   [OK] GA fallback: {optimization_result['fitness']:.2f}\n")
+
         if verbose:
             print(f"\n   [OK] Fitness: {optimization_result['fitness']:.2f}")
             print(f"   [OK] POIs selecionados: {len(optimization_result['route'])}\n")
