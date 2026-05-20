@@ -771,14 +771,23 @@ class TourismRouteSystem:
         total_time_with_travel = evaluator._calculate_time(optimization_result['route'])
         travel_time = total_time_with_travel - visit_time
 
+        # Custo por pessoa: alojamento dividido por people_per_room, restantes por pessoa
+        cost_per_person = sum(
+            p['cost'] / evaluator.people_per_room
+            if p['category'] in ACCOMMODATION_BUNDLES else p['cost']
+            for p in route_pois_list
+        )
+
         result = {
             "query": user_query,
             "preferences": {
                 "max_time": preferences.max_time,
                 "max_cost": preferences.max_cost,
                 "categories": preferences.preferred_categories,
-                "interests": preferences.interests
+                "interests": preferences.interests,
+                "num_people": _num_people,
             },
+            "cost_per_person": round(cost_per_person, 2),
             "algorithm_used": selected_algo,
             "route": route_pois_list,
             "optimization": {
