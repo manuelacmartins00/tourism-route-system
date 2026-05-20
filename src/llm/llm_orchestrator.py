@@ -86,14 +86,32 @@ class LlamaOrchestrator:
         self.model = "llama-3.1-8b-instant" 
     
     def _call_llm(self, prompt: str, max_tokens: int = 600, temperature: float = 0.3) -> str:
-        """Chama o modelo via Groq API"""
-        response = self.client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model=self.model,
-            max_tokens=max_tokens,
-            temperature=temperature
-        )
-        return response.choices[0].message.content
+        """Chama o modelo via Groq API com retry automático em caso de rate limit (429)."""
+        import time as _time
+        import re as _re
+        for attempt in range(8):
+            try:
+                response = self.client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model=self.model,
+                    max_tokens=max_tokens,
+                    temperature=temperature
+                )
+                return response.choices[0].message.content
+            except Exception as e:
+                err = str(e)
+                if "429" in err or "rate_limit" in err.lower():
+                    # Ler o tempo de espera indicado pelo Groq (ex: "try again in 8m40.99s")
+                    m = _re.search(r'try again in (?:(\d+)m)?([\d.]+)s', err)
+                    if m:
+                        wait = int(m.group(1) or 0) * 60 + float(m.group(2)) + 3
+                    else:
+                        wait = min(30 * (2 ** attempt), 600)
+                    print(f"   [Rate limit] aguardando {wait:.0f}s (tentativa {attempt+1}/8)...")
+                    _time.sleep(wait)
+                else:
+                    raise
+        raise Exception("Groq rate limit: max retries (8) excedido")
     
     def extract_preferences(self, user_query: str) -> UserPreferences:
         """
@@ -452,6 +470,17 @@ Responde APENAS com o JSON, sem explicacoes."""
             raw_budget = data.get("budget_value") or data.get("max_cost")
             budget_value = float(raw_budget) if raw_budget is not None else None
             budget_type  = data.get("budget_type", "per_person") or "per_person"
+
+            # Validar budget_value com regex: se há exactamente 1 valor monetário na query,
+            # corrigir se LLM diverge >15% (guard contra alucinação em queries com múltiplos números)
+            _AMT_RE = r'(?:€\s*|eur[o]?[s]?\s*)(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*(?:€|eur[o]?[s]?)'
+            _found_amts = [float((a or b).replace(',', '.'))
+                           for a, b in re.findall(_AMT_RE, user_query.lower()) if a or b]
+            if len(_found_amts) == 1:
+                _regex_amt = _found_amts[0]
+                if budget_value is not None and abs(_regex_amt - budget_value) > 0.15 * max(_regex_amt, budget_value):
+                    print(f"   Budget corrigido por regex: LLM={budget_value:.0f} -> regex={_regex_amt:.0f}")
+                    budget_value = _regex_amt
 
             # Corrigir budget_type: se LLM retornou "per_person" mas a query diz "por dia"
             _q = user_query.lower()
@@ -957,18 +986,8 @@ Responde APENAS com o JSON."""
 
 def select_algorithm_deterministic(n_candidates: int, max_time: int) -> str:
     """
-    Thresholds derivados empiricamente do benchmark 16 queries x 4 algoritmos.
-
-    Resultados:
-    - GA venceu 9/16 queries, dominante em max_time <= 1920 min (ate ~4 dias)
-    - PSO venceu 7/16 queries, dominante em max_time >= 2400 min (5+ dias)
-    - ACO: 0 vitorias - excluido da seleccao automatica
-    - GREEDY: 0 vitorias - excluido da seleccao automatica
-
-    Limiar de transicao GA->PSO: entre 1920 e 2400 min -> corte em 2400.
-    n_candidates nao revelou padrao discriminativo - max_time e o eixo relevante.
+    Usa GA sempre — venceu 9/16 queries no benchmark e tem menor tempo de execução.
+    PSO (7/16, viagens >= 2400 min) era seguido de fallback GA, duplicando o tempo;
+    GA directo é mais rápido com resultados equivalentes ou melhores.
     """
-    if max_time < 2400:
-        return "GA"
-    else:
-        return "PSO" 
+    return "GA"

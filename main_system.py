@@ -476,6 +476,19 @@ class TourismRouteSystem:
             if verbose:
                 print(f"   Alojamento: +{accom_added} candidatos forcados (total {len(candidate_pois)})\n")
 
+        # Verificar se há POIs de alojamento disponíveis; se não, relaxar constraint
+        if include_accommodation:
+            has_accom = any(p['category'] in ACCOMMODATION_BUNDLES for p in candidate_pois)
+            if not has_accom:
+                include_accommodation = False
+                if verbose:
+                    print("   AVISO: Sem alojamento disponível na área — constraint relaxada\n")
+            else:
+                # Dar peso positivo ao alojamento para não penalizar o category_component
+                for cat in ACCOMMODATION_BUNDLES:
+                    if cat not in preferences.category_weights:
+                        preferences.category_weights[cat] = 0.4
+
         # Hard filter geografico pos-RAG
         if is_corridor:
             # Modo multi-corredor: manter POIs dentro de MAX_DIST_KM de QUALQUER segmento
@@ -676,8 +689,8 @@ class TourismRouteSystem:
             "category_weights": preferences.category_weights,
             "start_location": (optimizer_pois[0].lat, optimizer_pois[0].lon),
             "start_time": preferences.start_time,
-            "center_lat": geo[0] if geo else None,
-            "center_lon": geo[1] if geo else None,
+            "center_lat": geo[0] if geo and geo[2] <= 200.0 else None,
+            "center_lon": geo[1] if geo and geo[2] <= 200.0 else None,
             "max_radius_km": geo[2] if geo else 30.0,
             "mobility_issues": mobility_issues,
             "has_children": has_children,
@@ -810,6 +823,14 @@ class TourismRouteSystem:
                 "categories": preferences.preferred_categories,
                 "interests": preferences.interests,
                 "num_people": _num_people,
+                "num_rooms": _num_rooms,
+                "transport_mode": preferences.transport_mode,
+                "location": preferences.location,
+                "start_time": preferences.start_time,
+                "mobility_issues": mobility_issues,
+                "has_children": has_children,
+                "include_accommodation": include_accommodation,
+                "include_meals": include_meals,
             },
             "cost_per_person": round(cost_per_person, 2),
             "algorithm_used": selected_algo,
