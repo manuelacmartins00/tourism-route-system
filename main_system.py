@@ -372,7 +372,12 @@ class TourismRouteSystem:
             lon_min = center_lon - delta
             lon_max = center_lon + delta
 
-        EXCLUDED_CATEGORIES = ["eventos"]
+        # Categorias operacionais/administrativas — nunca incluir em rotas turísticas
+        NEVER_INCLUDE_CATEGORIES = [
+            "eventos", "postos_de_turismo", "agencias_de_viagem",
+            "localidade", "servicos_de_turismo", "outros",
+        ]
+        EXCLUDED_CATEGORIES = list(NEVER_INCLUDE_CATEGORIES)
         if not include_accommodation:
             EXCLUDED_CATEGORIES.extend(ACCOMMODATION_BUNDLES)
             if verbose:

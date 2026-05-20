@@ -733,6 +733,17 @@ Responde APENAS com o JSON, sem explicacoes."""
                     print("   max_time adicionado: duracao nao mencionada na query")
                 extracted_time = None  # ignorar valor LLM hallucinated
 
+            # Recalcular custo se budget depende de dias e o tempo foi corrigido após extracção
+            if budget_value is not None and extracted_time and budget_type in ("per_day", "per_person_per_day"):
+                corrected_days = max(1, _math.ceil(extracted_time / 480))
+                if corrected_days != num_days:
+                    if budget_type == "per_person_per_day":
+                        extracted_cost = budget_value * corrected_days
+                    else:  # per_day
+                        extracted_cost = (budget_value * corrected_days) / num_people
+                    print(f"   Budget recalculado: {num_days}d -> {corrected_days}d -> EUR{extracted_cost:.2f}/pessoa")
+                    num_days = corrected_days
+
             if budget_value is None:
                 if "max_cost" not in missing_fields:
                     missing_fields.append("max_cost")
