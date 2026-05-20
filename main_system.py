@@ -613,11 +613,13 @@ class TourismRouteSystem:
         if verbose:
             print(f"   [OK] POIs para otimizacao: {n_pois}\n")
 
-        # Sub-matriz de tempos reais (TransitService apenas para public_transport/fastest)
-        # Para car/foot usar tabela Haversine: OSRM table com 60+ POIs excede 60s no proxy HF
+        # Sub-matriz de tempos reais (TransitService apenas para public_transport/fastest
+        # com conjuntos pequenos - N² Dijkstra em 15818 nos causa timeout no proxy HF)
+        MAX_POIS_TRANSIT = 25
         _use_transit = (
             self.transit_service is not None
             and preferences.transport_mode in ("public_transport", "fastest")
+            and len(optimizer_pois) <= MAX_POIS_TRANSIT
         )
         if _use_transit:
             if verbose:
