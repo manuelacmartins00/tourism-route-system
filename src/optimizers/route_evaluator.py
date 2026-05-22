@@ -32,11 +32,15 @@ class RouteEvaluator:
         self.distances = distance_matrix
         self.prefs = user_prefs
         
-        self.w_distance  = 0.1095  # AHP 5x5 CR=0.0081
-        self.w_category  = 0.1885  # AHP 5x5 CR=0.0081
-        self.w_diversity = 0.1200  # aumentado de 0.0324 para penalizar rotas mono-categoria
-        self.w_time      = 0.3934  # reduzido proporcionalmente (original 0.4810)
-        self.w_proximity = 0.1885  # AHP 5x5 CR=0.0081
+        self.w_distance      = 0.1095  # AHP 5x5 CR=0.0081
+        # cat_indata: julga o modelo (otimizador usou POIs disponíveis?) — peso maior
+        self.w_cat_indata    = 0.1286  # 0.1300 - 0.0014 para w_total = 1.0000 exacto
+        # cat_general: julga dados + modelo (categorias pedidas cobertas?) — peso menor
+        self.w_cat_general   = 0.0600
+        self.w_diversity     = 0.1200
+        self.w_time          = 0.3934  # original 0.4810, reduzido para acomodar split cat
+        self.w_proximity     = 0.1885  # AHP 5x5 CR=0.0081
+        # w_total = 0.1095+0.1286+0.0600+0.1200+0.3934+0.1885 = 1.0000
 
         self.center_lat = user_prefs.get("center_lat")
         self.center_lon = user_prefs.get("center_lon")
@@ -61,6 +65,28 @@ class RouteEvaluator:
             
         self._debug_mode = False
         self._empty_warning_shown = False
+
+        # Categorias de actividade disponíveis no pool de candidatos (excluindo alojamento).
+        self._available_activity_cats = frozenset(
+            p.category for p in pois if p.category not in ACCOMMODATION_CATEGORIES
+        )
+        preferred_cats = user_prefs.get('preferred_categories') or []
+        self._available_preferred = [c for c in preferred_cats
+                                      if c in self._available_activity_cats]
+        self._missing_preferred   = [c for c in preferred_cats
+                                      if c not in self._available_activity_cats]
+        self._preferred_cat_set   = frozenset(self._available_preferred)
+        # Pre-calcular n de POIs preferidos disponíveis no pool
+        self._n_available_preferred_pois = sum(
+            1 for p in pois
+            if p.category in self._preferred_cat_set
+        )
+
+        # Geometria geográfica para distance_penalty e prox_comp
+        _geos = user_prefs.get("all_geos") or []
+        self.all_geos    = [(g[0], g[1], g[2]) for g in _geos]
+        self.is_corridor = user_prefs.get("is_corridor", False)
+        self._large_region = any(r > 200.0 for _, _, r in self.all_geos) if self.all_geos else False
     
     def calculate_fitness(self, route: List[int]) -> float:
         """Calcula fitness da rota"""
@@ -84,27 +110,59 @@ class RouteEvaluator:
 
         activity_route = [idx for idx in route
                           if self.pois[idx].category not in ACCOMMODATION_CATEGORIES]
-        total_km = sum(
-            self._haversine_km(self.pois[activity_route[pos]], self.pois[activity_route[pos+1]])
-            for pos in range(len(activity_route)-1)
-        ) if len(activity_route) > 1 else 0
-        threshold_km = max(1.0, self.max_radius_km) * 4
-        distance_penalty = max(0.0, 100.0 - (total_km / threshold_km) * 100.0)
+        non_accom_route = activity_route  # alias
 
-        category_matches = sum(
-            self.prefs.get('category_weights', {}).get(self.pois[poi_idx].category, 0)
-            for poi_idx in route
-        )
-        category_component = (category_matches / len(route)) * 100 if route else 0
+        # ── distance_penalty ─────────────────────────────────────────────────
+        # 100% se dentro da área declarada; decai linearmente só a partir da fronteira.
+        # ratio ≤ 1.0 → dentro → 100%; ratio > 1.0 → fora → max(0, 2 - ratio) × 100%
+        if self.all_geos and not self._large_region:
+            def _dp_score(ratio):
+                return 1.0 if ratio <= 1.0 else max(0.0, 2.0 - ratio)
+            dp_scores = [_dp_score(self._geo_ratio(self.pois[idx].lat, self.pois[idx].lon))
+                         for idx in activity_route]
+            distance_penalty = (sum(dp_scores) / len(dp_scores) * 100) if dp_scores else 100.0
+        else:
+            # Fallback (sem info geográfica ou região grande)
+            total_km = sum(
+                self._haversine_km(self.pois[activity_route[pos]], self.pois[activity_route[pos+1]])
+                for pos in range(len(activity_route)-1)
+            ) if len(activity_route) > 1 else 0
+            threshold_km = max(1.0, self.max_radius_km) * 4
+            distance_penalty = max(0.0, 100.0 - (total_km / threshold_km) * 100.0)
 
-        unique_categories = len(set(self.pois[poi_idx].category for poi_idx in route))
-        diversity_component = (unique_categories / len(route)) * 100 if route else 0
+        # ── cat_indata_comp (julga MODELO) ───────────────────────────────────
+        # "O otimizador usou os POIs preferidos disponíveis localmente?"
+        # 100% se todos os POIs preferidos disponíveis foram incluídos na rota.
+        n_preferred_in_route = sum(1 for idx in non_accom_route
+                                   if self.pois[idx].category in self._preferred_cat_set)
+        max_achievable = min(self._n_available_preferred_pois, max(1, len(non_accom_route)))
+        cat_indata_comp = min(n_preferred_in_route / max_achievable, 1.0) * 100
 
+        # ── cat_general_comp (julga DADOS + modelo) ──────────────────────────
+        # "Quantas das categorias pedidas estão representadas na rota?"
+        # Inclui categorias ausentes localmente → baixo quando dados são escassos.
+        requested_cats = set(self.prefs.get('preferred_categories') or [])
+        route_cats = set(self.pois[idx].category for idx in non_accom_route)
+        cats_covered = len(requested_cats & route_cats)
+        cat_general_comp = (cats_covered / max(1, len(requested_cats))) * 100
+
+        # ── diversity_component ──────────────────────────────────────────────
+        # Cap pelo número de categorias de actividade disponíveis localmente
+        unique_categories = len(set(
+            self.pois[idx].category for idx in (non_accom_route or route)
+        ))
+        preferred_count = len(self.prefs.get('preferred_categories') or [])
+        n_local_cats = max(1, len(self._available_activity_cats))
+        diversity_cap = max(1, min(n_local_cats, max(6, min(preferred_count, 8))))
+        diversity_component = min(unique_categories / diversity_cap, 1.0) * 100
+
+        # Time utilization: threshold reduzido 70->50%, multiplicador 0.35->0.55
+        # Rationale: o cliff a 70% penalizava desproporcionalmente rotas com orcamento limitado
         time_used = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
         time_utilization = min(100, (time_used / max_time) * 100)
-        if time_utilization < 70:
-            time_efficiency = time_utilization * 0.35
+        if time_utilization < 50:
+            time_efficiency = time_utilization * 0.55
         else:
             time_efficiency = time_utilization
         
@@ -114,20 +172,22 @@ class RouteEvaluator:
         if self.mobility_issues:
             scale = 1 - self.w_elevation
             fitness = (
-                self.w_distance  * scale * distance_penalty +
-                self.w_category  * scale * category_component +
-                self.w_diversity * scale * diversity_component +
-                self.w_time      * scale * time_efficiency +
-                self.w_proximity * scale * proximity_component +
-                self.w_elevation * elevation_penalty
+                self.w_distance    * scale * distance_penalty +
+                self.w_cat_indata  * scale * cat_indata_comp +
+                self.w_cat_general * scale * cat_general_comp +
+                self.w_diversity   * scale * diversity_component +
+                self.w_time        * scale * time_efficiency +
+                self.w_proximity   * scale * proximity_component +
+                self.w_elevation   * elevation_penalty
             )
         else:
             fitness = (
-                self.w_distance * distance_penalty +
-                self.w_category * category_component +
-                self.w_diversity * diversity_component +
-                self.w_time * time_efficiency +
-                self.w_proximity * proximity_component
+                self.w_distance    * distance_penalty +
+                self.w_cat_indata  * cat_indata_comp +
+                self.w_cat_general * cat_general_comp +
+                self.w_diversity   * diversity_component +
+                self.w_time        * time_efficiency +
+                self.w_proximity   * proximity_component
             )
         
         return min(100.0, fitness * self._contextual_modifier(route))
@@ -144,17 +204,39 @@ class RouteEvaluator:
         ) if len(activity_route) > 1 else 0
         threshold_km = max(1.0, self.max_radius_km) * 4
         distance_penalty = max(0.0, 100.0 - (total_km / threshold_km) * 100.0)
-        category_matches = sum(
-            self.prefs.get('category_weights', {}).get(self.pois[poi_idx].category, 0)
-            for poi_idx in route
-        )
-        category_component = (category_matches / len(route)) * 100 if route else 0
-        unique_categories = len(set(self.pois[poi_idx].category for poi_idx in route))
-        diversity_component = (unique_categories / len(route)) * 100 if route else 0
+        non_accom_route = [idx for idx in route
+                           if self.pois[idx].category not in ACCOMMODATION_CATEGORIES]
+        # cat_indata_comp: julga modelo
+        n_preferred_in_route = sum(1 for idx in non_accom_route
+                                   if self.pois[idx].category in self._preferred_cat_set)
+        max_achievable = min(self._n_available_preferred_pois, max(1, len(non_accom_route)))
+        cat_indata_comp = min(n_preferred_in_route / max_achievable, 1.0) * 100
+        # cat_general_comp: julga dados + modelo
+        requested_cats = set(self.prefs.get('preferred_categories') or [])
+        route_cats_set = set(self.pois[idx].category for idx in non_accom_route)
+        cat_general_comp = (len(requested_cats & route_cats_set) / max(1, len(requested_cats))) * 100
+        # diversity
+        unique_categories = len(set(
+            self.pois[idx].category for idx in non_accom_route or route))
+        preferred_count = len(self.prefs.get('preferred_categories') or [])
+        n_local_cats = max(1, len(self._available_activity_cats))
+        diversity_cap = max(1, min(n_local_cats, max(6, min(preferred_count, 8))))
+        diversity_component = min(unique_categories / diversity_cap, 1.0) * 100
+        # distance_penalty: 100% dentro da área, decai fora da fronteira
+        if self.all_geos and not self._large_region:
+            def _dp_s(ratio): return 1.0 if ratio <= 1.0 else max(0.0, 2.0 - ratio)
+            dp_scores = [_dp_s(self._geo_ratio(self.pois[idx].lat, self.pois[idx].lon))
+                         for idx in non_accom_route]
+            distance_penalty = (sum(dp_scores)/len(dp_scores)*100) if dp_scores else 100.0
+        else:
+            activity_r = non_accom_route
+            total_km = sum(self._haversine_km(self.pois[activity_r[i]],self.pois[activity_r[i+1]])
+                           for i in range(len(activity_r)-1)) if len(activity_r)>1 else 0
+            distance_penalty = max(0.0, 100.0 - (total_km/max(1.0,self.max_radius_km*4))*100)
         time_used = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
         time_utilization = min(100, (time_used / max_time) * 100)
-        time_efficiency = time_utilization if time_utilization >= 70 else time_utilization * 0.35
+        time_efficiency = time_utilization if time_utilization >= 50 else time_utilization * 0.55
         proximity_component = self._proximity_component(route)
         modifier = self._contextual_modifier(route)
         fitness = self.calculate_fitness(route)
@@ -163,13 +245,22 @@ class RouteEvaluator:
             "fitness": round(fitness, 3),
             "time_utilization": round(time_utilization, 1),
             "time_efficiency": round(time_efficiency, 1),
-            "category_component": round(category_component, 1),
+            "cat_indata_comp":    round(cat_indata_comp, 1),
+            "cat_general_comp":   round(cat_general_comp, 1),
+            "category_component": round((cat_indata_comp + cat_general_comp) / 2, 1),  # compatibilidade
             "diversity_component": round(diversity_component, 1),
             "distance_penalty": round(distance_penalty, 1),
             "proximity_component": round(proximity_component, 1),
             "contextual_modifier": round(modifier, 3),
             "n_route": len(route),
             "unique_categories": unique_categories,
+            # Cobertura local: para diagnóstico e explicação
+            "available_preferred": list(self._available_preferred),
+            "missing_preferred":   list(self._missing_preferred),
+            "data_coverage_pct": round(
+                100 * len(self._available_preferred) /
+                max(1, len(self._available_preferred) + len(self._missing_preferred)), 1
+            ),
         }
 
     def _contextual_modifier(self, route: List[int]) -> float:
@@ -199,27 +290,39 @@ class RouteEvaluator:
 
     def _proximity_component(self, route: List[int]) -> float:
         """
-        Penaliza rotas com POIs muito afastados do centro ou entre si.
-        Devolve valor entre 0 e 100 (100 = todos dentro do raio ideal).
+        Proximidade ao conjunto geográfico declarado (cidade(s) + corredor).
+        100% = todos os POIs dentro dos raios das cidades.
+        Decai quadraticamente conforme os POIs saem da área.
         """
-        if not route or self.center_lat is None:
+        if not route:
             return 100.0
 
-        import math
-        def haversine_km(lat1, lon1, lat2, lon2):
-            R = 6371
-            r = math.radians
-            a = math.sin(r(lat2-lat1)/2)**2 + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
-            return R * 2 * math.asin(math.sqrt(a))
+        activity = [idx for idx in route
+                    if self.pois[idx].category not in ACCOMMODATION_CATEGORIES]
+        if not activity:
+            return 100.0
 
-        dist_scores = []
-        for poi_idx in route:
-            poi = self.pois[poi_idx]
-            d = haversine_km(self.center_lat, self.center_lon, poi.lat, poi.lon)
-            score = max(0.0, 1.0 - (d / self.max_radius_km) ** 2)
-            dist_scores.append(score)
-
-        return (sum(dist_scores) / len(dist_scores)) * 100
+        if self.all_geos and not self._large_region:
+            # 100% dentro da área; decai quadraticamente só a partir da fronteira
+            def _ps(ratio):
+                return 1.0 if ratio <= 1.0 else max(0.0, 1.0 - (ratio - 1.0) ** 2)
+            scores = [_ps(self._geo_ratio(self.pois[idx].lat, self.pois[idx].lon))
+                      for idx in activity]
+            return (sum(scores) / len(scores)) * 100
+        elif self.center_lat is not None:
+            # Fallback: centro único
+            import math
+            def _h(lat1,lon1,lat2,lon2):
+                R=6371; r=math.radians
+                a=math.sin(r(lat2-lat1)/2)**2+math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
+                return R*2*math.asin(math.sqrt(a))
+            scores = [max(0.0, 1.0 - (_h(self.center_lat,self.center_lon,
+                                         self.pois[idx].lat,self.pois[idx].lon)
+                                       / self.max_radius_km)**2)
+                      for idx in activity]
+            return (sum(scores) / len(scores)) * 100
+        else:
+            return 100.0
 
     def _is_feasible(self, route: List[int]) -> bool:
         """Verifica se a rota respeita constraints"""
@@ -307,6 +410,55 @@ class RouteEvaluator:
         score = max(0.0, 1.0 - (total_gain - THRESHOLD_M) / (MAX_GAIN_M - THRESHOLD_M))
         return score * 100
     
+    @staticmethod
+    def _hav_coords(lat1, lon1, lat2, lon2) -> float:
+        import math
+        R = 6371.0
+        r = math.radians
+        a = (math.sin(r(lat2-lat1)/2)**2
+             + math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2)
+        return R * 2 * math.asin(math.sqrt(a))
+
+    @staticmethod
+    def _dist_to_seg_km(plat, plon, alat, alon, blat, blon) -> float:
+        """Distância em km de um ponto ao segmento AB."""
+        abx, aby = blon - alon, blat - alat
+        apx, apy = plon - alon, plat - alat
+        denom = abx**2 + aby**2
+        t = max(0.0, min(1.0, (apx*abx + apy*aby) / denom)) if denom > 1e-10 else 0.0
+        import math
+        R = 6371.0; r = math.radians
+        nlat, nlon = alat + t*aby, alon + t*abx
+        a = (math.sin(r(nlat-plat)/2)**2
+             + math.cos(r(plat))*math.cos(r(nlat))*math.sin(r(nlon-plon)/2)**2)
+        return R * 2 * math.asin(math.sqrt(a))
+
+    def _geo_ratio(self, poi_lat, poi_lon) -> float:
+        """
+        Rácio de proximidade ao conjunto geográfico declarado (cidades + corredor).
+        0.0 = no centro da cidade mais próxima
+        1.0 = exatamente na fronteira do círculo / corredor
+        >1.0 = fora da área (penalizado)
+        Regiões grandes (r>200km): sempre 0.0.
+        """
+        if not self.all_geos or self._large_region:
+            return 0.0
+        # Distância normalizada à cidade mais próxima
+        min_ratio = min(
+            self._hav_coords(poi_lat, poi_lon, clat, clon) / max(r, 1.0)
+            for clat, clon, r in self.all_geos
+        )
+        # Para corredores: também verificar distância ao segmento (buffer 25km)
+        if self.is_corridor and len(self.all_geos) > 1:
+            CORRIDOR_KM = 25.0
+            for i in range(len(self.all_geos) - 1):
+                la, loa, _ = self.all_geos[i]
+                lb, lob, _ = self.all_geos[i + 1]
+                d_seg = self._dist_to_seg_km(poi_lat, poi_lon, la, loa, lb, lob)
+                seg_ratio = d_seg / CORRIDOR_KM
+                min_ratio = min(min_ratio, seg_ratio)
+        return max(0.0, min_ratio)
+
     @staticmethod
     def _haversine_km(poi_a, poi_b) -> float:
         import math
