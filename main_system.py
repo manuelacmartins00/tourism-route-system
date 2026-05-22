@@ -165,7 +165,9 @@ class TourismRouteSystem:
                include_accommodation: Optional[bool] = None,
                include_meals: Optional[bool] = None,
                generate_map: bool = True,
-               num_rooms: Optional[int] = None) -> Dict:
+               num_rooms: Optional[int] = None,
+               generate_explanation: bool = True,
+               compact_extraction: bool = False) -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
@@ -190,7 +192,7 @@ class TourismRouteSystem:
         if verbose:
             print("[LLM] Extraindo preferencias...")
 
-        preferences = self.llm.extract_preferences(user_query)
+        preferences = self.llm.extract_preferences(user_query, compact=compact_extraction)
 
         mode_labels = {
             "foot": "A pe",
@@ -445,7 +447,6 @@ class TourismRouteSystem:
                 lon_min=lon_min,
                 lon_max=lon_max
             )
-            # Merge: adiciona POIs do fallback que nao estao ja nos candidatos
             existing_ids = {p['id'] for p in candidate_pois}
             for p in rag_results_fallback['pois']:
                 if p['id'] not in existing_ids:
@@ -453,7 +454,7 @@ class TourismRouteSystem:
                     existing_ids.add(p['id'])
             if verbose:
                 print(f"   [OK] Candidatos apos fallback: {len(candidate_pois)}")
-                
+
         # Forcar candidatos de alojamento (independente das categorias pedidas)
         if include_accommodation:
             num_days = max(1, int(np.ceil(preferences.max_time / 480)))
@@ -489,73 +490,72 @@ class TourismRouteSystem:
                     if cat not in preferences.category_weights:
                         preferences.category_weights[cat] = 0.4
 
-        # Hard filter geografico pos-RAG
-        if is_corridor:
-            # Modo multi-corredor: manter POIs dentro de MAX_DIST_KM de QUALQUER segmento
-            MAX_DIST_KM = 55.0
-            from src.utils.distance_calculator import haversine as _hav
+        # Filtro geográfico: union de círculos por cidade + corredor entre segmentos
+        # - Círculo de cada cidade especificada (raio = city radius do LocationResolver)
+        # - Corredor: POIs a <= CORRIDOR_KM do segmento entre cidades consecutivas
+        # - Regiões grandes (r > 200km): sem post-filter (bbox do RAG já é suficiente)
+        from src.utils.distance_calculator import haversine as _hav
 
-            def _dist_to_segment(plat, plon, alat, alon, blat, blon):
-                abx, aby = blon - alon, blat - alat
-                apx, apy = plon - alon, plat - alat
-                denom = abx**2 + aby**2
-                t = max(0.0, min(1.0, (apx*abx + apy*aby) / denom)) if denom > 1e-10 else 0.0
-                nlat = alat + t * aby
-                nlon = alon + t * abx
-                return _hav(plat, plon, nlat, nlon)
+        CORRIDOR_KM = 25.0  # buffer lateral entre cidades (as cidades em si têm o seu raio)
 
-            def _min_dist_to_route(plat, plon):
-                min_d = float('inf')
+        def _dist_to_seg(plat, plon, alat, alon, blat, blon):
+            abx, aby = blon - alon, blat - alat
+            apx, apy = plon - alon, plat - alat
+            denom = abx**2 + aby**2
+            t = max(0.0, min(1.0, (apx*abx + apy*aby) / denom)) if denom > 1e-10 else 0.0
+            return _hav(plat, plon, alat + t*aby, alon + t*abx)
+
+        def _in_area(plat, plon):
+            # Regiões grandes (Portugal, Alentejo...): bbox do RAG é suficiente
+            if any(r > 200.0 for _, _, r in all_geos):
+                return True
+            # 1. Dentro do círculo de qualquer cidade especificada
+            for clat, clon, r_km in all_geos:
+                if _hav(plat, plon, clat, clon) <= r_km:
+                    return True
+            # 2. Dentro do corredor entre segmentos (só multi-cidade)
+            if is_corridor:
                 for i in range(len(all_geos) - 1):
                     la, loa, _ = all_geos[i]
-                    lb, lob, _ = all_geos[i+1]
-                    d = _dist_to_segment(plat, plon, la, loa, lb, lob)
-                    min_d = min(min_d, d)
-                return min_d
+                    lb, lob, _ = all_geos[i + 1]
+                    if _dist_to_seg(plat, plon, la, loa, lb, lob) <= CORRIDOR_KM:
+                        return True
+            return False
 
-            before = len(candidate_pois)
-            candidate_pois = [p for p in candidate_pois
-                              if _min_dist_to_route(p['lat'], p['lon']) <= MAX_DIST_KM]
+        before = len(candidate_pois)
+        candidate_pois = [p for p in candidate_pois if _in_area(p['lat'], p['lon'])]
+        if verbose and len(candidate_pois) < before:
+            mode = "circles+corredor" if is_corridor else "circles"
+            print(f"   Filtro geo ({mode}): {before} -> {len(candidate_pois)} POIs\n")
+
+        # Density boost para corredores: reponderar por densidade local
+        if is_corridor and candidate_pois:
+            DENSITY_RADIUS_KM = 20.0
+            DENSITY_WEIGHT    = 0.25
+            for poi in candidate_pois:
+                nearby = sum(1 for other in candidate_pois
+                             if _hav(poi['lat'], poi['lon'], other['lat'], other['lon']) <= DENSITY_RADIUS_KM)
+                poi['_density'] = nearby
+            max_density = max(p['_density'] for p in candidate_pois) or 1
+            for poi in candidate_pois:
+                poi['relevance_score'] = poi.get('relevance_score', 0.5) * (
+                    1 + DENSITY_WEIGHT * poi['_density'] / max_density)
+            candidate_pois.sort(key=lambda p: -p.get('relevance_score', 0))
             if verbose:
-                print(f"   Filtro corredor: {before} -> {len(candidate_pois)} POIs (max {MAX_DIST_KM:.0f}km da linha)\n")
+                print(f"   Density boost aplicado (raio {DENSITY_RADIUS_KM:.0f}km)\n")
 
-            # Density boost: reponderar por densidade local (POIs num raio de 20km)
-            if candidate_pois:
-                DENSITY_RADIUS_KM = 20.0
-                DENSITY_WEIGHT    = 0.25
-                for poi in candidate_pois:
-                    nearby = sum(1 for other in candidate_pois
-                                 if _hav(poi['lat'], poi['lon'], other['lat'], other['lon']) <= DENSITY_RADIUS_KM)
-                    poi['_density'] = nearby
-                max_density = max(p['_density'] for p in candidate_pois) or 1
-                for poi in candidate_pois:
-                    poi['relevance_score'] = poi.get('relevance_score', 0.5) * (
-                        1 + DENSITY_WEIGHT * poi['_density'] / max_density)
-                candidate_pois.sort(key=lambda p: -p.get('relevance_score', 0))
-                if verbose:
-                    print(f"   Density boost aplicado (raio {DENSITY_RADIUS_KM:.0f}km, peso {DENSITY_WEIGHT})\n")
-
-        elif geo:
-            center_lat, center_lon, radius_km = geo
-            before = len(candidate_pois)
-            candidate_pois = [
-                p for p in candidate_pois
-                if _within_radius(p['lat'], p['lon'], center_lat, center_lon, radius_km)
-            ]
+        # Fallback de emergência: se pool ficou vazio, relaxar filtros geográficos
+        if len(candidate_pois) == 0 and geo:
             if verbose:
-                print(f"   Hard filter geografico: {before} -> {len(candidate_pois)} POIs (raio {radius_km:.0f}km)\n")
-
-            if len(candidate_pois) == 0:
-                if verbose:
-                    print("   AVISO: Hard filter removeu todos os POIs - a relaxar para bounding box\n")
-                rag_results_nogeo = self.rag.query(
-                    text=rag_query,
-                    n_results=25,
-                    category_filter=preferences.preferred_categories,
-                    category_exclude=EXCLUDED_CATEGORIES,
-                    max_cost=preferences.max_cost,
-                )
-                candidate_pois = rag_results_nogeo['pois']
+                print("   AVISO: pool vazio apos filtro — a relaxar para bbox\n")
+            rag_results_nogeo = self.rag.query(
+                text=rag_query,
+                n_results=25,
+                category_filter=preferences.preferred_categories,
+                category_exclude=EXCLUDED_CATEGORIES,
+                max_cost=preferences.max_cost,
+            )
+            candidate_pois = rag_results_nogeo['pois']
 
         # Aplicar intervalos de duracao por categoria
         for p in candidate_pois:
@@ -692,6 +692,8 @@ class TourismRouteSystem:
             "center_lat": geo[0] if geo and geo[2] <= 200.0 else None,
             "center_lon": geo[1] if geo and geo[2] <= 200.0 else None,
             "max_radius_km": geo[2] if geo else 30.0,
+            "all_geos": [[g[0], g[1], g[2]] for g in all_geos] if all_geos else [],
+            "is_corridor": is_corridor,
             "mobility_issues": mobility_issues,
             "has_children": has_children,
             "elevation_matrix": elevation_matrix,
@@ -738,6 +740,146 @@ class TourismRouteSystem:
                     selected_algo = "GA"
                     if verbose:
                         print(f"   [OK] GA fallback: {optimization_result['fitness']:.2f}\n")
+
+        # ── Post-otimização: reparação de qualidade ─────────────────────────────
+        route = list(optimization_result['route'])
+        route_ids = set(route)
+
+        # 1) Garantia de categoria: forcar pelo menos 1 POI de cada categoria pedida
+        if preferences.preferred_categories:
+            route_cats = {optimizer_pois[i].category for i in route}
+            for cat in preferences.preferred_categories:
+                if cat not in route_cats:
+                    # Encontrar o melhor candidato dessa categoria que caiba no tempo/custo
+                    candidates_cat = [
+                        (i, p) for i, p in enumerate(optimizer_pois)
+                        if p.category == cat and i not in route_ids
+                    ]
+                    candidates_cat.sort(key=lambda x: -x[1].score)
+                    for idx, poi in candidates_cat[:5]:
+                        trial = route + [idx]
+                        if evaluator._is_feasible(trial):
+                            route.append(idx)
+                            route_ids.add(idx)
+                            route_cats.add(cat)
+                            if verbose:
+                                print(f"   [Repair] +{poi.name} ({cat}) — cobertura de categoria")
+                            break
+
+        # 2) Fill com POIs gratuitos se time_utilization < 70%
+        time_used = evaluator._calculate_time(route)
+        max_time_val = preferences.max_time or 480
+        time_util = time_used / max_time_val
+        if time_util < 0.70:
+            # Primeiro: usar POIs cost=0 já no pool do otimizador
+            free_candidates = [
+                (i, p) for i, p in enumerate(optimizer_pois)
+                if i not in route_ids and p.cost == 0 and p.duration > 0
+            ]
+            free_candidates.sort(key=lambda x: -x[1].duration)
+            for idx, poi in free_candidates:
+                trial = route + [idx]
+                if evaluator._is_feasible(trial):
+                    route.append(idx)
+                    route_ids.add(idx)
+                    time_used = evaluator._calculate_time(route)
+                    time_util = time_used / max_time_val
+                    if verbose:
+                        print(f"   [Fill]   +{poi.name} ({poi.category}) gratis (pool) — time_util={time_util:.0%}")
+                    if time_util >= 0.70:
+                        break
+
+            # Se ainda < 70%, fazer 2ª query RAG específica para POIs cost=0
+            if time_util < 0.70:
+                if verbose:
+                    print(f"   [Fill2]  time_util={time_util:.0%} — 2a query RAG para POIs gratuitos\n")
+                extra_free = self.rag.query(
+                    text=preferences.location or "portugal",
+                    n_results=40,
+                    category_filter=None,
+                    category_exclude=EXCLUDED_CATEGORIES,
+                    max_cost=0,           # só cost=0
+                    lat_min=lat_min, lat_max=lat_max,
+                    lon_min=lon_min, lon_max=lon_max,
+                )
+                existing_ids = {optimizer_pois[i].id for i in route_ids}
+                new_free_pois = []
+                for p in extra_free['pois']:
+                    if p['id'] not in existing_ids and p['cost'] == 0:
+                        # Clampar duração
+                        cat = p.get('category', '')
+                        if cat in DURATION_RANGES:
+                            d_min, d_max = DURATION_RANGES[cat]
+                            p['duration'] = max(d_min, min(d_max, p['duration']))
+                        new_free_pois.append(p)
+                        existing_ids.add(p['id'])
+
+                if new_free_pois and verbose:
+                    print(f"   [Fill2]  {len(new_free_pois)} POIs gratuitos adicionais encontrados\n")
+
+                # Adicionar ao optimizer_pois e à matriz (haversine, cost=0)
+                from src.utils.distance_calculator import haversine as _hav_fill
+                if new_free_pois:
+                    n_old = len(optimizer_pois)
+                    for p in new_free_pois:
+                        poi_obj = POI(
+                            id=int(p['id']), name=p['name'],
+                            lat=p['lat'], lon=p['lon'],
+                            category=p['category'], score=p['score'],
+                            duration=p['duration'],
+                            opening_time=p['opening_time'],
+                            closing_time=p['closing_time'],
+                            cost=0.0,
+                        )
+                        optimizer_pois.append(poi_obj)
+
+                    # Expandir sub_distance_matrix para novos POIs
+                    n_new = len(optimizer_pois)
+                    new_matrix = np.zeros((n_new, n_new))
+                    new_matrix[:n_old, :n_old] = sub_distance_matrix
+                    for i in range(n_old, n_new):
+                        for j in range(n_new):
+                            if i != j:
+                                d = _hav_fill(optimizer_pois[i].lat, optimizer_pois[i].lon,
+                                              optimizer_pois[j].lat, optimizer_pois[j].lon)
+                                t = _travel_time(d, preferences.transport_mode)
+                                new_matrix[i][j] = t
+                                new_matrix[j][i] = t
+                    sub_distance_matrix = new_matrix
+                    evaluator.distances = new_matrix
+                    evaluator.pois = optimizer_pois
+                    # Atualizar n_available_preferred_pois no evaluator
+                    evaluator._n_available_preferred_pois = sum(
+                        1 for p in optimizer_pois
+                        if p.category in evaluator._preferred_cat_set
+                    )
+
+                    # Tentar adicionar os novos POIs gratuitos
+                    for idx in range(n_old, len(optimizer_pois)):
+                        poi = optimizer_pois[idx]
+                        if idx not in route_ids:
+                            trial = route + [idx]
+                            if evaluator._is_feasible(trial):
+                                route.append(idx)
+                                route_ids.add(idx)
+                                time_used = evaluator._calculate_time(route)
+                                time_util = time_used / max_time_val
+                                if verbose:
+                                    print(f"   [Fill2]  +{poi.name} ({poi.category}) gratis (2a query) — time_util={time_util:.0%}")
+                                if time_util >= 0.70:
+                                    break
+
+        # Recalcular fitness se a rota foi modificada
+        if len(route) != len(optimization_result['route']):
+            new_fitness = evaluator.calculate_fitness(route)
+            if new_fitness >= optimization_result['fitness']:
+                optimization_result['route'] = route
+                optimization_result['fitness'] = new_fitness
+                optimization_result['pois'] = [optimizer_pois[i] for i in route]
+                if verbose:
+                    print(f"   [OK] Rota reparada: {len(route)} POIs, fitness={new_fitness:.2f}\n")
+            elif verbose:
+                print(f"   [Repair] Rota original mantida (fitness reparado={new_fitness:.2f} < {optimization_result['fitness']:.2f})\n")
 
         if verbose:
             print(f"\n   [OK] Fitness: {optimization_result['fitness']:.2f}")
@@ -786,17 +928,20 @@ class TourismRouteSystem:
             for p in optimization_result['pois']
         ]
 
-        explanation = self.llm.explain_route(
-            route=route_dicts,
-            preferences=preferences,
-            algorithm_used=selected_algo,
-            optimization_metadata=optimization_result,
-            fitness_components=fitness_components,
-            shap_values=shap_explanation.get('shap_values') if shap_explanation else None,
-            mobility_issues=mobility_issues,
-            has_children=has_children,
-            num_people=getattr(preferences, 'num_people', 1),
-        )
+        if generate_explanation:
+            explanation = self.llm.explain_route(
+                route=route_dicts,
+                preferences=preferences,
+                algorithm_used=selected_algo,
+                optimization_metadata=optimization_result,
+                fitness_components=fitness_components,
+                shap_values=shap_explanation.get('shap_values') if shap_explanation else None,
+                mobility_issues=mobility_issues,
+                has_children=has_children,
+                num_people=getattr(preferences, 'num_people', 1),
+            )
+        else:
+            explanation = ""
 
         route_pois_list = [
             {"id": p.id, "name": p.name, "category": p.category,
