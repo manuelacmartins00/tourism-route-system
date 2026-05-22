@@ -113,9 +113,30 @@ class LlamaOrchestrator:
                     raise
         raise Exception("Groq rate limit: max retries (8) excedido")
     
-    def extract_preferences(self, user_query: str) -> UserPreferences:
+    def _compact_prompt(self, user_query: str) -> str:
+        """Prompt minimalista (~400 tokens) para modo benchmark — preserva campos essenciais."""
+        tags = ", ".join(self.VALID_TAGS)
+        return f"""Extrai preferencias turisticas da query. Responde APENAS com JSON valido, SEM comentarios, SEM texto extra.
+
+QUERY: "{user_query}"
+
+TAGS VALIDAS: {tags}
+
+REGRAS:
+- max_time em minutos: 1h=60, 1dia=480, fim_semana=960, 1semana=3360
+- budget_value: numero mencionado (nunca calcular)
+- budget_type: "per_person"|"per_day"|"per_person_per_day"|"total"
+- transport_mode: "foot"|"car"|"public_transport"|"fastest" ou null
+- locations: cidades/regioes mencionadas (max 4)
+- missing_fields: campos omitidos de: location, max_time, max_cost, transport_mode
+
+FORMATO EXACTO (JSON valido, sem // comentarios, sem texto antes ou depois):
+{{"max_time":null,"budget_value":null,"budget_type":"per_person","num_people":1,"tags":[],"interests":[],"locations":[],"locations_ordered":false,"transport_mode":null,"start_time":"09:00","last_day_end_time":null,"mobility_issues":false,"missing_fields":[]}}"""
+
+    def extract_preferences(self, user_query: str, compact: bool = False) -> UserPreferences:
         """
-        Extrai preferencias com mapeamento semantico de tags
+        Extrai preferencias com mapeamento semantico de tags.
+        compact=True usa prompt minimalista (~400 tokens) para poupar quota em benchmarks.
         """
         # Pre-processar: substituir ordinais de dia-da-semana
         # Aceita: 6ª, 6ª feira, 6a feira, 6a tarde/manha/noite, 6a a tarde (informal)
@@ -230,9 +251,13 @@ class LlamaOrchestrator:
                     if nums:
                         _implicit_days = (max(nums) - min(nums)) + 1
 
-        valid_tags_str = ", ".join(self.VALID_TAGS)
-        
-        prompt = f"""Tu es um assistente de turismo inteligente. Analisa a query do utilizador e extrai preferencias.
+        # Modo compacto: usar prompt minimalista para poupar tokens em benchmarks
+        _use_compact = compact or bool(os.environ.get("COMPACT_LLM_EXTRACTION"))
+        if _use_compact:
+            prompt = self._compact_prompt(user_query)
+        else:
+          valid_tags_str = ", ".join(self.VALID_TAGS)
+          prompt = f"""Tu es um assistente de turismo inteligente. Analisa a query do utilizador e extrai preferencias.
 
 TAGS VALIDAS DO SISTEMA:
 {valid_tags_str}
@@ -396,12 +421,15 @@ Responde APENAS com o JSON, sem explicacoes."""
         try:
             content = self._call_llm(prompt, max_tokens=600, temperature=0.3)
             content = re.sub(r'```json\s*|\s*```', '', content).strip()
-            
+
             start = content.find('{')
             end = content.rfind('}') + 1
             if start != -1 and end > start:
                 content = content[start:end]
-            
+
+            # Remover comentarios // que alguns modelos adicionam (JSON invalido)
+            content = re.sub(r'//[^\n]*', '', content)
+
             data = json.loads(content)
             
             extracted_tags = data.get("tags", [])
@@ -876,6 +904,15 @@ Responde APENAS com o JSON, sem explicacoes."""
             contexto_lines.append("mobilidade reduzida — percursos acessíveis priorizados, elevação minimizada, locais com degraus evitados")
         contexto_str = ("\nCONTEXTO DO UTILIZADOR:\n- " + "\n- ".join(contexto_lines)) if contexto_lines else ""
 
+        # Cobertura de categorias na área — aviso se categorias pedidas não existem localmente
+        missing_cats = (fitness_components or {}).get('missing_preferred', [])
+        data_coverage = (fitness_components or {}).get('data_coverage_pct', 100)
+        cobertura_str = ""
+        if missing_cats:
+            cobertura_str = (f"\nCOBERTURA DE DADOS NA ÁREA: {data_coverage:.0f}%"
+                             f"\n- Categorias pedidas SEM POIs na área: {', '.join(missing_cats)}"
+                             f"\n  (limitação dos dados, não do modelo)")
+
         # Secao de componentes AHP (sempre disponivel)
         componentes_str = ""
         if fitness_components and fitness_components.get('feasible', True):
@@ -915,13 +952,14 @@ DETALHES DA ROTA:
 {contexto_str}
 {componentes_str}
 {shap_str}
+{cobertura_str}
 
 TAREFA:
 Escreve 3-4 frases explicando:
 1. Por que esta rota responde as preferencias do utilizador
 2. Se ha contexto especial (criancas, mobilidade), menciona EXPLICITAMENTE como a rota foi adaptada
 3. Destaca 1-2 POIs mais importantes (APENAS os que estao na lista acima, NUNCA inventar nomes)
-4. Menciona o criterio que mais pesou na selecao
+4. Se COBERTURA DE DADOS indicar categorias em falta, menciona brevemente que essa oferta e limitada na area
 
 REGRAS ESTRITAS:
 - NUNCA mencionar POIs que nao estejam na lista ROTA GERADA acima
