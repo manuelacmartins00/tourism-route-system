@@ -1,3 +1,13 @@
+---
+title: Tourism Route System
+emoji: 🗺️
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Tourism Route System
 
 Intelligent route recommendation system for Portugal. Takes a natural language query (PT or EN), extracts user preferences via LLM, retrieves relevant Points of Interest using RAG, optimises the route with one of four algorithms, and returns an explained itinerary with an interactive map.
