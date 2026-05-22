@@ -364,9 +364,13 @@ class RouteEvaluator:
             if not has_accommodation:
                 return False
 
-        # Limite de POIs noturnos: MAX_NOCTURNAL_PER_DAY por dia
+        # Limite de POIs noturnos: em modo pub crawl (2+ bares/noite) cada bar dura ~60 min
+        # → janela 360 min / 60 min = 6 bares/noite × n_noites disponíveis
         NOCTURNAL_CATS = {"bares_e_discotecas", "casinos"}
-        max_nocturnal = 3 * self.max_days  # 3 bares/noite × n_dias
+        NIGHT_WINDOW_MIN   = 360  # 21:00 → 03:00
+        PUB_CRAWL_DURATION = 60   # duração por paragem em modo pub crawl
+        available_nights   = max(1, self.max_days - 1)
+        max_nocturnal      = (NIGHT_WINDOW_MIN // PUB_CRAWL_DURATION) * available_nights  # 6 × noites
         n_nocturnal = sum(1 for idx in route if self.pois[idx].category in NOCTURNAL_CATS)
         if n_nocturnal > max_nocturnal:
             return False
