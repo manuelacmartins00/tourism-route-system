@@ -75,8 +75,8 @@ class DayPlanner:
         # Selecionar alojamento por dia: hotel mais proximo do centroide de cada dia
         day_hotels = self._assign_hotels(accommodation, total_days, diurnal_by_day)
 
-        # Distribuir POIs noturnos em round-robin pelos dias
-        # Se o ultimo dia tem hora de fim antes de NOCTURNAL_START, redirecionar noturnos do ultimo dia
+        # Distribuir POIs noturnos com consciência de tempo (greedy, não round-robin)
+        # Garante que nenhuma noite recebe mais bares do que cabem na janela 21:00-03:00
         nocturnal_by_day: List[List[Dict]] = [[] for _ in range(total_days)]
         last_day_blocks_night = (
             last_day_end_time is not None and
@@ -84,11 +84,19 @@ class DayPlanner:
             self._parse_time(last_day_end_time) <= self._parse_time(self.NOCTURNAL_START)
         )
         available_night_days = total_days - 1 if last_day_blocks_night and total_days > 1 else total_days
-        for i, poi in enumerate(nocturnal):
-            if available_night_days > 0:
-                nocturnal_by_day[i % available_night_days].append(poi)
-            else:
-                nocturnal_by_day[0].append(poi)
+        NIGHT_WINDOW = self._parse_time("24:00") + self._parse_time(self.NOCTURNAL_END) - self._parse_time(self.NOCTURNAL_START)
+        night_time_used = [0] * total_days
+        for poi in nocturnal:
+            # Encontrar a primeira noite disponível onde o bar cabe
+            assigned = False
+            for night_idx in range(min(available_night_days, total_days)):
+                if (len(nocturnal_by_day[night_idx]) < self.MAX_NOCTURNAL_PER_DAY and
+                        night_time_used[night_idx] + poi['duration'] <= NIGHT_WINDOW):
+                    nocturnal_by_day[night_idx].append(poi)
+                    night_time_used[night_idx] += poi['duration']
+                    assigned = True
+                    break
+            # Se nenhuma noite tem espaço, o POI não é agendado (já foi removido de result.route)
 
         days = []
         is_last_day_departure = bool(last_day_end_time)
@@ -266,17 +274,24 @@ class DayPlanner:
 
         current = self._parse_time(self.NOCTURNAL_START)
         nocturnal_end_min = 24 * 60 + self._parse_time(self.NOCTURNAL_END)  # 03:00 do dia seguinte
+        # Pub crawl: se há 2+ bares na noite, cada paragem dura 60 min (hop entre sítios)
+        # Se só há 1 bar, mantém a duração real (noite num só sítio)
+        PUB_CRAWL_MIN = 60
+        is_pub_crawl = len(nocturnal) > 1
         nocturnal_count = 0
         for poi in nocturnal:
             if nocturnal_count >= self.MAX_NOCTURNAL_PER_DAY:
                 break
-            if current + poi['duration'] > nocturnal_end_min:
+            sched_duration = PUB_CRAWL_MIN if is_pub_crawl else poi['duration']
+            if current + sched_duration > nocturnal_end_min:
                 break
             arr = self._fmt(current)
-            dep = self._fmt(current + poi['duration'])
-            schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
+            dep = self._fmt(current + sched_duration)
+            # Guardar duração real no campo duration mas usar sched_duration para os tempos
+            schedule.append({**poi, "arrival_time": arr, "departure_time": dep,
+                              "order": order, "duration": sched_duration})
             order += 1
-            current += poi['duration']
+            current += sched_duration
             nocturnal_count += 1
 
         # Hotel: colocar no fim do dia (apos vida noturna)

@@ -1028,6 +1028,28 @@ class TourismRouteSystem:
 
             result['day_plan'] = day_plan
 
+            # Sincronizar result['route'] com o day_plan: remover POIs que o day_planner
+            # não conseguiu agendar (ex: bares fora da janela 21:00-03:00).
+            # Garante que route, day_plan e budget são sempre consistentes.
+            if day_plan and day_plan.get('days'):
+                scheduled_ids = {
+                    p['id']
+                    for day in day_plan['days']
+                    for p in day['pois']
+                }
+                removed = [p for p in result['route'] if p['id'] not in scheduled_ids]
+                if removed:
+                    result['route'] = [p for p in result['route'] if p['id'] in scheduled_ids]
+                    # Recalcular custo por pessoa com a rota filtrada
+                    result['cost_per_person'] = round(sum(
+                        p['cost'] / evaluator.people_per_room
+                        if p['category'] in ACCOMMODATION_BUNDLES else p['cost']
+                        for p in result['route']
+                    ), 2)
+                    if verbose:
+                        names = [p['name'] for p in removed]
+                        print(f"   [Sync] {len(removed)} POI(s) removido(s) (não agendados): {names}\n")
+
             if verbose:
                 planner.print_itinerary(day_plan)
 
