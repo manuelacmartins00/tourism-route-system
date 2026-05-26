@@ -400,7 +400,7 @@ class TourismRouteSystem:
 
         rag_results = self.rag.query(
             text=rag_query,
-            n_results=60,
+            n_results=40,
             category_filter=preferences.preferred_categories,
             category_exclude=EXCLUDED_CATEGORIES,
             max_cost=preferences.max_cost,
@@ -410,6 +410,30 @@ class TourismRouteSystem:
             lon_max=lon_max
         )
         candidate_pois = rag_results['pois']
+
+        # Query semantica suplementar sem filtro de categoria — traz POIs contextualmente
+        # relevantes de outras categorias (turismo_activo, parques, etc.) que o filtro
+        # estrito excluiria, evitando rotas compostas por uma unica categoria
+        rag_supplement = self.rag.query(
+            text=rag_query,
+            n_results=20,
+            category_filter=None,
+            category_exclude=EXCLUDED_CATEGORIES,
+            max_cost=preferences.max_cost,
+            lat_min=lat_min,
+            lat_max=lat_max,
+            lon_min=lon_min,
+            lon_max=lon_max
+        )
+        existing_ids = {p['id'] for p in candidate_pois}
+        supp_added = 0
+        for p in rag_supplement['pois']:
+            if p['id'] not in existing_ids:
+                candidate_pois.append(p)
+                existing_ids.add(p['id'])
+                supp_added += 1
+        if verbose and supp_added:
+            print(f"   Query semantica suplementar: +{supp_added} POIs de categorias variadas\n")
 
         # Garantir representacao minima de cada categoria pedida
         if preferences.preferred_categories and len(preferences.preferred_categories) > 1:
