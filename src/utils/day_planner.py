@@ -123,8 +123,9 @@ class DayPlanner:
                         diurnal_by_day: List[List[Dict]] = None) -> List[Dict]:
         """
         Atribui 1 hotel por dia. Escolhe o hotel mais proximo do centroide
-        dos POIs de cada dia. Para rotas A->B, os primeiros dias ficam com
-        hoteis perto de A e os ultimos perto de B.
+        dos POIs de cada dia. Nunca volta a um hotel já abandonado (anti A-B-A):
+        uma vez que se muda de hotel X para Y, X fica na lista de "abandonados"
+        e não é reconsiderado (excepto como fallback absoluto se não houver outro).
         """
         if not accommodation:
             return [None] * n_days
@@ -132,6 +133,8 @@ class DayPlanner:
             return [accommodation[0]] * n_days
 
         result = []
+        abandoned: set = set()  # nomes de hoteis já deixados para trás
+
         for day_idx in range(n_days):
             day_pois = (diurnal_by_day[day_idx]
                         if diurnal_by_day and day_idx < len(diurnal_by_day)
@@ -140,16 +143,26 @@ class DayPlanner:
             if day_pois:
                 clat = sum(p["lat"] for p in day_pois) / len(day_pois)
                 clon = sum(p["lon"] for p in day_pois) / len(day_pois)
-                best = min(accommodation,
-                           key=lambda h: self._haversine(clat, clon, h["lat"], h["lon"]))
+                by_dist = sorted(accommodation,
+                                 key=lambda h: self._haversine(clat, clon, h["lat"], h["lon"]))
             else:
-                best = max(accommodation, key=lambda h: h.get("score", 0.5))
+                by_dist = sorted(accommodation, key=lambda h: -h.get("score", 0.5))
 
-            # Manter o mesmo hotel se a zona do dia anterior for proxima (< 30km)
-            if result and self._haversine(
-                result[-1]["lat"], result[-1]["lon"], best["lat"], best["lon"]
-            ) < 30.0:
-                best = result[-1]
+            # Melhor = mais próximo não-abandonado; fallback ao mais próximo absoluto
+            best = next((h for h in by_dist if h["name"] not in abandoned), by_dist[0])
+
+            # "Ficar na mesma zona": se ontem's hotel está perto do melhor de hoje,
+            # manter ontem's (evita mudanças desnecessárias em zonas próximas)
+            if result and result[-1] is not None:
+                prev = result[-1]
+                if (prev["name"] not in abandoned and
+                        self._haversine(prev["lat"], prev["lon"],
+                                        best["lat"], best["lon"]) < 30.0):
+                    best = prev
+
+            # Se estamos a mudar de hotel, abandonar o de ontem
+            if result and result[-1] is not None and result[-1]["name"] != best["name"]:
+                abandoned.add(result[-1]["name"])
 
             result.append(best)
         return result
@@ -168,9 +181,13 @@ class DayPlanner:
             by_day: List[List[Dict]] = [[] for _ in range(n_days)]
             for i, poi in enumerate(diurnal):
                 by_day[labels[i]].append(poi)
-            # Reequilibrar categorias antes de ordenar geograficamente
+            # 1. Reequilibrar categorias (máx. 2 POIs da mesma cat por dia)
             by_day = self._rebalance_category_diversity(by_day, max_same_cat=2)
-            # Ordem nearest-neighbour dentro de cada dia
+            # 2. Balancear tempo entre dias (evitar dias quase vazios)
+            by_day = self._balance_time(by_day)
+            # 3. Hard cap: >2 restaurantes/dia é mau UX — remover excedentes
+            by_day = self._enforce_category_caps(by_day, {"restaurantes_e_cafes": 2})
+            # 4. Ordem nearest-neighbour dentro de cada dia
             if self.start_lat:
                 by_day = [self._nearest_neighbor_order(d, self.start_lat, self.start_lon)
                           if len(d) > 1 else d for d in by_day]
@@ -216,7 +233,7 @@ class DayPlanner:
                             if dst_cat_count < best_count and dst_time + poi['duration'] <= self.minutes_per_day:
                                 best_count = dst_cat_count
                                 best_dst = dst
-                        if best_dst is not None and best_count < len(pois_in_cat) - max_same_cat:
+                        if best_dst is not None and best_count < max_same_cat:
                             by_day[src].remove(poi)
                             by_day[best_dst].append(poi)
                             moved = True
@@ -226,6 +243,75 @@ class DayPlanner:
             if not moved:
                 break
 
+        return by_day
+
+    def _balance_time(self, by_day: List[List[Dict]]) -> List[List[Dict]]:
+        """
+        Move POIs de dias sobrecarregados para dias subaproveitados.
+        Garante que nenhum dia tem menos de 50% do tempo alvo (se houver POIs para redistribuir).
+        Apenas move POIs entre dias — não cria nem remove nenhum.
+        """
+        n_days = len(by_day)
+        if n_days <= 1:
+            return by_day
+        target = self.minutes_per_day
+        threshold = target * 0.50
+
+        changed = True
+        max_iters = n_days * 4
+        iters = 0
+        while changed and iters < max_iters:
+            changed = False
+            iters += 1
+            for dst in range(n_days):
+                dst_time = sum(p['duration'] for p in by_day[dst])
+                if dst_time >= threshold:
+                    continue
+                # Dia dst está subaproveitado — tentar receber do dia mais cheio
+                src_order = sorted(
+                    (i for i in range(n_days) if i != dst),
+                    key=lambda i: sum(p['duration'] for p in by_day[i]),
+                    reverse=True
+                )
+                for src in src_order:
+                    src_time = sum(p['duration'] for p in by_day[src])
+                    if src_time <= threshold:
+                        continue  # fonte também fraca, não roubar
+                    if not by_day[src]:
+                        continue
+                    # POI do src mais próximo do centroide do dst
+                    if by_day[dst]:
+                        clat = sum(p['lat'] for p in by_day[dst]) / len(by_day[dst])
+                        clon = sum(p['lon'] for p in by_day[dst]) / len(by_day[dst])
+                        candidate = min(by_day[src],
+                                        key=lambda p: self._haversine(clat, clon, p['lat'], p['lon']))
+                    else:
+                        candidate = by_day[src][-1]
+                    by_day[src].remove(candidate)
+                    by_day[dst].append(candidate)
+                    changed = True
+                    break
+        return by_day
+
+    def _enforce_category_caps(self, by_day: List[List[Dict]],
+                                caps: dict) -> List[List[Dict]]:
+        """
+        Hard cap por categoria por dia: remove os excedentes com menor score.
+        Usado como última salvaguarda quando _rebalance não conseguiu redistribuir tudo.
+        Os POIs removidos não aparecem no itinerário (são sincronizados fora pelo main_system).
+        """
+        from collections import defaultdict
+        for day in by_day:
+            cat_groups: dict = defaultdict(list)
+            for poi in day:
+                cat_groups[poi['category']].append(poi)
+            for cat, pois in cat_groups.items():
+                cap = caps.get(cat)
+                if cap is not None and len(pois) > cap:
+                    keep = sorted(pois, key=lambda p: -p.get('score', 0))[:cap]
+                    for poi in pois:
+                        if poi not in keep:
+                            day.remove(poi)
         return by_day
 
     def _nearest_neighbor_order(self, pois: List[Dict], start_lat: float, start_lon: float) -> List[Dict]:
