@@ -129,6 +129,9 @@ async def query_route(req: QueryRequest, request: Request):
 
     result = None
     effective_query = req.query  # pode ser substituida por query composta abaixo
+    # Carregar histórico da sessão (deduplicado)
+    _prev_session = sessions.get(session_id, {})
+    update_history: list = list(_prev_session.get("update_history", []))
 
     if is_refinement:
         last_result = sessions[session_id]["last_result"]
@@ -136,11 +139,22 @@ async def query_route(req: QueryRequest, request: Request):
             operation = system.llm.interpret_refinement(req.query, last_result.get("route", []))
             print(f"   Operacao de refinamento: {operation}")
             if operation.get("type") == "fresh_query":
-                # Manter contexto da sessao: juntar query original com a nova instrucao
-                base_query = sessions[session_id].get("original_query", "")
-                if base_query and base_query.strip() != req.query.strip():
-                    effective_query = f"{base_query}. Actualizacao: {req.query}"
-                    print(f"   Contexto preservado - query combinada")
+                # Usar SEMPRE a primeira query da sessão como base (nunca a acumulada).
+                # Cada actualização é guardada numa lista deduplicada para evitar
+                # o crescimento exponencial "original. Actualizacao: original. Actualizacao: ..."
+                base_query = sessions[session_id].get("first_query",
+                             sessions[session_id].get("original_query", ""))
+                new_update = req.query.strip()
+                _norm_q = lambda s: s.lower().strip(". ")
+                # Só adicionar se não for duplicado da base nem de update anterior
+                if (_norm_q(new_update) != _norm_q(base_query) and
+                        not any(_norm_q(new_update) == _norm_q(u) for u in update_history)):
+                    update_history = update_history + [new_update]
+                effective_query = (
+                    base_query + ". Actualizacao: " + ". Actualizacao: ".join(update_history)
+                    if update_history else base_query
+                )
+                print(f"   Contexto preservado - query combinada")
                 is_refinement = False
             else:
                 result = apply_refinement(operation, last_result)
@@ -209,7 +223,14 @@ async def query_route(req: QueryRequest, request: Request):
     # Guardar sessao para possiveis refinamentos futuros
     if not session_id:
         session_id = str(uuid.uuid4())[:8]
-    sessions[session_id] = {"last_result": dict(result), "original_query": effective_query}
+    sessions[session_id] = {
+        "last_result": dict(result),
+        "original_query": effective_query,
+        # first_query: a query original da sessão — nunca actualizada com refinamentos
+        "first_query": _prev_session.get("first_query", effective_query),
+        # update_history: lista deduplicada de actualizações (só fresh_query)
+        "update_history": update_history,
+    }
     result["session_id"] = session_id
 
     return JSONResponse(content=result)
