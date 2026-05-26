@@ -87,10 +87,15 @@ class LlamaOrchestrator:
         self.model = "llama-3.1-8b-instant" 
     
     def _call_llm(self, prompt: str, max_tokens: int = 600, temperature: float = 0.3) -> str:
-        """Chama o modelo via Groq API com retry automático em caso de rate limit (429)."""
+        """Chama o modelo via Groq API.
+        Em modo API/web (BENCHMARK_MODE não definido): sem retry — falha rápida em 429.
+        Em modo benchmark (BENCHMARK_MODE=1): retry com backoff até 8 tentativas.
+        """
         import time as _time
         import re as _re
-        for attempt in range(8):
+        benchmark_mode = bool(os.environ.get("BENCHMARK_MODE"))
+        max_attempts = 8 if benchmark_mode else 1
+        for attempt in range(max_attempts):
             try:
                 response = self.client.chat.completions.create(
                     messages=[{"role": "user", "content": prompt}],
@@ -101,7 +106,7 @@ class LlamaOrchestrator:
                 return response.choices[0].message.content
             except Exception as e:
                 err = str(e)
-                if "429" in err or "rate_limit" in err.lower():
+                if ("429" in err or "rate_limit" in err.lower()) and benchmark_mode:
                     # Ler o tempo de espera indicado pelo Groq (ex: "try again in 8m40.99s")
                     m = _re.search(r'try again in (?:(\d+)m)?([\d.]+)s', err)
                     if m:
