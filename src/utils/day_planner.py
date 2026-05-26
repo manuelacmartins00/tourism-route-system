@@ -257,7 +257,11 @@ class DayPlanner:
         if n_days <= 2:
             return by_day
         target = self.minutes_per_day
-        threshold = target * 0.60
+        # Dois critérios de redistribuição:
+        # 1) dst < 80% E src > 100%: redistribuir de dias sobrecarregados para sub-ocupados
+        # 2) dst < 60% E src > 60%: comportamento original para dias muito vazios
+        DST_HIGH = target * 0.80
+        DST_LOW  = target * 0.60
 
         changed = True
         max_iters = n_days * 4
@@ -267,9 +271,9 @@ class DayPlanner:
             iters += 1
             for dst in range(2, n_days):  # dias 1 e 2 protegidos
                 dst_time = sum(p['duration'] for p in by_day[dst])
-                if dst_time >= threshold:
+                if dst_time >= DST_HIGH:
                     continue
-                # Dia dst está subaproveitado — tentar receber do dia mais cheio
+                # Aceita doações de: dias >100% (sempre) ou dias >60% se dst<60%
                 src_order = sorted(
                     (i for i in range(n_days) if i != dst),
                     key=lambda i: sum(p['duration'] for p in by_day[i]),
@@ -277,8 +281,11 @@ class DayPlanner:
                 )
                 for src in src_order:
                     src_time = sum(p['duration'] for p in by_day[src])
-                    if src_time <= threshold:
-                        continue  # fonte também fraca, não roubar
+                    src_overloaded = src_time > target          # >100%
+                    src_above_low  = src_time > DST_LOW         # >60%
+                    dst_very_empty = dst_time < DST_LOW         # <60%
+                    if not (src_overloaded or (src_above_low and dst_very_empty)):
+                        continue  # não roubar de dias sem excesso
                     if not by_day[src]:
                         continue
                     # POI do src mais próximo do centroide do dst
