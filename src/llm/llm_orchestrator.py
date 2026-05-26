@@ -38,7 +38,7 @@ class LlamaOrchestrator:
     VALID_TAGS = [
         # Bundles principais
         "restaurantes_e_cafes", "monumentos", "turismo_activo",
-        "praias", "bares_e_discotecas", "museus_e_palacios",
+        "praias", "praia", "bares_e_discotecas", "museus_e_palacios",
         "eventos", "campos", "arqueologia", "espacos_verdes",
         "marinas_e_portos", "termas", "parques_e_reservas",
         "parques_de_diversao", "zoos_e_aquarios", "ciencia_e_conhecimento",
@@ -54,6 +54,7 @@ class LlamaOrchestrator:
         "monumentos": "monumentos",
         "turismo_activo": "turismo_activo",
         "praias": "praias",
+        "praia": "praias",
         "bares_e_discotecas": "bares_e_discotecas",
         "museus_e_palacios": "museus_e_palacios",
         "eventos": "eventos",
