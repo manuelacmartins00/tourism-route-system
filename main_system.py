@@ -278,12 +278,17 @@ class TourismRouteSystem:
 
         # -- Resolucao geografica --------------------------------------
         geo = None
+        # Raio máximo proporcional ao nº de dias: 1d→30km, 7d→60km, 14d→95km, 21d→130km
+        _total_days = max(1, (preferences.max_time or 480) // 480)
+        _max_radius = 25 + _total_days * 5
         if preferences.location:
             geo = self.location_resolver.resolve(preferences.location)
-            if geo and verbose:
-                lat_c, lon_c, radius_c = geo
-                print(f"   '{preferences.location}' -> "
-                      f"({lat_c:.4f}, {lon_c:.4f}), raio {radius_c:.0f}km\n")
+            if geo:
+                if geo[2] > _max_radius:
+                    geo = (geo[0], geo[1], _max_radius)
+                if verbose:
+                    print(f"   '{preferences.location}' -> "
+                          f"({geo[0]:.4f}, {geo[1]:.4f}), raio {geo[2]:.0f}km\n")
         
         # -- Resolucao do ponto de partida ---
         start_geo = None
@@ -318,6 +323,8 @@ class TourismRouteSystem:
         for loc_name in _locations_list:
             g = self.location_resolver.resolve(loc_name)
             if g:
+                if g[2] > _max_radius:
+                    g = (g[0], g[1], _max_radius)
                 all_geos.append(g)
                 all_loc_names.append(loc_name)
 
@@ -866,6 +873,80 @@ class TourismRouteSystem:
                                 time_util = time_used / max_time_val
                                 if verbose:
                                     print(f"   [Fill2]  +{poi.name} ({poi.category}) gratis (2a query) — time_util={time_util:.0%}")
+                                if time_util >= 0.70:
+                                    break
+
+        # 3) Fill3: re-query RAG para categorias preferidas ainda ausentes na rota
+        if time_util < 0.70 and preferences.preferred_categories:
+            route_cats_now = {optimizer_pois[i].category for i in route}
+            missing_cats = [c for c in preferences.preferred_categories if c not in route_cats_now]
+            if missing_cats:
+                if verbose:
+                    print(f"   [Fill3]  time_util={time_util:.0%} — re-query RAG cats ausentes: {missing_cats}\n")
+                extra_cat_result = self.rag.query(
+                    text=rag_query,
+                    n_results=len(missing_cats) * 5,
+                    category_filter=missing_cats,
+                    category_exclude=EXCLUDED_CATEGORIES,
+                    max_cost=preferences.max_cost,
+                    lat_min=lat_min, lat_max=lat_max,
+                    lon_min=lon_min, lon_max=lon_max,
+                )
+                existing_ids = {optimizer_pois[i].id for i in range(len(optimizer_pois))}
+                new_cat_pois = []
+                for p in extra_cat_result['pois']:
+                    if p['id'] not in existing_ids:
+                        cat = p.get('category', '')
+                        if cat in DURATION_RANGES:
+                            d_min, d_max = DURATION_RANGES[cat]
+                            p['duration'] = max(d_min, min(d_max, p['duration']))
+                        new_cat_pois.append(p)
+                        existing_ids.add(p['id'])
+
+                if new_cat_pois:
+                    if verbose:
+                        print(f"   [Fill3]  {len(new_cat_pois)} POIs de cats ausentes encontrados\n")
+                    from src.utils.distance_calculator import haversine as _hav_fill3
+                    n_old = len(optimizer_pois)
+                    for p in new_cat_pois:
+                        poi_obj = POI(
+                            id=int(p['id']), name=p['name'],
+                            lat=p['lat'], lon=p['lon'],
+                            category=p['category'], score=p['score'],
+                            duration=p['duration'],
+                            opening_time=p['opening_time'],
+                            closing_time=p['closing_time'],
+                            cost=float(p.get('cost', 0)),
+                        )
+                        optimizer_pois.append(poi_obj)
+                    n_new = len(optimizer_pois)
+                    new_matrix = np.zeros((n_new, n_new))
+                    new_matrix[:n_old, :n_old] = sub_distance_matrix
+                    for i in range(n_old, n_new):
+                        for j in range(n_new):
+                            if i != j:
+                                d = _hav_fill3(optimizer_pois[i].lat, optimizer_pois[i].lon,
+                                               optimizer_pois[j].lat, optimizer_pois[j].lon)
+                                t = _travel_time(d, preferences.transport_mode)
+                                new_matrix[i][j] = t
+                                new_matrix[j][i] = t
+                    sub_distance_matrix = new_matrix
+                    evaluator.distances = new_matrix
+                    evaluator.pois = optimizer_pois
+                    evaluator._n_available_preferred_pois = sum(
+                        1 for p in optimizer_pois if p.category in evaluator._preferred_cat_set
+                    )
+                    for idx in range(n_old, len(optimizer_pois)):
+                        poi = optimizer_pois[idx]
+                        if idx not in route_ids:
+                            trial = route + [idx]
+                            if evaluator._is_feasible(trial):
+                                route.append(idx)
+                                route_ids.add(idx)
+                                time_used = evaluator._calculate_time(route)
+                                time_util = time_used / max_time_val
+                                if verbose:
+                                    print(f"   [Fill3]  +{poi.name} ({poi.category}) — time_util={time_util:.0%}")
                                 if time_util >= 0.70:
                                     break
 
