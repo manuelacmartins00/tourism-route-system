@@ -65,22 +65,39 @@ def load_prompts(txt_path: str):
 
 
 def load_done(output_dir: Path) -> set:
+    """Lê prompts já processadas do results.json (se existir)."""
     done = set()
-    for p in output_dir.glob("P*/result.json"):
-        done.add(p.parent.name[1:].lstrip("0") or "0")
+    results_path = output_dir / "results.json"
+    if results_path.exists():
+        try:
+            with open(results_path, encoding="utf-8") as f:
+                data = json.load(f)
+            for entry in data:
+                pid = str(entry.get("prompt_id", "")).lstrip("0") or "0"
+                done.add(pid)
+        except Exception:
+            pass
     return done
 
 
-def save_result(result: dict, output_dir: Path, prompt_id: str):
-    result_dir = output_dir / f"P{prompt_id.zfill(4)}"
-    result_dir.mkdir(parents=True, exist_ok=True)
+def save_result(result: dict, results_path: Path, prompt_id: str, perfil: str):
+    """Acrescenta resultado ao results.json único (lê, adiciona, reescreve)."""
     result_to_save = json.loads(json.dumps(result, default=str))
-    # Apenas remover ficheiro de mapa (não existe em benchmark) e fitness_history (redundante)
     result_to_save.get("optimization", {}).pop("fitness_history", None)
     result_to_save.pop("map_file", None)
-    # day_plan, shap_explanation e explanation são guardados integralmente
-    with open(result_dir / "result.json", "w", encoding="utf-8") as f:
-        json.dump(result_to_save, f, indent=2, ensure_ascii=False)
+    result_to_save["prompt_id"] = prompt_id
+    result_to_save["perfil"] = perfil
+
+    existing = []
+    if results_path.exists():
+        try:
+            with open(results_path, encoding="utf-8") as f:
+                existing = json.load(f)
+        except Exception:
+            existing = []
+    existing.append(result_to_save)
+    with open(results_path, "w", encoding="utf-8") as f:
+        json.dump(existing, f, indent=2, ensure_ascii=False)
 
 
 def save_summary_line(summary_path: Path, entry: dict):
@@ -268,7 +285,8 @@ def main():
         benchmark_id = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_dir   = Path(f"outputs/benchmark_{benchmark_id}")
         output_dir.mkdir(parents=True, exist_ok=True)
-    summary_path = output_dir / "summary.txt"
+    summary_path  = output_dir / "summary.txt"
+    results_path  = output_dir / "results.json"
 
     # Log file para monitorizar progresso em background
     log_path = output_dir / "progress.log"
@@ -352,7 +370,7 @@ def main():
             result  = _result_holder[0]
             elapsed = round(time.time() - t_start, 1)
 
-            save_result(result, output_dir, pid)
+            save_result(result, results_path, pid, perfil)
 
             fitness_components = {}
             if result.get("status") == "needs_clarification":
@@ -435,6 +453,7 @@ def main():
     with open(metrics_path, "w", encoding="utf-8") as f:
         json.dump(final_metrics, f, indent=2, ensure_ascii=False)
     log(f"Metricas JSON: {metrics_path}")
+    log(f"Resultados  : {results_path}")
     _log_f.close()
 
 
