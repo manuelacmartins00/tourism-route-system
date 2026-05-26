@@ -256,7 +256,8 @@ class DayPlanner:
         n_days = len(by_day)
         if n_days <= 2:
             return by_day
-        target = self.minutes_per_day
+        # 360min = 6h de POIs/dia (480min - 60min refeições - 60min buffer trânsito)
+        target = min(self.minutes_per_day, 360)
         # Dois critérios de redistribuição:
         # 1) dst < 80% E src > 100%: redistribuir de dias sobrecarregados para sub-ocupados
         # 2) dst < 60% E src > 60%: comportamento original para dias muito vazios
