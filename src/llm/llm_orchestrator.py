@@ -2,6 +2,7 @@
 
 from groq import Groq
 import json
+import os
 import re
 from typing import List, Dict
 from dataclasses import dataclass
@@ -538,7 +539,8 @@ Responde APENAS com o JSON, sem explicacoes."""
             if budget_value is not None:
                 if extracted_cost > 1000:
                     print(f"   AVISO: Orcamento por pessoa calculado parece alto: EUR{extracted_cost:.0f}")
-                print(f"   Budget: EUR{budget_value} ({budget_type}) x {num_days}d / {num_people}p -> EUR{extracted_cost:.2f}/pessoa")
+                # Print do budget diferido para após a correcção do tempo pelo regex
+                # (num_days aqui ainda usa o valor bruto do LLM, possivelmente errado)
 
             # Extrair localidades (lista ordenada de 1 a 4)
             raw_locations = data.get("locations", None)
@@ -709,6 +711,19 @@ Responde APENAS com o JSON, sem explicacoes."""
             if data.get("budget_type"):
                 missing_fields = [f for f in missing_fields if f != "budget_type"]
 
+            # Se localização é todo o país (raio > 200 km) e não há rota multi-cidade,
+            # pedir zona mais específica — "Portugal" leva a rotas de 1500+ km sem sentido.
+            _OVERLY_GENERIC = {"portugal", "portugal continental", "continente"}
+            if (extracted_location and
+                    _norm(extracted_location) in _OVERLY_GENERIC and
+                    len(extracted_locations) <= 1):
+                print(f"   [INFO] Localização '{extracted_location}' demasiado genérica - a pedir região específica")
+                extracted_location = None
+                extracted_locations = []
+                end_location = None
+                if "location" not in missing_fields:
+                    missing_fields.append("location")
+
             # Forcar budget_type em missing_fields se montante dado sem tipo explicito
             # Verificar se o utilizador mencionou explicitamente um valor de orcamento
             import re as _bre
@@ -830,6 +845,11 @@ Responde APENAS com o JSON, sem explicacoes."""
             # end_location: default para location se nao detectado (rota de ponto unico)
             if not end_location and extracted_location:
                 end_location = extracted_location
+
+            # Print do budget com num_days final (após todas as correcções de tempo)
+            if budget_value is not None:
+                _final_days = max(1, _math.ceil(extracted_time / 480)) if extracted_time else num_days
+                print(f"   Budget: EUR{budget_value} ({budget_type}) x {_final_days}d / {num_people}p -> EUR{extracted_cost:.2f}/pessoa")
 
             return UserPreferences(
                 max_time=extracted_time,

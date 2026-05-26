@@ -136,11 +136,22 @@ class RouteMapGenerator:
             'localidade': 'lightgray',
         }
         
-        # Extrair coordenadas dos POIs
+        # Extrair coordenadas dos POIs (para marcadores)
         poi_coordinates = [[poi['lat'], poi['lon']] for poi in route]
-        
+
+        # Para a rota OSRM usar a ordem do day_plan (visita dia-a-dia).
+        # O otimizador ordena por fitness global; o day_plan agrupa geograficamente
+        # por dia com nearest-neighbour — seguir esta ordem elimina rotas A-B-A e
+        # distâncias OSRM absurdas.
+        if day_plan and day_plan.get("days"):
+            _ordered_pois = [p for day in day_plan["days"] for p in day["pois"]]
+            _route_coords = [[p['lat'], p['lon']] for p in _ordered_pois]
+        else:
+            _ordered_pois = list(route)
+            _route_coords = poi_coordinates
+
         # [OK] OBTER ROTA REAL VIA OSRM
-        osrm_route = self.get_real_route(poi_coordinates, profile=osrm_profile)
+        osrm_route = self.get_real_route(_route_coords, profile=osrm_profile)
         
         if osrm_route and 'geometry' in osrm_route:
             folium.PolyLine(
@@ -169,9 +180,9 @@ class RouteMapGenerator:
         # Paragens GTFS para transportes públicos
         if transport_mode == "public_transport" and transit_service is not None:
             n_transit = 0
-            for idx in range(len(route) - 1):
-                a = route[idx]
-                b = route[idx + 1]
+            for idx in range(len(_ordered_pois) - 1):
+                a = _ordered_pois[idx]
+                b = _ordered_pois[idx + 1]
                 geom = self._transit_geometry_safe(
                     transit_service,
                     (a['lat'], a['lon']),
@@ -264,8 +275,8 @@ class RouteMapGenerator:
         # [OK] AJUSTAR ZOOM para mostrar toda a rota
         if osrm_route and 'geometry' in osrm_route:
             m.fit_bounds(osrm_route['geometry'])
-        elif len(poi_coordinates) > 1:
-            m.fit_bounds(poi_coordinates)
+        elif len(_route_coords) > 1:
+            m.fit_bounds(_route_coords)
         
         # [OK] ADICIONAR LEGENDA
         legend_html = f'''
