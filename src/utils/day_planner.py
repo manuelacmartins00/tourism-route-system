@@ -248,14 +248,16 @@ class DayPlanner:
     def _balance_time(self, by_day: List[List[Dict]]) -> List[List[Dict]]:
         """
         Move POIs de dias sobrecarregados para dias subaproveitados.
-        Garante que nenhum dia tem menos de 50% do tempo alvo (se houver POIs para redistribuir).
+        Garante que nenhum dia tem menos de 60% do tempo alvo (se houver POIs para redistribuir).
         Apenas move POIs entre dias — não cria nem remove nenhum.
+        Dias 0 e 1 (dias 1 e 2 do calendário) nunca recebem POIs: o dia 1 é gerido
+        por _day1_max_diurnal em plan_days, e ambos podem ter restrições de chegada.
         """
         n_days = len(by_day)
-        if n_days <= 1:
+        if n_days <= 2:
             return by_day
         target = self.minutes_per_day
-        threshold = target * 0.50
+        threshold = target * 0.60
 
         changed = True
         max_iters = n_days * 4
@@ -263,7 +265,7 @@ class DayPlanner:
         while changed and iters < max_iters:
             changed = False
             iters += 1
-            for dst in range(n_days):
+            for dst in range(2, n_days):  # dias 1 e 2 protegidos
                 dst_time = sum(p['duration'] for p in by_day[dst])
                 if dst_time >= threshold:
                     continue
