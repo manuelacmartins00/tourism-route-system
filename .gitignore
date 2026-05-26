@@ -41,6 +41,9 @@ data/chroma_db2/
 # Outputs locais
 outputs/
 
+# Ficheiros de teste/benchmark locais (não devem ir para o Space)
+evals/prompts_quick35.txt
+
 # VS Code
 .vscode/
 
