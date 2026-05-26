@@ -385,9 +385,9 @@ class DayPlanner:
                 d_km = self._haversine(self.start_lat, self.start_lon, poi['lat'], poi['lon'])
                 current += self._travel_minutes(d_km)
 
-            # Pausa de almoço: 30min se cruzar as 13:00 e sem restaurante no dia
+            # Pausa de almoço: 60min se cruzar as 13:00 e sem restaurante no dia
             if not has_restaurant and not _lunch_done and current >= 13 * 60:
-                current += 30
+                current += 60
                 _lunch_done = True
 
             arr = self._fmt(current)
@@ -396,9 +396,9 @@ class DayPlanner:
             order += 1
             current += poi['duration']
 
-            # Pausa de jantar: 30min se cruzar as 19:30 e sem restaurante no dia
+            # Pausa de jantar: 60min se cruzar as 19:30 e sem restaurante no dia
             if not has_restaurant and not _dinner_done and current >= 19 * 60 + 30:
-                current += 30
+                current += 60
                 _dinner_done = True
 
         # Noite: se houver POIs noturnos, começa às 21:00 e acaba às 03:00
