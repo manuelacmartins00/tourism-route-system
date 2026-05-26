@@ -19,13 +19,31 @@ class DayPlanner:
                           "parques_e_reservas", "arqueologia", "grutas",
                           "turismo_activo", "praias", "zoos_e_aquarios"}
 
-    def __init__(self, hours_per_day: int = 8, start_time: str = "09:00", lunch_break: int = 60):
+    # Tabela de tempos de viagem por modo (min) — espelho da tabela em main_system.py
+    _TRAVEL_TABLE = {
+        "foot":             [(1, 12), (2, 25), (5, 60), (float('inf'), 999)],
+        "car":              [(2, 4),  (5, 8),  (15, 15), (50, 38), (float('inf'), 75)],
+        "public_transport": [(1, 10), (2, 17), (5, 30), (15, 47), (50, 94), (float('inf'), 153)],
+        "bike":             [(2, 8),  (5, 18), (15, 50), (float('inf'), 120)],
+        "fastest":          [(2, 4),  (5, 8),  (15, 15), (50, 38), (float('inf'), 75)],
+    }
+
+    def __init__(self, hours_per_day: int = 8, start_time: str = "09:00",
+                 lunch_break: int = 60, transport_mode: str = "car"):
         self.start_lat = None
         self.start_lon = None
         self.hours_per_day = hours_per_day
         self.minutes_per_day = hours_per_day * 60
         self.start_time = start_time
         self.lunch_break = lunch_break
+        self.transport_mode = transport_mode
+
+    def _travel_minutes(self, d_km: float) -> int:
+        table = self._TRAVEL_TABLE.get(self.transport_mode, self._TRAVEL_TABLE["car"])
+        for max_km, t_min in table:
+            if d_km <= max_km:
+                return int(t_min)
+        return 75
 
     # -- Public API ----------------------------------------------------------
 
@@ -349,18 +367,39 @@ class DayPlanner:
         schedule = []
         order = 1
 
+        # Se não há restaurante no dia, inserir pausas de refeição (30min almoço + 30min jantar)
+        has_restaurant = any(p.get('category') == 'restaurantes_e_cafes' for p in diurnal)
+
         # Manha/tarde - comeca em day_start_time (ou start_time por defeito)
         current = self._parse_time(day_start_time if day_start_time else self.start_time)
         effective_start = day_start_time if day_start_time else self.start_time
+        _lunch_done = False
+        _dinner_done = False
         for i, poi in enumerate(diurnal):
+            # Tempo de viagem desde o POI anterior (ou ponto de partida)
+            if i > 0:
+                prev = diurnal[i - 1]
+                d_km = self._haversine(prev['lat'], prev['lon'], poi['lat'], poi['lon'])
+                current += self._travel_minutes(d_km)
+            elif self.start_lat is not None:
+                d_km = self._haversine(self.start_lat, self.start_lon, poi['lat'], poi['lon'])
+                current += self._travel_minutes(d_km)
+
+            # Pausa de almoço: 30min se cruzar as 13:00 e sem restaurante no dia
+            if not has_restaurant and not _lunch_done and current >= 13 * 60:
+                current += 30
+                _lunch_done = True
+
             arr = self._fmt(current)
             dep = self._fmt(current + poi['duration'])
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
             order += 1
             current += poi['duration']
-            # pausa de almoco
-            if i < len(diurnal) - 1 and 12 * 60 < current < 14 * 60:
-                current += self.lunch_break
+
+            # Pausa de jantar: 30min se cruzar as 19:30 e sem restaurante no dia
+            if not has_restaurant and not _dinner_done and current >= 19 * 60 + 30:
+                current += 30
+                _dinner_done = True
 
         # Noite: se houver POIs noturnos, começa às 21:00 e acaba às 03:00
         # Se não houver vida noturna, o dia termina naturalmente às 22:00
