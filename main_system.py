@@ -1140,7 +1140,8 @@ class TourismRouteSystem:
             planner = DayPlanner(
                 hours_per_day=8,
                 start_time="09:00",
-                lunch_break=60
+                lunch_break=60,
+                transport_mode=preferences.transport_mode or "car",
             )
             if start_geo:
                 planner.start_lat = start_geo[0]
