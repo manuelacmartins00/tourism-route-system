@@ -484,6 +484,32 @@ class TourismRouteSystem:
             if verbose:
                 print(f"   Alojamento: +{accom_added} candidatos forcados (total {len(candidate_pois)})\n")
 
+        # Forcar candidatos de restaurantes quando include_meals=True
+        # (o RAG principal só fetcha preferred_categories — restaurantes raramente estão lá)
+        if include_meals and "restaurantes_e_cafes" not in (preferences.preferred_categories or []):
+            num_days = max(1, int(np.ceil(preferences.max_time / 480)))
+            meal_needed = max(6, num_days * 2)
+            meal_results = self.rag.query(
+                text=f"restaurante jantar almoco {preferences.location or ''}",
+                n_results=meal_needed * 2,
+                category_filter=["restaurantes_e_cafes"],
+                max_cost=preferences.max_cost,
+                lat_min=lat_min, lat_max=lat_max,
+                lon_min=lon_min, lon_max=lon_max,
+            )
+            existing_ids = {p['id'] for p in candidate_pois}
+            meal_added = 0
+            for p in meal_results['pois']:
+                if p['id'] not in existing_ids:
+                    candidate_pois.append(p)
+                    existing_ids.add(p['id'])
+                    meal_added += 1
+            if verbose:
+                print(f"   Refeicoes: +{meal_added} restaurantes forcados (total {len(candidate_pois)})\n")
+            # Dar peso ao restaurante para não penalizar category_component
+            if meal_added > 0:
+                preferences.category_weights["restaurantes_e_cafes"] = 0.4
+
         # Verificar se há POIs de alojamento disponíveis; se não, relaxar constraint
         if include_accommodation:
             has_accom = any(p['category'] in ACCOMMODATION_BUNDLES for p in candidate_pois)
