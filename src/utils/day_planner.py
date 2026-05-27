@@ -462,6 +462,8 @@ class DayPlanner:
         _morning_immersive: set = set()
         _afternoon_immersive: set = set()
         _last_immersive_end: dict = {}  # cat → minuto em que termina o POI imersivo de manhã
+        # POIs imersivos diferidos: chegam antes do almoço mas pertencem à tarde
+        _pending_afternoon: list = []
 
         for i, poi in enumerate(diurnal):
             # Tempo de viagem desde o POI anterior (ou ponto de partida)
@@ -494,14 +496,19 @@ class DayPlanner:
                     continue
                 else:
                     # Com restaurante: 1 manhã + 1 tarde por categoria
-                    # 2ª visita: só após LUNCH_END e ≥90min de intervalo desde o fim da 1ª
                     if cat not in _morning_immersive:
                         _morning_immersive.add(cat)
                         _last_immersive_end[cat] = current + poi['duration']
-                    elif (cat not in _afternoon_immersive
-                          and current >= LUNCH_END
-                          and current - _last_immersive_end.get(cat, 0) >= 90):
-                        _afternoon_immersive.add(cat)
+                        # fall through para agendar
+                    elif cat not in _afternoon_immersive:
+                        gap_ok = current - _last_immersive_end.get(cat, 0) >= 90
+                        if _lunch_done and gap_ok:
+                            _afternoon_immersive.add(cat)
+                            # fall through para agendar
+                        else:
+                            # Ainda antes do almoço: diferir para depois do almoço
+                            _pending_afternoon.append(poi)
+                            continue
                     else:
                         continue
 
@@ -543,6 +550,24 @@ class DayPlanner:
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
             order += 1
             current += poi['duration']
+
+            # Após agendar almoço: inserir POIs imersivos diferidos
+            if is_restaurant and _lunch_done and _pending_afternoon:
+                processed = []
+                for dpoi in _pending_afternoon:
+                    dcat = dpoi.get('category', '')
+                    gap_ok = current - _last_immersive_end.get(dcat, 0) >= 90
+                    if (dcat not in _afternoon_immersive and gap_ok and current < 20 * 60):
+                        _afternoon_immersive.add(dcat)
+                        arr2 = self._fmt(current)
+                        dep2 = self._fmt(current + dpoi['duration'])
+                        schedule.append({**dpoi, "arrival_time": arr2, "departure_time": dep2,
+                                         "order": order, "duration": dpoi['duration']})
+                        order += 1
+                        current += dpoi['duration']
+                        processed.append(dpoi)
+                for p in processed:
+                    _pending_afternoon.remove(p)
 
         # Noite: se houver POIs noturnos, começa às 21:00 e acaba às 03:00
         # Se não houver vida noturna, o dia termina naturalmente às 22:00
