@@ -123,10 +123,8 @@ class DayPlanner:
         NIGHT_WINDOW = self._parse_time("24:00") + self._parse_time(self.NOCTURNAL_END) - self._parse_time(self.NOCTURNAL_START)
         night_time_used = [0] * total_days
 
-        # Noites candidatas para bares: excluir sempre o penúltimo dia
-        _penultimate = total_days - 2  # 0-based; -1 se total_days<=1
-        _candidate_nights = [n for n in range(min(available_night_days, total_days))
-                             if total_days <= 2 or n != _penultimate]
+        # Noites candidatas para bares: nunca penúltimo nem último dia
+        _candidate_nights = [n for n in range(total_days) if n <= total_days - 3]
         # Se datas conhecidas: preferir 6ª (4) e sáb (5); fallback para qualquer noite
         if _weekday_by_day:
             _fri_sat = [n for n in _candidate_nights if _weekday_by_day[n] in (4, 5)]
