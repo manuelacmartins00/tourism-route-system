@@ -54,7 +54,8 @@ class DayPlanner:
 
     def plan_days(self, route: List[Dict], distance_matrix: np.ndarray = None,
                   total_days: int = None, first_day_start_time: str = None,
-                  last_day_end_time: str = None, all_geos: List = None) -> Dict:
+                  last_day_end_time: str = None, all_geos: List = None,
+                  start_date: str = None) -> Dict:
         if not route:
             return {"days": [], "total_days": 0}
 
@@ -98,6 +99,18 @@ class DayPlanner:
         # Selecionar alojamento por dia: hotel mais proximo do centroide de cada dia
         day_hotels = self._assign_hotels(accommodation, total_days, diurnal_by_day)
 
+        # Calcular weekday de cada dia se start_date conhecido (0=seg, 4=sex, 5=sáb)
+        _weekday_by_day = None
+        if start_date:
+            try:
+                from datetime import date as _dt, timedelta as _td
+                _sd = _dt.fromisoformat(start_date)
+                _weekday_by_day = [(_sd + _td(days=i)).weekday() for i in range(total_days)]
+                _day_names = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+                print(f"   [Calendar] Dias: {[_day_names[w] for w in _weekday_by_day]}")
+            except Exception:
+                _weekday_by_day = None
+
         # Distribuir POIs noturnos com consciência de tempo (greedy, não round-robin)
         # Garante que nenhuma noite recebe mais bares do que cabem na janela 21:00-03:00
         nocturnal_by_day: List[List[Dict]] = [[] for _ in range(total_days)]
@@ -109,10 +122,23 @@ class DayPlanner:
         available_night_days = total_days - 1 if last_day_blocks_night and total_days > 1 else total_days
         NIGHT_WINDOW = self._parse_time("24:00") + self._parse_time(self.NOCTURNAL_END) - self._parse_time(self.NOCTURNAL_START)
         night_time_used = [0] * total_days
+
+        # Noites candidatas para bares: excluir sempre o penúltimo dia
+        _penultimate = total_days - 2  # 0-based; -1 se total_days<=1
+        _candidate_nights = [n for n in range(min(available_night_days, total_days))
+                             if total_days <= 2 or n != _penultimate]
+        # Se datas conhecidas: preferir 6ª (4) e sáb (5); fallback para qualquer noite
+        if _weekday_by_day:
+            _fri_sat = [n for n in _candidate_nights if _weekday_by_day[n] in (4, 5)]
+            _other   = [n for n in _candidate_nights if _weekday_by_day[n] not in (4, 5)]
+            _ordered_nights = _fri_sat + _other
+        else:
+            _ordered_nights = _candidate_nights
+
         for poi in nocturnal:
             # Encontrar a primeira noite disponível onde o bar cabe
             assigned = False
-            for night_idx in range(min(available_night_days, total_days)):
+            for night_idx in _ordered_nights:
                 if (len(nocturnal_by_day[night_idx]) < self.MAX_NOCTURNAL_PER_DAY and
                         night_time_used[night_idx] + poi['duration'] <= NIGHT_WINDOW):
                     nocturnal_by_day[night_idx].append(poi)

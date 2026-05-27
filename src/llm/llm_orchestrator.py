@@ -29,6 +29,8 @@ class UserPreferences:
     locations_ordered: bool = False
     include_accommodation: bool = True
     include_meals: bool = True
+    start_date: str = None          # ISO "YYYY-MM-DD" do 1.º dia (opcional)
+    nightlife_suggested: bool = False  # grupo de adultos → sugerir bar 1 noite
 
 class LlamaOrchestrator:
     """
@@ -138,7 +140,7 @@ REGRAS:
 - missing_fields: campos omitidos de: location, max_time, max_cost, transport_mode
 
 FORMATO EXACTO (JSON valido, sem // comentarios, sem texto antes ou depois):
-{{"max_time":null,"budget_value":null,"budget_type":"per_person","num_people":1,"tags":[],"interests":[],"locations":[],"locations_ordered":false,"transport_mode":null,"start_time":"09:00","last_day_end_time":null,"mobility_issues":false,"missing_fields":[]}}"""
+{{"max_time":null,"budget_value":null,"budget_type":"per_person","num_people":1,"tags":[],"interests":[],"locations":[],"locations_ordered":false,"transport_mode":null,"start_time":"09:00","last_day_end_time":null,"start_date":null,"mobility_issues":false,"missing_fields":[]}}"""
 
     def extract_preferences(self, user_query: str, compact: bool = False) -> UserPreferences:
         """
@@ -319,6 +321,11 @@ TAREFA:
      * "ao final da tarde" -> "18:00"
      * "a noite" -> "20:00"
 
+   - Data de inicio - campo "start_date" (null se nao especificado, formato ISO YYYY-MM-DD):
+     * "de 8 a 14 de junho" -> "2026-06-08"
+     * "8 de junho" -> "2026-06-08"
+     * Apenas preencher se dia E mes forem explícitos; "daqui a 2 semanas" -> null
+
    - Hora de fim do ULTIMO dia - campo "last_day_end_time" (null se nao especificado):
      * "ate de manha" / "termina de manha" -> "12:00"
      * "ate ao meio-dia" -> "12:00"
@@ -363,6 +370,7 @@ Devolve APENAS JSON (sem texto adicional):
   "interests": ["interest1", "interest2"],
   "start_time": "09:00",
   "last_day_end_time": null,
+  "start_date": null,
   "locations": ["Lisboa"],
   "locations_ordered": false,
   "transport_mode": "foot",
@@ -837,6 +845,53 @@ Responde APENAS com o JSON, sem explicacoes."""
             print(f"   Categorias principais (filtro): {main_categories}")
             print(f"   Tags secundarias (semantica): {secondary_tags}")
 
+            # Extrair start_date — Python-level (LLM como fallback)
+            from datetime import date as _date, timedelta as _td
+            _PT_MONTHS = {
+                'janeiro': 1, 'fevereiro': 2, 'marco': 3, 'março': 3, 'abril': 4,
+                'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8, 'setembro': 9,
+                'outubro': 10, 'novembro': 11, 'dezembro': 12,
+            }
+            _start_date = None
+            _date_m = _pre.search(
+                r'\b(\d{1,2})\s+(?:a\s+\d{1,2}\s+)?de\s+(' + '|'.join(_PT_MONTHS.keys()) + r')\b',
+                user_query.lower()
+            )
+            if _date_m:
+                try:
+                    _sd_day   = int(_date_m.group(1))
+                    _sd_month = _PT_MONTHS[_date_m.group(2)]
+                    _today    = _date.today()
+                    _sd_year  = _today.year if (_sd_month > _today.month or
+                                                (_sd_month == _today.month and _sd_day >= _today.day)) \
+                                else _today.year + 1
+                    _start_date = _date(_sd_year, _sd_month, _sd_day).isoformat()
+                    print(f"   [Calendar] start_date extraido: {_start_date}")
+                except Exception:
+                    pass
+            elif _fim_semana and not _start_date:
+                # "fim de semana" sem datas → próxima sexta-feira
+                _today = _date.today()
+                _days_to_fri = (4 - _today.weekday()) % 7 or 7
+                _start_date = (_today + _td(days=_days_to_fri)).isoformat()
+                print(f"   [Calendar] fim de semana → start_date: {_start_date}")
+            else:
+                # Fallback: LLM
+                _llm_sd = data.get("start_date")
+                if isinstance(_llm_sd, str) and _pre.match(r'^\d{4}-\d{2}-\d{2}$', _llm_sd):
+                    _start_date = _llm_sd
+                    print(f"   [Calendar] start_date via LLM: {_start_date}")
+
+            # Vida noturna sugerida: grupo de adultos sem crianças, ≥2 dias
+            _nightlife_suggested = (
+                not has_children
+                and num_people >= 2
+                and extracted_time is not None
+                and extracted_time >= 960
+            )
+            if _nightlife_suggested:
+                print(f"   [Nightlife] Grupo de adultos ({num_people}p, {extracted_time//480}d) → bar sugerido")
+
             # start_time: LLM > periodo do dia hardcoded > default 09:00
             llm_start_time = data.get("start_time", "09:00") or "09:00"
             resolved_start_time = llm_start_time if llm_start_time != "09:00" else (_inferred_start_time or "09:00")
@@ -876,6 +931,8 @@ Responde APENAS com o JSON, sem explicacoes."""
                 end_location=end_location,
                 locations=extracted_locations if extracted_locations else ([extracted_location] if extracted_location else []),
                 locations_ordered=locations_ordered,
+                start_date=_start_date,
+                nightlife_suggested=_nightlife_suggested,
             )
         
         except Exception as e:

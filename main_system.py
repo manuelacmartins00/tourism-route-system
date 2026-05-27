@@ -1203,6 +1203,26 @@ class TourismRouteSystem:
                         if verbose:
                             print(f"   [Meals-Pre] +{_meal['name']} (restaurante garantido)\n")
 
+            # Nightlife: grupo de adultos → 1-2 bares (noite de 6ª ou sáb, se datas conhecidas)
+            if getattr(preferences, 'nightlife_suggested', False) and lat_min is not None:
+                _bar_results = self.rag.query(
+                    text="bar discoteca vida noturna cerveja cocktail",
+                    n_results=6,
+                    category_filter=["bares_e_discotecas"],
+                    max_cost=preferences.max_cost,
+                    lat_min=lat_min, lat_max=lat_max,
+                    lon_min=lon_min, lon_max=lon_max,
+                )
+                _existing_bar_ids = {p['id'] for p in result['route']}
+                _bars_added = 0
+                for _bar in _bar_results.get('pois', []):
+                    if _bar['id'] not in _existing_bar_ids and _bars_added < 2:
+                        result['route'].append(_bar)
+                        _existing_bar_ids.add(_bar['id'])
+                        _bars_added += 1
+                if _bars_added and verbose:
+                    print(f"   [Nightlife] +{_bars_added} bar(es) para grupo de adultos\n")
+
             day_plan = planner.plan_days(
                 result['route'],
                 distance_matrix=sub_distance_matrix,
@@ -1210,6 +1230,7 @@ class TourismRouteSystem:
                 first_day_start_time=first_day_start,
                 last_day_end_time=last_day_end,
                 all_geos=all_geos,
+                start_date=getattr(preferences, 'start_date', None),
             )
 
             NON_VISIT = ACCOMMODATION_BUNDLES + ["bares_e_discotecas", "casinos"]
