@@ -1168,13 +1168,33 @@ class TourismRouteSystem:
                                      if p.get('category') == 'restaurantes_e_cafes')
                 _needed_meals = max(0, total_days * 2 - _current_meals)
                 if _needed_meals > 0:
+                    _existing_names = {p['name'] for p in result['route']}
                     _meal_pool = [p for p in candidate_pois
                                   if p.get('category') == 'restaurantes_e_cafes'
-                                  and p['id'] not in _existing_ids]
+                                  and p['id'] not in _existing_ids
+                                  and p['name'] not in _existing_names]
+                    # Suplementar via RAG quando o pool de candidate_pois é insuficiente
+                    if len(_meal_pool) < _needed_meals and lat_min is not None:
+                        _fresh_meal = self.rag.query(
+                            text=f"restaurante jantar almoco {preferences.location or ''}",
+                            n_results=_needed_meals * 3,
+                            category_filter=["restaurantes_e_cafes"],
+                            max_cost=preferences.max_cost,
+                            lat_min=lat_min, lat_max=lat_max,
+                            lon_min=lon_min, lon_max=lon_max,
+                        )
+                        for p in _fresh_meal.get('pois', []):
+                            if p['id'] not in _existing_ids and p['name'] not in _existing_names:
+                                _meal_pool.append(p)
+                                _existing_ids.add(p['id'])
+                                _existing_names.add(p['name'])
+                        if verbose:
+                            print(f"   [Meals-Pre] RAG suplementar: {len(_fresh_meal.get('pois', []))} restaurantes encontrados")
                     _meal_pool.sort(key=lambda p: -p.get('score', 0))
                     for _meal in _meal_pool[:_needed_meals]:
                         result['route'].append(_meal)
                         _existing_ids.add(_meal['id'])
+                        _existing_names.add(_meal['name'])
                         if verbose:
                             print(f"   [Meals-Pre] +{_meal['name']} (restaurante garantido)\n")
 
