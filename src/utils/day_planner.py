@@ -194,36 +194,75 @@ class DayPlanner:
                               all_geos: List = None) -> List[List[Dict]]:
         if not diurnal:
             return [[] for _ in range(n_days)]
-        if len(diurnal) <= n_days:
-            result = [[p] for p in diurnal]
-            result += [[] for _ in range(n_days - len(diurnal))]
-            return result
+
+        # Separar restaurantes: atribuídos por proximidade ao centroide de cada dia,
+        # garantindo ≥2 por dia independentemente do K-means geográfico
+        restaurants = [p for p in diurnal if p.get('category') == 'restaurantes_e_cafes']
+        non_meal    = [p for p in diurnal if p.get('category') != 'restaurantes_e_cafes']
+
+        if not non_meal:
+            by_day = [[] for _ in range(n_days)]
+            for i, r in enumerate(restaurants):
+                by_day[i % n_days].append(r)
+            return by_day
+
+        if len(non_meal) <= n_days:
+            by_day = [[p] for p in non_meal]
+            by_day += [[] for _ in range(n_days - len(non_meal))]
+            self._assign_restaurants_to_days(by_day, restaurants)
+            return by_day
+
         try:
             from sklearn.cluster import KMeans
-            coords = np.array([[p["lat"], p["lon"]] for p in diurnal])
+            coords = np.array([[p["lat"], p["lon"]] for p in non_meal])
             labels = KMeans(n_clusters=n_days, random_state=42, n_init=10).fit_predict(coords)
             by_day: List[List[Dict]] = [[] for _ in range(n_days)]
-            for i, poi in enumerate(diurnal):
+            for i, poi in enumerate(non_meal):
                 by_day[labels[i]].append(poi)
-            # 1. Reequilibrar categorias (máx. 2 POIs da mesma cat por dia)
+            # 1. Reequilibrar diversidade de categorias (sem restaurantes)
             by_day = self._rebalance_category_diversity(by_day, max_same_cat=2)
-            # 2. Balancear tempo entre dias (evitar dias quase vazios)
+            # 2. Balancear tempo entre dias
             by_day = self._balance_time(by_day)
             # 3. Ordenar clusters pela direcção da rota
             by_day = self._sort_clusters_by_direction(by_day, all_geos)
-            # 4. Hard cap por categoria: máx. 2 de qualquer categoria; restaurantes explicitamente 2
-            by_day = self._enforce_category_caps(by_day, {"restaurantes_e_cafes": 2}, default_cap=2)
-            # 5. Ordem nearest-neighbour dentro de cada dia
+            # 4. Hard cap por categoria (restaurantes tratados separadamente)
+            by_day = self._enforce_category_caps(by_day, {}, default_cap=2)
+            # 5. Atribuir ≥2 restaurantes por dia por proximidade geográfica
+            self._assign_restaurants_to_days(by_day, restaurants)
+            # 6. Ordem nearest-neighbour dentro de cada dia
             if self.start_lat:
                 by_day = [self._nearest_neighbor_order(d, self.start_lat, self.start_lon)
                           if len(d) > 1 else d for d in by_day]
             return by_day
         except Exception:
-            # Fallback: divisao sequencial
             by_day = [[] for _ in range(n_days)]
             for i, poi in enumerate(diurnal):
                 by_day[i % n_days].append(poi)
             return by_day
+
+    def _assign_restaurants_to_days(self, by_day: List[List[Dict]],
+                                     restaurants: List[Dict], per_day: int = 2) -> None:
+        """Atribui até `per_day` restaurantes por dia por proximidade ao centroide do dia."""
+        if not restaurants:
+            return
+        used: set = set()
+        n_days = len(by_day)
+        for day_idx in range(n_days):
+            non_rest = [p for p in by_day[day_idx] if p.get('category') != 'restaurantes_e_cafes']
+            if non_rest:
+                clat = sum(p['lat'] for p in non_rest) / len(non_rest)
+                clon = sum(p['lon'] for p in non_rest) / len(non_rest)
+            else:
+                clat = sum(r['lat'] for r in restaurants) / len(restaurants)
+                clon = sum(r['lon'] for r in restaurants) / len(restaurants)
+            available = [r for r in restaurants if id(r) not in used]
+            nearest = sorted(available, key=lambda r: self._haversine(clat, clon, r['lat'], r['lon']))
+            for r in nearest[:per_day]:
+                by_day[day_idx].append(r)
+                used.add(id(r))
+        # Restaurantes restantes: distribuir round-robin
+        for i, r in enumerate(r for r in restaurants if id(r) not in used):
+            by_day[i % n_days].append(r)
 
     def _rebalance_category_diversity(self, by_day: List[List[Dict]], max_same_cat: int = 2) -> List[List[Dict]]:
         """
@@ -420,8 +459,9 @@ class DayPlanner:
         # Lógica imersiva: praias, parques, espaços verdes, turismo ativo
         # Sem restaurante → 1×6h (fica o dia); com restaurante → 1 manhã + 1 tarde por categoria
         _has_restaurant = any(p.get('category') == 'restaurantes_e_cafes' for p in diurnal)
-        _morning_immersive: set = set()    # categorias já com slot de manhã usado
-        _afternoon_immersive: set = set()  # categorias já com slot de tarde usado
+        _morning_immersive: set = set()
+        _afternoon_immersive: set = set()
+        _last_immersive_end: dict = {}  # cat → minuto em que termina o POI imersivo de manhã
 
         for i, poi in enumerate(diurnal):
             # Tempo de viagem desde o POI anterior (ou ponto de partida)
@@ -435,6 +475,8 @@ class DayPlanner:
 
             cat = poi.get('category', '')
             is_immersive = cat in self.IMMERSIVE_CATEGORIES
+            is_restaurant = cat == 'restaurantes_e_cafes'
+
             if is_immersive:
                 if not _has_restaurant:
                     # Sem restaurante: 1×6h por categoria, user gere refeição in situ
@@ -451,15 +493,21 @@ class DayPlanner:
                     _lunch_done = True
                     continue
                 else:
-                    # Com restaurante: 1 manhã + 1 tarde por categoria (2ª só após LUNCH_END)
+                    # Com restaurante: 1 manhã + 1 tarde por categoria
+                    # 2ª visita: só após LUNCH_END e ≥90min de intervalo desde o fim da 1ª
                     if cat not in _morning_immersive:
-                        _morning_immersive.add(cat)  # fall through to normal scheduling
-                    elif cat not in _afternoon_immersive and current >= LUNCH_END:
-                        _afternoon_immersive.add(cat)  # fall through to normal scheduling
+                        _morning_immersive.add(cat)
+                        _last_immersive_end[cat] = current + poi['duration']
+                    elif (cat not in _afternoon_immersive
+                          and current >= LUNCH_END
+                          and current - _last_immersive_end.get(cat, 0) >= 90):
+                        _afternoon_immersive.add(cat)
                     else:
-                        continue  # extra ou 2ª antes de almoço: ignorar
+                        continue
 
-            is_restaurant = poi.get('category') == 'restaurantes_e_cafes'
+            # POIs não-restaurante não se agendam após as 20h
+            if not is_restaurant and current >= 20 * 60:
+                continue
 
             if is_restaurant:
                 # Snap para a próxima janela de refeição disponível
