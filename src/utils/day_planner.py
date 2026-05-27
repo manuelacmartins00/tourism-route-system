@@ -18,6 +18,11 @@ class DayPlanner:
     DIURNO_CATEGORIES = {"monumentos", "museus_e_palacios", "espacos_verdes",
                           "parques_e_reservas", "arqueologia", "grutas",
                           "turismo_activo", "praias", "zoos_e_aquarios"}
+    # Categorias "imersivas": fica-se horas (praia, parque, trilho)
+    # Sem restaurante → 1×6h (dia inteiro na mesma); com restaurante → 1 manhã + 1 tarde
+    IMMERSIVE_CATEGORIES = frozenset({
+        "praias", "parques_e_reservas", "espacos_verdes", "turismo_activo"
+    })
 
     # Tabela de tempos de viagem por modo (min) — espelho da tabela em main_system.py
     _TRAVEL_TABLE = {
@@ -412,10 +417,11 @@ class DayPlanner:
         effective_start = day_start_time if day_start_time else self.start_time
         _lunch_done  = False
         _dinner_done = False
-        # Beach logic: detect if there's a restaurant in this day's diurnal list
+        # Lógica imersiva: praias, parques, espaços verdes, turismo ativo
+        # Sem restaurante → 1×6h (fica o dia); com restaurante → 1 manhã + 1 tarde por categoria
         _has_restaurant = any(p.get('category') == 'restaurantes_e_cafes' for p in diurnal)
-        _morning_beach_done = False
-        _afternoon_beach_done = False
+        _morning_immersive: set = set()    # categorias já com slot de manhã usado
+        _afternoon_immersive: set = set()  # categorias já com slot de tarde usado
 
         for i, poi in enumerate(diurnal):
             # Tempo de viagem desde o POI anterior (ou ponto de partida)
@@ -427,11 +433,12 @@ class DayPlanner:
                 d_km = self._haversine(self.start_lat, self.start_lon, poi['lat'], poi['lon'])
                 current += self._travel_minutes(d_km)
 
-            is_praia = poi.get('category') == 'praias'
-            if is_praia:
+            cat = poi.get('category', '')
+            is_immersive = cat in self.IMMERSIVE_CATEGORIES
+            if is_immersive:
                 if not _has_restaurant:
-                    # Sem restaurante: 1 praia de dia inteiro (6h), user come na praia
-                    if _morning_beach_done:
+                    # Sem restaurante: 1×6h por categoria, user gere refeição in situ
+                    if cat in _morning_immersive:
                         continue
                     actual_duration = 360
                     arr = self._fmt(current)
@@ -440,17 +447,17 @@ class DayPlanner:
                                      "order": order, "duration": actual_duration})
                     order += 1
                     current += actual_duration
-                    _morning_beach_done = True
+                    _morning_immersive.add(cat)
                     _lunch_done = True
                     continue
                 else:
-                    # Com restaurante: 1 praia manhã + 1 praia tarde (após LUNCH_END)
-                    if not _morning_beach_done:
-                        _morning_beach_done = True  # fall through to normal scheduling
-                    elif not _afternoon_beach_done and current >= LUNCH_END:
-                        _afternoon_beach_done = True  # fall through to normal scheduling
+                    # Com restaurante: 1 manhã + 1 tarde por categoria (2ª só após LUNCH_END)
+                    if cat not in _morning_immersive:
+                        _morning_immersive.add(cat)  # fall through to normal scheduling
+                    elif cat not in _afternoon_immersive and current >= LUNCH_END:
+                        _afternoon_immersive.add(cat)  # fall through to normal scheduling
                     else:
-                        continue  # praia extra ou 2ª antes de almoço: ignorar
+                        continue  # extra ou 2ª antes de almoço: ignorar
 
             is_restaurant = poi.get('category') == 'restaurantes_e_cafes'
 
