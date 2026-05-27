@@ -278,9 +278,9 @@ class TourismRouteSystem:
 
         # -- Resolucao geografica --------------------------------------
         geo = None
-        # Raio máximo proporcional ao nº de dias: 1d→30km, 7d→60km, 14d→95km, 21d→130km
+        # Raio máximo proporcional ao nº de dias: 1d→40km, 7d→100km, 14d→170km
         _total_days = max(1, (preferences.max_time or 480) // 480)
-        _max_radius = 25 + _total_days * 5
+        _max_radius = 30 + _total_days * 10
         if preferences.location:
             geo = self.location_resolver.resolve(preferences.location)
             if geo:
@@ -584,6 +584,13 @@ class TourismRouteSystem:
         if verbose and len(candidate_pois) < before:
             mode = "circles+corredor" if is_corridor else "circles"
             print(f"   Filtro geo ({mode}): {before} -> {len(candidate_pois)} POIs\n")
+
+        # Hard filter: remover categorias operacionais/administrativas do pool
+        _never_set = set(NEVER_INCLUDE_CATEGORIES)
+        before_never = len(candidate_pois)
+        candidate_pois = [p for p in candidate_pois if p.get('category') not in _never_set]
+        if verbose and len(candidate_pois) < before_never:
+            print(f"   Filtro categorias excluidas: {before_never} -> {len(candidate_pois)} POIs\n")
 
         # Density boost para corredores: reponderar por densidade local
         if is_corridor and candidate_pois:
@@ -1156,7 +1163,52 @@ class TourismRouteSystem:
                 total_days=total_days,
                 first_day_start_time=first_day_start,
                 last_day_end_time=last_day_end,
+                all_geos=all_geos,
             )
+
+            # Fill pós-plano: dias com <300min de POIs → RAG direcionado ao cluster
+            NON_VISIT = ACCOMMODATION_BUNDLES + ["bares_e_discotecas", "casinos"]
+            if day_plan and day_plan.get('days') and lat_min is not None:
+                existing_ids = {p['id'] for p in result['route']}
+                refill_done = False
+                for day in day_plan['days']:
+                    day_pois = [p for p in day['pois'] if p.get('category') not in NON_VISIT]
+                    day_time = sum(p.get('duration', 0) for p in day_pois)
+                    if day_time >= 300 or not day_pois:
+                        continue
+                    clat = sum(p['lat'] for p in day_pois) / len(day_pois)
+                    clon = sum(p['lon'] for p in day_pois) / len(day_pois)
+                    d_deg = 25.0 / 111.0
+                    extra = self.rag.query(
+                        text=rag_query,
+                        n_results=8,
+                        category_filter=preferences.preferred_categories,
+                        category_exclude=EXCLUDED_CATEGORIES,
+                        max_cost=preferences.max_cost,
+                        lat_min=max(lat_min, clat - d_deg),
+                        lat_max=min(lat_max, clat + d_deg),
+                        lon_min=max(lon_min, clon - d_deg),
+                        lon_max=min(lon_max, clon + d_deg),
+                    )
+                    added = 0
+                    for ep in extra.get('pois', []):
+                        if ep['id'] not in existing_ids:
+                            result['route'].append(ep)
+                            existing_ids.add(ep['id'])
+                            added += 1
+                    if added > 0:
+                        refill_done = True
+                        if verbose:
+                            print(f"   [Fill-D] Dia {day['day']}: +{added} POI(s) adicionados\n")
+                if refill_done:
+                    day_plan = planner.plan_days(
+                        result['route'],
+                        distance_matrix=sub_distance_matrix,
+                        total_days=total_days,
+                        first_day_start_time=first_day_start,
+                        last_day_end_time=last_day_end,
+                        all_geos=all_geos,
+                    )
 
             result['day_plan'] = day_plan
 

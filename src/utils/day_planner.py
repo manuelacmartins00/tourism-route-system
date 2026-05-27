@@ -49,7 +49,7 @@ class DayPlanner:
 
     def plan_days(self, route: List[Dict], distance_matrix: np.ndarray = None,
                   total_days: int = None, first_day_start_time: str = None,
-                  last_day_end_time: str = None) -> Dict:
+                  last_day_end_time: str = None, all_geos: List = None) -> Dict:
         if not route:
             return {"days": [], "total_days": 0}
 
@@ -80,7 +80,7 @@ class DayPlanner:
             print(f"   Ultimo dia termina as {last_day_end_time}")
 
         # Distribuir POIs diurnos por dia (clustering geografico se possivel)
-        diurnal_by_day = self._distribute_diurnal(diurnal, total_days)
+        diurnal_by_day = self._distribute_diurnal(diurnal, total_days, all_geos=all_geos)
         # Limitar POIs no Dia 1 se começa à tarde (ex: sexta à noite)
         if self._day1_max_diurnal is not None and diurnal_by_day and len(diurnal_by_day[0]) > self._day1_max_diurnal:
             overflow = diurnal_by_day[0][self._day1_max_diurnal:]
@@ -185,7 +185,8 @@ class DayPlanner:
             result.append(best)
         return result
 
-    def _distribute_diurnal(self, diurnal: List[Dict], n_days: int) -> List[List[Dict]]:
+    def _distribute_diurnal(self, diurnal: List[Dict], n_days: int,
+                              all_geos: List = None) -> List[List[Dict]]:
         if not diurnal:
             return [[] for _ in range(n_days)]
         if len(diurnal) <= n_days:
@@ -203,9 +204,11 @@ class DayPlanner:
             by_day = self._rebalance_category_diversity(by_day, max_same_cat=2)
             # 2. Balancear tempo entre dias (evitar dias quase vazios)
             by_day = self._balance_time(by_day)
-            # 3. Hard cap: >2 restaurantes/dia é mau UX — remover excedentes
+            # 3. Ordenar clusters pela direcção da rota
+            by_day = self._sort_clusters_by_direction(by_day, all_geos)
+            # 4. Hard cap: >2 restaurantes/dia é mau UX — remover excedentes
             by_day = self._enforce_category_caps(by_day, {"restaurantes_e_cafes": 2})
-            # 4. Ordem nearest-neighbour dentro de cada dia
+            # 5. Ordem nearest-neighbour dentro de cada dia
             if self.start_lat:
                 by_day = [self._nearest_neighbor_order(d, self.start_lat, self.start_lon)
                           if len(d) > 1 else d for d in by_day]
@@ -276,10 +279,9 @@ class DayPlanner:
             return by_day
         # 360min = 6h de POIs/dia (480min - 60min refeições - 60min buffer trânsito)
         target = min(self.minutes_per_day, 360)
-        # Dois critérios de redistribuição:
-        # 1) dst < 80% E src > 100%: redistribuir de dias sobrecarregados para sub-ocupados
-        # 2) dst < 60% E src > 60%: comportamento original para dias muito vazios
-        DST_HIGH = target * 0.80
+        # DST_HIGH = target: qualquer dia abaixo de 360min aceita POIs de sobrecarregados
+        # DST_LOW  = 60% target: dias muito vazios aceitam de qualquer dia >60%
+        DST_HIGH = target
         DST_LOW  = target * 0.60
 
         changed = True
@@ -353,6 +355,41 @@ class DayPlanner:
             remaining.remove(nearest)
         return ordered
 
+    def _sort_clusters_by_direction(self, by_day: List[List[Dict]],
+                                     all_geos: List = None) -> List[List[Dict]]:
+        """
+        Para corredores com 2+ waypoints distintos, ordena os clusters do K-means
+        pela projecção no eixo A→Z. Para localização única não faz nada — o K-means
+        já agrupa por proximidade e a ordem dos dias é indiferente.
+        """
+        if not all_geos or len(all_geos) < 2:
+            return by_day
+
+        lat0, lon0 = all_geos[0][0], all_geos[0][1]
+        lat1, lon1 = all_geos[-1][0], all_geos[-1][1]
+        d = math.sqrt((lat1 - lat0) ** 2 + (lon1 - lon0) ** 2)
+        if d <= 0.05:  # waypoints demasiado próximos — não ordenar
+            return by_day
+
+        dir_lat, dir_lon = (lat1 - lat0) / d, (lon1 - lon0) / d
+
+        n = len(by_day)
+        centroids = []
+        for day in by_day:
+            if day:
+                clat = sum(p['lat'] for p in day) / len(day)
+                clon = sum(p['lon'] for p in day) / len(day)
+            else:
+                clat = clon = 0.0
+            centroids.append((clat, clon))
+
+        ref_lat = sum(c[0] for c in centroids) / n
+        ref_lon = sum(c[1] for c in centroids) / n
+        projs = [(c[0] - ref_lat) * dir_lat + (c[1] - ref_lon) * dir_lon
+                 for c in centroids]
+        order = sorted(range(n), key=lambda i: projs[i])
+        return [by_day[i] for i in order]
+
     @staticmethod
     def _haversine(lat1, lon1, lat2, lon2) -> float:
         R = 6371
@@ -367,14 +404,16 @@ class DayPlanner:
         schedule = []
         order = 1
 
-        # Se não há restaurante no dia, inserir pausas de refeição (30min almoço + 30min jantar)
-        has_restaurant = any(p.get('category') == 'restaurantes_e_cafes' for p in diurnal)
+        LUNCH_START  = 12 * 60       # 12:00
+        LUNCH_END    = 14 * 60 + 30  # 14:30
+        DINNER_START = 19 * 60       # 19:00
+        DINNER_END   = 21 * 60 + 30  # 21:30
 
-        # Manha/tarde - comeca em day_start_time (ou start_time por defeito)
         current = self._parse_time(day_start_time if day_start_time else self.start_time)
         effective_start = day_start_time if day_start_time else self.start_time
-        _lunch_done = False
+        _lunch_done  = False
         _dinner_done = False
+
         for i, poi in enumerate(diurnal):
             # Tempo de viagem desde o POI anterior (ou ponto de partida)
             if i > 0:
@@ -385,21 +424,42 @@ class DayPlanner:
                 d_km = self._haversine(self.start_lat, self.start_lon, poi['lat'], poi['lon'])
                 current += self._travel_minutes(d_km)
 
-            # Pausa de almoço: 60min se cruzar as 13:00 e sem restaurante no dia
-            if not has_restaurant and not _lunch_done and current >= 13 * 60:
-                current += 60
-                _lunch_done = True
+            is_restaurant = poi.get('category') == 'restaurantes_e_cafes'
+
+            if is_restaurant:
+                # Snap para a próxima janela de refeição disponível
+                if not _lunch_done and current < DINNER_START:
+                    current = max(current, LUNCH_START)
+                    if current < LUNCH_END:
+                        _lunch_done = True
+                    else:
+                        # Janela de almoço já passou, tentar jantar
+                        current = max(current, DINNER_START)
+                        if current < DINNER_END:
+                            _dinner_done = True
+                        else:
+                            continue  # demasiado tarde, ignorar restaurante
+                elif not _dinner_done:
+                    current = max(current, DINNER_START)
+                    if current >= DINNER_END:
+                        continue  # demasiado tarde
+                    _dinner_done = True
+                else:
+                    continue  # ambas as janelas usadas
+            else:
+                # Sem restaurante nessa janela: inserir pausa de refeição
+                if not _lunch_done and current >= 13 * 60:
+                    current += 60
+                    _lunch_done = True
+                if not _dinner_done and current >= 19 * 60 + 30:
+                    current += 60
+                    _dinner_done = True
 
             arr = self._fmt(current)
             dep = self._fmt(current + poi['duration'])
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
             order += 1
             current += poi['duration']
-
-            # Pausa de jantar: 60min se cruzar as 19:30 e sem restaurante no dia
-            if not has_restaurant and not _dinner_done and current >= 19 * 60 + 30:
-                current += 60
-                _dinner_done = True
 
         # Noite: se houver POIs noturnos, começa às 21:00 e acaba às 03:00
         # Se não houver vida noturna, o dia termina naturalmente às 22:00
