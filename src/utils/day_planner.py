@@ -220,14 +220,13 @@ class DayPlanner:
             for i, poi in enumerate(non_meal):
                 by_day[labels[i]].append(poi)
             # 1. Reequilibrar diversidade de categorias (sem restaurantes)
-            by_day = self._rebalance_category_diversity(by_day, max_same_cat=3)
+            by_day = self._rebalance_category_diversity(by_day, max_same_cat=2)
             # 2. Balancear tempo entre dias
             by_day = self._balance_time(by_day)
             # 3. Ordenar clusters pela direcção da rota
             by_day = self._sort_clusters_by_direction(by_day, all_geos)
-            # 4. Hard cap por categoria (cap=3: _format_day já limita a 2 no schedule,
-            #    o 3º fica como backup sem ser agendado — garante POIs suficientes por dia)
-            by_day = self._enforce_category_caps(by_day, {}, default_cap=3)
+            # 4. Hard cap por categoria (restaurantes tratados separadamente)
+            by_day = self._enforce_category_caps(by_day, {}, default_cap=2)
             # 4b. Safety net: garantir ≥1 POI de actividade por dia
             self._ensure_min_activities(by_day)
             # 5. Atribuir ≥2 restaurantes por dia por proximidade geográfica
