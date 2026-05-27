@@ -1169,10 +1169,15 @@ class TourismRouteSystem:
                 _needed_meals = max(0, total_days * 2 - _current_meals)
                 if _needed_meals > 0:
                     _existing_names = {p['name'] for p in result['route']}
-                    _meal_pool = [p for p in candidate_pois
-                                  if p.get('category') == 'restaurantes_e_cafes'
-                                  and p['id'] not in _existing_ids
-                                  and p['name'] not in _existing_names]
+                    # Construir pool dedupando por id E nome (atualiza tracking ao iterar)
+                    _meal_pool = []
+                    for p in candidate_pois:
+                        if (p.get('category') == 'restaurantes_e_cafes'
+                                and p['id'] not in _existing_ids
+                                and p['name'] not in _existing_names):
+                            _meal_pool.append(p)
+                            _existing_ids.add(p['id'])
+                            _existing_names.add(p['name'])
                     # Suplementar via RAG quando o pool de candidate_pois é insuficiente
                     if len(_meal_pool) < _needed_meals and lat_min is not None:
                         _fresh_meal = self.rag.query(
