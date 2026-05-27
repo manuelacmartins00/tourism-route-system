@@ -227,6 +227,8 @@ class DayPlanner:
             by_day = self._sort_clusters_by_direction(by_day, all_geos)
             # 4. Hard cap por categoria (restaurantes tratados separadamente)
             by_day = self._enforce_category_caps(by_day, {}, default_cap=2)
+            # 4b. Safety net: garantir ≥1 POI de actividade por dia
+            self._ensure_min_activities(by_day)
             # 5. Atribuir ≥2 restaurantes por dia por proximidade geográfica
             self._assign_restaurants_to_days(by_day, restaurants)
             # 6. Ordem nearest-neighbour dentro de cada dia
@@ -386,6 +388,24 @@ class DayPlanner:
                         if poi not in keep:
                             day.remove(poi)
         return by_day
+
+    def _ensure_min_activities(self, by_day: List[List[Dict]], min_per_day: int = 1) -> None:
+        """Garante que cada dia tem pelo menos min_per_day POIs de actividade.
+        Chamado após _enforce_category_caps quando by_day ainda não tem restaurantes.
+        """
+        n_days = len(by_day)
+        for _ in range(n_days * 2):
+            counts = [len(d) for d in by_day]
+            empty = [i for i, c in enumerate(counts) if c < min_per_day]
+            if not empty:
+                break
+            richest = max(range(n_days), key=lambda i: counts[i])
+            if counts[richest] <= min_per_day:
+                break
+            dst = empty[0]
+            poi = by_day[richest][-1]
+            by_day[richest].remove(poi)
+            by_day[dst].append(poi)
 
     def _nearest_neighbor_order(self, pois: List[Dict], start_lat: float, start_lon: float) -> List[Dict]:
         remaining = list(pois)
