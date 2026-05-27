@@ -334,7 +334,7 @@ class DayPlanner:
         while changed and iters < max_iters:
             changed = False
             iters += 1
-            for dst in range(2, n_days):  # dias 1 e 2 protegidos
+            for dst in range(n_days):
                 dst_time = sum(p['duration'] for p in by_day[dst])
                 if dst_time >= DST_HIGH:
                     continue
@@ -587,9 +587,9 @@ class DayPlanner:
         else:
             end_time = effective_start
 
-        total_cost = sum(p['cost'] for p in diurnal + nocturnal)
+        total_cost = sum(p['cost'] for p in schedule if not p.get('is_accommodation'))
         total_cost += hotel['cost'] if hotel else 0
-        total_time = sum(p['duration'] for p in diurnal + nocturnal)
+        total_time = sum(p['duration'] for p in schedule if not p.get('is_accommodation'))
 
         return {
             "day": day_num,
