@@ -206,8 +206,8 @@ class DayPlanner:
             by_day = self._balance_time(by_day)
             # 3. Ordenar clusters pela direcção da rota
             by_day = self._sort_clusters_by_direction(by_day, all_geos)
-            # 4. Hard cap: >2 restaurantes/dia é mau UX — remover excedentes
-            by_day = self._enforce_category_caps(by_day, {"restaurantes_e_cafes": 2})
+            # 4. Hard cap por categoria: máx. 2 de qualquer categoria; restaurantes explicitamente 2
+            by_day = self._enforce_category_caps(by_day, {"restaurantes_e_cafes": 2}, default_cap=2)
             # 5. Ordem nearest-neighbour dentro de cada dia
             if self.start_lat:
                 by_day = [self._nearest_neighbor_order(d, self.start_lat, self.start_lon)
@@ -324,11 +324,10 @@ class DayPlanner:
         return by_day
 
     def _enforce_category_caps(self, by_day: List[List[Dict]],
-                                caps: dict) -> List[List[Dict]]:
+                                caps: dict, default_cap: int = None) -> List[List[Dict]]:
         """
         Hard cap por categoria por dia: remove os excedentes com menor score.
-        Usado como última salvaguarda quando _rebalance não conseguiu redistribuir tudo.
-        Os POIs removidos não aparecem no itinerário (são sincronizados fora pelo main_system).
+        caps: overrides por categoria. default_cap: aplicado a todas as outras categorias se não None.
         """
         from collections import defaultdict
         for day in by_day:
@@ -336,7 +335,7 @@ class DayPlanner:
             for poi in day:
                 cat_groups[poi['category']].append(poi)
             for cat, pois in cat_groups.items():
-                cap = caps.get(cat)
+                cap = caps.get(cat, default_cap)
                 if cap is not None and len(pois) > cap:
                     keep = sorted(pois, key=lambda p: -p.get('score', 0))[:cap]
                     for poi in pois:
@@ -413,6 +412,10 @@ class DayPlanner:
         effective_start = day_start_time if day_start_time else self.start_time
         _lunch_done  = False
         _dinner_done = False
+        # Beach logic: detect if there's a restaurant in this day's diurnal list
+        _has_restaurant = any(p.get('category') == 'restaurantes_e_cafes' for p in diurnal)
+        _morning_beach_done = False
+        _afternoon_beach_done = False
 
         for i, poi in enumerate(diurnal):
             # Tempo de viagem desde o POI anterior (ou ponto de partida)
@@ -423,6 +426,31 @@ class DayPlanner:
             elif self.start_lat is not None:
                 d_km = self._haversine(self.start_lat, self.start_lon, poi['lat'], poi['lon'])
                 current += self._travel_minutes(d_km)
+
+            is_praia = poi.get('category') == 'praias'
+            if is_praia:
+                if not _has_restaurant:
+                    # Sem restaurante: 1 praia de dia inteiro (6h), user come na praia
+                    if _morning_beach_done:
+                        continue
+                    actual_duration = 360
+                    arr = self._fmt(current)
+                    dep = self._fmt(current + actual_duration)
+                    schedule.append({**poi, "arrival_time": arr, "departure_time": dep,
+                                     "order": order, "duration": actual_duration})
+                    order += 1
+                    current += actual_duration
+                    _morning_beach_done = True
+                    _lunch_done = True
+                    continue
+                else:
+                    # Com restaurante: 1 praia manhã + 1 praia tarde (após LUNCH_END)
+                    if not _morning_beach_done:
+                        _morning_beach_done = True  # fall through to normal scheduling
+                    elif not _afternoon_beach_done and current >= LUNCH_END:
+                        _afternoon_beach_done = True  # fall through to normal scheduling
+                    else:
+                        continue  # praia extra ou 2ª antes de almoço: ignorar
 
             is_restaurant = poi.get('category') == 'restaurantes_e_cafes'
 
@@ -525,8 +553,9 @@ class DayPlanner:
         return h * 60 + m
 
     def _fmt(self, minutes: int) -> str:
-        h = int(minutes // 60) % 24
-        m = int(minutes % 60)
+        rounded = int(math.ceil(minutes / 10) * 10)  # arredondar para cima ao múltiplo de 10
+        h = (rounded // 60) % 24
+        m = rounded % 60
         return f"{h:02d}:{m:02d}"
 
     def _generate_summary(self, days: List[Dict]) -> str:
