@@ -34,13 +34,13 @@ class RouteEvaluator:
         
         self.w_distance      = 0.1095  # AHP 5x5 CR=0.0081
         # cat_indata: julga o modelo (otimizador usou POIs disponíveis?) — peso maior
-        self.w_cat_indata    = 0.1286  # 0.1300 - 0.0014 para w_total = 1.0000 exacto
+        self.w_cat_indata    = 0.0800  # reduzido de 0.1286 — menos custo de oportunidade p/ POIs não-preferidos
         # cat_general: julga dados + modelo (categorias pedidas cobertas?) — peso menor
         self.w_cat_general   = 0.0600
-        self.w_diversity     = 0.1200
-        self.w_time          = 0.3934  # original 0.4810, reduzido para acomodar split cat
+        self.w_diversity     = 0.1686  # aumentado de 0.1200 para compensar redução cat_indata
+        self.w_time          = 0.3934
         self.w_proximity     = 0.1885  # AHP 5x5 CR=0.0081
-        # w_total = 0.1095+0.1286+0.0600+0.1200+0.3934+0.1885 = 1.0000
+        # w_total = 0.1095+0.0800+0.0600+0.1686+0.3934+0.1885 = 1.0000
 
         self.center_lat = user_prefs.get("center_lat")
         self.center_lon = user_prefs.get("center_lon")

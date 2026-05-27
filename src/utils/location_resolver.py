@@ -93,6 +93,8 @@ class LocationResolver:
         "algarve":          (37.10, -8.10, 120.0),
         "alentejo":         (38.20, -7.80, 150.0),
         "alentejo litoral": (37.80, -8.50, 80.0),
+        "costa vicentina":  (37.50, -8.90, 75.0),   # Sines -> Sagres, ~150km de costa SW
+        "costa sudoeste":   (37.50, -8.90, 75.0),
         "ribatejo":         (39.30, -8.40, 80.0),
         "beiras":           (40.30, -7.70, 120.0),
         "centro":           (40.00, -8.00, 120.0),
