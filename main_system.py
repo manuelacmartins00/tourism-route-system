@@ -1157,6 +1157,30 @@ class TourismRouteSystem:
             first_day_start = preferences.start_time if preferences.start_time != "09:00" else None
             last_day_end = getattr(preferences, 'last_day_end_time', None)
 
+            # Dedup por nome antes de planear (mesmo local pode ter 2 IDs na BD)
+            _seen_names: set = set()
+            result['route'] = [
+                p for p in result['route']
+                if p['name'] not in _seen_names and not _seen_names.add(p['name'])
+            ]
+
+            # Garantia pré-plano: 2 restaurantes por dia quando include_meals=True
+            if include_meals:
+                _existing_ids = {p['id'] for p in result['route']}
+                _current_meals = sum(1 for p in result['route']
+                                     if p.get('category') == 'restaurantes_e_cafes')
+                _needed_meals = max(0, total_days * 2 - _current_meals)
+                if _needed_meals > 0:
+                    _meal_pool = [p for p in candidate_pois
+                                  if p.get('category') == 'restaurantes_e_cafes'
+                                  and p['id'] not in _existing_ids]
+                    _meal_pool.sort(key=lambda p: -p.get('score', 0))
+                    for _meal in _meal_pool[:_needed_meals]:
+                        result['route'].append(_meal)
+                        _existing_ids.add(_meal['id'])
+                        if verbose:
+                            print(f"   [Meals-Pre] +{_meal['name']} (restaurante garantido)\n")
+
             day_plan = planner.plan_days(
                 result['route'],
                 distance_matrix=sub_distance_matrix,
@@ -1166,15 +1190,26 @@ class TourismRouteSystem:
                 all_geos=all_geos,
             )
 
-            # Fill pós-plano: dias com <300min de POIs → RAG direcionado ao cluster
             NON_VISIT = ACCOMMODATION_BUNDLES + ["bares_e_discotecas", "casinos"]
+
+            def _replan():
+                return planner.plan_days(
+                    result['route'],
+                    distance_matrix=sub_distance_matrix,
+                    total_days=total_days,
+                    first_day_start_time=first_day_start,
+                    last_day_end_time=last_day_end,
+                    all_geos=all_geos,
+                )
+
+            # Fill-D: dias com <360min de POIs → RAG direcionado ao cluster
             if day_plan and day_plan.get('days') and lat_min is not None:
                 existing_ids = {p['id'] for p in result['route']}
                 refill_done = False
                 for day in day_plan['days']:
                     day_pois = [p for p in day['pois'] if p.get('category') not in NON_VISIT]
                     day_time = sum(p.get('duration', 0) for p in day_pois)
-                    if day_time >= 300 or not day_pois:
+                    if day_time >= 360 or not day_pois:
                         continue
                     clat = sum(p['lat'] for p in day_pois) / len(day_pois)
                     clon = sum(p['lon'] for p in day_pois) / len(day_pois)
@@ -1199,16 +1234,9 @@ class TourismRouteSystem:
                     if added > 0:
                         refill_done = True
                         if verbose:
-                            print(f"   [Fill-D] Dia {day['day']}: +{added} POI(s) adicionados\n")
+                            print(f"   [Fill-D] Dia {day['day']}: +{added} POI(s)\n")
                 if refill_done:
-                    day_plan = planner.plan_days(
-                        result['route'],
-                        distance_matrix=sub_distance_matrix,
-                        total_days=total_days,
-                        first_day_start_time=first_day_start,
-                        last_day_end_time=last_day_end,
-                        all_geos=all_geos,
-                    )
+                    day_plan = _replan()
 
             result['day_plan'] = day_plan
 
