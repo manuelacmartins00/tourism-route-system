@@ -322,9 +322,11 @@ TAREFA:
      * "a noite" -> "20:00"
 
    - Data de inicio - campo "start_date" (null se nao especificado, formato ISO YYYY-MM-DD):
-     * "de 8 a 14 de junho" -> "2026-06-08"
-     * "8 de junho" -> "2026-06-08"
-     * Apenas preencher se dia E mes forem explícitos; "daqui a 2 semanas" -> null
+     * REGRA: so preencher se a query contiver um numero de dia E um nome de mes explicitos
+     * Padroes validos: "de [dia] de [mes]", "de [dia] a [dia] de [mes]", "[dia]/[mes]"
+     * Se a query apenas mencionar duracao ("7 dias", "1 semana") ou periodo vago
+       ("proximo mes", "daqui a 2 semanas", "em breve") -> null OBRIGATORIO
+     * Formato de saida: "AAAA-MM-DD" (ano corrente ou seguinte consoante a data)
 
    - Hora de fim do ULTIMO dia - campo "last_day_end_time" (null se nao especificado):
      * "ate de manha" / "termina de manha" -> "12:00"
@@ -854,19 +856,28 @@ Responde APENAS com o JSON, sem explicacoes."""
             }
             _start_date = None
             _date_m = _pre.search(
-                r'\b(\d{1,2})\s+(?:a\s+\d{1,2}\s+)?de\s+(' + '|'.join(_PT_MONTHS.keys()) + r')\b',
+                r'\b(\d{1,2})\s+(?:a\s+(\d{1,2})\s+)?de\s+(' + '|'.join(_PT_MONTHS.keys()) + r')\b',
                 user_query.lower()
             )
             if _date_m:
                 try:
-                    _sd_day   = int(_date_m.group(1))
-                    _sd_month = _PT_MONTHS[_date_m.group(2)]
-                    _today    = _date.today()
-                    _sd_year  = _today.year if (_sd_month > _today.month or
-                                                (_sd_month == _today.month and _sd_day >= _today.day)) \
-                                else _today.year + 1
+                    _sd_day      = int(_date_m.group(1))
+                    _end_day_raw = _date_m.group(2)   # None se não houver intervalo
+                    _sd_month    = _PT_MONTHS[_date_m.group(3)]
+                    _today       = _date.today()
+                    _sd_year     = _today.year if (_sd_month > _today.month or
+                                                   (_sd_month == _today.month and _sd_day >= _today.day)) \
+                                   else _today.year + 1
                     _start_date = _date(_sd_year, _sd_month, _sd_day).isoformat()
                     print(f"   [Calendar] start_date extraido: {_start_date}")
+
+                    # Inferir duração a partir do intervalo de datas (ex: "4 a 10 de junho" → 7 dias)
+                    if _end_day_raw and extracted_time is None:
+                        _range_days = int(_end_day_raw) - _sd_day + 1
+                        if 1 < _range_days <= 30:
+                            extracted_time = _range_days * 480
+                            missing_fields = [f for f in missing_fields if f != "max_time"]
+                            print(f"   [Calendar] max_time por intervalo: {_range_days} dias → {extracted_time} min")
                 except Exception:
                     pass
             elif _fim_semana and not _start_date:
@@ -876,9 +887,11 @@ Responde APENAS com o JSON, sem explicacoes."""
                 _start_date = (_today + _td(days=_days_to_fri)).isoformat()
                 print(f"   [Calendar] fim de semana → start_date: {_start_date}")
             else:
-                # Fallback: LLM
+                # Fallback: LLM — só aceitar se a query menciona explicitamente um mês
+                _has_month_in_query = any(m in user_query.lower() for m in _PT_MONTHS)
                 _llm_sd = data.get("start_date")
-                if isinstance(_llm_sd, str) and _pre.match(r'^\d{4}-\d{2}-\d{2}$', _llm_sd):
+                if (_has_month_in_query and isinstance(_llm_sd, str)
+                        and _pre.match(r'^\d{4}-\d{2}-\d{2}$', _llm_sd)):
                     _start_date = _llm_sd
                     print(f"   [Calendar] start_date via LLM: {_start_date}")
 
