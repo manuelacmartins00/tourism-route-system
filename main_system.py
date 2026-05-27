@@ -1214,27 +1214,23 @@ class TourismRouteSystem:
 
             NON_VISIT = ACCOMMODATION_BUNDLES + ["bares_e_discotecas", "casinos"]
 
-            def _replan():
-                return planner.plan_days(
-                    result['route'],
-                    distance_matrix=sub_distance_matrix,
-                    total_days=total_days,
-                    first_day_start_time=first_day_start,
-                    last_day_end_time=last_day_end,
-                    all_geos=all_geos,
-                )
-
-            # Fill-D: dias com <360min de POIs → RAG direcionado ao cluster
+            # Fill-D: dias com <360min de actividades → RAG direcionado + injecção directa
+            # Não chama plan_days de novo (evita re-clustering que desfaz o fill)
             if day_plan and day_plan.get('days') and lat_min is not None:
                 existing_ids = {p['id'] for p in result['route']}
-                refill_done = False
-                for day in day_plan['days']:
+                for i, day in enumerate(day_plan['days']):
                     day_pois = [p for p in day['pois'] if p.get('category') not in NON_VISIT]
                     day_time = sum(p.get('duration', 0) for p in day_pois)
-                    if day_time >= 360 or not day_pois:
+                    if day_time >= 360:
                         continue
-                    clat = sum(p['lat'] for p in day_pois) / len(day_pois)
-                    clon = sum(p['lon'] for p in day_pois) / len(day_pois)
+                    # Centróide do dia (usa bbox geral se dia vazio)
+                    geo_pois = [p for p in day_pois if p.get('lat') is not None]
+                    if geo_pois:
+                        clat = sum(p['lat'] for p in geo_pois) / len(geo_pois)
+                        clon = sum(p['lon'] for p in geo_pois) / len(geo_pois)
+                    else:
+                        clat = (lat_min + lat_max) / 2
+                        clon = (lon_min + lon_max) / 2
                     d_deg = 25.0 / 111.0
                     extra = self.rag.query(
                         text=rag_query,
@@ -1247,18 +1243,37 @@ class TourismRouteSystem:
                         lon_min=max(lon_min, clon - d_deg),
                         lon_max=min(lon_max, clon + d_deg),
                     )
-                    added = 0
+                    added = []
                     for ep in extra.get('pois', []):
                         if ep['id'] not in existing_ids:
+                            ep_cat = ep.get('category', '')
+                            if (ep_cat not in DayPlanner.NOCTURNO_CATEGORIES
+                                    and ep_cat not in DayPlanner.ACCOMMODATION_CATEGORIES):
+                                added.append(ep)
+                                existing_ids.add(ep['id'])
+                    if added:
+                        for ep in added:
                             result['route'].append(ep)
-                            existing_ids.add(ep['id'])
-                            added += 1
-                    if added > 0:
-                        refill_done = True
+                        day_num = day['day']
+                        day_idx = day_num - 1
+                        if hasattr(planner, '_last_diurnal_by_day') and day_idx < len(planner._last_diurnal_by_day):
+                            planner._last_diurnal_by_day[day_idx].extend(added)
+                            day_start = (first_day_start if day_num == 1 and first_day_start
+                                         else planner.start_time)
+                            hotel = (planner._last_day_hotels[day_idx]
+                                     if day_idx < len(planner._last_day_hotels) else None)
+                            night = (planner._last_nocturnal_by_day[day_idx]
+                                     if day_idx < len(planner._last_nocturnal_by_day) else [])
+                            new_day = planner._format_day(
+                                day_num,
+                                planner._last_diurnal_by_day[day_idx],
+                                night,
+                                day_start_time=day_start,
+                                hotel=hotel,
+                            )
+                            day_plan['days'][i] = new_day
                         if verbose:
-                            print(f"   [Fill-D] Dia {day['day']}: +{added} POI(s)\n")
-                if refill_done:
-                    day_plan = _replan()
+                            print(f"   [Fill-D] Dia {day['day']}: +{len(added)} POI(s)\n")
 
             result['day_plan'] = day_plan
 
