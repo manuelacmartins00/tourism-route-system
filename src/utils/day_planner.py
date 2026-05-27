@@ -121,6 +121,12 @@ class DayPlanner:
                     break
             # Se nenhuma noite tem espaço, o POI não é agendado (já foi removido de result.route)
 
+        # Guardar estado dos clusters para Fill-D injectar POIs sem re-clustering
+        self._last_diurnal_by_day   = diurnal_by_day
+        self._last_nocturnal_by_day = nocturnal_by_day
+        self._last_day_hotels       = day_hotels
+        self._last_first_day_start  = first_day_start_time
+
         days = []
         is_last_day_departure = bool(last_day_end_time)
         for day_num in range(1, total_days + 1):
@@ -464,143 +470,138 @@ class DayPlanner:
 
     def _format_day(self, day_num: int, diurnal: List[Dict], nocturnal: List[Dict],
                     day_start_time: str = None, hotel: Dict = None) -> Dict:
-        schedule = []
-        order = 1
 
         LUNCH_START  = 12 * 60       # 12:00
-        LUNCH_END    = 14 * 60 + 30  # 14:30
         DINNER_START = 19 * 60       # 19:00
         DINNER_END   = 21 * 60 + 30  # 21:30
 
-        current = self._parse_time(day_start_time if day_start_time else self.start_time)
+        restaurants = [p for p in diurnal if p.get('category') == 'restaurantes_e_cafes']
+        activities  = [p for p in diurnal if p.get('category') != 'restaurantes_e_cafes']
+        lunch_rest  = restaurants[0] if len(restaurants) >= 1 else None
+        dinner_rest = restaurants[1] if len(restaurants) >= 2 else None
+        _has_restaurant = bool(lunch_rest or dinner_rest)
+
+        schedule       = []
+        order          = 1
+        scheduled_ids: set       = set()
+        morning_immersive: set   = set()
+        afternoon_immersive: set = set()
+
         effective_start = day_start_time if day_start_time else self.start_time
-        _lunch_done  = False
-        _dinner_done = False
-        # Lógica imersiva: praias, parques, espaços verdes, turismo ativo
-        # Sem restaurante → 1×6h (fica o dia); com restaurante → 1 manhã + 1 tarde por categoria
-        _has_restaurant = any(p.get('category') == 'restaurantes_e_cafes' for p in diurnal)
-        _morning_immersive: set = set()
-        _afternoon_immersive: set = set()
-        _last_immersive_end: dict = {}  # cat → minuto em que termina o POI imersivo de manhã
-        # POIs imersivos diferidos: chegam antes do almoço mas pertencem à tarde
-        _pending_afternoon: list = []
+        current  = self._parse_time(effective_start)
+        prev_lat = self.start_lat
+        prev_lon = self.start_lon
 
-        for i, poi in enumerate(diurnal):
-            # Tempo de viagem desde o POI anterior (ou ponto de partida)
-            if i > 0:
-                prev = diurnal[i - 1]
-                d_km = self._haversine(prev['lat'], prev['lon'], poi['lat'], poi['lon'])
-                current += self._travel_minutes(d_km)
-            elif self.start_lat is not None:
-                d_km = self._haversine(self.start_lat, self.start_lon, poi['lat'], poi['lon'])
-                current += self._travel_minutes(d_km)
+        def _travel_to(poi: Dict) -> int:
+            if prev_lat is not None:
+                d_km = self._haversine(prev_lat, prev_lon, poi['lat'], poi['lon'])
+                return self._travel_minutes(d_km)
+            return 0
 
+        def _sched(poi: Dict, duration: int = None) -> None:
+            nonlocal current, order, prev_lat, prev_lon
+            dur = duration if duration is not None else poi['duration']
+            arr = self._fmt(current)
+            dep = self._fmt(current + dur)
+            schedule.append({**poi, "arrival_time": arr, "departure_time": dep,
+                              "order": order, "duration": dur})
+            order    += 1
+            current  += dur
+            prev_lat  = poi['lat']
+            prev_lon  = poi['lon']
+            scheduled_ids.add(id(poi))
+
+        # ── MORNING BLOCK (start → 12:00) ─────────────────────────────────────
+        _no_restaurant_immersive = False
+        for poi in activities:
             cat = poi.get('category', '')
             is_immersive = cat in self.IMMERSIVE_CATEGORIES
-            is_restaurant = cat == 'restaurantes_e_cafes'
+            travel  = _travel_to(poi)
+            t_start = current + travel
+
+            if is_immersive:
+                if cat in morning_immersive:
+                    continue
+                if not _has_restaurant:
+                    # Full-day: praia/parque preenche o dia; utilizador come in situ
+                    actual_dur = max(30, min(360, DINNER_START - t_start))
+                    current = t_start
+                    _sched(poi, actual_dur)
+                    morning_immersive.add(cat)
+                    _no_restaurant_immersive = True
+                else:
+                    # Com restaurante: clip à hora do almoço
+                    if t_start >= LUNCH_START:
+                        continue  # sem espaço de manhã; bloco da tarde trata isto
+                    actual_dur = min(LUNCH_START - t_start, poi['duration'])
+                    if actual_dur < 30:
+                        continue
+                    current = t_start
+                    _sched(poi, actual_dur)
+                    morning_immersive.add(cat)
+            else:
+                t_end = t_start + poi['duration']
+                if t_end > LUNCH_START:
+                    continue  # não cabe antes do almoço; bloco da tarde trata isto
+                current = t_start
+                _sched(poi)
+
+        # ── ALMOÇO ────────────────────────────────────────────────────────────
+        if lunch_rest:
+            travel   = _travel_to(lunch_rest)
+            t_arrive = current + travel
+            current  = max(t_arrive, LUNCH_START)
+            _sched(lunch_rest)
+        elif not _no_restaurant_immersive:
+            # Sem restaurante e sem POI imersivo full-day: pausa de 60 min
+            current = max(current, LUNCH_START) + 60
+
+        # ── AFTERNOON BLOCK (pós-almoço → 19:00) ──────────────────────────────
+        for poi in activities:
+            if id(poi) in scheduled_ids:
+                continue
+            cat = poi.get('category', '')
+            is_immersive = cat in self.IMMERSIVE_CATEGORIES
 
             if is_immersive:
                 if not _has_restaurant:
-                    # Sem restaurante: 1×6h por categoria, user gere refeição in situ
-                    if cat in _morning_immersive:
-                        continue
-                    actual_duration = 360
-                    arr = self._fmt(current)
-                    dep = self._fmt(current + actual_duration)
-                    schedule.append({**poi, "arrival_time": arr, "departure_time": dep,
-                                     "order": order, "duration": actual_duration})
-                    order += 1
-                    current += actual_duration
-                    _morning_immersive.add(cat)
-                    _lunch_done = True
+                    continue  # modo full-day: manhã já usou o dia inteiro
+                if cat in afternoon_immersive:
                     continue
-                else:
-                    # Com restaurante: 1 manhã + 1 tarde por categoria
-                    if cat not in _morning_immersive:
-                        _morning_immersive.add(cat)
-                        _last_immersive_end[cat] = current + poi['duration']
-                        # fall through para agendar
-                    elif cat not in _afternoon_immersive:
-                        gap_ok = current - _last_immersive_end.get(cat, 0) >= 90
-                        if _lunch_done and gap_ok:
-                            _afternoon_immersive.add(cat)
-                            # fall through para agendar
-                        else:
-                            # Ainda antes do almoço: diferir para depois do almoço
-                            _pending_afternoon.append(poi)
-                            continue
-                    else:
-                        continue
 
-            # POIs não-restaurante não se agendam após as 20h
-            if not is_restaurant and current >= 20 * 60:
+            travel  = _travel_to(poi)
+            t_start = current + travel
+
+            if t_start >= DINNER_START or t_start >= 20 * 60:
                 continue
 
-            if is_restaurant:
-                # Snap para a próxima janela de refeição disponível
-                if not _lunch_done and current < DINNER_START:
-                    current = max(current, LUNCH_START)
-                    if current < LUNCH_END:
-                        _lunch_done = True
-                    else:
-                        # Janela de almoço já passou, tentar jantar
-                        current = max(current, DINNER_START)
-                        if current < DINNER_END:
-                            _dinner_done = True
-                        else:
-                            continue  # demasiado tarde, ignorar restaurante
-                elif not _dinner_done:
-                    current = max(current, DINNER_START)
-                    if current >= DINNER_END:
-                        continue  # demasiado tarde
-                    _dinner_done = True
-                else:
-                    continue  # ambas as janelas usadas
+            if is_immersive:
+                actual_dur = min(poi['duration'], DINNER_START - t_start)
+                if actual_dur < 30:
+                    continue
+                current = t_start
+                _sched(poi, actual_dur)
+                afternoon_immersive.add(cat)
             else:
-                # Sem restaurante nessa janela: inserir pausa de refeição
-                if not _lunch_done and current >= 13 * 60:
-                    current += 60
-                    _lunch_done = True
-                if not _dinner_done and current >= 19 * 60 + 30:
-                    current += 60
-                    _dinner_done = True
+                t_end = t_start + poi['duration']
+                if t_end > DINNER_START:
+                    continue
+                current = t_start
+                _sched(poi)
 
-            arr = self._fmt(current)
-            dep = self._fmt(current + poi['duration'])
-            schedule.append({**poi, "arrival_time": arr, "departure_time": dep, "order": order})
-            order += 1
-            current += poi['duration']
+        # ── JANTAR ────────────────────────────────────────────────────────────
+        if dinner_rest:
+            travel   = _travel_to(dinner_rest)
+            t_arrive = current + travel
+            current  = max(t_arrive, DINNER_START)
+            if current < DINNER_END:
+                _sched(dinner_rest)
 
-            # Após agendar almoço: inserir POIs imersivos diferidos
-            if is_restaurant and _lunch_done and _pending_afternoon:
-                processed = []
-                for dpoi in _pending_afternoon:
-                    dcat = dpoi.get('category', '')
-                    gap_ok = current - _last_immersive_end.get(dcat, 0) >= 90
-                    if (dcat not in _afternoon_immersive and gap_ok and current < 20 * 60):
-                        _afternoon_immersive.add(dcat)
-                        arr2 = self._fmt(current)
-                        dep2 = self._fmt(current + dpoi['duration'])
-                        schedule.append({**dpoi, "arrival_time": arr2, "departure_time": dep2,
-                                         "order": order, "duration": dpoi['duration']})
-                        order += 1
-                        current += dpoi['duration']
-                        processed.append(dpoi)
-                for p in processed:
-                    _pending_afternoon.remove(p)
-
-        # Noite: se houver POIs noturnos, começa às 21:00 e acaba às 03:00
-        # Se não houver vida noturna, o dia termina naturalmente às 22:00
-        if not nocturnal and current < self._parse_time("22:00"):
-            # Sem bares: estender POIs diurnos até às 22h se houver tempo
-            pass  # diurnal já foi agendado, day ends naturally
-
+        # ── BLOCO NOCTURNO (21:00 → 03:00) ────────────────────────────────────
         current = self._parse_time(self.NOCTURNAL_START)
-        nocturnal_end_min = 24 * 60 + self._parse_time(self.NOCTURNAL_END)  # 03:00 do dia seguinte
-        # Pub crawl: se há 2+ bares na noite, cada paragem dura 60 min (hop entre sítios)
-        # Se só há 1 bar, mantém a duração real (noite num só sítio)
-        PUB_CRAWL_MIN = 60
-        is_pub_crawl = len(nocturnal) > 1
+        nocturnal_end_min = 24 * 60 + self._parse_time(self.NOCTURNAL_END)
+        PUB_CRAWL_MIN   = 60
+        is_pub_crawl    = len(nocturnal) > 1
         nocturnal_count = 0
         for poi in nocturnal:
             if nocturnal_count >= self.MAX_NOCTURNAL_PER_DAY:
@@ -610,28 +611,22 @@ class DayPlanner:
                 break
             arr = self._fmt(current)
             dep = self._fmt(current + sched_duration)
-            # Guardar duração real no campo duration mas usar sched_duration para os tempos
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep,
                               "order": order, "duration": sched_duration})
-            order += 1
+            order   += 1
             current += sched_duration
             nocturnal_count += 1
 
-        # Hotel: colocar no fim do dia (apos vida noturna)
+        # ── HOTEL ─────────────────────────────────────────────────────────────
         if hotel:
             arr = self._fmt(current)
             dep = self._fmt(current + hotel.get('duration', 30))
             schedule.append({**hotel, "arrival_time": arr, "departure_time": dep,
-                             "order": order, "is_accommodation": True})
-            order += 1
+                              "order": order, "is_accommodation": True})
+            order   += 1
             current += hotel.get('duration', 30)
 
-        # end_time: ultima saida
-        if schedule:
-            end_time = schedule[-1]['departure_time']
-        else:
-            end_time = effective_start
-
+        end_time   = schedule[-1]['departure_time'] if schedule else effective_start
         total_cost = sum(p['cost'] for p in schedule if not p.get('is_accommodation'))
         total_cost += hotel['cost'] if hotel else 0
         total_time = sum(p['duration'] for p in schedule if not p.get('is_accommodation'))
