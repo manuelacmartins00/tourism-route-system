@@ -116,25 +116,15 @@ class RouteMapGenerator:
             tiles='OpenStreetMap'
         )
         
-        # Cores por categoria
-        colors = {
-            'museus_e_palacios': 'blue',
-            'monumentos': 'purple',
-            'restaurantes_e_cafes': 'red',
-            'bares_e_discotecas': 'darkred',
-            'parques_e_reservas': 'green',
-            'espacos_verdes': 'lightgreen',
-            'praias': 'beige',
-            'turismo_activo': 'orange',
-            'arqueologia': 'cadetblue',
-            'grutas': 'darkpurple',
-            'zoos_e_aquarios': 'lightblue',
-            'eventos': 'pink',
-            'casinos': 'black',
-            'turismo_espaco_rural': 'darkgreen',
-            'hotelaria': 'gray',
-            'localidade': 'lightgray',
-        }
+        # Paleta de cores por dia (Folium named + CSS hex equivalents)
+        DAY_FOLIUM = [
+            'red', 'blue', 'green', 'purple', 'orange',
+            'darkred', 'cadetblue', 'darkblue', 'darkgreen', 'pink',
+        ]
+        DAY_CSS = [
+            '#e31a1c', '#1f78b4', '#33a02c', '#6a3d9a', '#ff7f00',
+            '#b15928', '#74add1', '#313695', '#006837', '#f768a1',
+        ]
         
         # Extrair coordenadas dos POIs (para marcadores)
         poi_coordinates = [[poi['lat'], poi['lon']] for poi in route]
@@ -228,47 +218,58 @@ class RouteMapGenerator:
             category = poi.get('category', 'attraction')
             duration = poi.get('duration', 60)
             cost = poi.get('cost', 0)
-            
+
+            day_num = poi_day_label[name][0] if name in poi_day_label else 0
+            if day_num > 0:
+                f_color = DAY_FOLIUM[(day_num - 1) % len(DAY_FOLIUM)]
+                css_color = DAY_CSS[(day_num - 1) % len(DAY_CSS)]
+            else:
+                f_color = 'gray'
+                css_color = '#888888'
+
+            label = f"D{day_num}-{poi_day_label[name][1]}" if name in poi_day_label else str(i)
+            badge = f"{chr(64+day_num)}{poi_day_label[name][1]}" if name in poi_day_label else str(i)
+
             # Marcador colorido
             folium.Marker(
                 location=[lat, lon],
                 popup=folium.Popup(f"""
                     <div style="font-family: Arial; width: 200px;">
-                        <h4 style="margin: 0 0 10px 0; color: {colors.get(category, 'gray')};">
-                            {f"{chr(64+poi_day_label[name][0])}{poi_day_label[name][1]}" if name in poi_day_label else str(i)}. {name}
+                        <h4 style="margin: 0 0 10px 0; color: {css_color};">
+                            {badge}. {name}
                         </h4>
                         <p style="margin: 5px 0;">
-                            <b>Categoria:</b> {category.title()}<br>
+                            <b>Categoria:</b> {category.replace('_', ' ').title()}<br>
                             <b>Duracao:</b> {duration} min<br>
                             <b>Custo:</b> EUR{cost:.2f}
                         </p>
                     </div>
                 """, max_width=300),
-                tooltip=f"{f'D{poi_day_label[name][0]}-{poi_day_label[name][1]}' if name in poi_day_label else str(i)}. {name}",
+                tooltip=f"{label}. {name}",
                 icon=folium.Icon(
-                    color=colors.get(category, 'gray'),
+                    color=f_color,
                     icon='info-sign',
                     prefix='glyphicon'
                 )
             ).add_to(m)
-            
+
             # Numero do POI sobreposto
             folium.Marker(
                 location=[lat, lon],
                 icon=folium.DivIcon(html=f"""
                     <div style="
-                        font-size: 16px; 
-                        font-weight: bold; 
-                        color: white; 
-                        background-color: {colors.get(category, 'gray')}; 
-                        border-radius: 50%; 
-                        width: 30px; 
-                        height: 30px; 
-                        text-align: center; 
+                        font-size: 14px;
+                        font-weight: bold;
+                        color: white;
+                        background-color: {css_color};
+                        border-radius: 50%;
+                        width: 30px;
+                        height: 30px;
+                        text-align: center;
                         line-height: 30px;
                         border: 3px solid white;
                         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-                    ">{f"{chr(64+poi_day_label[name][0])}{poi_day_label[name][1]}" if name in poi_day_label else str(i)}</div>
+                    ">{badge}</div>
                 """)
             ).add_to(m)
         
@@ -306,25 +307,43 @@ class RouteMapGenerator:
             '''
         
         legend_html += '<hr style="margin: 10px 0;">'
-        
-        # Categorias presentes na rota
-        route_categories = set(poi['category'] for poi in route)
-        for cat in sorted(route_categories):
-            color = colors.get(cat, 'gray')
-            legend_html += f'''
-            <p style="margin: 3px 0;">
-                <span style="
-                    display: inline-block;
-                    width: 12px;
-                    height: 12px;
-                    background-color: {color};
-                    border-radius: 50%;
-                    margin-right: 5px;
-                "></span>
-                {cat.replace('_', ' ').title()}
-            </p>
-            '''
-        
+
+        # Dias presentes na rota
+        if day_plan and day_plan.get("days"):
+            for day in day_plan["days"]:
+                d = day["day"]
+                css_color = DAY_CSS[(d - 1) % len(DAY_CSS)]
+                legend_html += f'''
+                <p style="margin: 3px 0;">
+                    <span style="
+                        display: inline-block;
+                        width: 14px;
+                        height: 14px;
+                        background-color: {css_color};
+                        border-radius: 50%;
+                        margin-right: 5px;
+                        vertical-align: middle;
+                    "></span>
+                    <b>Dia {d}</b> ({len(day["pois"])} paragens)
+                </p>
+                '''
+        else:
+            route_categories = set(poi['category'] for poi in route)
+            for cat in sorted(route_categories):
+                legend_html += f'''
+                <p style="margin: 3px 0;">
+                    <span style="
+                        display: inline-block;
+                        width: 12px;
+                        height: 12px;
+                        background-color: gray;
+                        border-radius: 50%;
+                        margin-right: 5px;
+                    "></span>
+                    {cat.replace('_', ' ').title()}
+                </p>
+                '''
+
         legend_html += '</div>'
         
         m.get_root().html.add_child(folium.Element(legend_html))
