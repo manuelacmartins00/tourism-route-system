@@ -623,7 +623,8 @@ Responde APENAS com o JSON, sem explicacoes."""
             _children_hints = ["filho", "filha", "filhos", "filhas", "crianca", "criancas",
                                 "kids", "children", "child", "bebe", "bebes", "bebe", "bebes",
                                 "miudo", "miudos", "family with kids", "com criancas"]
-            has_children = bool(data.get("has_children", False)) or any(h in _q for h in _children_hints)
+            _q_norm = _norm(user_query)  # sem acentos para comparacao fiavel
+            has_children = bool(data.get("has_children", False)) or any(h in _q_norm for h in _children_hints)
             if has_children:
                 print(f"   Criancas detectadas - regras contextuais activadas")
 
