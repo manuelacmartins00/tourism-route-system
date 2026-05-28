@@ -304,7 +304,6 @@ class DayPlanner:
             available = [r for r in restaurants if id(r) not in used]
             nearest = sorted(available, key=lambda r: self._haversine(clat, clon, r['lat'], r['lon']))
             assigned = 0
-            day_names: set = {p['name'] for p in by_day[day_idx]}  # nomes já neste dia
             for r in nearest[:per_day]:
                 dist = self._haversine(clat, clon, r['lat'], r['lon'])
                 if dist > MAX_DIST_KM:
@@ -312,16 +311,13 @@ class DayPlanner:
                     nearest_any = min(restaurants,
                                       key=lambda x: self._haversine(clat, clon, x['lat'], x['lon']))
                     d_any = self._haversine(clat, clon, nearest_any['lat'], nearest_any['lon'])
-                    # Só copiar se estiver dentro do raio E ainda não estar neste dia
-                    if d_any <= MAX_DIST_KM and nearest_any['name'] not in day_names:
+                    if d_any <= MAX_DIST_KM:
                         by_day[day_idx].append(_copy.copy(nearest_any))
-                        day_names.add(nearest_any['name'])
                         assigned += 1
-                    # Se nenhum restaurante dentro do raio ou já atribuído neste dia, skip
+                    # Se nenhum restaurante está dentro do raio, não atribuir
                     continue
                 by_day[day_idx].append(r)
                 used.add(id(r))
-                day_names.add(r['name'])
                 assigned += 1
         # Restaurantes restantes (não usados): distribuir round-robin
         for i, r in enumerate(r for r in restaurants if id(r) not in used):
