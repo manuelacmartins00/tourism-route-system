@@ -1092,6 +1092,7 @@
     const msgs = document.getElementById('messages');
     const row = document.createElement('div');
     row.className = 'msg-row';
+    row.id = 'clarifRow';
 
     const fields = result.missing_fields || [];
     let fieldsHtml = '';
@@ -1389,6 +1390,8 @@
           }
       });
       const newQuery = originalQuery + (extras.length > 0 ? '. ' + extras.join('. ') + '.' : '');
+      const clarifRow = document.getElementById('clarifRow');
+      if (clarifRow) clarifRow.remove();
       addUserMessage(extras.join(' · '));
       addTypingIndicator();
       isLoading = true;
