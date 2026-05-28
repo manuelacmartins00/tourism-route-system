@@ -258,6 +258,25 @@ class DayPlanner:
             by_day: List[List[Dict]] = [[] for _ in range(n_days)]
             for i, poi in enumerate(non_meal):
                 by_day[labels[i]].append(poi)
+            # Post-K-means reassignment: recompute centroids and reassign each POI to
+            # nearest centroid — corrects geographic outliers without hardcoded thresholds
+            _centroids = []
+            for _cluster in by_day:
+                if _cluster:
+                    _centroids.append((
+                        sum(p['lat'] for p in _cluster) / len(_cluster),
+                        sum(p['lon'] for p in _cluster) / len(_cluster),
+                    ))
+                else:
+                    _centroids.append((0.0, 0.0))
+            _reassigned: List[List[Dict]] = [[] for _ in range(n_days)]
+            for _poi in non_meal:
+                _best = min(range(n_days),
+                            key=lambda _i: self._haversine(
+                                _centroids[_i][0], _centroids[_i][1],
+                                _poi['lat'], _poi['lon']))
+                _reassigned[_best].append(_poi)
+            by_day = _reassigned
             # 1. Reequilibrar diversidade de categorias (sem restaurantes)
             by_day = self._rebalance_category_diversity(by_day, max_same_cat=2)
             # 2. Balancear tempo entre dias
