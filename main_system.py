@@ -1247,6 +1247,7 @@ class TourismRouteSystem:
             # Não chama plan_days de novo (evita re-clustering que desfaz o fill)
             if day_plan and day_plan.get('days') and lat_min is not None:
                 existing_ids = {p['id'] for p in result['route']}
+                existing_names = {p['name'] for p in result['route']}
                 for i, day in enumerate(day_plan['days']):
                     day_pois = [p for p in day['pois'] if p.get('category') not in NON_VISIT]
                     day_time = sum(p.get('duration', 0) for p in day_pois)
@@ -1274,12 +1275,13 @@ class TourismRouteSystem:
                     )
                     added = []
                     for ep in extra.get('pois', []):
-                        if ep['id'] not in existing_ids:
+                        if ep['id'] not in existing_ids and ep['name'] not in existing_names:
                             ep_cat = ep.get('category', '')
                             if (ep_cat not in DayPlanner.NOCTURNO_CATEGORIES
                                     and ep_cat not in DayPlanner.ACCOMMODATION_CATEGORIES):
                                 added.append(ep)
                                 existing_ids.add(ep['id'])
+                                existing_names.add(ep['name'])
                     if added:
                         for ep in added:
                             result['route'].append(ep)
@@ -1306,18 +1308,27 @@ class TourismRouteSystem:
 
             result['day_plan'] = day_plan
 
+            # Dedup final por nome: apanha duplicados introduzidos pelo Fill-D
+            # (mesmo POI com IDs distintos na BD, ou RAG a retornar o mesmo)
+            _seen_final: set = set()
+            result['route'] = [
+                p for p in result['route']
+                if p['name'] not in _seen_final and not _seen_final.add(p['name'])
+            ]
+
             # Sincronizar result['route'] com o day_plan: remover POIs que o day_planner
             # não conseguiu agendar (ex: bares fora da janela 21:00-03:00).
-            # Garante que route, day_plan e budget são sempre consistentes.
+            # Usa nomes em vez de IDs para evitar falsos positivos por type mismatch
+            # (IDs do optimizador são int; IDs do RAG podem ser str).
             if day_plan and day_plan.get('days'):
-                scheduled_ids = {
-                    p['id']
+                scheduled_names = {
+                    p['name']
                     for day in day_plan['days']
                     for p in day['pois']
                 }
-                removed = [p for p in result['route'] if p['id'] not in scheduled_ids]
+                removed = [p for p in result['route'] if p['name'] not in scheduled_names]
                 if removed:
-                    result['route'] = [p for p in result['route'] if p['id'] in scheduled_ids]
+                    result['route'] = [p for p in result['route'] if p['name'] in scheduled_names]
                     # Recalcular custo por pessoa com a rota filtrada
                     result['cost_per_person'] = round(sum(
                         p['cost'] / evaluator.people_per_room
