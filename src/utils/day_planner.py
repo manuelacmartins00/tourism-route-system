@@ -285,7 +285,8 @@ class DayPlanner:
                                      restaurants: List[Dict], per_day: int = 2) -> None:
         """Atribui até `per_day` restaurantes por dia por proximidade ao centroide do dia.
         Se o restaurante disponível mais próximo estiver a mais de MAX_DIST_KM do centroide,
-        repete o restaurante já usado mais próximo em vez de escolher um geograficamente distante."""
+        procura o restaurante MAIS PRÓXIMO de todos (usado ou não) dentro de MAX_DIST_KM
+        e copia-o. Se não existir nenhum dentro desse raio, não atribui restaurante."""
         if not restaurants:
             return
         import copy as _copy
@@ -305,14 +306,16 @@ class DayPlanner:
             assigned = 0
             for r in nearest[:per_day]:
                 dist = self._haversine(clat, clon, r['lat'], r['lon'])
-                used_list = [x for x in restaurants if id(x) in used]
-                if dist > MAX_DIST_KM and used_list:
-                    # Repetir o restaurante já usado mais próximo
-                    nearest_used = min(used_list, key=lambda x: self._haversine(clat, clon, x['lat'], x['lon']))
-                    if self._haversine(clat, clon, nearest_used['lat'], nearest_used['lon']) < dist:
-                        by_day[day_idx].append(_copy.copy(nearest_used))
+                if dist > MAX_DIST_KM:
+                    # Procurar o restaurante mais próximo de todos (usado ou não)
+                    nearest_any = min(restaurants,
+                                      key=lambda x: self._haversine(clat, clon, x['lat'], x['lon']))
+                    d_any = self._haversine(clat, clon, nearest_any['lat'], nearest_any['lon'])
+                    if d_any <= MAX_DIST_KM:
+                        by_day[day_idx].append(_copy.copy(nearest_any))
                         assigned += 1
-                        continue
+                    # Se nenhum restaurante está dentro do raio, não atribuir
+                    continue
                 by_day[day_idx].append(r)
                 used.add(id(r))
                 assigned += 1
@@ -415,6 +418,9 @@ class DayPlanner:
                         clon = sum(p['lon'] for p in by_day[dst]) / len(by_day[dst])
                         candidate = min(by_day[src],
                                         key=lambda p: self._haversine(clat, clon, p['lat'], p['lon']))
+                        # Não transferir POI geograficamente distante do cluster destino
+                        if self._haversine(clat, clon, candidate['lat'], candidate['lon']) > 80:
+                            continue
                     else:
                         candidate = by_day[src][-1]
                     by_day[src].remove(candidate)
