@@ -274,9 +274,13 @@ class DayPlanner:
 
     def _assign_restaurants_to_days(self, by_day: List[List[Dict]],
                                      restaurants: List[Dict], per_day: int = 2) -> None:
-        """Atribui até `per_day` restaurantes por dia por proximidade ao centroide do dia."""
+        """Atribui até `per_day` restaurantes por dia por proximidade ao centroide do dia.
+        Se o restaurante disponível mais próximo estiver a mais de MAX_DIST_KM do centroide,
+        repete o restaurante já usado mais próximo em vez de escolher um geograficamente distante."""
         if not restaurants:
             return
+        import copy as _copy
+        MAX_DIST_KM = 35.0
         used: set = set()
         n_days = len(by_day)
         for day_idx in range(n_days):
@@ -289,10 +293,21 @@ class DayPlanner:
                 clon = sum(r['lon'] for r in restaurants) / len(restaurants)
             available = [r for r in restaurants if id(r) not in used]
             nearest = sorted(available, key=lambda r: self._haversine(clat, clon, r['lat'], r['lon']))
+            assigned = 0
             for r in nearest[:per_day]:
+                dist = self._haversine(clat, clon, r['lat'], r['lon'])
+                used_list = [x for x in restaurants if id(x) in used]
+                if dist > MAX_DIST_KM and used_list:
+                    # Repetir o restaurante já usado mais próximo
+                    nearest_used = min(used_list, key=lambda x: self._haversine(clat, clon, x['lat'], x['lon']))
+                    if self._haversine(clat, clon, nearest_used['lat'], nearest_used['lon']) < dist:
+                        by_day[day_idx].append(_copy.copy(nearest_used))
+                        assigned += 1
+                        continue
                 by_day[day_idx].append(r)
                 used.add(id(r))
-        # Restaurantes restantes: distribuir round-robin
+                assigned += 1
+        # Restaurantes restantes (não usados): distribuir round-robin
         for i, r in enumerate(r for r in restaurants if id(r) not in used):
             by_day[i % n_days].append(r)
 
