@@ -627,16 +627,16 @@ Responde APENAS com o JSON, sem explicacoes."""
             if has_children:
                 print(f"   Criancas detectadas - regras contextuais activadas")
 
-            # Extrair hora de fim do ultimo dia (opcional)
+            # Extrair hora de fim do ultimo dia (default 17:00 se nao especificado)
             last_day_end_time = data.get("last_day_end_time", None)
             if last_day_end_time and isinstance(last_day_end_time, str):
                 import re as _ret
                 if _ret.match(r'^\d{2}:\d{2}$', last_day_end_time):
                     print(f"   Hora de fim do ultimo dia: '{last_day_end_time}'")
                 else:
-                    last_day_end_time = None
+                    last_day_end_time = "17:00"
             else:
-                last_day_end_time = None
+                last_day_end_time = "17:00"
 
             # Extrair ponto de partida (opcional)
             start_location = data.get("start_location", None)
