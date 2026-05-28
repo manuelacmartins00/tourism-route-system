@@ -55,7 +55,7 @@ class DayPlanner:
     def plan_days(self, route: List[Dict], distance_matrix: np.ndarray = None,
                   total_days: int = None, first_day_start_time: str = None,
                   last_day_end_time: str = None, all_geos: List = None,
-                  start_date: str = None) -> Dict:
+                  start_date: str = None, route_direction: str = None) -> Dict:
         if not route:
             return {"days": [], "total_days": 0}
 
@@ -86,7 +86,8 @@ class DayPlanner:
             print(f"   Ultimo dia termina as {last_day_end_time}")
 
         # Distribuir POIs diurnos por dia (clustering geografico se possivel)
-        diurnal_by_day = self._distribute_diurnal(diurnal, total_days, all_geos=all_geos)
+        diurnal_by_day = self._distribute_diurnal(diurnal, total_days, all_geos=all_geos,
+                                                   route_direction=route_direction)
         # Limitar POIs no Dia 1 se começa à tarde (ex: sexta à noite)
         if self._day1_max_diurnal is not None and diurnal_by_day and len(diurnal_by_day[0]) > self._day1_max_diurnal:
             overflow = diurnal_by_day[0][self._day1_max_diurnal:]
@@ -131,7 +132,15 @@ class DayPlanner:
             _other   = [n for n in _candidate_nights if _weekday_by_day[n] not in (4, 5)]
             _ordered_nights = _fri_sat + _other
         else:
-            _ordered_nights = _candidate_nights
+            # Sem datas: escolher ~1 noite por semana aleatoriamente
+            import random as _rand
+            _n_bar_nights = max(1, round(total_days / 7))
+            if len(_candidate_nights) <= _n_bar_nights:
+                _ordered_nights = _candidate_nights
+            else:
+                _chosen = _rand.sample(_candidate_nights, _n_bar_nights)
+                _other  = [n for n in _candidate_nights if n not in _chosen]
+                _ordered_nights = _chosen + _other
 
         for poi in nocturnal:
             # Encontrar a primeira noite disponível onde o bar cabe
@@ -221,7 +230,7 @@ class DayPlanner:
         return result
 
     def _distribute_diurnal(self, diurnal: List[Dict], n_days: int,
-                              all_geos: List = None) -> List[List[Dict]]:
+                              all_geos: List = None, route_direction: str = None) -> List[List[Dict]]:
         if not diurnal:
             return [[] for _ in range(n_days)]
 
@@ -254,7 +263,7 @@ class DayPlanner:
             # 2. Balancear tempo entre dias
             by_day = self._balance_time(by_day)
             # 3. Ordenar clusters pela direcção da rota
-            by_day = self._sort_clusters_by_direction(by_day, all_geos)
+            by_day = self._sort_clusters_by_direction(by_day, all_geos, route_direction=route_direction)
             # 4. Hard cap por categoria (restaurantes tratados separadamente)
             by_day = self._enforce_category_caps(by_day, {}, default_cap=2)
             # 4b. Safety net: garantir ≥1 POI de actividade por dia
@@ -464,12 +473,30 @@ class DayPlanner:
         return ordered
 
     def _sort_clusters_by_direction(self, by_day: List[List[Dict]],
-                                     all_geos: List = None) -> List[List[Dict]]:
+                                     all_geos: List = None,
+                                     route_direction: str = None) -> List[List[Dict]]:
         """
-        Para corredores com 2+ waypoints distintos, ordena os clusters do K-means
-        pela projecção no eixo A→Z. Para localização única não faz nada — o K-means
-        já agrupa por proximidade e a ordem dos dias é indiferente.
+        Ordena clusters por direcção: multi-waypoint projecta no eixo A→Z;
+        localização única usa route_direction ('N2S'/'S2N') se fornecida.
         """
+        n = len(by_day)
+        centroids = []
+        for day in by_day:
+            if day:
+                clat = sum(p['lat'] for p in day) / len(day)
+                clon = sum(p['lon'] for p in day) / len(day)
+            else:
+                clat = clon = 0.0
+            centroids.append((clat, clon))
+
+        # Localização única com direcção explícita: ordenar por latitude
+        if (not all_geos or len(all_geos) < 2) and route_direction in ("N2S", "S2N"):
+            if route_direction == "N2S":
+                order = sorted(range(n), key=lambda i: -centroids[i][0])  # decrescente
+            else:
+                order = sorted(range(n), key=lambda i: centroids[i][0])   # crescente
+            return [by_day[i] for i in order]
+
         if not all_geos or len(all_geos) < 2:
             return by_day
 
@@ -480,16 +507,6 @@ class DayPlanner:
             return by_day
 
         dir_lat, dir_lon = (lat1 - lat0) / d, (lon1 - lon0) / d
-
-        n = len(by_day)
-        centroids = []
-        for day in by_day:
-            if day:
-                clat = sum(p['lat'] for p in day) / len(day)
-                clon = sum(p['lon'] for p in day) / len(day)
-            else:
-                clat = clon = 0.0
-            centroids.append((clat, clon))
 
         ref_lat = sum(c[0] for c in centroids) / n
         ref_lon = sum(c[1] for c in centroids) / n

@@ -1223,6 +1223,13 @@ class TourismRouteSystem:
                 if _bars_added and verbose:
                     print(f"   [Nightlife] +{_bars_added} bar(es) para grupo de adultos\n")
 
+            _q_low = user_query.lower()
+            _route_direction = None
+            if any(kw in _q_low for kw in ["norte a sul", "norte para sul", "north to south"]):
+                _route_direction = "N2S"
+            elif any(kw in _q_low for kw in ["sul a norte", "sul para norte", "south to north"]):
+                _route_direction = "S2N"
+
             day_plan = planner.plan_days(
                 result['route'],
                 distance_matrix=sub_distance_matrix,
@@ -1231,6 +1238,7 @@ class TourismRouteSystem:
                 last_day_end_time=last_day_end,
                 all_geos=all_geos,
                 start_date=getattr(preferences, 'start_date', None),
+                route_direction=_route_direction,
             )
 
             NON_VISIT = ACCOMMODATION_BUNDLES + ["bares_e_discotecas", "casinos"]
