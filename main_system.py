@@ -227,6 +227,12 @@ class TourismRouteSystem:
             preferences.missing_fields = [f for f in preferences.missing_fields
                                           if f not in NEVER_ASK]
 
+        # max_cost e budget_type são sempre pedidos no mesmo passo
+        _mf = list(preferences.missing_fields or [])
+        if 'max_cost' in _mf and 'budget_type' not in _mf:
+            _mf.append('budget_type')
+            preferences.missing_fields = _mf
+
         # -- Perguntas de scope: alojamento e refeicoes ---------------
         # Verificadas ANTES dos missing_fields para aparecerem na primeira interacao.
         scope_questions = []

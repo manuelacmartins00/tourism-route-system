@@ -1177,6 +1177,10 @@
     if (!_scopeMissingFields.includes('max_cost') && !(prefs.max_cost > 0)) {
       _scopeMissingFields = [..._scopeMissingFields, 'max_cost'];
     }
+    // budget_type acompanha sempre max_cost no mesmo passo
+    if (_scopeMissingFields.includes('max_cost') && !_scopeMissingFields.includes('budget_type')) {
+      _scopeMissingFields = [..._scopeMissingFields, 'budget_type'];
+    }
     const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
 
     let cardsHtml = '';
