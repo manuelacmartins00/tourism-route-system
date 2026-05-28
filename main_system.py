@@ -1221,8 +1221,9 @@ class TourismRouteSystem:
                 )
                 _existing_bar_ids = {p['id'] for p in result['route']}
                 _bars_added = 0
+                _max_bars = 2 if has_nightlife else 1
                 for _bar in _bar_results.get('pois', []):
-                    if _bar['id'] not in _existing_bar_ids and _bars_added < 2:
+                    if _bar['id'] not in _existing_bar_ids and _bars_added < _max_bars:
                         result['route'].append(_bar)
                         _existing_bar_ids.add(_bar['id'])
                         _bars_added += 1
