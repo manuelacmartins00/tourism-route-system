@@ -372,10 +372,18 @@ class DayPlanner:
                                 continue
                             dst_cat_count = sum(1 for p in by_day[dst] if p['category'] == cat)
                             dst_time = sum(p['duration'] for p in by_day[dst])
-                            # So mover se o dia destino tem espaco e menos desta categoria
-                            if dst_cat_count < best_count and dst_time + poi['duration'] <= self.minutes_per_day:
-                                best_count = dst_cat_count
-                                best_dst = dst
+                            if not (dst_cat_count < best_count and dst_time + poi['duration'] <= self.minutes_per_day):
+                                continue
+                            # Restrição geográfica: não mover mais de 80 km do centroide destino
+                            if by_day[dst]:
+                                d_lats = [p['lat'] for p in by_day[dst]]
+                                d_lons = [p['lon'] for p in by_day[dst]]
+                                d_clat = sum(d_lats) / len(d_lats)
+                                d_clon = sum(d_lons) / len(d_lons)
+                                if self._haversine(d_clat, d_clon, poi['lat'], poi['lon']) > 80:
+                                    continue
+                            best_count = dst_cat_count
+                            best_dst = dst
                         if best_dst is not None and best_count < max_same_cat:
                             by_day[src].remove(poi)
                             by_day[best_dst].append(poi)
