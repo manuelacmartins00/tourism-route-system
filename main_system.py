@@ -70,6 +70,29 @@ DURATION_RANGES = {
     "barragens":              (20,  60),
 }
 
+# Grupos tematicos (B1): quando o Fill-D nao encontra POIs novos nas
+# preferred_categories (ex: ja esgotadas pelo cap=2), procura categorias
+# "irmas" do mesmo tema antes de deixar o dia incompleto.
+THEMATIC_GROUPS = [
+    {"monumentos", "museus_e_palacios", "arqueologia", "ciencia_e_conhecimento", "grutas"},
+    {"praias", "parques_e_reservas", "espacos_verdes", "turismo_activo", "barragens", "grutas", "campos"},
+    {"parques_de_diversao", "zoos_e_aquarios", "marinas_e_portos", "termas", "talassoterapia", "academias"},
+    {"bares_e_discotecas", "casinos", "eventos"},
+]
+
+
+def _thematic_siblings(categories: list) -> list:
+    """Devolve categorias do mesmo grupo tematico que `categories`, excluindo
+    as proprias `categories` (B1 fallback de Fill-D)."""
+    cats = set(categories or [])
+    siblings: set = set()
+    for group in THEMATIC_GROUPS:
+        if group & cats:
+            siblings |= group
+    siblings -= cats
+    return list(siblings)
+
+
 def _trip_spans_meal_window(start_time: str, max_time_min: int) -> bool:
     """True se a rota sobrepoe uma janela de refeicao (almoco 12-14h ou jantar 19-22h)."""
     try:
@@ -156,6 +179,44 @@ class TourismRouteSystem:
             print(f"AVISO: TransitService nao disponivel: {e}\n")
 
         print("[OK] Sistema pronto!\n")
+
+    def _resolve_location(self, location: str, verbose: bool = False):
+        """B3: resolve um toponimo, com fallback ao LLM para termos vagos.
+
+        Se location_resolver.resolve() nao encontrar nada (GeoJSON, overrides
+        regionais e Nominatim ja falharam), pede ao LLM para associar o termo
+        a uma das regioes canonicas conhecidas (_COUNTRY_REGION_OVERRIDES).
+        Restringido a essa lista fechada para evitar coordenadas inventadas —
+        e melhor uma regiao aproximada do que nenhum filtro geografico.
+        """
+        geo = self.location_resolver.resolve(location)
+        if geo:
+            return geo
+
+        canonical = sorted(self.location_resolver._COUNTRY_REGION_OVERRIDES.keys())
+        prompt = (
+            f"Termo de localizacao em Portugal: '{location}'.\n"
+            f"Qual destas regioes melhor o descreve? Responde APENAS com o "
+            f"termo exacto da lista (em minusculas, sem acentos), ou 'nenhuma' "
+            f"se nao houver correspondencia razoavel.\n"
+            f"Lista: {', '.join(canonical)}"
+        )
+        try:
+            resp = self.llm._call_llm(prompt, max_tokens=15, temperature=0)
+        except Exception as e:
+            if verbose:
+                print(f"   AVISO: [LocationResolver] fallback LLM falhou para '{location}': {e}")
+            return None
+
+        candidate = resp.strip().lower().strip(".\"'")
+        if candidate in self.location_resolver._COUNTRY_REGION_OVERRIDES:
+            if verbose:
+                print(f"   [OK] [LocationResolver] '{location}' -> fallback LLM -> '{candidate}'")
+            return self.location_resolver.resolve(candidate)
+
+        if verbose:
+            print(f"   AVISO: [LocationResolver] fallback LLM nao encontrou correspondencia para '{location}' (resposta: '{resp.strip()}')")
+        return None
 
     def plan_route(self,
                user_query: str,
@@ -287,8 +348,12 @@ class TourismRouteSystem:
         # Raio máximo proporcional ao nº de dias: 1d→40km, 7d→100km, 14d→170km
         _total_days = max(1, (preferences.max_time or 480) // 480)
         _max_radius = 30 + _total_days * 10
+        # Limite de deslocacao de POIs entre dias no day_planner: relativo ao
+        # raio da regiao e ao numero de dias, para evitar zigzag oeste-este
+        # em regioes grandes (ex: Algarve 3 dias -> 60/3=20km)
+        _move_cap_km = max(15.0, _max_radius / _total_days)
         if preferences.location:
-            geo = self.location_resolver.resolve(preferences.location)
+            geo = self._resolve_location(preferences.location, verbose=verbose)
             if geo:
                 if geo[2] > _max_radius:
                     geo = (geo[0], geo[1], _max_radius)
@@ -299,7 +364,7 @@ class TourismRouteSystem:
         # -- Resolucao do ponto de partida ---
         start_geo = None
         if hasattr(preferences, 'start_location') and preferences.start_location:
-            start_geo = self.location_resolver.resolve(preferences.start_location)
+            start_geo = self._resolve_location(preferences.start_location, verbose=verbose)
             if start_geo and verbose:
                 print(f"   Ponto de partida: '{preferences.start_location}' -> ({start_geo[0]:.4f}, {start_geo[1]:.4f})\n")
         if not start_geo and geo:
@@ -327,7 +392,7 @@ class TourismRouteSystem:
         all_geos = []
         all_loc_names = []
         for loc_name in _locations_list:
-            g = self.location_resolver.resolve(loc_name)
+            g = self._resolve_location(loc_name, verbose=verbose)
             if g:
                 if g[2] > _max_radius:
                     g = (g[0], g[1], _max_radius)
@@ -380,12 +445,22 @@ class TourismRouteSystem:
             if verbose:
                 print(f"   Modo corredor {len(all_geos)} localidades: bbox ({lat_min:.2f},{lon_min:.2f}) -> ({lat_max:.2f},{lon_max:.2f})\n")
         elif geo:
-            center_lat, center_lon, radius_km = geo
-            delta = radius_km / 111.0
-            lat_min = center_lat - delta
-            lat_max = center_lat + delta
-            lon_min = center_lon - delta
-            lon_max = center_lon + delta
+            # B4: regioes alongadas N-S (litoral/interior) usam bbox explicito
+            # em vez de um circulo (centro, raio) que ou nao cobre as pontas
+            # ou inclui zonas fora da regiao
+            bbox = self.location_resolver.resolve_bbox(preferences.location) if preferences.location else None
+            if bbox:
+                lat_min, lat_max, lon_min, lon_max = bbox
+                if verbose:
+                    print(f"   '{preferences.location}' -> bbox regional "
+                          f"({lat_min:.2f},{lon_min:.2f}) -> ({lat_max:.2f},{lon_max:.2f})\n")
+            else:
+                center_lat, center_lon, radius_km = geo
+                delta = radius_km / 111.0
+                lat_min = center_lat - delta
+                lat_max = center_lat + delta
+                lon_min = center_lon - delta
+                lon_max = center_lon + delta
 
         # Categorias operacionais/administrativas — nunca incluir em rotas turísticas
         NEVER_INCLUDE_CATEGORIES = [
@@ -537,6 +612,25 @@ class TourismRouteSystem:
             if verbose:
                 print(f"   Refeicoes: +{meal_added} restaurantes no pool GA (total {len(candidate_pois)})\n")
 
+        # B4: reservar uma fatia do orcamento para refeicoes (almoco+jantar/dia)
+        # ANTES de correr o GA, para que este nao gaste o max_cost todo em
+        # bilhetes/atracoes e deixe o [Meals-Pre] sem margem para restaurantes.
+        meal_budget_reserve = 0.0
+        if include_meals and preferences.max_cost:
+            MEALS_PER_DAY = 2  # almoco + jantar
+            DEFAULT_MEAL_COST = 12.0
+            restaurant_costs = [p.get('cost', 0) for p in candidate_pois
+                                 if p.get('category') == 'restaurantes_e_cafes' and p.get('cost')]
+            avg_meal_cost = (sum(restaurant_costs) / len(restaurant_costs)
+                             if restaurant_costs else DEFAULT_MEAL_COST)
+            meal_budget_reserve = num_days_base * MEALS_PER_DAY * avg_meal_cost
+            # Nunca reservar mais de metade do orcamento (evita pools vazios em viagens curtas)
+            meal_budget_reserve = min(meal_budget_reserve, preferences.max_cost * 0.5)
+            if verbose:
+                print(f"   [Budget] Reserva refeicoes: EUR{meal_budget_reserve:.2f} "
+                      f"({num_days_base}d x {MEALS_PER_DAY} x EUR{avg_meal_cost:.2f}) "
+                      f"-> orcamento GA: EUR{preferences.max_cost - meal_budget_reserve:.2f}\n")
+
         # Verificar se há POIs de alojamento disponíveis; se não, relaxar constraint
         if include_accommodation:
             has_accom = any(p['category'] in ACCOMMODATION_BUNDLES for p in candidate_pois)
@@ -566,6 +660,10 @@ class TourismRouteSystem:
             return _hav(plat, plon, alat + t*aby, alon + t*abx)
 
         def _in_area(plat, plon):
+            # Sem nenhuma localizacao resolvida: nao filtrar geograficamente
+            # (o RAG ja aplicou o seu proprio filtro de bbox, se algum)
+            if not all_geos:
+                return True
             # Regiões grandes (Portugal, Alentejo...): bbox do RAG é suficiente
             if any(r > 200.0 for _, _, r in all_geos):
                 return True
@@ -612,7 +710,9 @@ class TourismRouteSystem:
                 print(f"   Density boost aplicado (raio {DENSITY_RADIUS_KM:.0f}km)\n")
 
         # Fallback de emergência: se pool ficou vazio, relaxar filtros geográficos
-        if len(candidate_pois) == 0 and geo:
+        # (corre tambem quando geo=None — localizacao nao foi resolvida —, caso em
+        # que a query nacional sem filtro geografico e a unica alternativa a um erro)
+        if len(candidate_pois) == 0:
             if verbose:
                 print("   AVISO: pool vazio apos filtro — a relaxar para bbox\n")
             rag_results_nogeo = self.rag.query(
@@ -749,7 +849,7 @@ class TourismRouteSystem:
 
         user_prefs_dict = {
             "max_time":   preferences.max_time,
-            "max_cost":   preferences.max_cost,
+            "max_cost":   (preferences.max_cost - meal_budget_reserve) if preferences.max_cost else preferences.max_cost,
             "num_people": _num_people,
             "num_rooms":  _num_rooms,
             "preferred_categories": preferences.preferred_categories,
@@ -1152,6 +1252,8 @@ class TourismRouteSystem:
                 start_time="09:00",
                 lunch_break=60,
                 transport_mode=preferences.transport_mode or "car",
+                transit_service=self.transit_service,
+                max_move_km=_move_cap_km,
             )
             if start_geo:
                 planner.start_lat = start_geo[0]
@@ -1289,6 +1391,34 @@ class TourismRouteSystem:
                                 added.append(ep)
                                 existing_ids.add(ep['id'])
                                 existing_names.add(ep['name'])
+
+                    # B1: preferred_categories esgotadas (ex: cap=2 ja atingido) →
+                    # tentar categorias do mesmo tema antes de deixar o dia incompleto
+                    if not added:
+                        sibling_cats = _thematic_siblings(preferences.preferred_categories)
+                        if sibling_cats:
+                            extra2 = self.rag.query(
+                                text=rag_query,
+                                n_results=8,
+                                category_filter=sibling_cats,
+                                category_exclude=EXCLUDED_CATEGORIES,
+                                max_cost=preferences.max_cost,
+                                lat_min=max(lat_min, clat - d_deg),
+                                lat_max=min(lat_max, clat + d_deg),
+                                lon_min=max(lon_min, clon - d_deg),
+                                lon_max=min(lon_max, clon + d_deg),
+                            )
+                            for ep in extra2.get('pois', []):
+                                if ep['id'] not in existing_ids and ep['name'] not in existing_names:
+                                    ep_cat = ep.get('category', '')
+                                    if (ep_cat not in DayPlanner.NOCTURNO_CATEGORIES
+                                            and ep_cat not in DayPlanner.ACCOMMODATION_CATEGORIES):
+                                        added.append(ep)
+                                        existing_ids.add(ep['id'])
+                                        existing_names.add(ep['name'])
+                            if added and verbose:
+                                print(f"   [Fill-D] Dia {day['day']}: categorias preferidas esgotadas, "
+                                      f"a usar grupo tematico {sibling_cats}")
                     if added:
                         for ep in added:
                             result['route'].append(ep)
@@ -1345,6 +1475,23 @@ class TourismRouteSystem:
                     if verbose:
                         names = [p['name'] for p in removed]
                         print(f"   [Sync] {len(removed)} POI(s) removido(s) (não agendados): {names}\n")
+
+            # Notas de transporte (B5): aviso de troços longos a pé -
+            # adicionado de forma deterministica (sem LLM) ao final da explicacao
+            if (day_plan and day_plan.get('days') and result.get('explanation')
+                    and preferences.transport_mode == "foot"):
+                foot_fallback_kms = [
+                    p['travel_km']
+                    for day in day_plan['days']
+                    for p in day['pois']
+                    if p.get('travel_mode') == 'car' and p.get('travel_km') is not None
+                ]
+                if foot_fallback_kms:
+                    kms_str = ", ".join(f"{km:.1f} km" for km in foot_fallback_kms)
+                    result['explanation'] += (
+                        f"\n\nAlguns troços deste plano são longos para fazer a pé ({kms_str})"
+                        " — para esses, considera apanhar um táxi/Uber."
+                    )
 
             if verbose:
                 planner.print_itinerary(day_plan)

@@ -136,7 +136,8 @@ REGRAS:
 - budget_value: numero mencionado (nunca calcular)
 - budget_type: "per_person"|"per_day"|"per_person_per_day"|"total"
 - transport_mode: "foot"|"car"|"public_transport"|"fastest" ou null
-- locations: cidades/regioes mencionadas (max 4)
+- locations: cidades/regioes mencionadas (max 4). Regioes vagas -> termo canonico PT:
+  "north/coast/inland" -> "Norte"/"Litoral"/"Interior"; "Lisbon area"->"Área Metropolitana de Lisboa"
 - missing_fields: campos omitidos de: location, max_time, max_cost, transport_mode
 
 FORMATO EXACTO (JSON valido, sem // comentarios, sem texto antes ou depois):
@@ -424,6 +425,21 @@ REGRAS PARA locations (lista ordenada de 1 a 4 localidades):
 - locations_ordered: true se o utilizador especificou a ordem de visita explicitamente ("de X a Y", "primeiro X depois Y", "comecar em X acabar em Y")
 - locations_ordered: false se o utilizador apenas listou cidades sem ordem definida
 
+NORMALIZACAO DE REGIOES VAGAS (muito usado por turistas estrangeiros que nao conhecem
+cidades especificas — normaliza SEMPRE para um destes termos canonicos em portugues):
+- "north of Portugal", "northern Portugal", "norte do pais", "no norte" -> "Norte"
+- "south of Portugal", "southern Portugal", "sul do pais", "no sul" (fora do Algarve) -> "Sul"
+- "center of Portugal", "central Portugal", "centro do pais" -> "Centro"
+- "coast", "coastal area", "by the sea", "litoral", "costa" (sem cidade especifica) -> "Litoral"
+- "northern coast", "litoral norte" -> "Litoral Norte"
+- "central coast", "costa de prata", "litoral centro" -> "Litoral Centro"
+- "inland", "countryside", "interior do pais", "interior" -> "Interior"
+- "Lisbon area", "around Lisbon", "grande Lisboa", "area metropolitana de lisboa" -> "Área Metropolitana de Lisboa"
+- "Porto area", "around Porto", "grande Porto" -> "Grande Porto"
+- "Lisbon and Tagus Valley", "Lisboa e Vale do Tejo" -> "Lisboa e Vale do Tejo"
+- "Douro valley", "vale do douro" -> "Vale do Douro"
+- Estes termos canonicos vao para "locations" tal como uma cidade ("locations": ["Norte"])
+
 REGRAS IMPORTANTES:
 - Usa APENAS tags da lista VALIDA acima
 - CUIDADO com conversao de tempo: dias x 480 minutos
@@ -436,7 +452,7 @@ Responde APENAS com o JSON, sem explicacoes."""
 
         content = ""
         try:
-            content = self._call_llm(prompt, max_tokens=600, temperature=0.3)
+            content = self._call_llm(prompt, max_tokens=600, temperature=0.0)
             content = re.sub(r'```json\s*|\s*```', '', content).strip()
 
             start = content.find('{')
@@ -594,9 +610,12 @@ Responde APENAS com o JSON, sem explicacoes."""
                 (["bicicleta", "bike", "cycling", "velocipede"], "foot"),
                 (["mais rapido", "qualquer meio", "fastest"], "fastest"),
             ]
+            # B5: usar versao sem acentos para o matching - "transportes publicos"
+            # (sem acento) nao batia com "transportes públicos" (com acento)
             _inferred_transport = None
+            _q_norm_transport = _norm(user_query)
             for _kws, _mode in _TRANSPORT_KW_MAP:
-                if any(kw in user_query.lower() for kw in _kws):
+                if any(kw in _q_norm_transport for kw in _kws):
                     _inferred_transport = _mode
                     break
 
@@ -740,6 +759,32 @@ Responde APENAS com o JSON, sem explicacoes."""
                 end_location = None
                 if "location" not in missing_fields:
                     missing_fields.append("location")
+
+            # 2b. Fallback por palavra-chave: regioes vagas em PT/EN mencionadas
+            # literalmente na query mas que o LLM nao reconheceu como locations
+            # (ruido de amostragem do LLM, ex: "no interior de Portugal" extraido
+            # como "Portugal" e depois rejeitado pelo filtro _OVERLY_GENERIC acima)
+            if not extracted_location and "location" in missing_fields:
+                _REGION_KEYWORDS = {
+                    "Litoral Norte":   ["litoral norte", "northern coast"],
+                    "Litoral Centro":  ["litoral centro", "costa de prata", "central coast"],
+                    "Interior Norte":  ["interior norte"],
+                    "Interior Centro": ["interior centro"],
+                    "Litoral":  ["litoral", "costa", "coast", "coastal", "by the sea"],
+                    "Interior": ["interior", "inland", "countryside"],
+                    "Norte":    ["norte de portugal", "north of portugal", "northern portugal"],
+                    "Sul":      ["sul de portugal", "south of portugal", "southern portugal"],
+                    "Centro":   ["centro de portugal", "central portugal"],
+                }
+                _q = user_query.lower()
+                for _canon, _kws in _REGION_KEYWORDS.items():
+                    if any(_kw in _q for _kw in _kws):
+                        extracted_location = _canon
+                        extracted_locations = [_canon]
+                        end_location = _canon
+                        missing_fields = [f for f in missing_fields if f != "location"]
+                        print(f"   [OK] Fallback palavra-chave: regiao '{_canon}' detectada na query")
+                        break
 
             # Forcar budget_type em missing_fields se montante dado sem tipo explicito
             # Verificar se o utilizador mencionou explicitamente um valor de orcamento

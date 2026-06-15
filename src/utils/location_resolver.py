@@ -92,20 +92,56 @@ class LocationResolver:
         "portugal":         (39.60, -8.00, 350.0),
         "algarve":          (37.10, -8.10, 120.0),
         "alentejo":         (38.20, -7.80, 150.0),
-        "alentejo litoral": (37.80, -8.50, 80.0),
+        "alentejo litoral": (37.80, -8.50, 100.0),
+        "costa alentejana": (37.80, -8.50, 100.0),
         "costa vicentina":  (37.50, -8.90, 75.0),   # Sines -> Sagres, ~150km de costa SW
         "costa sudoeste":   (37.50, -8.90, 75.0),
         "ribatejo":         (39.30, -8.40, 80.0),
         "beiras":           (40.30, -7.70, 120.0),
         "centro":           (40.00, -8.00, 120.0),
         "norte":            (41.50, -8.00, 120.0),
+        "sul":              (37.80, -8.00, 130.0),
         "minho":            (41.70, -8.30, 80.0),
         "tras-os-montes":   (41.80, -7.00, 100.0),
         "douro":            (41.10, -7.50, 80.0),
+        "vale do douro":    (41.10, -7.50, 80.0),
         "madeira":          (32.76, -16.96, 80.0),
         "ilha da madeira":  (32.76, -16.96, 80.0),
         "acores":           (38.66, -27.22, 200.0),
         "arquipelago dos acores": (38.66, -27.22, 200.0),
+        # Litoral / interior — termos vagos muito usados por turistas estrangeiros
+        "litoral":          (39.80, -9.00, 180.0),
+        "costa":            (39.80, -9.00, 180.0),
+        "litoral norte":    (41.30, -8.65, 60.0),
+        "litoral centro":   (40.10, -8.85, 70.0),
+        "costa de prata":   (40.10, -8.85, 70.0),
+        "costa verde":      (41.30, -8.65, 60.0),
+        "interior":         (40.00, -7.30, 150.0),
+        "interior norte":   (41.50, -7.20, 100.0),
+        "interior centro":  (40.10, -7.30, 100.0),
+        # Areas metropolitanas
+        "area metropolitana de lisboa": (38.74, -9.20, 45.0),
+        "grande lisboa":    (38.74, -9.20, 45.0),
+        "lisboa e vale do tejo": (39.10, -8.80, 90.0),
+        "area metropolitana do porto": (41.18, -8.60, 40.0),
+        "grande porto":     (41.18, -8.60, 40.0),
+    }
+
+    # B4: bounding boxes explicitos para regioes alongadas N-S (litoral/interior),
+    # onde um circulo (centro, raio) ou fica demasiado pequeno (nao cobre as pontas)
+    # ou demasiado grande (inclui zonas fora da regiao). Formato: (lat_min, lat_max,
+    # lon_min, lon_max). Chaves mais especificas (mais longas) tem prioridade na
+    # pesquisa por substring, tal como em _COUNTRY_REGION_OVERRIDES.
+    _REGION_BBOX_OVERRIDES: dict = {
+        "litoral norte":   (40.5, 42.0, -8.9, -8.2),
+        "litoral centro":  (39.2, 40.8, -9.2, -8.5),
+        "costa de prata":  (39.2, 40.8, -9.2, -8.5),
+        "costa verde":     (40.5, 42.0, -8.9, -8.2),
+        "interior norte":  (40.8, 42.0, -7.8, -6.3),
+        "interior centro": (39.3, 40.9, -8.0, -6.5),
+        "litoral":         (37.0, 42.0, -9.5, -8.3),
+        "costa":           (37.0, 42.0, -9.5, -8.3),
+        "interior":        (37.5, 42.0, -8.0, -6.3),
     }
 
     def __init__(self):
@@ -210,6 +246,11 @@ class LocationResolver:
             if bb and len(bb) == 4:
                 bbox = [float(bb[2]), float(bb[0]), float(bb[3]), float(bb[1])]
                 radius = _bbox_radius_km(bbox)
+                # Bbox quase pontual (ex: praia, ponto de interesse): raio minimo
+                # de 8km e insuficiente para regioes/zonas costeiras informais —
+                # usar o raio de fallback do Nominatim nesses casos
+                if radius < 15.0:
+                    radius = self.RADIUS_NOMINATIM
             else:
                 radius = self.RADIUS_NOMINATIM
 
@@ -266,6 +307,18 @@ class LocationResolver:
                   f"({entry['lat']:.4f}, {entry['lon']:.4f}, r={entry['radius_km']:.0f}km)")
             return entry["lat"], entry["lon"], entry["radius_km"]
 
+        # 2.5 Override regional via substring (B3): cobre variantes que o LLM
+        #     nao normalizou para o termo canonico, ex: "litoral portugues",
+        #     "norte de portugal" -> contem "litoral"/"norte" como substring.
+        #     Chaves mais especificas (mais longas) tem prioridade, ex:
+        #     "litoral norte" antes de "litoral".
+        for ov_key in sorted(self._COUNTRY_REGION_OVERRIDES, key=len, reverse=True):
+            if ov_key in key:
+                lat, lon, radius = self._COUNTRY_REGION_OVERRIDES[ov_key]
+                print(f"   [OK] [LocationResolver] '{location}' -> override regional "
+                      f"(substring '{ov_key}') ({lat:.4f}, {lon:.4f}, r={radius:.0f}km)")
+                return lat, lon, radius
+
         # 3. Fallback Nominatim
         print(f"   [LocationResolver] '{location}' nao no GeoJSON, tentando Nominatim...")
         result = self._query_nominatim(location)
@@ -276,4 +329,25 @@ class LocationResolver:
             return result["lat"], result["lon"], result["radius_km"]
 
         print(f"   AVISO: [LocationResolver] Nao foi possivel resolver '{location}' - sem filtro geografico")
+        return None
+
+    def resolve_bbox(self, location: str) -> Optional[Tuple[float, float, float, float]]:
+        """
+        B4: para regioes alongadas N-S (litoral/interior e variantes), devolve
+        um bounding box explicito (lat_min, lat_max, lon_min, lon_max) em vez
+        do circulo (centro, raio) de resolve(). Devolve None se `location` nao
+        corresponder (exacto ou substring) a nenhuma destas regioes.
+        """
+        if not location or not location.strip():
+            return None
+
+        key = _normalize(location)
+
+        if key in self._REGION_BBOX_OVERRIDES:
+            return self._REGION_BBOX_OVERRIDES[key]
+
+        for bbox_key in sorted(self._REGION_BBOX_OVERRIDES, key=len, reverse=True):
+            if bbox_key in key:
+                return self._REGION_BBOX_OVERRIDES[bbox_key]
+
         return None
