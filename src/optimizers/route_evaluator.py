@@ -135,7 +135,7 @@ class RouteEvaluator:
         # 100% se todos os POIs preferidos disponíveis foram incluídos na rota.
         n_preferred_in_route = sum(1 for idx in non_accom_route
                                    if self.pois[idx].category in self._preferred_cat_set)
-        max_achievable = min(self._n_available_preferred_pois, max(1, len(non_accom_route)))
+        max_achievable = max(1, min(self._n_available_preferred_pois, max(1, len(non_accom_route))))
         cat_indata_comp = min(n_preferred_in_route / max_achievable, 1.0) * 100
 
         # ── cat_general_comp (julga DADOS + modelo) ──────────────────────────
@@ -209,7 +209,7 @@ class RouteEvaluator:
         # cat_indata_comp: julga modelo
         n_preferred_in_route = sum(1 for idx in non_accom_route
                                    if self.pois[idx].category in self._preferred_cat_set)
-        max_achievable = min(self._n_available_preferred_pois, max(1, len(non_accom_route)))
+        max_achievable = max(1, min(self._n_available_preferred_pois, max(1, len(non_accom_route))))
         cat_indata_comp = min(n_preferred_in_route / max_achievable, 1.0) * 100
         # cat_general_comp: julga dados + modelo
         requested_cats = set(self.prefs.get('preferred_categories') or [])
