@@ -35,6 +35,7 @@ class TransitService:
     def __init__(self):
         self.graph: Optional[nx.MultiDiGraph] = None
         self._stops: Dict[str, dict] = {}
+        self._subgraph_cache: Dict[Optional[date], nx.DiGraph] = {}
 
     # ------------------------------------------
     # Inicializacao
@@ -119,7 +120,14 @@ class TransitService:
         Devolve um DiGraph simples com apenas as arestas activas na data pedida.
         Se query_date=None, usa todas as arestas (fallback para planeamento
         sem data especifica).
+
+        Cacheado por query_date: a construcao percorre todas as 577k arestas
+        do grafo unificado, e e chamada repetidamente (uma vez por troco de
+        rota) com a mesma data.
         """
+        if query_date in self._subgraph_cache:
+            return self._subgraph_cache[query_date]
+
         if query_date is None:
             # Sem data: usar a aresta mais rapida por par de paragens
             simple = nx.DiGraph()
@@ -127,6 +135,7 @@ class TransitService:
             for u, v, data in self.graph.edges(data=True):
                 if not simple.has_edge(u, v) or simple[u][v]["weight"] > data["weight"]:
                     simple.add_edge(u, v, **data)
+            self._subgraph_cache[query_date] = simple
             return simple
 
         # Determinar servicos activos por operador
@@ -148,6 +157,7 @@ class TransitService:
                 continue
             if not simple.has_edge(u, v) or simple[u][v]["weight"] > data["weight"]:
                 simple.add_edge(u, v, **data)
+        self._subgraph_cache[query_date] = simple
         return simple
 
     def nearest_stop(self, lat: float, lon: float,
@@ -209,6 +219,77 @@ class TransitService:
             "segments": segments,
         }
 
+    def get_transit_plan(self, origin_coords: Tuple[float, float],
+                         dest_coords: Tuple[float, float],
+                         query_date: Optional[date] = None) -> Optional[Dict]:
+        """
+        B5 v2: decompoe um troco POI->POI em 1ª/ultima milha + perna de TP.
+
+        So devolve um plano se existir uma rota GTFS real entre paragens
+        proximas (<=2km) de origem e destino. As pernas de 1ª/ultima milha
+        (POI<->paragem) sao classificadas como "a pe" (<=2km) ou "taxi/carro"
+        (>2km), para que a explicacao ao utilizador seja honesta sobre o que
+        e efectivamente transporte publico e o que e estimativa de apoio.
+
+        Retorna None se nao houver paragens proximas ou caminho GTFS — nesse
+        caso o chamador deve usar um fallback de carro/taxi para o troco todo.
+        """
+        if self.graph is None:
+            return None
+
+        stop_a = self.nearest_stop(*origin_coords, max_dist_km=2.0)
+        stop_b = self.nearest_stop(*dest_coords, max_dist_km=2.0)
+        if not stop_a or not stop_b or stop_a == stop_b:
+            return None
+
+        subgraph = self._active_subgraph(query_date)
+        try:
+            path = nx.dijkstra_path(subgraph, stop_a, stop_b, weight="weight")
+            transit_minutes = nx.dijkstra_path_length(subgraph, stop_a, stop_b, weight="weight")
+        except nx.NetworkXNoPath:
+            return None
+        if len(path) < 2:
+            return None
+
+        stop_a_data = subgraph.nodes[stop_a]
+        stop_b_data = subgraph.nodes[stop_b]
+        first_mile_km = _haversine_km(origin_coords[0], origin_coords[1],
+                                       stop_a_data["lat"], stop_a_data["lon"])
+        last_mile_km = _haversine_km(stop_b_data["lat"], stop_b_data["lon"],
+                                      dest_coords[0], dest_coords[1])
+
+        first_mile_mode = "a pé" if first_mile_km <= 2.0 else "táxi/carro"
+        last_mile_mode = "a pé" if last_mile_km <= 2.0 else "táxi/carro"
+        first_mile_minutes = (first_mile_km / 5) * 60 if first_mile_mode == "a pé" else (first_mile_km / 30) * 60
+        last_mile_minutes = (last_mile_km / 5) * 60 if last_mile_mode == "a pé" else (last_mile_km / 30) * 60
+
+        routes_used = []
+        for i in range(len(path) - 1):
+            edge_data = subgraph[path[i]][path[i + 1]]
+            rid = edge_data.get("route_id", "")
+            if rid and rid != "WALK" and rid not in routes_used:
+                routes_used.append(rid)
+
+        note_parts = []
+        if first_mile_km > 0.05:
+            note_parts.append(f"{first_mile_km:.1f}km {first_mile_mode} até {stop_a_data.get('name', 'paragem')}")
+        if routes_used:
+            label = "linhas" if len(routes_used) > 1 else "linha"
+            note_parts.append(f"transporte público ({label} {', '.join(routes_used)})")
+        else:
+            note_parts.append("transporte público")
+        if last_mile_km > 0.05:
+            note_parts.append(f"{last_mile_km:.1f}km {last_mile_mode} até ao destino")
+
+        return {
+            "total_minutes": round(first_mile_minutes + transit_minutes + last_mile_minutes, 1),
+            "transit_minutes": round(transit_minutes, 1),
+            "first_mile_km": round(first_mile_km, 2),
+            "last_mile_km": round(last_mile_km, 2),
+            "routes_used": routes_used,
+            "note": " + ".join(note_parts),
+        }
+
     def build_cost_matrix(self, pois: List, mode: str = "public_transport",
                           query_date: Optional[date] = None) -> np.ndarray:
         k = len(pois)
@@ -256,6 +337,61 @@ class TransitService:
             if d.get("lat") and d.get("lon"):
                 geometry.append([d["lat"], d["lon"]])
         return geometry if len(geometry) >= 2 else None
+
+    def get_route_segments(self,
+                           origin_coords: Tuple[float, float],
+                           dest_coords: Tuple[float, float],
+                           query_date: Optional[date] = None) -> Optional[List[Dict]]:
+        """
+        Devolve a rota de TP agrupada por linha/perna, para desenhar no mapa
+        apenas os segmentos efectivamente usados.
+
+        Cada item: {"geometry": [[lat,lon],...], "route_id": str,
+                     "operator": str, "is_walk": bool}
+        Segmentos consecutivos com a mesma route_id/operator sao fundidos
+        numa unica perna.
+        """
+        if self.graph is None:
+            return None
+        stop_a = self.nearest_stop(*origin_coords, max_dist_km=2.0)
+        stop_b = self.nearest_stop(*dest_coords, max_dist_km=2.0)
+        if not stop_a or not stop_b or stop_a == stop_b:
+            return None
+        subgraph = self._active_subgraph(query_date)
+        try:
+            path = nx.dijkstra_path(subgraph, stop_a, stop_b, weight="weight")
+        except Exception:
+            return None
+        if len(path) < 2:
+            return None
+
+        segments: List[Dict] = []
+        for i in range(len(path) - 1):
+            u, v = path[i], path[i + 1]
+            edge_data = subgraph[u][v]
+            route_id = edge_data.get("route_id", "")
+            operator = edge_data.get("operator", "")
+            is_walk = (route_id == "WALK") or (operator == "walk")
+
+            du, dv = subgraph.nodes[u], subgraph.nodes[v]
+            if not (du.get("lat") and du.get("lon") and dv.get("lat") and dv.get("lon")):
+                continue
+            point_u = [du["lat"], du["lon"]]
+            point_v = [dv["lat"], dv["lon"]]
+
+            if (segments and segments[-1]["route_id"] == route_id
+                    and segments[-1]["operator"] == operator
+                    and segments[-1]["is_walk"] == is_walk):
+                segments[-1]["geometry"].append(point_v)
+            else:
+                segments.append({
+                    "geometry": [point_u, point_v],
+                    "route_id": route_id,
+                    "operator": operator,
+                    "is_walk": is_walk,
+                })
+
+        return segments if segments else None
 
     def _build_tp_matrix(self, pois: List, query_date: Optional[date] = None) -> np.ndarray:
         k = len(pois)
