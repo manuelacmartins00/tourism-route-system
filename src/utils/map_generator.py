@@ -1,6 +1,7 @@
 # src/utils/map_generator.py
 
 import folium
+from folium.plugins import Fullscreen
 import requests
 from pathlib import Path
 from typing import List, Dict, Optional
@@ -74,6 +75,15 @@ class RouteMapGenerator:
             except (FuturesTimeout, Exception):
                 return None
 
+    def _transit_segments_safe(self, transit_service, coords_a, coords_b, timeout=4):
+        """Chama get_route_segments com timeout para evitar bloquear o mapa."""
+        with ThreadPoolExecutor(max_workers=1) as ex:
+            future = ex.submit(transit_service.get_route_segments, coords_a, coords_b)
+            try:
+                return future.result(timeout=timeout)
+            except (FuturesTimeout, Exception):
+                return None
+
     def generate_map(self, route: List[Dict], output_file: str = None, algorithm: str = "",
                      transport_mode: str = "foot", day_plan: dict = None,
                      transit_service=None) -> str:
@@ -115,7 +125,8 @@ class RouteMapGenerator:
             zoom_start=13,
             tiles='OpenStreetMap'
         )
-        
+        Fullscreen(position='topleft').add_to(m)
+
         # Paleta de cores por dia (Folium named + CSS hex equivalents)
         DAY_FOLIUM = [
             'red', 'blue', 'green', 'purple', 'orange',
@@ -140,9 +151,26 @@ class RouteMapGenerator:
             _ordered_pois = list(route)
             _route_coords = poi_coordinates
 
+        # Construir mapa de (poi_name -> (dia, ordem_no_dia)) a partir do day_plan
+        # (necessario antes para atribuir segmentos/marcadores aos FeatureGroups por dia — S4)
+        poi_day_label = {}
+        if day_plan and day_plan.get("days"):
+            for day in day_plan["days"]:
+                for p in day["pois"]:
+                    poi_day_label[p["name"]] = (day["day"], p["order"])
+
+        # FeatureGroups por dia (S4) — permite ligar/desligar cada dia no mapa
+        day_groups: dict = {}
+        def _get_day_group(day_num: int):
+            if day_num not in day_groups:
+                label = f"Dia {day_num}" if day_num > 0 else "Outros"
+                day_groups[day_num] = folium.FeatureGroup(name=label, show=True)
+            return day_groups[day_num]
+
         # [OK] OBTER ROTA REAL VIA OSRM
         osrm_route = self.get_real_route(_route_coords, profile=osrm_profile)
-        
+
+        route_group = folium.FeatureGroup(name="Rota completa", show=True)
         if osrm_route and 'geometry' in osrm_route:
             folium.PolyLine(
                 osrm_route['geometry'],
@@ -155,7 +183,7 @@ class RouteMapGenerator:
                     Duracao: {osrm_route['duration']:.0f} min
                 """,
                 tooltip="Rota calculada pelo OpenStreetMap"
-            ).add_to(m)
+            ).add_to(route_group)
             print(f"   [OK] Rota OSRM: {osrm_route['distance']:.2f} km, {osrm_route['duration']:.0f} min")
         else:
             print("   AVISO: OSRM falhou, usando linha reta")
@@ -165,31 +193,53 @@ class RouteMapGenerator:
                 weight=3,
                 opacity=0.5,
                 dash_array='5'
-            ).add_to(m)
+            ).add_to(route_group)
+        route_group.add_to(m)
 
-        # Paragens GTFS para transportes públicos
+        # Paragens GTFS para transportes públicos — apenas as linhas/segmentos
+        # efectivamente usados na rota, agrupados por linha (B5/S6)
         if transport_mode == "public_transport" and transit_service is not None:
             n_transit = 0
+            n_legs = 0
             for idx in range(len(_ordered_pois) - 1):
                 a = _ordered_pois[idx]
                 b = _ordered_pois[idx + 1]
-                geom = self._transit_geometry_safe(
+                segments = self._transit_segments_safe(
                     transit_service,
                     (a['lat'], a['lon']),
                     (b['lat'], b['lon'])
                 )
-                if geom and len(geom) >= 2:
-                    # Linha de trânsito em laranja sobre a rota OSRM
-                    folium.PolyLine(
-                        geom,
-                        color='#ff6600',
-                        weight=4,
-                        opacity=0.9,
-                        dash_array=None,
-                        tooltip="Rota transportes públicos (GTFS)"
-                    ).add_to(m)
-                    # Marcadores de paragem (círculos pequenos)
-                    for stop in geom[1:-1]:  # excluir primeiro e último (são os POIs)
+                if not segments:
+                    continue
+                seg_day = poi_day_label[b["name"]][0] if b["name"] in poi_day_label else 0
+                seg_group = _get_day_group(seg_day)
+                for seg in segments:
+                    geom = seg["geometry"]
+                    if len(geom) < 2:
+                        continue
+                    if seg["is_walk"]:
+                        # Perna a pé entre paragens/transferências
+                        folium.PolyLine(
+                            geom,
+                            color='#999999',
+                            weight=3,
+                            opacity=0.7,
+                            dash_array='4',
+                            tooltip="A pé (transferência)"
+                        ).add_to(seg_group)
+                    else:
+                        line_label = seg["route_id"] or seg["operator"] or "Transportes Públicos"
+                        folium.PolyLine(
+                            geom,
+                            color='#ff6600',
+                            weight=4,
+                            opacity=0.9,
+                            dash_array=None,
+                            tooltip=f"Linha {line_label}"
+                        ).add_to(seg_group)
+                        n_legs += 1
+                    # Marcadores de paragem (círculos pequenos), excl. extremos
+                    for stop in geom[1:-1]:
                         folium.CircleMarker(
                             location=stop,
                             radius=4,
@@ -198,17 +248,10 @@ class RouteMapGenerator:
                             fill_color='white',
                             fill_opacity=1.0,
                             tooltip="Paragem / Estação"
-                        ).add_to(m)
-                    n_transit += 1
+                        ).add_to(seg_group)
+                n_transit += 1
             if n_transit:
-                print(f"   [OK] Rotas GTFS desenhadas: {n_transit} segmentos")
-        
-        # Construir mapa de (poi_name -> (dia, ordem_no_dia)) a partir do day_plan
-        poi_day_label = {}
-        if day_plan and day_plan.get("days"):
-            for day in day_plan["days"]:
-                for p in day["pois"]:
-                    poi_day_label[p["name"]] = (day["day"], p["order"])
+                print(f"   [OK] Rotas GTFS desenhadas: {n_transit} trajetos, {n_legs} linhas")
 
         # [OK] ADICIONAR MARCADORES para cada POI
         for i, poi in enumerate(route, 1):
@@ -229,6 +272,7 @@ class RouteMapGenerator:
 
             label = f"D{day_num}-{poi_day_label[name][1]}" if name in poi_day_label else str(i)
             badge = f"{chr(64+day_num)}{poi_day_label[name][1]}" if name in poi_day_label else str(i)
+            poi_group = _get_day_group(day_num)
 
             # Marcador colorido
             folium.Marker(
@@ -251,7 +295,7 @@ class RouteMapGenerator:
                     icon='info-sign',
                     prefix='glyphicon'
                 )
-            ).add_to(m)
+            ).add_to(poi_group)
 
             # Numero do POI sobreposto
             folium.Marker(
@@ -271,8 +315,14 @@ class RouteMapGenerator:
                         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
                     ">{badge}</div>
                 """)
-            ).add_to(m)
-        
+            ).add_to(poi_group)
+
+        # Adicionar todos os FeatureGroups por dia ao mapa + controlo de camadas (S4)
+        for day_num in sorted(day_groups.keys()):
+            day_groups[day_num].add_to(m)
+        # S4: topleft para nao ficar atras da caixa "Rota Turistica" (topright)
+        folium.LayerControl(collapsed=False, position='topleft').add_to(m)
+
         # [OK] AJUSTAR ZOOM para mostrar toda a rota
         if osrm_route and 'geometry' in osrm_route:
             m.fit_bounds(osrm_route['geometry'])
@@ -324,9 +374,15 @@ class RouteMapGenerator:
                         margin-right: 5px;
                         vertical-align: middle;
                     "></span>
-                    <b>Dia {d}</b> ({len(day["pois"])} paragens)
+                    <b>Dia {d}</b> ({len(day["pois"])} paragens) — letra "{chr(64 + d)}"
                 </p>
                 '''
+            legend_html += '''
+            <p style="margin: 8px 0 0; font-size: 11px; color: #666;">
+                Cada marcador mostra <b>Letra do dia + número da ordem</b> de visita
+                (ex: B2 = Dia 2, 2ª paragem)
+            </p>
+            '''
         else:
             route_categories = set(poi['category'] for poi in route)
             for cat in sorted(route_categories):
