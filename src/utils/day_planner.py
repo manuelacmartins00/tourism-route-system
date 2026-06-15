@@ -34,7 +34,8 @@ class DayPlanner:
     }
 
     def __init__(self, hours_per_day: int = 8, start_time: str = "09:00",
-                 lunch_break: int = 60, transport_mode: str = "car"):
+                 lunch_break: int = 60, transport_mode: str = "car",
+                 transit_service=None, max_move_km: float = 80.0):
         self.start_lat = None
         self.start_lon = None
         self.hours_per_day = hours_per_day
@@ -42,13 +43,39 @@ class DayPlanner:
         self.start_time = start_time
         self.lunch_break = lunch_break
         self.transport_mode = transport_mode
+        self.transit_service = transit_service
+        self.max_move_km = max_move_km
 
-    def _travel_minutes(self, d_km: float) -> int:
-        table = self._TRAVEL_TABLE.get(self.transport_mode, self._TRAVEL_TABLE["car"])
+    def _travel_minutes(self, d_km: float, mode: str = None) -> int:
+        table = self._TRAVEL_TABLE.get(mode or self.transport_mode, self._TRAVEL_TABLE["car"])
         for max_km, t_min in table:
             if d_km <= max_km:
                 return int(t_min)
         return 75
+
+    def _segment_transport(self, d_km: float, lat1: float = None, lon1: float = None,
+                           lat2: float = None, lon2: float = None) -> tuple:
+        """Modo de transporte sugerido para este segmento (S2), com nota opcional (B5 v2).
+
+        Mesmo que o modo global seja 'foot', percursos >2km nao sao
+        razoaveis a pe — sugerir 'car' nesse caso.
+
+        Para 'public_transport', tenta decompor o troco em 1a/ultima milha +
+        perna de TP real (transit_service.get_transit_plan). Se nao houver
+        cobertura GTFS entre paragens proximas, cai para 'car' com nota a
+        avisar o utilizador que os dados de TP nao estavam disponiveis.
+        """
+        if (self.transport_mode == "public_transport" and self.transit_service is not None
+                and lat1 is not None):
+            plan = self.transit_service.get_transit_plan((lat1, lon1), (lat2, lon2))
+            if plan:
+                return "public_transport", plan["note"]
+            return "car", ("Sem dados de transporte público para este troço — "
+                            "pode existir autocarro local; estimativa baseada em carro/táxi.")
+        if self.transport_mode == "foot" and d_km > 2.0:
+            return "car", (f"Troço de {d_km:.1f} km — distância elevada para fazer a pé; "
+                            "considera apanhar um táxi/Uber para este percurso.")
+        return self.transport_mode, None
 
     # -- Public API ----------------------------------------------------------
 
@@ -229,6 +256,75 @@ class DayPlanner:
             result.append(best)
         return result
 
+    @staticmethod
+    def _seed_centroids(all_geos: Optional[List], n_days: int):
+        """
+        B2: gera `n_days` sementes (lat, lon) para o K-means a partir das
+        cidades-foco da rota (all_geos). Se houver mais ou menos cidades do
+        que dias, interpola pontos ao longo da sequencia de cidades — mantem
+        a ordem do corredor. Devolve None se nao houver pelo menos 2 cidades
+        (deixa o K-means inicializar normalmente).
+        """
+        if not all_geos or len(all_geos) < 2 or n_days < 1:
+            return None
+        pts = [(g[0], g[1]) for g in all_geos]
+        n = len(pts)
+        if n == n_days:
+            return np.array(pts)
+        seeds = []
+        for i in range(n_days):
+            t = i * (n - 1) / max(1, n_days - 1)
+            idx = int(t)
+            frac = t - idx
+            if idx >= n - 1:
+                seeds.append(pts[-1])
+            else:
+                lat = pts[idx][0] + frac * (pts[idx + 1][0] - pts[idx][0])
+                lon = pts[idx][1] + frac * (pts[idx + 1][1] - pts[idx][1])
+                seeds.append((lat, lon))
+        return np.array(seeds)
+
+    def _repair_city_coverage(self, by_day: List[List[Dict]], all_geos: List,
+                               coverage_radius_km: float = 20.0) -> List[List[Dict]]:
+        """
+        B2: garante que cada cidade-foco (all_geos) tem pelo menos um POI
+        atribuido a algum dia. Se nenhuma cidade tiver POIs num raio de
+        `coverage_radius_km`, move o POI mais proximo dessa cidade (de
+        qualquer dia, ate self.max_move_km — mesmo limite do _rebalance_category_diversity)
+        para o dia cujo centroide atual esta mais perto da cidade.
+        """
+        n_days = len(by_day)
+        for city_lat, city_lon, _radius in all_geos:
+            covered = any(
+                self._haversine(city_lat, city_lon, p['lat'], p['lon']) <= coverage_radius_km
+                for cluster in by_day for p in cluster
+            )
+            if covered:
+                continue
+
+            best_poi, best_src, best_dist = None, None, float('inf')
+            for src_idx, cluster in enumerate(by_day):
+                for poi in cluster:
+                    dist = self._haversine(city_lat, city_lon, poi['lat'], poi['lon'])
+                    if dist < best_dist:
+                        best_dist, best_poi, best_src = dist, poi, src_idx
+
+            if best_poi is None or best_dist > self.max_move_km:
+                continue
+
+            def _centroid(cluster):
+                if not cluster:
+                    return (city_lat, city_lon)
+                return (sum(p['lat'] for p in cluster) / len(cluster),
+                        sum(p['lon'] for p in cluster) / len(cluster))
+
+            target = min(range(n_days),
+                          key=lambda i: self._haversine(city_lat, city_lon, *_centroid(by_day[i])))
+            if target != best_src:
+                by_day[best_src].remove(best_poi)
+                by_day[target].append(best_poi)
+        return by_day
+
     def _distribute_diurnal(self, diurnal: List[Dict], n_days: int,
                               all_geos: List = None, route_direction: str = None) -> List[List[Dict]]:
         if not diurnal:
@@ -254,7 +350,14 @@ class DayPlanner:
         try:
             from sklearn.cluster import KMeans
             coords = np.array([[p["lat"], p["lon"]] for p in non_meal])
-            labels = KMeans(n_clusters=n_days, random_state=42, n_init=10).fit_predict(coords)
+            # B2: sementes de K-means a partir das cidades-foco (all_geos), quando
+            # disponiveis — melhora a separacao geografica em rotas multi-cidade
+            seed_centroids = self._seed_centroids(all_geos, n_days)
+            if seed_centroids is not None:
+                labels = KMeans(n_clusters=n_days, init=seed_centroids, n_init=1,
+                                 random_state=42).fit_predict(coords)
+            else:
+                labels = KMeans(n_clusters=n_days, random_state=42, n_init=10).fit_predict(coords)
             by_day: List[List[Dict]] = [[] for _ in range(n_days)]
             for i, poi in enumerate(non_meal):
                 by_day[labels[i]].append(poi)
@@ -277,6 +380,10 @@ class DayPlanner:
                                 _poi['lat'], _poi['lon']))
                 _reassigned[_best].append(_poi)
             by_day = _reassigned
+            # B2: reparacao de cobertura — garante que cada cidade-foco tem pelo
+            # menos 1 POI atribuido a algum dia, antes do rebalanceamento
+            if all_geos and len(all_geos) > 1:
+                by_day = self._repair_city_coverage(by_day, all_geos)
             # 1. Reequilibrar diversidade de categorias (sem restaurantes)
             by_day = self._rebalance_category_diversity(by_day, max_same_cat=2)
             # 2. Balancear tempo entre dias
@@ -303,13 +410,15 @@ class DayPlanner:
     def _assign_restaurants_to_days(self, by_day: List[List[Dict]],
                                      restaurants: List[Dict], per_day: int = 2) -> None:
         """Atribui até `per_day` restaurantes por dia por proximidade ao centroide do dia.
-        Se o restaurante disponível mais próximo estiver a mais de MAX_DIST_KM do centroide,
-        procura o restaurante MAIS PRÓXIMO de todos (usado ou não) dentro de MAX_DIST_KM
-        e copia-o. Se não existir nenhum dentro desse raio, não atribui restaurante."""
+        Se o restaurante disponível mais próximo estiver a mais de max_move_km do centroide,
+        procura o restaurante MAIS PRÓXIMO de todos (usado ou não) dentro de max_move_km
+        e copia-o. Se não existir nenhum dentro desse raio, não atribui restaurante.
+        Usa self.max_move_km (raio/dias, geo+transporte-aware) em vez de um valor fixo,
+        evitando atribuir um restaurante distante do cluster geográfico do dia."""
         if not restaurants:
             return
         import copy as _copy
-        MAX_DIST_KM = 35.0
+        MAX_DIST_KM = self.max_move_km
         used: set = set()
         n_days = len(by_day)
         for day_idx in range(n_days):
@@ -374,13 +483,13 @@ class DayPlanner:
                             dst_time = sum(p['duration'] for p in by_day[dst])
                             if not (dst_cat_count < best_count and dst_time + poi['duration'] <= self.minutes_per_day):
                                 continue
-                            # Restrição geográfica: não mover mais de 80 km do centroide destino
+                            # Restrição geográfica: não mover mais do que max_move_km do centroide destino
                             if by_day[dst]:
                                 d_lats = [p['lat'] for p in by_day[dst]]
                                 d_lons = [p['lon'] for p in by_day[dst]]
                                 d_clat = sum(d_lats) / len(d_lats)
                                 d_clon = sum(d_lons) / len(d_lons)
-                                if self._haversine(d_clat, d_clon, poi['lat'], poi['lon']) > 80:
+                                if self._haversine(d_clat, d_clon, poi['lat'], poi['lon']) > self.max_move_km:
                                     continue
                             best_count = dst_cat_count
                             best_dst = dst
@@ -446,7 +555,7 @@ class DayPlanner:
                         candidate = min(by_day[src],
                                         key=lambda p: self._haversine(clat, clon, p['lat'], p['lon']))
                         # Não transferir POI geograficamente distante do cluster destino
-                        if self._haversine(clat, clon, candidate['lat'], candidate['lon']) > 80:
+                        if self._haversine(clat, clon, candidate['lat'], candidate['lon']) > self.max_move_km:
                             continue
                     else:
                         candidate = by_day[src][-1]
@@ -584,7 +693,8 @@ class DayPlanner:
         def _travel_to(poi: Dict) -> int:
             if prev_lat is not None:
                 d_km = self._haversine(prev_lat, prev_lon, poi['lat'], poi['lon'])
-                return self._travel_minutes(d_km)
+                mode, _ = self._segment_transport(d_km, prev_lat, prev_lon, poi['lat'], poi['lon'])
+                return self._travel_minutes(d_km, mode)
             return 0
 
         def _sched(poi: Dict, duration: int = None) -> None:
@@ -592,8 +702,17 @@ class DayPlanner:
             dur = duration if duration is not None else poi['duration']
             arr = self._fmt(current)
             dep = self._fmt(current + dur)
+            travel_km = None
+            travel_mode = None
+            travel_note = None
+            if prev_lat is not None:
+                travel_km = round(self._haversine(prev_lat, prev_lon, poi['lat'], poi['lon']), 2)
+                travel_mode, travel_note = self._segment_transport(
+                    travel_km, prev_lat, prev_lon, poi['lat'], poi['lon'])
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep,
-                              "order": order, "duration": dur})
+                              "order": order, "duration": dur,
+                              "travel_km": travel_km, "travel_mode": travel_mode,
+                              "travel_note": travel_note})
             order    += 1
             current  += dur
             prev_lat  = poi['lat']
@@ -700,18 +819,38 @@ class DayPlanner:
                 break
             arr = self._fmt(current)
             dep = self._fmt(current + sched_duration)
+            travel_km = None
+            travel_mode = None
+            travel_note = None
+            if prev_lat is not None:
+                travel_km = round(self._haversine(prev_lat, prev_lon, poi['lat'], poi['lon']), 2)
+                travel_mode, travel_note = self._segment_transport(
+                    travel_km, prev_lat, prev_lon, poi['lat'], poi['lon'])
             schedule.append({**poi, "arrival_time": arr, "departure_time": dep,
-                              "order": order, "duration": sched_duration})
+                              "order": order, "duration": sched_duration,
+                              "travel_km": travel_km, "travel_mode": travel_mode,
+                              "travel_note": travel_note})
             order   += 1
             current += sched_duration
+            prev_lat = poi['lat']
+            prev_lon = poi['lon']
             nocturnal_count += 1
 
         # ── HOTEL ─────────────────────────────────────────────────────────────
         if hotel:
             arr = self._fmt(current)
             dep = self._fmt(current + hotel.get('duration', 30))
+            travel_km = None
+            travel_mode = None
+            travel_note = None
+            if prev_lat is not None:
+                travel_km = round(self._haversine(prev_lat, prev_lon, hotel['lat'], hotel['lon']), 2)
+                travel_mode, travel_note = self._segment_transport(
+                    travel_km, prev_lat, prev_lon, hotel['lat'], hotel['lon'])
             schedule.append({**hotel, "arrival_time": arr, "departure_time": dep,
-                              "order": order, "is_accommodation": True})
+                              "order": order, "is_accommodation": True,
+                              "travel_km": travel_km, "travel_mode": travel_mode,
+                              "travel_note": travel_note})
             order   += 1
             current += hotel.get('duration', 30)
 
