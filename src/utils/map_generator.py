@@ -167,34 +167,60 @@ class RouteMapGenerator:
                 day_groups[day_num] = folium.FeatureGroup(name=label, show=True)
             return day_groups[day_num]
 
-        # [OK] OBTER ROTA REAL VIA OSRM
-        osrm_route = self.get_real_route(_route_coords, profile=osrm_profile)
+        # OSRM por dia — cada polyline vai para o FeatureGroup do seu dia
+        # (elimina o grupo "Rota completa" separado dos marcadores)
+        all_day_geometries: list = []
+        total_distance_km = 0.0
+        total_duration_min = 0.0
 
-        route_group = folium.FeatureGroup(name="Rota completa", show=True)
-        if osrm_route and 'geometry' in osrm_route:
-            folium.PolyLine(
-                osrm_route['geometry'],
-                color='#3388ff',
-                weight=5,
-                opacity=0.8,
-                popup=f"""
-                    <b>Rota {mode_label}</b><br>
-                    Distancia: {osrm_route['distance']:.2f} km<br>
-                    Duracao: {osrm_route['duration']:.0f} min
-                """,
-                tooltip="Rota calculada pelo OpenStreetMap"
-            ).add_to(route_group)
-            print(f"   [OK] Rota OSRM: {osrm_route['distance']:.2f} km, {osrm_route['duration']:.0f} min")
+        if day_plan and day_plan.get("days"):
+            for day in day_plan["days"]:
+                day_pois = day["pois"]
+                d = day["day"]
+                day_group = _get_day_group(d)
+                css_color = DAY_CSS[(d - 1) % len(DAY_CSS)]
+                if len(day_pois) < 2:
+                    continue
+                day_coords = [[p['lat'], p['lon']] for p in day_pois]
+                day_osrm = self.get_real_route(day_coords, profile=osrm_profile)
+                if day_osrm and 'geometry' in day_osrm:
+                    folium.PolyLine(
+                        day_osrm['geometry'],
+                        color=css_color,
+                        weight=4,
+                        opacity=0.75,
+                        tooltip=f"Dia {d} · {day_osrm['distance']:.1f} km · {day_osrm['duration']:.0f} min"
+                    ).add_to(day_group)
+                    all_day_geometries.extend(day_osrm['geometry'])
+                    total_distance_km += day_osrm['distance']
+                    total_duration_min += day_osrm['duration']
+                else:
+                    folium.PolyLine(
+                        day_coords, color=css_color, weight=3, opacity=0.5, dash_array='5'
+                    ).add_to(day_group)
+                    all_day_geometries.extend(day_coords)
+            if all_day_geometries:
+                print(f"   [OK] Rotas OSRM por dia: {total_distance_km:.1f} km total, {total_duration_min:.0f} min")
         else:
-            print("   AVISO: OSRM falhou, usando linha reta")
-            folium.PolyLine(
-                poi_coordinates,
-                color='blue',
-                weight=3,
-                opacity=0.5,
-                dash_array='5'
-            ).add_to(route_group)
-        route_group.add_to(m)
+            # Sem day_plan: rota única
+            osrm_single = self.get_real_route(_route_coords, profile=osrm_profile)
+            route_group = folium.FeatureGroup(name="Rota", show=True)
+            if osrm_single and 'geometry' in osrm_single:
+                folium.PolyLine(
+                    osrm_single['geometry'], color='#3388ff', weight=5, opacity=0.8,
+                    tooltip=f"Rota {mode_label}"
+                ).add_to(route_group)
+                all_day_geometries = osrm_single['geometry']
+                total_distance_km = osrm_single['distance']
+                total_duration_min = osrm_single['duration']
+                print(f"   [OK] Rota OSRM: {total_distance_km:.2f} km, {total_duration_min:.0f} min")
+            else:
+                print("   AVISO: OSRM falhou, usando linha reta")
+                folium.PolyLine(
+                    poi_coordinates, color='blue', weight=3, opacity=0.5, dash_array='5'
+                ).add_to(route_group)
+                all_day_geometries = poi_coordinates
+            route_group.add_to(m)
 
         # Paragens GTFS para transportes públicos — apenas as linhas/segmentos
         # efectivamente usados na rota, agrupados por linha (B5/S6)
@@ -324,8 +350,8 @@ class RouteMapGenerator:
         folium.LayerControl(collapsed=False, position='topleft').add_to(m)
 
         # [OK] AJUSTAR ZOOM para mostrar toda a rota
-        if osrm_route and 'geometry' in osrm_route:
-            m.fit_bounds(osrm_route['geometry'])
+        if all_day_geometries:
+            m.fit_bounds(all_day_geometries)
         elif len(_route_coords) > 1:
             m.fit_bounds(_route_coords)
         
@@ -350,10 +376,10 @@ class RouteMapGenerator:
         <p style="margin: 5px 0;"><b>Total POIs:</b> {len(route)}</p>
         '''
         
-        if osrm_route:
+        if total_distance_km > 0:
             legend_html += f'''
-            <p style="margin: 5px 0;"><b>Distancia:</b> {osrm_route['distance']:.1f} km</p>
-            <p style="margin: 5px 0;"><b>Deslocacao:</b> {osrm_route['duration']:.0f} min</p>
+            <p style="margin: 5px 0;"><b>Distancia:</b> {total_distance_km:.1f} km</p>
+            <p style="margin: 5px 0;"><b>Deslocacao:</b> {total_duration_min:.0f} min</p>
             '''
         
         legend_html += '<hr style="margin: 10px 0;">'
