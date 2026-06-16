@@ -38,9 +38,13 @@ class TourismACO:
                 if i != j and self.distances[i][j] > 0:
                     self.heuristic[i][j] = 1.0 / self.distances[i][j]
     
-    def optimize(self, start_poi: int = 0) -> Dict:
+    def optimize(self, start_poi: int = 0, seed: int = None) -> Dict:
         """Executa otimizacao ACO"""
-        
+        if seed is not None:
+            import random as _rnd
+            _rnd.seed(seed)
+            np.random.seed(seed)
+
         best_route = None
         best_fitness = -float('inf')
         fitness_history = []
