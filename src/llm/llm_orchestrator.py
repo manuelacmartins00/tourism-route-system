@@ -1124,8 +1124,9 @@ Responde APENAS com o texto da explicacao."""
         """
         Interpreta uma instrucao de refinamento sobre a rota existente.
         Devolve um dict com o tipo de operacao a aplicar:
-          {"type": "remove",          "poi_names": [...]}
-          {"type": "filter_category", "exclude_categories": [...]}
+          {"type": "remove",                "poi_names": [...]}
+          {"type": "filter_category",       "exclude_categories": [...]}
+          {"type": "informational_question"}
           {"type": "fresh_query"}
         """
         poi_list = "\n".join(
@@ -1146,6 +1147,9 @@ Se o utilizador quer EXCLUIR uma categoria inteira (ex: sem restaurantes, sem mu
 {{"type": "filter_category", "exclude_categories": ["categoria"]}}
 Categorias validas: restaurantes_e_cafes, museus_e_palacios, monumentos, espacos_verdes, praias, turismo_activo, bares_e_discotecas, parques_e_reservas, arqueologia, eventos
 
+Se o utilizador faz uma PERGUNTA INFORMATIVA que nao modifica a rota (como chegar, transportes, horarios, precos externos, dicas de viagem, logistica, perguntas sobre o itinerario):
+{{"type": "informational_question"}}
+
 Se a instrucao e complexa demais para modificacao directa (nova zona, novo tema, regenerar tudo):
 {{"type": "fresh_query"}}
 
@@ -1162,6 +1166,21 @@ Responde APENAS com o JSON."""
         except Exception as e:
             print(f"AVISO: Erro ao interpretar refinamento: {e}")
             return {"type": "fresh_query"}
+
+    def answer_question(self, question: str, route_context: str) -> str:
+        """Responde a uma pergunta informativa no contexto da rota turistica planeada."""
+        prompt = f"""És um assistente de turismo especializado em Portugal. O utilizador tem a seguinte rota turistica planeada:
+
+{route_context}
+
+O utilizador pergunta: "{question}"
+
+Responde de forma útil, concisa e amigável em português europeu. Se for uma pergunta sobre transportes, dá informações práticas (CP, Rede Expressos, FlixBus, etc). Se não souberes algo com certeza, diz-o e sugere onde procurar mais informação. Máximo 3 parágrafos curtos."""
+
+        try:
+            return self._call_llm(prompt, max_tokens=500, temperature=0.5)
+        except Exception as e:
+            return f"Não foi possível responder à tua pergunta neste momento. Por favor tenta novamente."
 
 
 def select_algorithm_deterministic(n_candidates: int, max_time: int) -> str:
