@@ -846,6 +846,22 @@
     }
   }
 
+  // ── Resposta conversacional (pergunta informativa) ────────────
+  function addChatResponseMessage(text) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <p style="margin:0;font-size:14px;line-height:1.6;">${escapeHtml(text).replace(/\n\n/g, '</p><p style="margin:8px 0 0;font-size:14px;line-height:1.6;">').replace(/\n/g, '<br>')}</p>
+      </div>
+    `;
+    msgs.appendChild(row);
+    scrollToBottom();
+  }
+
   // ── Mensagem de erro ──────────────────────────────────────────
   function addErrorMessage(text) {
     const msgs = document.getElementById('messages');
@@ -895,6 +911,9 @@
           addClarificationForm(result);
         } else if (result.status === 'needs_scope_clarification') {
           addScopeForm(result);
+        } else if (result.status === 'chat_response') {
+          currentSessionId = result.session_id || currentSessionId;
+          addChatResponseMessage(result.message);
         } else {
           currentRunId = result.run_id || null;
           currentSessionId = result.session_id || null;

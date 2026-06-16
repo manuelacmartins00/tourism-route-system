@@ -133,12 +133,42 @@ async def query_route(req: QueryRequest, request: Request):
     _prev_session = sessions.get(session_id, {})
     update_history: list = list(_prev_session.get("update_history", []))
 
+    # Valores de accommodation/meals: preferir o que vem no request; fallback na sessão
+    _inc_accom = req.include_accommodation if req.include_accommodation is not None \
+        else _prev_session.get("include_accommodation")
+    _inc_meals = req.include_meals if req.include_meals is not None \
+        else _prev_session.get("include_meals")
+
     if is_refinement:
         last_result = sessions[session_id]["last_result"]
         try:
             operation = system.llm.interpret_refinement(req.query, last_result.get("route", []))
             print(f"   Operacao de refinamento: {operation}")
-            if operation.get("type") == "fresh_query":
+
+            if operation.get("type") == "informational_question":
+                # Responder directamente com o LLM sem regenerar a rota
+                route = last_result.get("route", [])
+                prefs = last_result.get("preferences", {})
+                n_pois = len(route)
+                cats = list({p.get("category", "") for p in route if p.get("category")})
+                location = prefs.get("location") or (route[0].get("name") if route else "Portugal")
+                days = round((prefs.get("max_time") or 480) / 480)
+                mode = prefs.get("transport_mode", "foot")
+                route_context = (
+                    f"Rota com {n_pois} paragens na região de {location}, "
+                    f"{days} dia(s), modo de transporte: {mode}. "
+                    f"Categorias: {', '.join(cats[:6])}."
+                )
+                answer = system.llm.answer_question(req.query, route_context)
+                print(f"   Resposta informativa gerada ({len(answer)} chars)")
+                return JSONResponse(content={
+                    "status": "chat_response",
+                    "message": answer,
+                    "session_id": session_id,
+                    "run_id": None,
+                })
+
+            elif operation.get("type") == "fresh_query":
                 # Usar SEMPRE a primeira query da sessão como base (nunca a acumulada).
                 # Cada actualização é guardada numa lista deduplicada para evitar
                 # o crescimento exponencial "original. Actualizacao: original. Actualizacao: ..."
@@ -170,8 +200,8 @@ async def query_route(req: QueryRequest, request: Request):
                 use_shap=False,  # SHAP desactivado: latencia >60s causa timeout no proxy HF
                 verbose=True,
                 force_algorithm=None,
-                include_accommodation=req.include_accommodation,
-                include_meals=req.include_meals,
+                include_accommodation=_inc_accom,
+                include_meals=_inc_meals,
                 num_rooms=req.num_rooms,
             )
         except Exception as e:
@@ -230,6 +260,9 @@ async def query_route(req: QueryRequest, request: Request):
         "first_query": _prev_session.get("first_query", effective_query),
         # update_history: lista deduplicada de actualizações (só fresh_query)
         "update_history": update_history,
+        # Preservar para evitar re-perguntar em fresh_query subsequentes
+        "include_accommodation": _inc_accom,
+        "include_meals": _inc_meals,
     }
     result["session_id"] = session_id
 
