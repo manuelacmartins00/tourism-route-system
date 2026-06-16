@@ -229,7 +229,8 @@ class TourismRouteSystem:
                num_rooms: Optional[int] = None,
                generate_explanation: bool = True,
                compact_extraction: bool = False,
-               fixture_capture_path: str = None) -> Dict:
+               fixture_capture_path: str = None,
+               direct_preferences: Dict = None) -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
@@ -250,11 +251,15 @@ class TourismRouteSystem:
             print(f"Query: {user_query}")
             print(f"{'=' * 70}\n")
 
-        # ========== PASSO 1: LLM EXTRAI PREFERENCIAS ==========
-        if verbose:
-            print("[LLM] Extraindo preferencias...")
-
-        preferences = self.llm.extract_preferences(user_query, compact=compact_extraction)
+        # ========== PASSO 1: LLM EXTRAI PREFERENCIAS (ou usa directo) ==========
+        if direct_preferences is not None:
+            from src.llm.llm_orchestrator import UserPreferences as _UP
+            preferences = _UP(**{k: v for k, v in direct_preferences.items()
+                                 if k in _UP.__dataclass_fields__})
+        else:
+            if verbose:
+                print("[LLM] Extraindo preferencias...")
+            preferences = self.llm.extract_preferences(user_query, compact=compact_extraction)
 
         mode_labels = {
             "foot": "A pe",
