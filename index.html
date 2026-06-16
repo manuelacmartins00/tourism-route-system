@@ -763,11 +763,7 @@
             poisHtml += `<div style="font-size:11px;color:var(--text-muted);margin:6px 0 2px 0;padding-left:4px;">🌙 Noite</div>`;
             nightSepShown = true;
           }
-          const _segIcon = (p.travel_mode && p.travel_km != null)
-            ? `<div style="font-size:11px;color:var(--text-muted);padding-left:4px;">${TRANSPORT_ICONS[p.travel_mode] || ''} ${TRANSPORT_LABELS[p.travel_mode] || p.travel_mode} · ${p.travel_km.toFixed(1)} km</div>`
-            : '';
           poisHtml += `
-              ${_segIcon}
               <div class="poi-item">
                 <div class="poi-num">${p.order}</div>
                 <div style="flex:1;min-width:0;">
@@ -1024,7 +1020,7 @@
             nightShown = true;
           }
           if (p.travel_mode && p.travel_km != null) {
-            html += `<div class="print-poi-meta" style="padding-left:32px;">${TRANSPORT_ICONS[p.travel_mode] || ''} ${TRANSPORT_LABELS[p.travel_mode] || p.travel_mode} · ${p.travel_km.toFixed(1)} km</div>`;
+            html += `<div class="print-poi-meta" style="padding-left:32px;">${TRANSPORT_LABELS[p.travel_mode] || p.travel_mode} · ${p.travel_km.toFixed(1)} km</div>`;
           }
           html += `
             <div class="print-poi">
