@@ -30,9 +30,13 @@ class TourismGA:
         self.mut_prob = mutation_prob
         self.tournament_size = tournament_size
     
-    def optimize(self, start_poi: int = 0) -> Dict:
+    def optimize(self, start_poi: int = 0, seed: int = None) -> Dict:
         """Executa GA"""
-        
+        if seed is not None:
+            import random as _rnd, numpy as _np
+            _rnd.seed(seed)
+            _np.random.seed(seed)
+
         # Populacao inicial
         population = [self._generate_random_route(start_poi) for _ in range(self.pop_size)]
         
