@@ -451,6 +451,29 @@ class DayPlanner:
         for i, r in enumerate(r for r in restaurants if id(r) not in used):
             by_day[i % n_days].append(r)
 
+        # Segundo passe: dias com < per_day restaurantes ficam sem jantar.
+        # Copiar o restaurante mais próximo (de qualquer dia) para preencher a lacuna.
+        for day_idx in range(n_days):
+            rests_in_day = [p for p in by_day[day_idx] if p.get('category') == 'restaurantes_e_cafes']
+            missing = per_day - len(rests_in_day)
+            if missing <= 0:
+                continue
+            non_rest = [p for p in by_day[day_idx] if p.get('category') != 'restaurantes_e_cafes']
+            if non_rest:
+                clat = sum(p['lat'] for p in non_rest) / len(non_rest)
+                clon = sum(p['lon'] for p in non_rest) / len(non_rest)
+            else:
+                clat = sum(r['lat'] for r in restaurants) / len(restaurants)
+                clon = sum(r['lon'] for r in restaurants) / len(restaurants)
+            # Excluir restaurantes já atribuídos a este dia (por nome)
+            existing_names = {p['name'] for p in rests_in_day}
+            candidates = sorted(
+                [r for r in restaurants if r['name'] not in existing_names],
+                key=lambda r: self._haversine(clat, clon, r['lat'], r['lon'])
+            )
+            for r in candidates[:missing]:
+                by_day[day_idx].append(_copy.copy(r))
+
     def _rebalance_category_diversity(self, by_day: List[List[Dict]], max_same_cat: int = 2) -> List[List[Dict]]:
         """
         Move POIs excedentes da mesma categoria para dias com menos dessa categoria,
