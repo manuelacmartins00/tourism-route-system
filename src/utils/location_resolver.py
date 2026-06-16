@@ -23,10 +23,11 @@ def _polygon_centroid(coordinates) -> Tuple[float, float]:
     Suporta Polygon e MultiPolygon.
     Retorna (lat, lon).
     """
-    # Achata MultiPolygon para lista de aneis
     if isinstance(coordinates[0][0][0], list):
-        # MultiPolygon: coordinates = [[anel1, anel2], [anel1], ...]
-        rings = [ring for polygon in coordinates for ring in polygon]
+        # MultiPolygon: usar apenas o maior polígono (por nº de pontos) para evitar
+        # que enclaves remotos distorçam o centroide (ex: Funchal inclui Selvagens)
+        largest = max(coordinates, key=lambda poly: len(poly[0]))
+        rings = [largest[0]]
     else:
         # Polygon: coordinates = [anel_exterior, anel_interior, ...]
         rings = coordinates

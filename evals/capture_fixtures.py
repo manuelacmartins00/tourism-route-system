@@ -1,7 +1,7 @@
 """
 evals/capture_fixtures.py
 =========================
-Corre o pipeline LLM → RAG para cada prompt do ficheiro de benchmark e
+Corre o pipeline LLM -> RAG para cada prompt do ficheiro de benchmark e
 guarda o estado pré-optimizador como um fixture JSON em
 data/bench_fixtures/<scenario_id>.json.
 
@@ -104,16 +104,16 @@ def main():
                 fixture["query"]       = query
                 with open(out_fp, "w", encoding="utf-8") as f:
                     json.dump(fixture, f, ensure_ascii=False, indent=2)
-                print(f"         → {fixture.get('n_pois', '?')} POIs, algo={fixture.get('selected_algo', '?')}")
+                print(f"         -> {fixture.get('n_pois', '?')} POIs, algo={fixture.get('selected_algo', '?')}")
                 ok += 1
             else:
                 # Sem fixture: provavelmente needs_clarification ou erro de RAG
                 status = result.get("status", "") or result.get("error", "sem fixture")
-                print(f"         → SKIP ({status})")
+                print(f"         -> SKIP ({status})")
                 skip += 1
 
         except Exception as e:
-            print(f"         → ERRO: {e}")
+            print(f"         -> ERRO: {e}")
             traceback.print_exc()
             err += 1
 
