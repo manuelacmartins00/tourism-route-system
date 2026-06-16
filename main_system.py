@@ -228,7 +228,8 @@ class TourismRouteSystem:
                generate_map: bool = True,
                num_rooms: Optional[int] = None,
                generate_explanation: bool = True,
-               compact_extraction: bool = False) -> Dict:
+               compact_extraction: bool = False,
+               fixture_capture_path: str = None) -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
@@ -870,6 +871,30 @@ class TourismRouteSystem:
         }
 
         evaluator = RouteEvaluator(optimizer_pois, sub_distance_matrix, user_prefs_dict)
+
+        # ── CAPTURA DE FIXTURE (benchmark) ────────────────────────────────────
+        if fixture_capture_path:
+            import json as _json
+            _fixture = {
+                "selected_algo": selected_algo,
+                "n_pois": len(optimizer_pois),
+                "user_prefs": {
+                    k: (list(v) if isinstance(v, tuple) else
+                        [[float(x) for x in row] for row in v] if k == "elevation_matrix" and v else v)
+                    for k, v in user_prefs_dict.items()
+                    if k != "elevation_matrix"
+                },
+                "pois": [
+                    {"id": p.id, "name": p.name, "lat": p.lat, "lon": p.lon,
+                     "category": p.category, "score": p.score, "duration": p.duration,
+                     "opening_time": p.opening_time, "closing_time": p.closing_time,
+                     "cost": p.cost}
+                    for p in optimizer_pois
+                ],
+                "distance_matrix": sub_distance_matrix.tolist(),
+            }
+            with open(fixture_capture_path, "w", encoding="utf-8") as _f:
+                _json.dump(_fixture, _f, ensure_ascii=False)
 
         # ========== PASSO 5: OTIMIZACAO ==========
         if verbose:

@@ -38,9 +38,13 @@ class TourismPSOA:
         self.c1 = c1    # Peso da melhor posicao pessoal
         self.c2 = c2    # Peso da melhor posicao global
     
-    def optimize(self, start_poi: int = 0) -> Dict:
+    def optimize(self, start_poi: int = 0, seed: int = None) -> Dict:
         """Executa otimizacao PSO"""
-        
+        if seed is not None:
+            import random as _rnd, numpy as _np
+            _rnd.seed(seed)
+            _np.random.seed(seed)
+
         # Inicializar enxame
         particles = self._initialize_swarm(start_poi)
         
