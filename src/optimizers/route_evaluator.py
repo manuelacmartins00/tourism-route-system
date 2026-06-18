@@ -33,14 +33,16 @@ class RouteEvaluator:
         self.prefs = user_prefs
         
         self.w_distance      = 0.1095  # AHP 5x5 CR=0.0081
-        # cat_indata: julga o modelo (otimizador usou POIs disponíveis?) — peso maior
-        self.w_cat_indata    = 0.0800  # reduzido de 0.1286 — menos custo de oportunidade p/ POIs não-preferidos
-        # cat_general: julga dados + modelo (categorias pedidas cobertas?) — peso menor
+        # cat_indata: satisfação de preferência (optimizer usou POIs preferidos disponíveis?)
+        # — 3.º critério mais importante, alinhado com literatura OP (score/profit maximization)
+        self.w_cat_indata    = 0.1686
+        # cat_general: cobertura de categorias pedidas (julga dados + modelo) — peso menor
         self.w_cat_general   = 0.0600
-        self.w_diversity     = 0.1686  # aumentado de 0.1200 para compensar redução cat_indata
+        # diversity: variedade de categorias — qualidade secundária, peso reduzido
+        self.w_diversity     = 0.0800
         self.w_time          = 0.3934
         self.w_proximity     = 0.1885  # AHP 5x5 CR=0.0081
-        # w_total = 0.1095+0.0800+0.0600+0.1686+0.3934+0.1885 = 1.0000
+        # w_total = 0.1095+0.1686+0.0600+0.0800+0.3934+0.1885 = 1.0000
 
         self.center_lat = user_prefs.get("center_lat")
         self.center_lon = user_prefs.get("center_lon")
@@ -286,7 +288,7 @@ class RouteEvaluator:
                 elif cat in self._MOBILITY_BONUS:
                     delta += 0.10
             total += delta
-        return max(0.7, min(1.3, 1.0 + total / len(route)))
+        return max(0.8, min(1.2, 1.0 + total / len(route)))
 
     def _proximity_component(self, route: List[int]) -> float:
         """
