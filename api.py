@@ -309,6 +309,13 @@ async def save_feedback(fb: FeedbackRequest):
             fb.p20_age, fb.p21_ai, fb.p22_travel, fb.p23
         ])
 
+    # Sempre fazer upload do CSV agregado (independente de run_id)
+    try:
+        from scripts.log_to_hf import _upload
+        _upload(str(FEEDBACK_CSV), "feedback/responses.csv")
+    except Exception:
+        pass
+
     if fb.run_id:
         try:
             from scripts.log_to_hf import log_feedback
