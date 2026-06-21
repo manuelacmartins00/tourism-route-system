@@ -471,7 +471,7 @@ class TourismRouteSystem:
         # Categorias operacionais/administrativas — nunca incluir em rotas turísticas
         NEVER_INCLUDE_CATEGORIES = [
             "eventos", "postos_de_turismo", "agencias_de_viagem",
-            "localidade", "servicos_de_turismo", "outros",
+            "localidade", "servicos_de_turismo", "outros", "rentacar",
         ]
         EXCLUDED_CATEGORIES = list(NEVER_INCLUDE_CATEGORIES)
         if not include_accommodation:
@@ -843,8 +843,11 @@ class TourismRouteSystem:
         # Preferencias - sem sentimento, pesos fixos no RouteEvaluator
         mobility_issues = getattr(preferences, 'mobility_issues', False) or False
         has_children    = getattr(preferences, 'has_children', False) or False
+        is_elderly      = getattr(preferences, 'is_elderly', False) or False
         if has_children:
             print("   has_children=True -> modificador contextual activado\n")
+        if is_elderly:
+            print("   is_elderly=True -> modificador contextual activado\n")
 
         # Matriz de elevacao - calculada pos-optimizacao (so POIs selecionados, max 20)
         # NAO calcular pre-optimizacao: com 60+ candidatos sao milhares de chamadas HTTP
@@ -869,6 +872,7 @@ class TourismRouteSystem:
             "is_corridor": is_corridor,
             "mobility_issues": mobility_issues,
             "has_children": has_children,
+            "is_elderly": is_elderly,
             "elevation_matrix": elevation_matrix,
             "include_accommodation": include_accommodation,
             "has_nightlife": has_nightlife,
@@ -1157,7 +1161,7 @@ class TourismRouteSystem:
             print(f"   [OK] POIs selecionados: {len(optimization_result['route'])}\n")
 
         # Calcular elevacao pos-optimizacao (so POIs selecionados, max 20)
-        if mobility_issues and optimization_result['pois']:
+        if (mobility_issues or is_elderly) and optimization_result['pois']:
             selected_pois = optimization_result['pois'][:20]
             if verbose:
                 print(f"   A calcular elevacao para {len(selected_pois)} POIs selecionados...\n")
@@ -1209,6 +1213,7 @@ class TourismRouteSystem:
                 shap_values=shap_explanation.get('shap_values') if shap_explanation else None,
                 mobility_issues=mobility_issues,
                 has_children=has_children,
+                is_elderly=is_elderly,
                 num_people=getattr(preferences, 'num_people', 1),
             )
         else:
@@ -1245,6 +1250,7 @@ class TourismRouteSystem:
                 "start_time": preferences.start_time,
                 "mobility_issues": mobility_issues,
                 "has_children": has_children,
+                "is_elderly": is_elderly,
                 "include_accommodation": include_accommodation,
                 "include_meals": include_meals,
             },
