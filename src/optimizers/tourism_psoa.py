@@ -23,20 +23,23 @@ class TourismPSOA:
                  n_iterations: int = 50,
                  w: float = 0.7,        # Inercia
                  c1: float = 1.5,       # Cognitive component
-                 c2: float = 1.5):      # Social component
-        
+                 c2: float = 1.5,       # Social component
+                 w_decay: bool = False): # Dang(2013): w *= 0.9 por iteracao
+
         self.pois = pois
         self.n_pois = len(pois)
         self.distances = distance_matrix
         self.evaluator = evaluator
-        
+
         self.n_particles = n_particles
         self.n_iterations = n_iterations
-        
+
         # Parametros PSO
-        self.w = w      # Inercia (exploracao vs exploitation)
-        self.c1 = c1    # Peso da melhor posicao pessoal
-        self.c2 = c2    # Peso da melhor posicao global
+        self.w_start = w    # Inercia inicial
+        self.w = w          # Inercia actual (alterada durante optimize se w_decay=True)
+        self.c1 = c1        # Peso da melhor posicao pessoal
+        self.c2 = c2        # Peso da melhor posicao global
+        self.w_decay = w_decay  # Se True: w *= 0.9 a cada iteracao (Dang 2013)
     
     def optimize(self, start_poi: int = 0, seed: int = None) -> Dict:
         """Executa otimizacao PSO"""
@@ -44,6 +47,9 @@ class TourismPSOA:
             import random as _rnd, numpy as _np
             _rnd.seed(seed)
             _np.random.seed(seed)
+
+        # Repor inercia inicial (relevante se optimize() for chamado mais do que uma vez)
+        self.w = self.w_start
 
         # Inicializar enxame
         particles = self._initialize_swarm(start_poi)
@@ -99,8 +105,11 @@ class TourismPSOA:
             fitness_history.append(avg_fitness)
             best_history.append(gbest_fitness)
 
+            if self.w_decay:
+                self.w = max(0.1, self.w * 0.9)
+
             if iteration % 10 == 0:
-                print(f"  PSO Iter {iteration}: Best={gbest_fitness:.2f}, Avg={avg_fitness:.2f}")
+                print(f"  PSO Iter {iteration}: Best={gbest_fitness:.2f}, Avg={avg_fitness:.2f}, w={self.w:.3f}")
         
         return {
             'route': gbest_position,

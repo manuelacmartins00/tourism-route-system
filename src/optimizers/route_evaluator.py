@@ -57,6 +57,8 @@ class RouteEvaluator:
         self.elevation_matrix = user_prefs.get("elevation_matrix", None)
         self.w_elevation = 0.15
 
+        self.is_elderly      = user_prefs.get("is_elderly", False)
+
         self._CHILDREN_PENALTY = {"bares_e_discotecas", "casinos", "turismo_activo"}
         self._CHILDREN_BONUS   = {"espacos_verdes", "parques_e_reservas", "parques_de_diversao",
                                    "zoos_e_aquarios", "ciencia_e_conhecimento"}
@@ -64,6 +66,9 @@ class RouteEvaluator:
                                    "parques_de_diversao", "grutas"}
         self._MOBILITY_BONUS   = {"restaurantes_e_cafes", "monumentos", "museus_e_palacios",
                                    "espacos_verdes", "termas", "ciencia_e_conhecimento", "talassoterapia"}
+        self._ELDERLY_PENALTY  = {"turismo_activo", "bares_e_discotecas", "casinos", "campos"}
+        self._ELDERLY_BONUS    = {"museus_e_palacios", "monumentos", "termas", "espacos_verdes",
+                                   "talassoterapia", "ciencia_e_conhecimento", "restaurantes_e_cafes"}
             
         self._debug_mode = False
         self._empty_warning_shown = False
@@ -267,11 +272,11 @@ class RouteEvaluator:
 
     def _contextual_modifier(self, route: List[int]) -> float:
         """
-        Multiplica o fitness por um factor contextual (0.7-1.3) baseado em
-        has_children e mobility_issues. Penaliza categorias inapropriadas e
-        bonifica categorias adequadas ao contexto do utilizador.
+        Multiplica o fitness por um factor contextual [0.8, 1.2] baseado em
+        has_children, mobility_issues e is_elderly. Penaliza categorias
+        inapropriadas e bonifica categorias adequadas ao contexto do utilizador.
         """
-        if not self.has_children and not self.mobility_issues:
+        if not self.has_children and not self.mobility_issues and not self.is_elderly:
             return 1.0
         total = 0.0
         for poi_idx in route:
@@ -286,6 +291,11 @@ class RouteEvaluator:
                 if cat in self._MOBILITY_PENALTY:
                     delta -= 0.15
                 elif cat in self._MOBILITY_BONUS:
+                    delta += 0.10
+            if self.is_elderly:
+                if cat in self._ELDERLY_PENALTY:
+                    delta -= 0.15
+                elif cat in self._ELDERLY_BONUS:
                     delta += 0.10
             total += delta
         return max(0.8, min(1.2, 1.0 + total / len(route)))

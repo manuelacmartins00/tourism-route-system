@@ -23,6 +23,7 @@ class UserPreferences:
     mobility_issues: bool = False
     num_people: int = 1
     has_children: bool = False
+    is_elderly: bool = False
     last_day_end_time: str = None
     end_location: str = None
     locations: List[str] = None
@@ -647,6 +648,15 @@ Responde APENAS com o JSON, sem explicacoes."""
             if has_children:
                 print(f"   Criancas detectadas - regras contextuais activadas")
 
+            # Detetar idosos silenciosamente por keywords (sem perguntar ao utilizador)
+            _elderly_hints = ["idoso", "idosa", "idosos", "idosas", "avo", "avos",
+                               "terceira idade", "senior", "seniors", "reforma",
+                               "reformado", "reformada", "elderly", "grandparent",
+                               "grandparents", "grandfather", "grandmother"]
+            is_elderly = any(h in _q_norm for h in _elderly_hints)
+            if is_elderly:
+                print(f"   Idoso(s) detetado(s) - modificador contextual activado")
+
             # Extrair hora de fim do ultimo dia (default 17:00 se nao especificado)
             last_day_end_time = data.get("last_day_end_time", None)
             if last_day_end_time and isinstance(last_day_end_time, str):
@@ -986,6 +996,7 @@ Responde APENAS com o JSON, sem explicacoes."""
                 mobility_issues=mobility_issues,
                 num_people=num_people,
                 has_children=has_children,
+                is_elderly=is_elderly,
                 last_day_end_time=last_day_end_time,
                 end_location=end_location,
                 locations=extracted_locations if extracted_locations else ([extracted_location] if extracted_location else []),
@@ -1029,7 +1040,7 @@ Responde APENAS com o JSON, sem explicacoes."""
                      algorithm_used: str, optimization_metadata: Dict,
                      fitness_components: Dict = None, shap_values: Dict = None,
                      mobility_issues: bool = False, has_children: bool = False,
-                     num_people: int = 1) -> str:
+                     is_elderly: bool = False, num_people: int = 1) -> str:
         """Gera explicacao em portugues fundamentada nos componentes AHP, SHAP e contexto do utilizador."""
 
         total_cost = sum(p['cost'] for p in route)
@@ -1044,6 +1055,8 @@ Responde APENAS com o JSON, sem explicacoes."""
             contexto_lines.append("viagem com crianças — POIs infantis priorizados, locais inadequados evitados")
         if mobility_issues:
             contexto_lines.append("mobilidade reduzida — percursos acessíveis priorizados, elevação minimizada, locais com degraus evitados")
+        if is_elderly:
+            contexto_lines.append("viagem com idosos — locais culturais e de lazer tranquilo priorizados, atividades físicas intensas evitadas")
         contexto_str = ("\nCONTEXTO DO UTILIZADOR:\n- " + "\n- ".join(contexto_lines)) if contexto_lines else ""
 
         # Cobertura de categorias na área — aviso se categorias pedidas não existem localmente
