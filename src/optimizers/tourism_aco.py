@@ -31,12 +31,22 @@ class TourismACO:
         self.q0 = q0
         
         self.pheromone = np.ones((self.n_pois, self.n_pois)) * 0.1
-        
+
         self.heuristic = np.zeros((self.n_pois, self.n_pois))
         for i in range(self.n_pois):
             for j in range(self.n_pois):
                 if i != j and self.distances[i][j] > 0:
                     self.heuristic[i][j] = 1.0 / self.distances[i][j]
+
+        # Profit por POI: proxy do "score" em OP (Ke 2008, Montemanni 2009).
+        # O quality score original (~0.70 constante) não tem poder discriminante;
+        # substituído pela preferência de categoria do utilizador (2.0 se
+        # preferred, 1.0 caso contrário) — alinhado com a função objetivo.
+        pref_cats = set(evaluator.prefs.get("preferred_categories", []))
+        self.profit = np.array([
+            2.0 if pois[j].category in pref_cats else 1.0
+            for j in range(self.n_pois)
+        ])
     
     def optimize(self, start_poi: int = 0, seed: int = None) -> Dict:
         """Executa otimizacao ACO"""
@@ -124,9 +134,7 @@ class TourismACO:
             
             tau = self.pheromone[current][j] ** self.alpha
             eta = self.heuristic[current][j] ** self.beta
-            score_bonus = self.pois[j].score + 0.5
-            
-            prob = tau * eta * score_bonus
+            prob = tau * eta * self.profit[j]
             
             candidates.append(j)
             probabilities.append(prob)
