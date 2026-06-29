@@ -49,7 +49,8 @@ def main():
     documents, metadatas, ids = [], [], []
 
     for poi in pois:
-        # Texto embedded: apenas nome, categoria, regiao e descricao
+        # Texto embedded: nome, categoria, regiao, descricao e atividades
+        activities = poi.get('original_activities', '')
         doc = f"""
 {poi['name']}
 
@@ -57,6 +58,7 @@ Categoria: {poi.get('source', {}).get('bundle', '')}
 Regiao: {poi.get('source', {}).get('region', '')}
 
 {poi.get('description', '')}
+{f"Atividades: {activities}" if activities else ""}
 """.strip()
 
         documents.append(doc)
