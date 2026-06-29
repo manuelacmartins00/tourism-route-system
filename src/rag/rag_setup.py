@@ -49,8 +49,9 @@ class POI_RAG:
         ids = []
         
         for i, poi in enumerate(pois):
-            # Texto embedded: apenas nome, categoria, regiao e descricao
+            # Texto embedded: nome, categoria, regiao, descricao e atividades
             # (sem custo/duracao/horario -- evita poluicao semantica)
+            activities = poi.get('original_activities', '')
             doc = f"""
 {poi['name']}
 
@@ -58,6 +59,7 @@ Categoria: {poi.get('source', {}).get('bundle', '')}
 Regiao: {poi.get('source', {}).get('region', '')}
 
 {poi.get('description', '')}
+{f"Atividades: {activities}" if activities else ""}
 """.strip()
             
             documents.append(doc)
