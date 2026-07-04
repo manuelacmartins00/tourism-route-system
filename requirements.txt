@@ -25,6 +25,7 @@ shap==0.45.0
 matplotlib>=3.7.0
 
 # Utils
+huggingface_hub>=0.20.0
 python-dotenv==1.0.1
 tqdm>=4.66.0
 colorama>=0.4.6
