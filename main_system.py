@@ -10,6 +10,7 @@
 import os
 import sys
 import math
+import shutil
 import numpy as np
 import json
 from pathlib import Path
@@ -19,6 +20,25 @@ from dotenv import load_dotenv
 load_dotenv()
 
 sys.path.insert(0, str(Path(__file__).parent))
+
+POI_DATA_FILE = "data/portugal_todos_pois_final_enriched.json"
+
+
+def _ensure_poi_data_file(path: str = POI_DATA_FILE):
+    """Descarrega o dataset de POIs do dataset privado da HF se nao existir localmente."""
+    if os.path.exists(path):
+        return
+    from huggingface_hub import hf_hub_download
+    print(f"'{path}' nao encontrado - a descarregar do dataset privado HF...")
+    downloaded = hf_hub_download(
+        repo_id="ManuelMartinsTeseISCTE/tourism-pois-data",
+        filename=os.path.basename(path),
+        repo_type="dataset",
+        token=os.environ.get("HF_TOKEN"),
+    )
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    shutil.copy(downloaded, path)
+    print(f"'{path}' descarregado.\n")
 
 from src.rag.rag_setup import POI_RAG
 from src.llm.llm_orchestrator import LlamaOrchestrator, select_algorithm_deterministic
@@ -159,11 +179,13 @@ class TourismRouteSystem:
             print(f"\n[ERRO] Erro ao conectar com Groq: {e}\n")
             raise
 
+        _ensure_poi_data_file()
+
         print("Carregando RAG...")
-        self.rag = POI_RAG(data_file="data/portugal_todos_pois_final_enriched.json")
+        self.rag = POI_RAG(data_file=POI_DATA_FILE)
 
         print("Carregando dados...")
-        self.all_pois_data = load_pois_from_json("data/portugal_todos_pois_final_enriched.json")
+        self.all_pois_data = load_pois_from_json(POI_DATA_FILE)
 
         print("Carregando resolver geografico...")
         self.location_resolver = LocationResolver()
