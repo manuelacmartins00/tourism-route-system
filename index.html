@@ -548,10 +548,11 @@
     z-index: 50;
     transform: translateY(80px);
     opacity: 0;
+    pointer-events: none;
     transition: all .3s;
     max-width: 380px;
   }
-  .feedback-banner.show { transform: translateY(0); opacity: 1; }
+  .feedback-banner.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
   .feedback-banner-left { display: flex; align-items: center; gap: 10px; }
   .feedback-icon { font-size: 22px; flex-shrink: 0; }
   .feedback-title { font-size: 13px; font-weight: 600; color: var(--accent2); }
