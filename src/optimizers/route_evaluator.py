@@ -4,6 +4,7 @@ import numpy as np
 import math
 from typing import List, Dict
 from dataclasses import dataclass
+from collections import Counter
 
 @dataclass
 class POI:
@@ -194,7 +195,27 @@ class RouteEvaluator:
                 self.w_proximity   * proximity_component
             )
         
-        return min(100.0, fitness * self._contextual_modifier(route))
+        return min(100.0, fitness * self._contextual_modifier(route) * self._duplicate_penalty(route))
+
+    def _duplicate_penalty(self, route: List[int]) -> float:
+        """
+        Pequena penalizacao multiplicativa por repetir o mesmo POI (por nome)
+        mais de uma vez na rota inteira -- excepto praias (repetir a mesma
+        praia em dias diferentes de uma viagem de sol-e-praia e normal) e
+        alojamento (a mesma pousada em varios dias e o esperado). Nao bloqueia
+        a rota -- isso e feito por dia no day_planner (_dedupe_same_day_poi);
+        aqui e so um desincentivo suave a repeticao ao longo da viagem toda.
+        """
+        names = [self.pois[idx].name for idx in route
+                 if self.pois[idx].category != "praias"
+                 and self.pois[idx].category not in ACCOMMODATION_CATEGORIES]
+        if len(names) < 2:
+            return 1.0
+        counts = Counter(names)
+        n_extra = sum(c - 1 for c in counts.values() if c > 1)
+        if n_extra == 0:
+            return 1.0
+        return max(0.85, 1.0 - 0.05 * n_extra)
 
     def calculate_fitness_components(self, route: List[int]) -> dict:
         """Devolve breakdown dos componentes de fitness (para debug e eval)."""
@@ -256,6 +277,7 @@ class RouteEvaluator:
             "distance_penalty": round(distance_penalty, 1),
             "proximity_component": round(proximity_component, 1),
             "contextual_modifier": round(modifier, 3),
+            "duplicate_penalty": round(self._duplicate_penalty(route), 3),
             "n_route": len(route),
             "unique_categories": unique_categories,
             # Cobertura local: para diagnóstico e explicação

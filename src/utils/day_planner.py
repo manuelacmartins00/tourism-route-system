@@ -392,6 +392,9 @@ class DayPlanner:
             by_day = self._sort_clusters_by_direction(by_day, all_geos, route_direction=route_direction)
             # 4. Hard cap por categoria (restaurantes tratados separadamente)
             by_day = self._enforce_category_caps(by_day, {}, default_cap=2)
+            # 4a. Nunca repetir o mesmo POI (por nome) no mesmo dia -- excepto
+            # praias (repetir a mesma praia em dias diferentes e normal)
+            by_day = self._dedupe_same_day_poi(by_day)
             # 4b. Safety net: garantir ≥1 POI de actividade por dia
             self._ensure_min_activities(by_day)
             # 5. Atribuir ≥2 restaurantes por dia por proximidade geográfica
@@ -606,6 +609,27 @@ class DayPlanner:
                     for poi in pois:
                         if poi not in keep:
                             day.remove(poi)
+        return by_day
+
+    def _dedupe_same_day_poi(self, by_day: List[List[Dict]]) -> List[List[Dict]]:
+        """
+        Remove ocorrencias repetidas do mesmo POI (por nome) dentro do mesmo
+        dia -- excepto praias, onde repetir e uma escolha valida (ex: voltar
+        a mesma praia em dias diferentes de uma viagem de sol e praia).
+        Mantem a ocorrencia com maior score de cada nome; a(s) restante(s)
+        sao descartadas do dia (safety net _ensure_min_activities repoe se
+        o dia ficar demasiado vazio).
+        """
+        for day in by_day:
+            best_by_name: dict = {}
+            for poi in day:
+                if poi.get('category') == 'praias':
+                    continue
+                name = poi.get('name')
+                if name not in best_by_name or poi.get('score', 0) > best_by_name[name].get('score', 0):
+                    best_by_name[name] = poi
+            day[:] = [poi for poi in day
+                      if poi.get('category') == 'praias' or best_by_name.get(poi.get('name')) is poi]
         return by_day
 
     def _ensure_min_activities(self, by_day: List[List[Dict]], min_per_day: int = 1) -> None:
