@@ -25,14 +25,16 @@ from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
 
-# Forcar stdout sem buffer (necessario quando output e redirigido para ficheiro)
-sys.stdout.reconfigure(line_buffering=True)
+# Forcar stdout sem buffer e UTF-8 (necessario quando output e redirigido para ficheiro;
+# o cp1252 default da consola Windows crasha em caracteres como "->" escritos como seta unicode)
+sys.stdout.reconfigure(line_buffering=True, encoding="utf-8", errors="replace")
 
 load_dotenv()
+os.environ.setdefault("BENCHMARK_MODE", "1")
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from main_system import TourismRouteSystem
-from src.llm.llm_orchestrator import LlamaOrchestrator
+from src.llm.llm_orchestrator import LlamaOrchestrator, DailyQuotaExceededError
 
 # Campos obrigatorios que devem ser extraidos em qualquer query completa
 REQUIRED_FIELDS = ["location", "max_time", "max_cost", "transport_mode"]
@@ -224,6 +226,64 @@ def analyse_results(summary_path: Path) -> dict:
     }
 
 
+def build_resume_args_str(args, output_dir: Path) -> str:
+    """Reconstroi a linha de argumentos para relançar este script com --resume."""
+    parts = [f'--input "{args.input}"', "--resume", f'--output-dir "{output_dir}"']
+    if args.max:
+        parts.append(f"--max {args.max}")
+    parts.append(f"--throttle {args.throttle}")
+    parts.append(f"--timeout {args.timeout}")
+    if args.force_algorithm:
+        parts.append(f"--force-algorithm {args.force_algorithm}")
+    return " ".join(parts)
+
+
+def schedule_windows_resume(reset_at, args, output_dir: Path, log, new_this_session: int = 999) -> bool:
+    """Cria (ou substitui) uma tarefa do Windows Task Scheduler que relança este
+    benchmark com --resume assim que a quota diaria da Groq reinicia.
+    Sobrevive a reinicios/suspensao do portatil, ao contrario de um sleep in-process.
+    """
+    import subprocess
+    from datetime import timedelta
+
+    python_exe   = sys.executable
+    script_path  = str(Path(__file__).resolve())
+    project_dir  = str(Path(__file__).resolve().parent.parent)
+    task_name    = "TRS_Benchmark_Resume"
+    # Folga de seguranca: o "try again in Xm" da Groq ja falhou 2x seguidas (nova
+    # falha quase instantanea apos o resume), por isso 2 min nao chega. Se muito
+    # poucas prompts novas foram processadas nesta sessao antes de esgotar outra
+    # vez, e sinal de que ainda estamos fundo no vale de quota -> escalar a folga.
+    buffer_min   = 20 if new_this_session >= 5 else 60
+    run_at       = reset_at + timedelta(minutes=buffer_min)
+    resume_args  = build_resume_args_str(args, output_dir)
+
+    ps_script = f"""
+$ErrorActionPreference = 'Stop'
+$action  = New-ScheduledTaskAction -Execute '{python_exe}' -Argument '"{script_path}" {resume_args}' -WorkingDirectory '{project_dir}'
+$trigger = New-ScheduledTaskTrigger -Once -At (Get-Date -Year {run_at.year} -Month {run_at.month} -Day {run_at.day} -Hour {run_at.hour} -Minute {run_at.minute} -Second {run_at.second})
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -DontStopOnIdleEnd -Hidden -WakeToRun -ExecutionTimeLimit (New-TimeSpan -Hours 20)
+Unregister-ScheduledTask -TaskName '{task_name}' -Confirm:$false -ErrorAction SilentlyContinue
+Register-ScheduledTask -TaskName '{task_name}' -Action $action -Trigger $trigger -Settings $settings -Description 'Auto-resume do benchmark de 490 prompts apos reset da quota diaria Groq' -Force | Out-Null
+"""
+    ps_path = Path(project_dir) / "outputs" / "_resume_task.ps1"
+    ps_path.parent.mkdir(parents=True, exist_ok=True)
+    ps_path.write_text(ps_script, encoding="utf-8")
+
+    result = subprocess.run(
+        ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(ps_path)],
+        capture_output=True, text=True,
+    )
+    ok = result.returncode == 0
+    log(f"  Tarefa '{task_name}' agendada para {run_at.strftime('%Y-%m-%d %H:%M:%S')}: "
+        f"{'OK' if ok else 'FALHOU'}")
+    if not ok:
+        log(f"    stderr: {result.stderr.strip()[:800]}")
+        log(f"    Comando de resume manual:")
+        log(f"    {python_exe} \"{script_path}\" {resume_args}")
+    return ok
+
+
 def print_final_report(metrics: dict, output_dir: Path):
     print(f"\n{'='*65}")
     print("RELATORIO FINAL")
@@ -267,6 +327,9 @@ def main():
                         help="Segundos entre requests Groq (default 1.5)")
     parser.add_argument("--timeout", type=int, default=300,
                         help="Timeout por prompt em segundos (default 300)")
+    parser.add_argument("--force-algorithm", default=None, choices=["ACO", "GA", "PSO", "GREEDY"],
+                        help="Forca um algoritmo especifico em vez da selecao automatica "
+                             "(GA = producao = GA_DYN, mutation_dynamic=True)")
     args = parser.parse_args()
 
     prompts = load_prompts(args.input)
@@ -342,10 +405,11 @@ def main():
                         prompt,
                         use_shap=True,
                         verbose=False,
-                        force_algorithm=None,
+                        force_algorithm=args.force_algorithm,
                         include_accommodation=p["include_accommodation"],
                         include_meals=p["include_meals"],
                         generate_map=False,
+                        generate_explanation=False,
                     )
                 except Exception as exc:
                     _exc_holder[0] = exc
@@ -415,6 +479,22 @@ def main():
                 log(f"  CLARIF missing={n_missing} | {elapsed}s")
             else:
                 log(f"  ERROR | {elapsed}s")
+
+        except DailyQuotaExceededError as e:
+            elapsed = round(time.time() - t_start, 1)
+            log(f"\n{'!'*65}")
+            log(f"  QUOTA DIARIA GROQ ESGOTADA em P{pid.zfill(4)} ({elapsed}s)")
+            log(f"  Reset previsto: {e.reset_at.strftime('%Y-%m-%d %H:%M:%S')}")
+            log(f"{'!'*65}")
+            # Este prompt NAO fica marcado como concluido -> --resume repete-o.
+            scheduled = schedule_windows_resume(e.reset_at, args, output_dir, log,
+                                                 new_this_session=i - skipped)
+            if scheduled:
+                log(f"\n  Tarefa agendada. Podes fechar este terminal — o benchmark "
+                    f"retoma sozinho ({output_dir}).")
+            log(f"\n  Progresso ate agora: {i - skipped} novas prompts processadas nesta sessao.")
+            _log_f.close()
+            sys.exit(0)
 
         except Exception as e:
             elapsed = round(time.time() - t_start, 1)

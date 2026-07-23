@@ -39,6 +39,10 @@ from src.optimizers.greedy_planner import GreedyPlanner
 ALGO_CONFIGS = {
     "ACO":    {"n_ants": 30,      "n_iterations": 100},
     "GA":     {"population_size": 50, "n_generations": 30},
+    # GA_DYN_046 — melhor config do grid search (108,810 runs), = producao atual
+    "GA_DYN": {"population_size": 100, "n_generations": 50,
+               "crossover_prob": 0.6, "mutation_prob": 0.1,
+               "mutation_dynamic": True, "mutation_patience": 5},
     "PSO":    {"n_particles": 20, "n_iterations": 30},
     "GREEDY": {},
 }
@@ -60,7 +64,7 @@ def parse_args():
                    help="Número de runs independentes por (fixture × algo)")
     p.add_argument("--algos",    nargs="+",
                    default=["ACO", "GA", "PSO", "GREEDY"],
-                   choices=["ACO", "GA", "PSO", "GREEDY"])
+                   choices=["ACO", "GA", "GA_DYN", "PSO", "GREEDY"])
     return p.parse_args()
 
 

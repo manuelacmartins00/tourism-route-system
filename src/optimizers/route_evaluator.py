@@ -1,4 +1,4 @@
-# src/optimizers/route_evaluator.py (FIX CONSTRAINTS RELAXADOS)
+# src/optimizers/route_evaluator.py
 
 import numpy as np
 import math
@@ -66,11 +66,10 @@ class RouteEvaluator:
                                    "parques_de_diversao", "grutas"}
         self._MOBILITY_BONUS   = {"restaurantes_e_cafes", "monumentos", "museus_e_palacios",
                                    "espacos_verdes", "termas", "ciencia_e_conhecimento", "talassoterapia"}
-        self._ELDERLY_PENALTY  = {"turismo_activo", "bares_e_discotecas", "casinos", "campos"}
+        self._ELDERLY_PENALTY  = {"turismo_activo", "bares_e_discotecas", "campos"}
         self._ELDERLY_BONUS    = {"museus_e_palacios", "monumentos", "termas", "espacos_verdes",
                                    "talassoterapia", "ciencia_e_conhecimento", "restaurantes_e_cafes"}
             
-        self._debug_mode = False
         self._empty_warning_shown = False
 
         # Categorias de actividade disponíveis no pool de candidatos (excluindo alojamento).
@@ -108,8 +107,6 @@ class RouteEvaluator:
             max_valid_index = len(self.pois) - 1
             for idx in route:
                 if idx > max_valid_index:
-                    if self._debug_mode:
-                        print(f"   AVISO: Indice {idx} invalido! Max: {max_valid_index}")
                     return 0.0
         
         if not route or not self._is_feasible(route):
@@ -323,7 +320,6 @@ class RouteEvaluator:
             return (sum(scores) / len(scores)) * 100
         elif self.center_lat is not None:
             # Fallback: centro único
-            import math
             def _h(lat1,lon1,lat2,lon2):
                 R=6371; r=math.radians
                 a=math.sin(r(lat2-lat1)/2)**2+math.cos(r(lat1))*math.cos(r(lat2))*math.sin(r(lon2-lon1)/2)**2
@@ -350,8 +346,6 @@ class RouteEvaluator:
         total_time = self._calculate_time(route)
         max_time = int(self.prefs.get('max_time', 480))
         if total_time > max_time:
-            if self._debug_mode:
-                print(f"   AVISO: Inviavel (tempo): {total_time:.0f} > {max_time}")
             return False
 
         # Custo: alojamento dividido por pessoas/quarto, restantes por pessoa
@@ -364,8 +358,6 @@ class RouteEvaluator:
                 total_cost += poi.cost
         max_cost = float(self.prefs.get('max_cost', 1000))
         if total_cost > max_cost:
-            if self._debug_mode:
-                print(f"   AVISO: Inviavel (custo): {total_cost:.2f} > {max_cost}")
             return False
 
         # Hard constraint: pelo menos 1 POI de alojamento (só se include_accommodation=True)
@@ -428,7 +420,6 @@ class RouteEvaluator:
     
     @staticmethod
     def _hav_coords(lat1, lon1, lat2, lon2) -> float:
-        import math
         R = 6371.0
         r = math.radians
         a = (math.sin(r(lat2-lat1)/2)**2
@@ -442,7 +433,6 @@ class RouteEvaluator:
         apx, apy = plon - alon, plat - alat
         denom = abx**2 + aby**2
         t = max(0.0, min(1.0, (apx*abx + apy*aby) / denom)) if denom > 1e-10 else 0.0
-        import math
         R = 6371.0; r = math.radians
         nlat, nlon = alat + t*aby, alon + t*abx
         a = (math.sin(r(nlat-plat)/2)**2
@@ -477,7 +467,6 @@ class RouteEvaluator:
 
     @staticmethod
     def _haversine_km(poi_a, poi_b) -> float:
-        import math
         R = 6371.0
         r = math.radians
         lat1, lon1 = poi_a.lat, poi_a.lon

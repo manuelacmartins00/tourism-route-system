@@ -17,18 +17,25 @@ class TourismGA:
                  n_generations: int = 30,
                  crossover_prob: float = 0.7,
                  mutation_prob: float = 0.2,
-                 tournament_size: int = 3):
-        
+                 tournament_size: int = 3,
+                 mutation_dynamic: bool = False,
+                 mutation_patience: int = 5):
+
         self.pois = pois
         self.n_pois = len(pois)
         self.distances = distance_matrix
         self.evaluator = evaluator
-        
+
         self.pop_size = population_size
         self.n_gen = n_generations
         self.cx_prob = crossover_prob
+        self.mut_prob_base = mutation_prob  # taxa base (preservada entre calls)
         self.mut_prob = mutation_prob
         self.tournament_size = tournament_size
+        # Şehab & Turan (2024) / Cobb (1990) hypermutation:
+        # dispara mut_prob=0.9 após `mutation_patience` gerações sem melhoria
+        self.mutation_dynamic = mutation_dynamic
+        self.mutation_patience = mutation_patience
     
     def optimize(self, start_poi: int = 0, seed: int = None) -> Dict:
         """Executa GA"""
@@ -37,27 +44,43 @@ class TourismGA:
             _rnd.seed(seed)
             _np.random.seed(seed)
 
+        # Repor taxa de mutação base (relevante se optimize() chamado mais do que uma vez)
+        self.mut_prob = self.mut_prob_base
+        stagnation = 0
+        hypermutation_active = False
+
         # Populacao inicial
         population = [self._generate_random_route(start_poi) for _ in range(self.pop_size)]
-        
+
         best_route = None
         best_fitness = -float('inf')
         fitness_history = []
-        
+
         for gen in range(self.n_gen):
             # Avaliar fitness
             fitnesses = [self.evaluator.calculate_fitness(ind) for ind in population]
-            
+
             # Atualizar melhor
             max_fitness = max(fitnesses)
             if max_fitness > best_fitness:
                 best_fitness = max_fitness
                 best_route = population[fitnesses.index(max_fitness)].copy()
-            
+                stagnation = 0
+            else:
+                stagnation += 1
+
+            # Hypermutation (Şehab & Turan 2024 / Cobb 1990):
+            # após `mutation_patience` gerações sem melhoria, escala para 0.9
+            if self.mutation_dynamic and not hypermutation_active:
+                if stagnation >= self.mutation_patience:
+                    self.mut_prob = 0.9
+                    hypermutation_active = True
+
             fitness_history.append(np.mean(fitnesses))
-            
+
             if gen % 5 == 0:
-                print(f"  GA Gen {gen}: Best={best_fitness:.2f}, Avg={np.mean(fitnesses):.2f}")
+                mut_tag = f", mut={self.mut_prob:.2f}" if self.mutation_dynamic else ""
+                print(f"  GA Gen {gen}: Best={best_fitness:.2f}, Avg={np.mean(fitnesses):.2f}{mut_tag}")
             
             # Nova geracao
             new_population = []
@@ -124,25 +147,48 @@ class TourismGA:
         
         child1 = [None] * size
         child2 = [None] * size
-        
+
+        # Indice 0 = start_poi, fixado antes do resto do crossover para que
+        # nunca seja sobrescrito pelo preenchimento (route[0] e uma invariante
+        # assumida a jusante por avaliador/day_planner/outros algoritmos).
+        child1[0] = parent1[0]
+        child2[0] = parent2[0]
+
         child1[cx_point1:cx_point2] = parent1[cx_point1:cx_point2]
         child2[cx_point1:cx_point2] = parent2[cx_point1:cx_point2]
-        
+
         self._fill_offspring(child1, parent2, cx_point2)
         self._fill_offspring(child2, parent1, cx_point2)
-        
+
         return child1, child2
-    
+
     def _fill_offspring(self, offspring, parent, start_pos):
-        """Preencher offspring no OX"""
+        """Preencher offspring no OX.
+
+        Assume classicamente que parent1/parent2 sao permutacoes do mesmo
+        conjunto de POIs (garante terminacao natural). Como as rotas aqui tem
+        comprimento/composicao variavel (_generate_random_route), isso nem
+        sempre se verifica; limita-se o numero de voltas a parent para evitar
+        loop infinito e remove-se qualquer slot que fique por preencher.
+        Nunca escreve num slot ja preenchido (protege o indice 0 = start_poi).
+        """
         parent_idx = start_pos
         offspring_idx = start_pos
-        
-        while None in offspring:
+        max_scans = len(parent) + 1
+        n = len(offspring)
+
+        for _ in range(max_scans):
+            if None not in offspring:
+                break
             if parent[parent_idx % len(parent)] not in offspring:
-                offspring[offspring_idx % len(offspring)] = parent[parent_idx % len(parent)]
+                while offspring[offspring_idx % n] is not None:
+                    offspring_idx += 1
+                offspring[offspring_idx % n] = parent[parent_idx % len(parent)]
                 offspring_idx += 1
             parent_idx += 1
+
+        if None in offspring:
+            offspring[:] = [x for x in offspring if x is not None]
     
     def _mutate(self, individual: List[int]) -> List[int]:
         """Swap Mutation"""
