@@ -2,7 +2,7 @@
 <html lang="pt">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Tourism Route Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -23,7 +23,11 @@
     --radius-sm: 8px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; }
+  html, body {
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
@@ -33,7 +37,10 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
+    min-height: 100dvh;
     padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
   }
 
   /* CHAT SHELL */
@@ -41,6 +48,7 @@
     width: 100%;
     max-width: 720px;
     height: 90vh;
+    height: 90dvh;
     max-height: 860px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -49,6 +57,23 @@
     box-shadow: 0 24px 64px rgba(0,0,0,.5);
     display: flex;
     flex-direction: column;
+  }
+
+  /* Em telas pequenas (telemóvel), ocupar o ecrã todo em vez de um cartao
+     flutuante com margens -- evita scroll duplo (pagina + mensagens) e
+     poupa espaco vertical precioso quando o teclado esta aberto. */
+  @media (max-width: 480px), (max-height: 700px) {
+    body { padding: 0; }
+    .chat-shell {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      max-height: none;
+      border-radius: 0;
+      border: none;
+    }
+    .chat-header { padding-top: max(16px, env(safe-area-inset-top)); }
+    .input-area { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
   }
 
   /* HEADER */
@@ -326,6 +351,7 @@
   .modal {
     width: 100%; max-width: 780px;
     max-height: 85vh;
+    max-height: 85dvh;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 20px;
@@ -503,7 +529,9 @@
   /* FEEDBACK BANNER */
   .feedback-banner {
     position: fixed;
-    bottom: 24px; right: 24px;
+    bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
+    right: max(24px, env(safe-area-inset-right));
+    left: 24px;
     background: linear-gradient(135deg, #1a2a1a, #1a1d27);
     border: 1px solid #2d5a35;
     border-radius: 16px;

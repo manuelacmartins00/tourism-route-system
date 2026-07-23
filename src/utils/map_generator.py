@@ -371,7 +371,7 @@ class RouteMapGenerator:
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         ">
         <h4 style="margin-top: 0; border-bottom: 2px solid #ddd; padding-bottom: 5px;">
-            🔍 Legenda
+            Legenda
         </h4>
         <p style="margin: 5px 0;"><b>Total POIs:</b> {len(route)}</p>
         '''
@@ -446,7 +446,7 @@ class RouteMapGenerator:
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         ">
         <h3 style="margin: 0 0 10px 0; color: #3388ff;">
-            🗺 Rota Turistica
+            Rota Turistica
         </h3>
         <p style="margin: 5px 0;">
             <b>Powered by:</b> OpenStreetMap + OSRM<br>

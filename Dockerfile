@@ -10,6 +10,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-download sentence transformer model during build (evita download de 500MB no startup)
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2'); print('Modelo pre-carregado OK')"
+
 COPY . .
 
 RUN mkdir -p outputs data/chroma_db

@@ -1,4 +1,4 @@
-# src/llm/llm_orchestrator.py (VERSAO COM GROQ)
+# src/llm/llm_orchestrator.py
 
 from groq import Groq
 import json
@@ -32,6 +32,16 @@ class UserPreferences:
     include_meals: bool = True
     start_date: str = None          # ISO "YYYY-MM-DD" do 1.º dia (opcional)
     nightlife_suggested: bool = False  # grupo de adultos → sugerir bar 1 noite
+
+
+class DailyQuotaExceededError(Exception):
+    """Groq TPD (tokens-per-day) quota esgotada — espera longa demais para retry in-process."""
+    def __init__(self, wait_seconds: float, message: str):
+        from datetime import datetime, timedelta
+        self.wait_seconds = wait_seconds
+        self.reset_at = datetime.now() + timedelta(seconds=wait_seconds)
+        super().__init__(message)
+
 
 class LlamaOrchestrator:
     """
@@ -111,12 +121,21 @@ class LlamaOrchestrator:
             except Exception as e:
                 err = str(e)
                 if ("429" in err or "rate_limit" in err.lower()) and benchmark_mode:
-                    # Ler o tempo de espera indicado pelo Groq (ex: "try again in 8m40.99s")
-                    m = _re.search(r'try again in (?:(\d+)m)?([\d.]+)s', err)
+                    # Ler o tempo de espera indicado pela Groq (ex: "try again in 8m40.99s"
+                    # ou, para o limite diario (TPD), "try again in 11h58m33.5s")
+                    m = _re.search(r'try again in (?:(\d+)h)?(?:(\d+)m)?([\d.]+)s', err)
                     if m:
-                        wait = int(m.group(1) or 0) * 60 + float(m.group(2)) + 3
+                        wait = (int(m.group(1) or 0) * 3600
+                                + int(m.group(2) or 0) * 60
+                                + float(m.group(3)) + 3)
                     else:
                         wait = min(30 * (2 ** attempt), 600)
+                    # Espera longa (> 15 min) so acontece em limites diarios (TPD) —
+                    # nao vale a pena reter o processo em memoria; propaga para quem
+                    # chamou decidir (ex: o benchmark agenda um resume e termina).
+                    is_daily = "tokens per day" in err.lower() or "tpd" in err.lower()
+                    if is_daily or wait > 900:
+                        raise DailyQuotaExceededError(wait, err) from e
                     print(f"   [Rate limit] aguardando {wait:.0f}s (tentativa {attempt+1}/8)...")
                     _time.sleep(wait)
                 else:
@@ -1005,10 +1024,19 @@ Responde APENAS com o JSON, sem explicacoes."""
                 nightlife_suggested=_nightlife_suggested,
             )
         
+        except DailyQuotaExceededError:
+            # Quota diaria da Groq esgotada — nao faz sentido continuar com defaults
+            # silenciosos (mascaram o erro); propaga para o chamador decidir.
+            raise
+
         except Exception as e:
             print(f"AVISO: Erro ao extrair preferencias: {e}")
             print(f"   Resposta LLM: {content if content else 'N/A'}")
-            
+
+            # Nada aqui foi realmente extraido da query -- marcar como missing_fields
+            # para forcar pedido de esclarecimento em vez de fabricar uma rota com
+            # valores placeholder (bug: 255/489 runs do benchmark_490_full_v2
+            # devolveram silenciosamente esta mesma rota fixa para queries distintas).
             return UserPreferences(
                 max_time=480,
                 max_cost=50.0,
@@ -1016,7 +1044,8 @@ Responde APENAS com o JSON, sem explicacoes."""
                 category_weights={"monumentos": 0.8, "museus_e_palacios": 0.8, "espacos_verdes": 0.8},
                 start_time="09:00",
                 interests=["cultura", "historia"],
-                secondary_tags=[]
+                secondary_tags=[],
+                missing_fields=["location", "max_time", "max_cost", "transport_mode"],
             )
     
     def generate_rag_query(self, preferences: UserPreferences, user_history=None) -> str:
@@ -1128,7 +1157,10 @@ Responde APENAS com o texto da explicacao."""
         try:
             explanation = self._call_llm(prompt, max_tokens=300, temperature=0.7).strip()
             return explanation
-        
+
+        except DailyQuotaExceededError:
+            raise
+
         except Exception as e:
             print(f"AVISO: Erro ao gerar explicacao: {e}")
             return f"Esta rota foi otimizada com o algoritmo {algorithm_used} para incluir {len(route)} POIs que correspondem aos teus interesses em {', '.join(preferences.interests)}. O percurso tem uma duracao total de {total_duration} minutos e custa EUR{total_cost:.2f}."
