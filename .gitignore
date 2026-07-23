@@ -26,6 +26,7 @@ data/*.npy
 data/*.json
 data/**/*.json
 *.json.bak*
+*.json.*_bak
 data/bench_fixtures*/
 data/original data/
 /Prompts_teste_standard.xlsx
