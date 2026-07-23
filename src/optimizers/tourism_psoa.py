@@ -180,21 +180,31 @@ class TourismPSOA:
         """
         
         new_velocity = []
-        
+
+        # w/c1/c2 seguem a literatura de PSO continuo (Shi & Eberhart, 1998),
+        # onde podem exceder 1 porque escalam um vetor continuo. Aqui sao
+        # reutilizados como probabilidade de aplicar cada componente — por
+        # isso normalizam-se pela soma antes de servirem de gate, preservando
+        # a proporcao relativa w:c1:c2 sem tornar a condicao sempre verdadeira.
+        total = self.w + self.c1 + self.c2
+        p_inertia   = self.w  / total
+        p_cognitive = self.c1 / total
+        p_social    = self.c2 / total
+
         # Inercia
-        if random.random() < self.w:
+        if random.random() < p_inertia:
             new_velocity.extend(velocity[:max(1, int(len(velocity) * self.w))])
-        
+
         # Componente cognitiva (move para pbest)
-        if random.random() < self.c1:
+        if random.random() < p_cognitive:
             ops = self._path_to_target(position, pbest)
             new_velocity.extend(ops[:max(1, int(len(ops) * self.c1))])
-        
+
         # Componente social (move para gbest)
-        if random.random() < self.c2:
+        if random.random() < p_social:
             ops = self._path_to_target(position, gbest)
             new_velocity.extend(ops[:max(1, int(len(ops) * self.c2))])
-        
+
         return new_velocity
     
     def _path_to_target(self, current: List[int], target: List[int]) -> List[tuple]:

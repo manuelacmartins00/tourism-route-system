@@ -252,7 +252,8 @@ class TourismRouteSystem:
                generate_explanation: bool = True,
                compact_extraction: bool = False,
                fixture_capture_path: str = None,
-               direct_preferences: Dict = None) -> Dict:
+               direct_preferences: Dict = None,
+               disable_algo_fallback: bool = False) -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
@@ -512,7 +513,6 @@ class TourismRouteSystem:
             n_results=40,
             category_filter=preferences.preferred_categories,
             category_exclude=EXCLUDED_CATEGORIES,
-            max_cost=preferences.max_cost,
             lat_min=lat_min,
             lat_max=lat_max,
             lon_min=lon_min,
@@ -528,7 +528,6 @@ class TourismRouteSystem:
             n_results=20,
             category_filter=None,
             category_exclude=EXCLUDED_CATEGORIES,
-            max_cost=preferences.max_cost,
             lat_min=lat_min,
             lat_max=lat_max,
             lon_min=lon_min,
@@ -559,7 +558,6 @@ class TourismRouteSystem:
                         n_results=min_per_cat * 2,
                         category_filter=[cat],
                         category_exclude=EXCLUDED_CATEGORIES,
-                        max_cost=preferences.max_cost,
                         lat_min=lat_min, lat_max=lat_max,
                         lon_min=lon_min, lon_max=lon_max
                     )
@@ -581,7 +579,6 @@ class TourismRouteSystem:
                 n_results=80,
                 category_filter=None,
                 category_exclude=EXCLUDED_CATEGORIES,
-                max_cost=preferences.max_cost,
                 lat_min=lat_min,
                 lat_max=lat_max,
                 lon_min=lon_min,
@@ -603,7 +600,6 @@ class TourismRouteSystem:
                 text=f"hotel alojamento {preferences.location or ''}",
                 n_results=accom_needed * 2,
                 category_filter=ACCOMMODATION_BUNDLES,
-                max_cost=preferences.max_cost,
                 lat_min=lat_min, lat_max=lat_max,
                 lon_min=lon_min, lon_max=lon_max,
             )
@@ -626,7 +622,6 @@ class TourismRouteSystem:
                 text=f"restaurante jantar almoco {preferences.location or ''}",
                 n_results=num_days,
                 category_filter=["restaurantes_e_cafes"],
-                max_cost=preferences.max_cost,
                 lat_min=lat_min, lat_max=lat_max,
                 lon_min=lon_min, lon_max=lon_max,
             )
@@ -748,7 +743,6 @@ class TourismRouteSystem:
                 n_results=25,
                 category_filter=preferences.preferred_categories,
                 category_exclude=EXCLUDED_CATEGORIES,
-                max_cost=preferences.max_cost,
             )
             candidate_pois = rag_results_nogeo['pois']
 
@@ -935,8 +929,11 @@ class TourismRouteSystem:
             optimizer = TourismACO(optimizer_pois, sub_distance_matrix, evaluator,
                                    n_ants=30, n_iterations=100)
         elif selected_algo == "GA":
+            # GA_DYN_046 -- melhor config grid search (pop=100, gen=50, cx=0.6, mut=0.1, dynamic)
             optimizer = TourismGA(optimizer_pois, sub_distance_matrix, evaluator,
-                                  population_size=50, n_generations=30)
+                                  population_size=100, n_generations=50,
+                                  crossover_prob=0.6, mutation_prob=0.1,
+                                  mutation_dynamic=True, mutation_patience=5)
         elif selected_algo == "PSO":
             optimizer = TourismPSOA(optimizer_pois, sub_distance_matrix, evaluator,
                                     n_particles=20, n_iterations=30)
@@ -946,7 +943,7 @@ class TourismRouteSystem:
         optimization_result = optimizer.optimize()
 
         # Fallback GA se PSO estagna (best fitness nao melhora em nenhuma iteracao)
-        if selected_algo == "PSO":
+        if selected_algo == "PSO" and not disable_algo_fallback:
             best_hist = optimization_result.get('best_history', [])
             pso_stagnated = (
                 len(best_hist) >= 2
@@ -956,7 +953,9 @@ class TourismRouteSystem:
                 if verbose:
                     print(f"   PSO estagnado (best={optimization_result['fitness']:.2f}) — fallback GA\n")
                 fallback = TourismGA(optimizer_pois, sub_distance_matrix, evaluator,
-                                     population_size=50, n_generations=30)
+                                     population_size=100, n_generations=50,
+                                     crossover_prob=0.6, mutation_prob=0.1,
+                                     mutation_dynamic=True, mutation_patience=5)
                 ga_result = fallback.optimize()
                 if ga_result['fitness'] >= optimization_result['fitness']:
                     optimization_result = ga_result
@@ -1104,7 +1103,6 @@ class TourismRouteSystem:
                     n_results=len(missing_cats) * 5,
                     category_filter=missing_cats,
                     category_exclude=EXCLUDED_CATEGORIES,
-                    max_cost=preferences.max_cost,
                     lat_min=lat_min, lat_max=lat_max,
                     lon_min=lon_min, lon_max=lon_max,
                 )
@@ -1350,7 +1348,6 @@ class TourismRouteSystem:
                             text=f"restaurante jantar almoco {preferences.location or ''}",
                             n_results=_needed_meals * 3,
                             category_filter=["restaurantes_e_cafes"],
-                            max_cost=preferences.max_cost,
                             lat_min=lat_min, lat_max=lat_max,
                             lon_min=lon_min, lon_max=lon_max,
                         )
@@ -1375,7 +1372,6 @@ class TourismRouteSystem:
                     text="bar discoteca vida noturna cerveja cocktail",
                     n_results=6,
                     category_filter=["bares_e_discotecas"],
-                    max_cost=preferences.max_cost,
                     lat_min=lat_min, lat_max=lat_max,
                     lon_min=lon_min, lon_max=lon_max,
                 )
@@ -1434,7 +1430,6 @@ class TourismRouteSystem:
                         n_results=8,
                         category_filter=preferences.preferred_categories,
                         category_exclude=EXCLUDED_CATEGORIES,
-                        max_cost=preferences.max_cost,
                         lat_min=max(lat_min, clat - d_deg),
                         lat_max=min(lat_max, clat + d_deg),
                         lon_min=max(lon_min, clon - d_deg),
@@ -1460,7 +1455,6 @@ class TourismRouteSystem:
                                 n_results=8,
                                 category_filter=sibling_cats,
                                 category_exclude=EXCLUDED_CATEGORIES,
-                                max_cost=preferences.max_cost,
                                 lat_min=max(lat_min, clat - d_deg),
                                 lat_max=min(lat_max, clat + d_deg),
                                 lon_min=max(lon_min, clon - d_deg),

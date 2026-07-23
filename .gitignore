@@ -24,6 +24,11 @@ data/chroma_db/
 data/feedback/
 data/*.npy
 data/*.json
+data/**/*.json
+*.json.bak*
+data/bench_fixtures*/
+data/original data/
+/Prompts_teste_standard.xlsx
 
 # GTFS — large files not needed at runtime (graph already built)
 data/gtfs/*/shapes.txt
@@ -53,4 +58,5 @@ evals/prompts_quick35.txt
 
 # OS
 .DS_Store
-Thumbs.dbdata/dataset_report.md
+Thumbs.db
+data/dataset_report.md
