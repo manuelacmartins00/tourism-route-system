@@ -42,6 +42,12 @@ async def startup():
     system = TourismRouteSystem(api_key=api_key)
 
     try:
+        from scripts.log_to_hf import restore_aggregate_csvs
+        restore_aggregate_csvs()
+    except Exception as e:
+        print(f"AVISO: restore de CSVs agregados (runs/feedback) falhou: {e}")
+
+    try:
         from src.transit.transit_service import TransitService
         transit_service = TransitService()
         transit_service.load(use_cache=True)
@@ -309,31 +315,38 @@ async def save_feedback(fb: FeedbackRequest):
             fb.p20_age, fb.p21_ai, fb.p22_travel, fb.p23
         ])
 
-    # Sempre fazer upload do CSV agregado (independente de run_id)
+    # Registo permanente: um ficheiro UNICO por resposta directo no HF Dataset
+    # (mesmo padrao ja usado para runs/{run_id}.json, que nunca perdeu nenhuma
+    # das 107 runs). Nao depende do ficheiro local nem sobrevive a restarts do
+    # Space -- cada resposta e o seu proprio registo, nunca e sobrescrita por
+    # outra. Isto substitui o CSV agregado como fonte de verdade.
+    feedback_id = fb.run_id or f"norun-{uuid.uuid4().hex[:12]}"
+    try:
+        from scripts.log_to_hf import log_feedback
+        log_feedback(
+            run_id=feedback_id,
+            feedback_data={
+                "p1": fb.p1, "p2": fb.p2, "p3": fb.p3, "p4": fb.p4, "p5": fb.p5,
+                "p6": fb.p6, "p7": fb.p7, "p8": fb.p8, "p9": fb.p9, "p10": fb.p10,
+                "p11": fb.p11, "p12": fb.p12, "p13": fb.p13, "p14": fb.p14, "p15": fb.p15,
+                "p16_loc": fb.p16_loc, "p17_time": fb.p17_time,
+                "p18": fb.p18, "p19": fb.p19,
+                "p20_age": fb.p20_age, "p21_ai": fb.p21_ai,
+                "p22_travel": fb.p22_travel, "p23": fb.p23,
+            },
+            sus_score=sus_score
+        )
+    except Exception as e:
+        print(f"AVISO: falha ao gravar feedback individual no HF: {e}")
+
+    # Upload do CSV agregado local -- so uma conveniencia (view rapida),
+    # nao e a fonte de verdade; o /admin reconstroi sempre a partir dos
+    # ficheiros individuais acima.
     try:
         from scripts.log_to_hf import _upload
         _upload(str(FEEDBACK_CSV), "feedback/responses.csv")
     except Exception:
         pass
-
-    if fb.run_id:
-        try:
-            from scripts.log_to_hf import log_feedback
-            log_feedback(
-                run_id=fb.run_id,
-                feedback_data={
-                    "p1": fb.p1, "p2": fb.p2, "p3": fb.p3, "p4": fb.p4, "p5": fb.p5,
-                    "p6": fb.p6, "p7": fb.p7, "p8": fb.p8, "p9": fb.p9, "p10": fb.p10,
-                    "p11": fb.p11, "p12": fb.p12, "p13": fb.p13, "p14": fb.p14, "p15": fb.p15,
-                    "p16_loc": fb.p16_loc, "p17_time": fb.p17_time,
-                    "p18": fb.p18, "p19": fb.p19,
-                    "p20_age": fb.p20_age, "p21_ai": fb.p21_ai,
-                    "p22_travel": fb.p22_travel, "p23": fb.p23,
-                },
-                sus_score=sus_score
-            )
-        except Exception:
-            pass
 
     return {"status": "ok", "sus_score": sus_score}
 
@@ -343,6 +356,19 @@ async def download_csv(x_admin_password: Optional[str] = Header(None)):
     admin_pw = os.getenv("ADMIN_PASSWORD", "thesis2025")
     if x_admin_password != admin_pw:
         raise HTTPException(status_code=401, detail="Password incorrecta")
+
+    # Reconstroi sempre a partir dos ficheiros individuais feedback/*.json no
+    # HF Dataset -- nunca depende do estado local (que pode ter recomecado
+    # vazio apos um restart do Space).
+    try:
+        from scripts.log_to_hf import rebuild_feedback_csv
+        rebuilt = rebuild_feedback_csv()
+        if rebuilt:
+            return FileResponse(path=str(rebuilt), media_type="text/csv",
+                                 filename="sus_responses.csv")
+    except Exception as e:
+        print(f"AVISO: rebuild_feedback_csv falhou, a usar copia local: {e}")
+
     if not FEEDBACK_CSV.exists():
         raise HTTPException(status_code=404, detail="Ainda nao ha respostas")
     return FileResponse(
