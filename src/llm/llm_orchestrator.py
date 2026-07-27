@@ -22,6 +22,8 @@ class UserPreferences:
     start_location: str = None
     mobility_issues: bool = False
     num_people: int = 1
+    num_people_explicit: bool = False
+    budget_type: str = "per_person"
     has_children: bool = False
     is_elderly: bool = False
     last_day_end_time: str = None
@@ -161,7 +163,7 @@ REGRAS:
 - missing_fields: campos omitidos de: location, max_time, max_cost, transport_mode
 
 FORMATO EXACTO (JSON valido, sem // comentarios, sem texto antes ou depois):
-{{"max_time":null,"budget_value":null,"budget_type":"per_person","num_people":1,"tags":[],"interests":[],"locations":[],"locations_ordered":false,"transport_mode":null,"start_time":"09:00","last_day_end_time":null,"start_date":null,"mobility_issues":false,"missing_fields":[]}}"""
+{{"max_time":null,"budget_value":null,"budget_type":"per_person","num_people":null,"tags":[],"interests":[],"locations":[],"locations_ordered":false,"transport_mode":null,"start_time":"09:00","last_day_end_time":null,"start_date":null,"mobility_issues":false,"missing_fields":[]}}"""
 
     def extract_preferences(self, user_query: str, compact: bool = False) -> UserPreferences:
         """
@@ -331,9 +333,8 @@ TAREFA:
 
    - Numero de pessoas:
      * "num_people": extrair de "5 amigos", "somos 3", "familia de 4", "eu e a minha namorada" (2), etc.
-     * Se nao mencionado -> num_people: 1 (padrao, nao perguntar)
-     * APENAS incluir "num_people" em missing_fields se budget_type for "total" ou "per_day"
-       E num_people nao puder ser determinado E houver indicio de grupo (plural, "amigos", "familia", "nos")
+     * Se nao mencionado -> num_people: null (NAO assumir 1 — o codigo trata o default)
+     * NUNCA incluir "num_people" em missing_fields (isso e decidido depois, fora do LLM)
 
    - Hora de inicio (apenas para o PRIMEIRO dia, padrao "09:00"):
      * "de manha" / "de manha cedo" -> "09:00"
@@ -388,7 +389,7 @@ Devolve APENAS JSON (sem texto adicional):
   "max_time": null,
   "budget_value": null,
   "budget_type": "per_person",
-  "num_people": 1,
+  "num_people": null,
   "tags": ["tag1", "tag2", "tag3"],
   "interests": ["interest1", "interest2"],
   "start_time": "09:00",
@@ -542,8 +543,10 @@ Responde APENAS com o JSON, sem explicacoes."""
                     print(f"   AVISO: Tempo extraido parece errado: {extracted_time} min - limitando a 20160 min")
                     extracted_time = 20160
 
-            # Numero de pessoas
-            num_people = max(1, int(data.get("num_people", 1) or 1))
+            # Numero de pessoas — null quando nao mencionado, distingue de "1 explicito"
+            _num_people_raw = data.get("num_people")
+            num_people_explicit = _num_people_raw is not None
+            num_people = max(1, int(_num_people_raw)) if _num_people_raw else 1
 
             # Calcular orcamento per-person total com base no tipo declarado
             import math as _math
@@ -1014,6 +1017,8 @@ Responde APENAS com o JSON, sem explicacoes."""
                 start_location=start_location,
                 mobility_issues=mobility_issues,
                 num_people=num_people,
+                num_people_explicit=num_people_explicit,
+                budget_type=budget_type,
                 has_children=has_children,
                 is_elderly=is_elderly,
                 last_day_end_time=last_day_end_time,
