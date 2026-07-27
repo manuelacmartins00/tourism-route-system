@@ -110,6 +110,15 @@
     overflow-y: auto;
     touch-action: pan-y;
     overscroll-behavior: contain;
+    /* Sem isto, tocar e arrastar em cima de texto (bolhas, opcoes, labels)
+       pode ser interpretado pelo iOS como um pedido para SELECIONAR texto
+       (lupa/alças de selecao) em vez de fazer scroll da pagina -- um
+       comportamento nativo separado do touch-action, e a causa mais
+       provavel de "scroll so funciona fora das caixas". Os inputs de
+       texto voltam a ficar selecionaveis mais abaixo, para continuarem
+       editaveis normalmente. */
+    -webkit-user-select: none;
+    user-select: none;
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
@@ -141,6 +150,8 @@
      pan-y explicito aqui tambem, em vez de confiar so na heranca do ancestor. */
   .messages input[type="text"] {
     touch-action: pan-y;
+    -webkit-user-select: text;
+    user-select: text;
   }
   /* .clarif-input nao tinha NENHUMA regra CSS -- este input (usado no
      formulario de scope) ficava com o estilo por omissao do browser em vez
