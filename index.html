@@ -128,22 +128,18 @@
        nenhuma animacao de scroll a competir com o gesto manual do
        utilizador em nenhum momento. */
   }
-  /* Botoes dentro da area de mensagens (scope-cards, pills, chips, mapa):
-     sem isto o Safari iOS pode interpretar um arrasto iniciado sobre o
-     botao como uma tentativa de toque em vez de scroll da pagina, travando
-     o "puxar para cima" quando o dedo comeca sobre uma destas caixas. */
+  /* Forcar pan-y em TODOS os elementos dentro da area de mensagens, sem
+     excecao -- em vez de confiar que o Safari defere corretamente para o
+     touch-action do ancestor (.messages) em elementos que nao o declaram
+     explicitamente (o suporte a essa heranca tem sido inconsistente entre
+     versoes do iOS). Isto elimina de vez a duvida sobre heranca. */
+  .messages, .messages * {
+    touch-action: pan-y;
+  }
+  /* Botoes precisam tambem de pinch-zoom/duplo-toque desativados
+     (manipulation inclui pan-y, por isso nao perde a permissao de scroll). */
   .messages button {
     touch-action: manipulation;
-  }
-  /* Caixas de conteudo (bolhas, cartoes de scope, itens de POI): declarar
-     pan-y explicitamente em vez de depender do Safari deferir para o
-     touch-action do ancestor (.messages) quando o dedo toca dentro de uma
-     destas caixas -- suporte inconsistente consoante a versao do iOS. */
-  .messages .bubble,
-  .messages .scope-card,
-  .messages .poi-item,
-  .messages .poi-list {
-    touch-action: pan-y;
   }
   /* Inputs de texto dos formularios de clarificacao/scope: a fase com mais
      campos empilhados (varios inputs + botoes) numa so bolha -- garantir
