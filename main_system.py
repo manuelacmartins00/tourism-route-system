@@ -325,6 +325,10 @@ class TourismRouteSystem:
 
         # -- Perguntas de scope: alojamento e refeicoes ---------------
         # Verificadas ANTES dos missing_fields para aparecerem na primeira interacao.
+        # Guarda se o utilizador respondeu explicitamente "sim" ao alojamento
+        # (via scope form) — distingue do default silencioso de viagens de 1 dia,
+        # que nao deve por si so despoletar a pergunta de num_people.
+        accommodation_confirmed_by_user = include_accommodation is True
         scope_questions = []
         if include_accommodation is None:
             if preferences.max_time and preferences.max_time > 480:
@@ -337,12 +341,26 @@ class TourismRouteSystem:
             else:
                 include_meals = True
 
+        # budget_type "total" (para o grupo) ou "per_day" (por dia, grupo todo)
+        # dependem do numero de pessoas para calcular o custo por pessoa —
+        # "per_person" e "per_person_per_day" ja sao por pessoa, nao precisam.
+        _budget_needs_num_people = preferences.budget_type in ("total", "per_day")
+
         # Se ha scope questions, devolver juntas com eventuais missing_fields
         if scope_questions:
+            _mf_scope = list(preferences.missing_fields or [])
+            # num_people so e pedido aqui se ja soubermos que e relevante:
+            # alojamento ja confirmado (default do dia unico) ou orcamento
+            # total/por dia. Se "include_accommodation" ainda estiver pendente
+            # nesta mesma resposta, so se pede depois de o utilizador responder.
+            if (not preferences.num_people_explicit
+                    and (accommodation_confirmed_by_user or _budget_needs_num_people)
+                    and "num_people" not in _mf_scope):
+                _mf_scope.append("num_people")
             return {
                 "status": "needs_scope_clarification",
                 "scope_questions": scope_questions,
-                "missing_fields": preferences.missing_fields or [],
+                "missing_fields": _mf_scope,
                 "query": user_query,
                 "preferences_so_far": {
                     "max_time": preferences.max_time,
@@ -352,6 +370,16 @@ class TourismRouteSystem:
                     "num_people": getattr(preferences, "num_people", 1),
                 },
             }
+
+        # -- Perguntar num_people quando e realmente relevante ---------
+        # So faz sentido pedir se: alojamento vai ser incluido (precisamos
+        # de saber quartos) ou o orcamento e total/por dia para o grupo
+        # (precisamos de dividir o custo). Fora destes casos fica no
+        # default (1) sem incomodar o utilizador.
+        if (not preferences.num_people_explicit
+                and (accommodation_confirmed_by_user or _budget_needs_num_people)
+                and "num_people" not in (preferences.missing_fields or [])):
+            preferences.missing_fields = list(preferences.missing_fields or []) + ["num_people"]
 
         # -- Verificar campos em falta ---------------------------------
         if preferences.missing_fields:
@@ -759,7 +787,7 @@ class TourismRouteSystem:
             print(f"{'=' * 70}")
             print("Possiveis causas:")
             print("  1. Categorias extraidas nao existem no JSON")
-            print("  2. ChromaDB precisa ser reconstruido -- apaga data/chroma_db")
+            print("  2. ChromaDB precisa ser reconstruido -- apaga data/chroma_db2")
             print(f"{'=' * 70}\n")
             return {
                 "error": "NO_POIS_FOUND",
@@ -935,8 +963,11 @@ class TourismRouteSystem:
                                   crossover_prob=0.6, mutation_prob=0.1,
                                   mutation_dynamic=True, mutation_patience=5)
         elif selected_algo == "PSO":
+            # PSO_043 -- melhor config grid search 54 configs (2026-07-25): particles=40,
+            # w=0.7, c1=c2=0.5, n_iterations=50, w_decay=False
             optimizer = TourismPSOA(optimizer_pois, sub_distance_matrix, evaluator,
-                                    n_particles=20, n_iterations=30)
+                                    n_particles=40, n_iterations=50,
+                                    w=0.7, c1=0.5, c2=0.5, w_decay=False)
         else:  # GREEDY
             optimizer = GreedyPlanner(optimizer_pois, sub_distance_matrix, evaluator)
 
