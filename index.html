@@ -117,6 +117,12 @@
        completo (ver mais abaixo), mas fica fora por seguranca: nao ha
        nenhuma animacao de scroll a competir com o gesto manual do
        utilizador em nenhum momento. */
+    /* Forcar a propria camada de composicao (compositing layer) para este
+       elemento -- tecnica classica do iOS Safari para scroll com overflow
+       dentro de flex, para o motor nao tratar o scroll deste container
+       como parte da mesma camada dos filhos (bolhas/cartoes). */
+    will-change: scroll-position;
+    transform: translate3d(0, 0, 0);
   }
   /* .clarif-input nao tinha NENHUMA regra CSS -- este input (usado no
      formulario de scope) ficava com o estilo por omissao do browser em vez
