@@ -108,7 +108,6 @@
        assim que ha varias mensagens. */
     min-height: 0;
     overflow-y: auto;
-    touch-action: pan-y;
     overscroll-behavior: contain;
     /* Sem isto, tocar e arrastar em cima de texto (bolhas, opcoes, labels)
        pode ser interpretado pelo iOS como um pedido para SELECIONAR texto
@@ -128,24 +127,14 @@
        nenhuma animacao de scroll a competir com o gesto manual do
        utilizador em nenhum momento. */
   }
-  /* Forcar pan-y em TODOS os elementos dentro da area de mensagens, sem
-     excecao -- em vez de confiar que o Safari defere corretamente para o
-     touch-action do ancestor (.messages) em elementos que nao o declaram
-     explicitamente (o suporte a essa heranca tem sido inconsistente entre
-     versoes do iOS). Isto elimina de vez a duvida sobre heranca. */
-  .messages, .messages * {
-    touch-action: pan-y;
-  }
-  /* Botoes precisam tambem de pinch-zoom/duplo-toque desativados
-     (manipulation inclui pan-y, por isso nao perde a permissao de scroll). */
-  .messages button {
-    touch-action: manipulation;
-  }
-  /* Inputs de texto dos formularios de clarificacao/scope: a fase com mais
-     campos empilhados (varios inputs + botoes) numa so bolha -- garantir
-     pan-y explicito aqui tambem, em vez de confiar so na heranca do ancestor. */
+  /* touch-action removido de proposito em todo o lado (tentativa anterior
+     forcava pan-y em tudo, incluindo .messages). Suspeita: declarar um
+     touch-action customizado empurra o WebKit para um caminho de deteccao
+     de gestos diferente do standard, que nesta versao pode nao estar a
+     ativar corretamente o scroll nativo por toque (so o arrastar direto
+     da barra de scroll continuava a funcionar). Voltar ao "auto" (nao
+     declarar nada) usa o caminho mais testado do browser. */
   .messages input[type="text"] {
-    touch-action: pan-y;
     -webkit-user-select: text;
     user-select: text;
   }
