@@ -767,6 +767,19 @@
     inputBox.focus();
   }
 
+  // O WebKit pre-calcula quais zonas do ecra sao "scrollaveis" (as chamadas
+  // non-fast scrollable regions) e por vezes nao recalcula isto para
+  // conteudo inserido dinamicamente depois do carregamento da pagina --
+  // sintoma exato: conteudo que ja estava na pagina faz scroll bem,
+  // conteudo adicionado a seguir (mensagens, formularios) nao. Forcar um
+  // reflow a seguir a cada insercao obriga o motor a recalcular.
+  function _refreshScrollableRegion() {
+    const msgs = document.getElementById('messages');
+    msgs.style.overflowY = 'hidden';
+    void msgs.offsetHeight;
+    msgs.style.overflowY = 'auto';
+  }
+
   // Auto-scroll para o fundo removido de propósito: competia com o gesto
   // manual de scroll do utilizador logo a seguir a cada mensagem nova.
 
@@ -787,6 +800,7 @@
       <div class="bubble user">${escapeHtml(text)}</div>
     `;
     msgs.appendChild(row);
+    _refreshScrollableRegion();
   }
 
   // ── Mostrar typing + pipeline ─────────────────────────────────
@@ -807,6 +821,7 @@
       </div>
     `;
     msgs.appendChild(row);
+    _refreshScrollableRegion();
 
     // Animar passos do pipeline
     const steps = [
@@ -926,6 +941,7 @@
       </div>
     `;
     msgs.appendChild(row);
+    _refreshScrollableRegion();
 
     // Guardar referência para download
     currentMapId = mapId;
@@ -951,6 +967,7 @@
       </div>
     `;
     msgs.appendChild(row);
+    _refreshScrollableRegion();
   }
 
   // ── Mensagem de erro ──────────────────────────────────────────
@@ -966,6 +983,7 @@
       </div>
     `;
     msgs.appendChild(row);
+    _refreshScrollableRegion();
   }
 
   // ── Enviar query ──────────────────────────────────────────────
@@ -1299,6 +1317,7 @@
       </div>
     `;
     msgs.appendChild(row);
+    _refreshScrollableRegion();
   }
 
   const FIELD_PHRASES = {
@@ -1431,6 +1450,7 @@
       </div>
     `;
     msgs.appendChild(row);
+    _refreshScrollableRegion();
   }
 
   const _scopeAnswers = {};
