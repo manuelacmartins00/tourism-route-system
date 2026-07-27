@@ -108,14 +108,16 @@
        assim que ha varias mensagens. */
     min-height: 0;
     overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
     overscroll-behavior: contain;
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    scroll-behavior: smooth;
+    /* scroll-behavior:smooth removido -- o auto-scroll foi eliminado por
+       completo (ver mais abaixo), mas fica fora por seguranca: nao ha
+       nenhuma animacao de scroll a competir com o gesto manual do
+       utilizador em nenhum momento. */
   }
   /* Botoes dentro da area de mensagens (scope-cards, pills, chips, mapa):
      sem isto o Safari iOS pode interpretar um arrasto iniciado sobre o
@@ -758,11 +760,8 @@
     inputBox.focus();
   }
 
-  // ── Scroll para fundo ────────────────────────────────────────
-  function scrollToBottom() {
-    const msgs = document.getElementById('messages');
-    msgs.scrollTop = msgs.scrollHeight;
-  }
+  // Auto-scroll para o fundo removido de propósito: competia com o gesto
+  // manual de scroll do utilizador logo a seguir a cada mensagem nova.
 
   // ── Remover empty state ──────────────────────────────────────
   function removeEmptyState() {
@@ -781,7 +780,6 @@
       <div class="bubble user">${escapeHtml(text)}</div>
     `;
     msgs.appendChild(row);
-    scrollToBottom();
   }
 
   // ── Mostrar typing + pipeline ─────────────────────────────────
@@ -802,7 +800,6 @@
       </div>
     `;
     msgs.appendChild(row);
-    scrollToBottom();
 
     // Animar passos do pipeline
     const steps = [
@@ -818,7 +815,6 @@
         stepEl.className = 'step-row';
         stepEl.innerHTML = `<div class="step-dot"></div><span class="step-label">${label}</span>`;
         pipeline.appendChild(stepEl);
-        scrollToBottom();
       }, delay);
     });
   }
@@ -923,7 +919,6 @@
       </div>
     `;
     msgs.appendChild(row);
-    scrollToBottom();
 
     // Guardar referência para download
     currentMapId = mapId;
@@ -949,7 +944,6 @@
       </div>
     `;
     msgs.appendChild(row);
-    scrollToBottom();
   }
 
   // ── Mensagem de erro ──────────────────────────────────────────
@@ -965,7 +959,6 @@
       </div>
     `;
     msgs.appendChild(row);
-    scrollToBottom();
   }
 
   // ── Enviar query ──────────────────────────────────────────────
@@ -1300,7 +1293,6 @@
       </div>
     `;
     msgs.appendChild(row);
-    scrollToBottom();
   }
 
   const FIELD_PHRASES = {
@@ -1433,7 +1425,6 @@
       </div>
     `;
     msgs.appendChild(row);
-    scrollToBottom();
   }
 
   const _scopeAnswers = {};
