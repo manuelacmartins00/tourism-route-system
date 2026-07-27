@@ -191,6 +191,21 @@
     font-size: 14px;
     line-height: 1.6;
     position: relative;
+    /* O proprio conteudo passivo (texto, labels, cartoes) absorve o toque
+       para si em vez de o deixar "passar" para o .messages scrollavel por
+       tras -- um teste de hit-test anterior confirmou que o toque acerta
+       sempre na bolha, nunca no container por tras dela. Com
+       pointer-events:none aqui, um toque sobre texto/cartoes deixa de ser
+       capturado por este elemento e o browser resolve o hit-test direto
+       no ancestor scrollavel. Os elementos realmente clicaveis (botoes,
+       inputs, select) reativam pointer-events:auto explicitamente abaixo. */
+    pointer-events: none;
+  }
+  .bubble button,
+  .bubble input,
+  .bubble select,
+  .bubble a {
+    pointer-events: auto;
   }
   .bubble.user {
     background: var(--user-bubble);
