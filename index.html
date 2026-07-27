@@ -96,13 +96,21 @@
   }
   .chat-title { font-size: 15px; font-weight: 600; }
   .chat-subtitle { font-size: 11px; color: var(--text-muted); }
+  .chat-browser-note { font-size: 10px; color: var(--text-muted); opacity: .75; margin-top: 1px; }
 
   /* MESSAGES */
   .messages {
     flex: 1;
+    /* Sem min-height:0, um flex item por defeito nao encolhe abaixo do
+       tamanho do seu conteudo (min-height:auto) — a lista de mensagens
+       cresce e empurra o layout em vez de ficar contida no seu proprio
+       scroll, o que no iOS Safari torna o "puxar para cima" instavel
+       assim que ha varias mensagens. */
+    min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
+    overscroll-behavior: contain;
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
@@ -115,6 +123,37 @@
      o "puxar para cima" quando o dedo comeca sobre uma destas caixas. */
   .messages button {
     touch-action: manipulation;
+  }
+  /* Caixas de conteudo (bolhas, cartoes de scope, itens de POI): declarar
+     pan-y explicitamente em vez de depender do Safari deferir para o
+     touch-action do ancestor (.messages) quando o dedo toca dentro de uma
+     destas caixas -- suporte inconsistente consoante a versao do iOS. */
+  .messages .bubble,
+  .messages .scope-card,
+  .messages .poi-item,
+  .messages .poi-list {
+    touch-action: pan-y;
+  }
+  /* Inputs de texto dos formularios de clarificacao/scope: a fase com mais
+     campos empilhados (varios inputs + botoes) numa so bolha -- garantir
+     pan-y explicito aqui tambem, em vez de confiar so na heranca do ancestor. */
+  .messages input[type="text"] {
+    touch-action: pan-y;
+  }
+  /* .clarif-input nao tinha NENHUMA regra CSS -- este input (usado no
+     formulario de scope) ficava com o estilo por omissao do browser em vez
+     do tema escuro, ao contrario do input equivalente no formulario de
+     clarificacao simples (que tem estilo inline). */
+  .clarif-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
   }
   .messages::-webkit-scrollbar { width: 4px; }
   .messages::-webkit-scrollbar-track { background: transparent; }
@@ -552,7 +591,12 @@
     transition: all .3s;
     max-width: 380px;
   }
-  .feedback-banner.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  /* pointer-events fica em "none" mesmo com o banner visivel: a caixa ocupa
+     quase a largura toda do ecra perto do fundo -- exatamente onde um dedo
+     costuma iniciar o gesto de deslizar para cima. Sem isto, tocar no icone
+     ou no texto (nao-clicaveis) engolia o toque e bloqueava o scroll da
+     conversa por baixo. So os dois botoes reais precisam de pointer-events. */
+  .feedback-banner.show { transform: translateY(0); opacity: 1; }
   .feedback-banner-left { display: flex; align-items: center; gap: 10px; }
   .feedback-icon { font-size: 22px; flex-shrink: 0; }
   .feedback-title { font-size: 13px; font-weight: 600; color: var(--accent2); }
@@ -565,6 +609,7 @@
     cursor: pointer; white-space: nowrap;
     font-family: 'DM Sans', sans-serif;
     transition: all .15s; flex-shrink: 0;
+    pointer-events: auto;
   }
   .feedback-cta:hover { background: #28c47d; }
   .feedback-dismiss {
@@ -572,6 +617,7 @@
     background: transparent; border: none;
     color: var(--text-muted); font-size: 14px;
     cursor: pointer; line-height: 1;
+    pointer-events: auto;
   }
 </style>
 </head>
@@ -585,6 +631,7 @@
       <div>
         <div class="chat-title">Tourism Route Assistant</div>
         <div class="chat-subtitle">Rotas turísticas personalizadas para Portugal</div>
+        <div class="chat-browser-note">Para uma experiência ótima, utilize o site num computador</div>
       </div>
     </div>
   </div>
@@ -680,6 +727,17 @@
   let currentSessionId = null;
   let susBannerShown = false;
   let isLoading = false;
+
+  // ── Placeholder da caixa de texto, consoante o estado da conversa ──
+  const PLACEHOLDER_INITIAL = 'Descreva o que quer visitar, onde, quanto tempo e orçamento...';
+  const PLACEHOLDER_REFINE  = 'Peça um ajuste à rota ou uma nova pesquisa...';
+  const PLACEHOLDER_LOADING = 'A processar...';
+
+  function updatePlaceholder() {
+    inputBox.placeholder = isLoading
+      ? PLACEHOLDER_LOADING
+      : (currentSessionId ? PLACEHOLDER_REFINE : PLACEHOLDER_INITIAL);
+  }
 
   // ── Auto-resize textarea ─────────────────────────────────────
   const inputBox = document.getElementById('inputBox');
@@ -917,6 +975,7 @@
     if (!query) return;
 
     isLoading = true;
+    updatePlaceholder();
     inputBox.value = '';
     inputBox.style.height = 'auto';
     inputBox.disabled = true;
@@ -960,6 +1019,7 @@
       addErrorMessage('Não foi possível ligar ao servidor. Tenta novamente.');
     } finally {
       isLoading = false;
+      updatePlaceholder();
       inputBox.disabled = false;
       document.getElementById('sendBtn').disabled = false;
       inputBox.focus();
@@ -1106,13 +1166,26 @@
       </style>
       ${html}`;
     document.body.appendChild(container);
-    html2pdf().set({
+    const pdfWorker = html2pdf().set({
       margin: 0,
       filename: 'itinerario_turistico.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(container).save().then(() => document.body.removeChild(container));
+    }).from(container);
+
+    // iOS Safari ignora o atributo "download" em blobs — .save() acaba por
+    // navegar o próprio separador para o PDF, perdendo a app. Em iOS abrimos
+    // antes num separador novo (o utilizador guarda depois via Partilhar).
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      pdfWorker.outputPdf('bloburl').then(url => {
+        document.body.removeChild(container);
+        window.open(url, '_blank');
+      });
+    } else {
+      pdfWorker.save().then(() => document.body.removeChild(container));
+    }
   }
 
   // ── Feedback banner ───────────────────────────────────────────
@@ -1434,6 +1507,7 @@
     addTypingIndicator();
 
     isLoading = true;
+    updatePlaceholder();
     inputBox.disabled = true;
     document.getElementById('sendBtn').disabled = true;
 
@@ -1471,6 +1545,7 @@
       addErrorMessage('Não foi possível ligar ao servidor. Tenta novamente.');
     } finally {
       isLoading = false;
+      updatePlaceholder();
       inputBox.disabled = false;
       document.getElementById('sendBtn').disabled = false;
       inputBox.focus();
@@ -1492,6 +1567,7 @@
       addUserMessage(extras.join(' · '));
       addTypingIndicator();
       isLoading = true;
+      updatePlaceholder();
       inputBox.disabled = true;
       document.getElementById('sendBtn').disabled = true;
       try {
@@ -1528,6 +1604,7 @@
           addErrorMessage('Não foi possível ligar ao servidor. Tenta novamente.');
       } finally {
           isLoading = false;
+          updatePlaceholder();
           inputBox.disabled = false;
           document.getElementById('sendBtn').disabled = false;
       }
