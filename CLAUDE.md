@@ -37,7 +37,7 @@ If ChromaDB errors appear, delete `data/chroma_db2/` and rerun setup. There is n
 
 Each user query flows through five sequential layers:
 
-1. **LLM Layer** (`src/llm/llm_orchestrator.py`) — Groq API with `llama-3.1-8b-instant` extracts structured preferences: `max_time`, `max_cost`, `preferred_categories`, `location`, `start_time`, `transport_mode`, `mobility_issues`. Returns 422 if required fields are missing (triggers clarification).
+1. **LLM Layer** (`src/llm/llm_orchestrator.py`) — Groq API with `openai/gpt-oss-20b` extracts structured preferences: `max_time`, `max_cost`, `preferred_categories`, `location`, `start_time`, `transport_mode`, `mobility_issues`. Returns 422 if required fields are missing (triggers clarification).
 
 2. **RAG Layer** (`src/rag/rag_setup.py`) — ChromaDB (`data/chroma_db2/`) with `paraphrase-multilingual-MiniLM-L12-v2` embeddings (384-dim). Semantic search filtered by category, cost ceiling, and geographic bounding box. Initial pool is ~60 POIs (40 category-filtered + 20 semantic supplement, `main_system.py:511-530`), with several conditional re-queries (category rebalancing, <60%-of-time fallback, Fill/Fill2/Fill3 post-optimization) that can push the final candidate pool considerably higher or lower depending on local POI density — observed pool sizes in practice range roughly from single digits to 130+.
 
@@ -92,7 +92,7 @@ After pushing, the Space rebuilds automatically — wait ~1-2 minutes before tes
 
 ## Key Configuration
 
-- **LLM:** `llama-3.1-8b-instant` via Groq. `extract_preferences`: temperature 0.0, max 600 tokens (deterministic extraction); `explain_route`: temperature 0.7, max 300 tokens
+- **LLM:** `openai/gpt-oss-20b` via Groq. `extract_preferences`: temperature 0.0, max 600 tokens (deterministic extraction); `explain_route`: temperature 0.7, max 300 tokens
 - **Algorithm auto-select logic:** `select_algorithm_deterministic()` in `src/llm/llm_orchestrator.py` (imported by `main_system.py`) — currently hardcoded to always return `"GA"`
 - **Day planning defaults:** 8 h/day, 60 min lunch break
 - **OSRM profiles:** `foot`, `car`, `bike` (public instance used by default)

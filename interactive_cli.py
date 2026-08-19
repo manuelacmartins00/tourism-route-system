@@ -536,7 +536,7 @@ class InteractiveCLI:
             print(f"{Fore.RED}   [N/A] Nao configurada")
         
         print(f"\n{Fore.YELLOW}Modelo LLM:")
-        print(f"{Fore.WHITE}   llama-3.1-8b-instant (Groq)")
+        print(f"{Fore.WHITE}   openai/gpt-oss-20b (Groq)")
         
         print(f"\n{Fore.YELLOW}Algoritmos disponiveis:")
         print(f"{Fore.WHITE}   - ACO (Ant Colony Optimization)")
