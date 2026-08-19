@@ -117,7 +117,8 @@ class LlamaOrchestrator:
                     messages=[{"role": "user", "content": prompt}],
                     model=self.model,
                     max_tokens=max_tokens,
-                    temperature=temperature
+                    temperature=temperature,
+                    reasoning_effort="low"
                 )
                 return response.choices[0].message.content
             except Exception as e:
@@ -473,7 +474,7 @@ Responde APENAS com o JSON, sem explicacoes."""
 
         content = ""
         try:
-            content = self._call_llm(prompt, max_tokens=600, temperature=0.0)
+            content = self._call_llm(prompt, max_tokens=800, temperature=0.0)
             content = re.sub(r'```json\s*|\s*```', '', content).strip()
 
             start = content.find('{')
