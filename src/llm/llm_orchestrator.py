@@ -100,7 +100,7 @@ class LlamaOrchestrator:
     
     def __init__(self, api_key: str):
         self.client = Groq(api_key=api_key)
-        self.model = "llama-3.1-8b-instant" 
+        self.model = "openai/gpt-oss-20b"
     
     def _call_llm(self, prompt: str, max_tokens: int = 600, temperature: float = 0.3) -> str:
         """Chama o modelo via Groq API.

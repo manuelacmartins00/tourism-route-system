@@ -1,6 +1,6 @@
 # main_system.py
 # VERSAO BASELINE:
-#    - Groq (llama-3.1-8b-instant)
+#    - Groq (openai/gpt-oss-20b)
 #    - Sem analise de sentimento
 #    - Sem AHP - pesos fixos no RouteEvaluator
 #    - Sem login/autenticacao
