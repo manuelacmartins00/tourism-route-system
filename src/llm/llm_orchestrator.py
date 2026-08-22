@@ -106,44 +106,60 @@ class LlamaOrchestrator:
         """Chama o modelo via Groq API.
         Em modo API/web (BENCHMARK_MODE não definido): sem retry — falha rápida em 429.
         Em modo benchmark (BENCHMARK_MODE=1): retry com backoff até 8 tentativas.
+
+        gpt-oss-20b gasta tokens de reasoning do mesmo orcamento de max_tokens; para
+        algumas queries o reasoning consome tudo antes de gerar a resposta (finish_reason
+        "length", content vazio). Quando isso acontece, tenta de novo com o dobro do
+        max_tokens (ate um teto) em vez de desistir.
         """
         import time as _time
         import re as _re
         benchmark_mode = bool(os.environ.get("BENCHMARK_MODE"))
         max_attempts = 8 if benchmark_mode else 1
-        for attempt in range(max_attempts):
-            try:
-                response = self.client.chat.completions.create(
-                    messages=[{"role": "user", "content": prompt}],
-                    model=self.model,
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                    reasoning_effort="low"
-                )
-                return response.choices[0].message.content
-            except Exception as e:
-                err = str(e)
-                if ("429" in err or "rate_limit" in err.lower()) and benchmark_mode:
-                    # Ler o tempo de espera indicado pela Groq (ex: "try again in 8m40.99s"
-                    # ou, para o limite diario (TPD), "try again in 11h58m33.5s")
-                    m = _re.search(r'try again in (?:(\d+)h)?(?:(\d+)m)?([\d.]+)s', err)
-                    if m:
-                        wait = (int(m.group(1) or 0) * 3600
-                                + int(m.group(2) or 0) * 60
-                                + float(m.group(3)) + 3)
+        current_max_tokens = max_tokens
+        for length_attempt in range(3):
+            for attempt in range(max_attempts):
+                try:
+                    response = self.client.chat.completions.create(
+                        messages=[{"role": "user", "content": prompt}],
+                        model=self.model,
+                        max_tokens=current_max_tokens,
+                        temperature=temperature,
+                        reasoning_effort="low"
+                    )
+                    content = response.choices[0].message.content or ""
+                    truncated_empty = (response.choices[0].finish_reason == "length"
+                                        and not content.strip())
+                    if truncated_empty and length_attempt < 2:
+                        current_max_tokens = min(current_max_tokens * 2, 3000)
+                        print(f"   [Reasoning truncou resposta] a repetir com max_tokens={current_max_tokens}...")
+                        break  # tenta de novo com mais margem
+                    return content
+                except Exception as e:
+                    err = str(e)
+                    if ("429" in err or "rate_limit" in err.lower()) and benchmark_mode:
+                        # Ler o tempo de espera indicado pela Groq (ex: "try again in 8m40.99s"
+                        # ou, para o limite diario (TPD), "try again in 11h58m33.5s")
+                        m = _re.search(r'try again in (?:(\d+)h)?(?:(\d+)m)?([\d.]+)s', err)
+                        if m:
+                            wait = (int(m.group(1) or 0) * 3600
+                                    + int(m.group(2) or 0) * 60
+                                    + float(m.group(3)) + 3)
+                        else:
+                            wait = min(30 * (2 ** attempt), 600)
+                        # Espera longa (> 15 min) so acontece em limites diarios (TPD) —
+                        # nao vale a pena reter o processo em memoria; propaga para quem
+                        # chamou decidir (ex: o benchmark agenda um resume e termina).
+                        is_daily = "tokens per day" in err.lower() or "tpd" in err.lower()
+                        if is_daily or wait > 900:
+                            raise DailyQuotaExceededError(wait, err) from e
+                        print(f"   [Rate limit] aguardando {wait:.0f}s (tentativa {attempt+1}/8)...")
+                        _time.sleep(wait)
                     else:
-                        wait = min(30 * (2 ** attempt), 600)
-                    # Espera longa (> 15 min) so acontece em limites diarios (TPD) —
-                    # nao vale a pena reter o processo em memoria; propaga para quem
-                    # chamou decidir (ex: o benchmark agenda um resume e termina).
-                    is_daily = "tokens per day" in err.lower() or "tpd" in err.lower()
-                    if is_daily or wait > 900:
-                        raise DailyQuotaExceededError(wait, err) from e
-                    print(f"   [Rate limit] aguardando {wait:.0f}s (tentativa {attempt+1}/8)...")
-                    _time.sleep(wait)
-                else:
-                    raise
-        raise Exception("Groq rate limit: max retries (8) excedido")
+                        raise
+            else:
+                raise Exception("Groq rate limit: max retries (8) excedido")
+        return ""
     
     def _compact_prompt(self, user_query: str) -> str:
         """Prompt minimalista (~400 tokens) para modo benchmark — preserva campos essenciais."""
