@@ -108,9 +108,10 @@ class LlamaOrchestrator:
         Em modo benchmark (BENCHMARK_MODE=1): retry com backoff até 8 tentativas.
 
         gpt-oss-20b gasta tokens de reasoning do mesmo orcamento de max_tokens; para
-        algumas queries o reasoning consome tudo antes de gerar a resposta (finish_reason
-        "length", content vazio). Quando isso acontece, tenta de novo com o dobro do
-        max_tokens (ate um teto) em vez de desistir.
+        algumas queries o reasoning consome (quase) tudo antes de terminar a resposta,
+        dando finish_reason "length" com content vazio OU com JSON parcial (cortado a
+        meio do objeto — igualmente invalido). Em qualquer dos casos tenta de novo com
+        o dobro do max_tokens (ate um teto) em vez de desistir.
         """
         import time as _time
         import re as _re
@@ -128,9 +129,8 @@ class LlamaOrchestrator:
                         reasoning_effort="low"
                     )
                     content = response.choices[0].message.content or ""
-                    truncated_empty = (response.choices[0].finish_reason == "length"
-                                        and not content.strip())
-                    if truncated_empty and length_attempt < 2:
+                    truncated = response.choices[0].finish_reason == "length"
+                    if truncated and length_attempt < 2:
                         current_max_tokens = min(current_max_tokens * 2, 3000)
                         print(f"   [Reasoning truncou resposta] a repetir com max_tokens={current_max_tokens}...")
                         break  # tenta de novo com mais margem
