@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Tourism Route Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222535;
+    --border: #2e3248;
+    --accent: #4f8ef7;
+    --accent2: #34d399;
+    --text: #e8eaf0;
+    --text-muted: #7b82a0;
+    --user-bubble: #1e3a5f;
+    --bot-bubble: #1a1d27;
+    --map-btn: #2a4a2e;
+    --danger: #f87171;
+    --radius: 16px;
+    --radius-sm: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  /* CHAT SHELL */
+  .chat-shell {
+    width: 100%;
+    max-width: 720px;
+    height: 90vh;
+    height: 90dvh;
+    max-height: 860px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0,0,0,.5);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Em telas pequenas (telemóvel), ocupar o ecrã todo em vez de um cartao
+     flutuante com margens -- evita scroll duplo (pagina + mensagens) e
+     poupa espaco vertical precioso quando o teclado esta aberto. */
+  @media (max-width: 480px), (max-height: 700px) {
+    body { padding: 0; }
+    .chat-shell {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      max-height: none;
+      border-radius: 0;
+      border: none;
+    }
+    .chat-header { padding-top: max(16px, env(safe-area-inset-top)); }
+    .input-area { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  }
+
+  /* HEADER */
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .chat-header-left { display: flex; align-items: center; gap: 10px; }
+  .logo-dot {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .chat-title { font-size: 15px; font-weight: 600; }
+  .chat-subtitle { font-size: 11px; color: var(--text-muted); }
+  .chat-browser-note { font-size: 10px; color: var(--text-muted); opacity: .75; margin-top: 1px; }
+
+  /* MESSAGES */
+  .messages {
+    flex: 1;
+    /* Sem min-height:0, um flex item por defeito nao encolhe abaixo do
+       tamanho do seu conteudo (min-height:auto) — a lista de mensagens
+       cresce e empurra o layout em vez de ficar contida no seu proprio
+       scroll, o que no iOS Safari torna o "puxar para cima" instavel
+       assim que ha varias mensagens. */
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* scroll-behavior:smooth removido -- o auto-scroll foi eliminado por
+       completo (ver mais abaixo), mas fica fora por seguranca: nao ha
+       nenhuma animacao de scroll a competir com o gesto manual do
+       utilizador em nenhum momento. */
+    /* will-change:scroll-position + transform:translate3d(0,0,0) foram
+       removidos (experiencia): a tecnica de forcar compositing layer
+       propria no MESMO elemento que tem overflow-y:auto e conhecida por,
+       nalgumas versoes de WebKit, ter o efeito contrario ao pretendido --
+       interfere com a classificacao da regiao como "fast scrollable" pelo
+       compositor, em vez de ajudar. Ver docs/bug_scroll_ios_touch.md
+       tentativa #13 e hipotese #1. */
+  }
+  /* .clarif-input nao tinha NENHUMA regra CSS -- este input (usado no
+     formulario de scope) ficava com o estilo por omissao do browser em vez
+     do tema escuro, ao contrario do input equivalente no formulario de
+     clarificacao simples (que tem estilo inline). */
+  .clarif-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .empty-title { font-size: 18px; font-weight: 600; color: var(--text); }
+  .empty-sub { font-size: 13px; line-height: 1.6; max-width: 380px; }
+  .example-chip {
+    display: inline-block;
+    padding: 6px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--text-muted);
+  }
+  .example-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .example-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 4px; }
+
+  /* MSG ROW */
+  .msg-row { display: flex; gap: 10px; align-items: flex-end; }
+  .msg-row.user { flex-direction: row-reverse; }
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .avatar.bot { background: linear-gradient(135deg,#1e3a6e,#1e4d3a); border: 1px solid var(--border); }
+  .avatar.user { background: var(--user-bubble); border: 1px solid #2a4a7f; }
+
+  /* BUBBLES */
+  .bubble {
+    max-width: 85%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    position: relative;
+    /* O proprio conteudo passivo (texto, labels, cartoes) absorve o toque
+       para si em vez de o deixar "passar" para o .messages scrollavel por
+       tras -- um teste de hit-test anterior confirmou que o toque acerta
+       sempre na bolha, nunca no container por tras dela. Com
+       pointer-events:none aqui, um toque sobre texto/cartoes deixa de ser
+       capturado por este elemento e o browser resolve o hit-test direto
+       no ancestor scrollavel. Os elementos realmente clicaveis (botoes,
+       inputs, select) reativam pointer-events:auto explicitamente abaixo. */
+    pointer-events: none;
+  }
+  .bubble button,
+  .bubble input,
+  .bubble select,
+  .bubble a {
+    pointer-events: auto;
+  }
+  .bubble.user {
+    background: var(--user-bubble);
+    border: 1px solid #2a4a7f;
+    border-bottom-right-radius: 4px;
+    color: #c8daff;
+  }
+  .bubble.bot {
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+  }
+  .bubble-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+
+  /* TYPING */
+  .typing-bubble {
+    display: flex; gap: 4px;
+    padding: 14px 18px;
+    background: var(--bot-bubble);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    animation: typing 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: .2s; }
+  .typing-dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes typing {
+    0%,60%,100% { transform: translateY(0); opacity:.4; }
+    30% { transform: translateY(-5px); opacity:1; }
+  }
+
+  /* PIPELINE STEPS */
+  .step-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--text-muted);
+    padding-left: 40px; margin-top: 4px;
+  }
+  .step-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1s infinite;
+    flex-shrink: 0;
+  }
+  .step-check { color: var(--accent2); font-size: 12px; flex-shrink: 0; }
+  @keyframes pulse {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:.4; transform:scale(.7); }
+  }
+  .step-label {
+    font-size: 11px; color: var(--text-muted);
+    padding: 3px 8px;
+    background: var(--surface2);
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    border: 1px solid var(--border);
+  }
+
+  /* POI LIST */
+  .poi-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .poi-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .poi-num {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+  }
+  .poi-name { flex: 1; font-weight: 500; }
+  .poi-meta { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+
+  /* METRICS STRIP */
+  .metrics-strip { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .metric-tag {
+    padding: 3px 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 11px; color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .metric-tag.green { border-color: #2d5a35; color: var(--accent2); }
+  .metric-tag.blue  { border-color: #1e3a6e; color: var(--accent); }
+
+  /* ALGO BADGE */
+  .algo-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 7px;
+    background: #1e2a4a;
+    border: 1px solid #2a3a6a;
+    border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    margin-left: 6px; vertical-align: middle;
+  }
+
+  /* MAP BUTTON */
+  .map-btn-row {
+    display: flex; justify-content: flex-end;
+    margin-top: 12px; padding-top: 10px;
+    border-top: 1px solid var(--border);
+    gap: 8px; align-items: center;
+  }
+  .map-hint { font-size: 11px; color: var(--text-muted); }
+  .map-open-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    background: var(--map-btn);
+    border: 1px solid #3a6b3e;
+    border-radius: 20px;
+    color: var(--accent2);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .map-open-btn:hover {
+    background: #1e4a24;
+    border-color: var(--accent2);
+    transform: translateY(-1px);
+  }
+
+  /* INPUT AREA */
+  .input-area {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex; gap: 10px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+  .input-box {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    resize: none;
+    min-height: 42px;
+    max-height: 120px;
+    outline: none;
+    transition: border-color .15s;
+    line-height: 1.5;
+  }
+  .input-box:focus { border-color: var(--accent); }
+  .input-box::placeholder { color: var(--text-muted); }
+  .input-box:disabled { opacity: .5; cursor: not-allowed; }
+  .send-btn {
+    width: 42px; height: 42px;
+    background: var(--accent);
+    border: none; border-radius: 10px;
+    color: white; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: all .15s; flex-shrink: 0;
+  }
+  .send-btn:hover:not(:disabled) { background: #3a7ef0; transform: scale(1.05); }
+  .send-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+  /* MAP MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 24px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    width: 100%; max-width: 780px;
+    max-height: 85vh;
+    max-height: 85dvh;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    box-shadow: 0 32px 96px rgba(0,0,0,.7);
+    transform: translateY(20px) scale(.97);
+    transition: transform .2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+  .modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .modal-header-left { display: flex; align-items: center; gap: 10px; }
+  .modal-title { font-size: 14px; font-weight: 600; }
+  .modal-subtitle { font-size: 11px; color: var(--text-muted); }
+  .close-btn {
+    width: 28px; height: 28px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; transition: all .15s;
+  }
+  .close-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .modal-map-area {
+    flex: 1;
+    min-height: 400px;
+    background: #0d1420;
+    position: relative; overflow: hidden;
+  }
+  .modal-map-area iframe {
+    width: 100%; height: 100%;
+    border: none; position: absolute; inset: 0;
+  }
+  .modal-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+  .modal-footer-info { font-size: 11px; color: var(--text-muted); display: flex; gap: 16px; }
+  .footer-actions { display: flex; gap: 8px; }
+  .footer-btn {
+    padding: 5px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .footer-btn.secondary {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .footer-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .footer-btn.primary {
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    color: white;
+  }
+  .footer-btn.primary:hover { background: #3a7ef0; }
+
+  /* DOWNLOAD PDF BUTTON */
+  .dl-pdf-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-muted);
+    font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .dl-pdf-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* PRINT STYLES */
+  @media print {
+    body > *:not(#printArea) { display: none !important; }
+    #printArea {
+      display: block !important;
+      font-family: Arial, sans-serif;
+      color: #000;
+      padding: 24px;
+    }
+    #printArea h1 { font-size: 18px; margin-bottom: 4px; }
+    #printArea h2 { font-size: 14px; color: #444; margin: 16px 0 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+    #printArea .print-meta { font-size: 11px; color: #666; margin-bottom: 16px; }
+    #printArea .print-poi { display: flex; gap: 12px; margin-bottom: 6px; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 12px; }
+    #printArea .print-poi-num { font-weight: 700; width: 20px; flex-shrink: 0; }
+    #printArea .print-poi-name { flex: 1; font-weight: 600; }
+    #printArea .print-poi-meta { color: #666; font-size: 11px; }
+    #printArea .print-explanation { font-size: 12px; color: #333; line-height: 1.7; margin-top: 8px; }
+    #printArea .print-night { font-size: 11px; color: #555; font-style: italic; margin: 8px 0 4px; }
+  }
+
+  /* SCOPE CLARIFICATION (alojamento / refeições) */
+  .scope-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .scope-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .scope-card-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .scope-toggle {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .scope-btn {
+    flex: 1;
+    padding: 8px 0;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+  }
+  .scope-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .scope-btn.selected-yes {
+    background: #1a3a22;
+    border-color: var(--accent2);
+    color: var(--accent2);
+  }
+  .scope-btn.selected-no {
+    background: #2a1e1e;
+    border-color: #c084a0;
+    color: #e8a0b8;
+  }
+  .option-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+  .option-pill {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .option-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .option-pill.selected {
+    background: #1a2542;
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* FEEDBACK BANNER */
+  .feedback-banner {
+    position: fixed;
+    bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
+    right: max(24px, env(safe-area-inset-right));
+    left: 24px;
+    background: linear-gradient(135deg, #1a2a1a, #1a1d27);
+    border: 1px solid #2d5a35;
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    z-index: 50;
+    transform: translateY(80px);
+    opacity: 0;
+    pointer-events: none;
+    transition: all .3s;
+    max-width: 380px;
+  }
+  /* pointer-events fica em "none" mesmo com o banner visivel: a caixa ocupa
+     quase a largura toda do ecra perto do fundo -- exatamente onde um dedo
+     costuma iniciar o gesto de deslizar para cima. Sem isto, tocar no icone
+     ou no texto (nao-clicaveis) engolia o toque e bloqueava o scroll da
+     conversa por baixo. So os dois botoes reais precisam de pointer-events. */
+  .feedback-banner.show { transform: translateY(0); opacity: 1; }
+  .feedback-banner-left { display: flex; align-items: center; gap: 10px; }
+  .feedback-icon { font-size: 22px; flex-shrink: 0; }
+  .feedback-title { font-size: 13px; font-weight: 600; color: var(--accent2); }
+  .feedback-sub { font-size: 11px; color: var(--text-muted); }
+  .feedback-cta {
+    padding: 7px 14px;
+    background: var(--accent2);
+    border: none; border-radius: 8px;
+    color: #0f1117; font-size: 12px; font-weight: 600;
+    cursor: pointer; white-space: nowrap;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .15s; flex-shrink: 0;
+    pointer-events: auto;
+  }
+  .feedback-cta:hover { background: #28c47d; }
+  .feedback-dismiss {
+    position: absolute; top: 8px; right: 8px;
+    background: transparent; border: none;
+    color: var(--text-muted); font-size: 14px;
+    cursor: pointer; line-height: 1;
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="chat-shell">
+  <!-- HEADER -->
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="logo-dot">🗺️</div>
+      <div>
+        <div class="chat-title">Tourism Route Assistant</div>
+        <div class="chat-subtitle">Personalized tourist routes for Portugal</div>
+        <div class="chat-browser-note">For the best experience, use the site on a computer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="messages" id="messages">
+    <!-- ESTADO 1: empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-title">Plan your route in Portugal</div>
+      <div style="margin:12px auto 0;max-width:440px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:left;font-size:13px;color:var(--text);line-height:2.2;">
+        A group of <span style="color:var(--accent);">X people</span> wants to visit
+        <span style="color:var(--accent);">city/cities</span> for
+        <span style="color:var(--accent);">X days</span>, with a budget of
+        <span style="color:var(--accent);">X euros</span>
+        <span style="color:var(--text-muted);font-size:12px;">(total, /day or /person)</span>, with a preference for
+        <span style="color:var(--accent);">activity A, B and C</span>.<br>
+        <span style="color:var(--text-muted);font-size:12px;">For a better experience, also mention: preferred mode of transport, reduced mobility, age group, accommodation location, and whether you'd like the route to include accommodation and meal recommendations, or whether you'd rather handle those yourself on the usual platforms.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- INPUT -->
+  <div class="input-area">
+    <textarea
+      class="input-box"
+      id="inputBox"
+      placeholder="Describe what you want to visit, where, how long and your budget..."
+      rows="1"
+    ></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendQuery()" title="Send">➤</button>
+  </div>
+</div>
+
+<!-- PRINT AREA (hidden, only visible on print) -->
+<div id="printArea" style="display:none;"></div>
+
+<!-- MAP MODAL -->
+<div class="modal-overlay" id="mapModal" onclick="if(event.target===this)closeMap()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <span style="font-size:18px;">🗺️</span>
+        <div>
+          <div class="modal-title" id="modalTitle">Generated Route</div>
+          <div class="modal-subtitle" id="modalSubtitle"></div>
+        </div>
+      </div>
+      <button class="close-btn" onclick="closeMap()">✕</button>
+    </div>
+    <div class="modal-map-area">
+      <iframe id="mapIframe" src="about:blank" allowfullscreen></iframe>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-footer-info" id="modalFooterInfo"></div>
+      <div class="footer-actions">
+        <button class="footer-btn secondary" onclick="downloadPDF()">📄 PDF</button>
+        <button class="footer-btn secondary" id="downloadBtn" onclick="downloadMap()">⬇ HTML Map</button>
+        <button class="footer-btn primary" onclick="closeMap()">✕ Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEEDBACK BANNER -->
+<div class="feedback-banner" id="feedbackBanner">
+  <button class="feedback-dismiss" onclick="dismissFeedback()" title="Close">✕</button>
+  <div class="feedback-banner-left">
+    <div class="feedback-icon">📋</div>
+    <div>
+      <div class="feedback-title">Help improve the system</div>
+      <div class="feedback-sub">Takes less than 2 minutes · Anonymous SUS questionnaire</div>
+    </div>
+  </div>
+  <button class="feedback-cta" onclick="openFeedback()">Answer →</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  // ── Modos de transporte (rótulos + ícones por segmento, S2) ────
+  const TRANSPORT_LABELS = {
+    foot: 'On foot', car: 'Car',
+    public_transport: 'Public Transport', fastest: 'Fastest', bike: 'Bicycle'
+  };
+  const TRANSPORT_ICONS = {
+    foot: '🚶', car: '🚗',
+    public_transport: '🚌', fastest: '⚡', bike: '🚲'
+  };
+
+  // ── Nomes de categoria (slugs PT internos -> label em ingles para PDF) ──
+  const CATEGORY_LABELS_EN = {
+    restaurantes_e_cafes: "Restaurants & Cafés", monumentos: "Monuments",
+    turismo_activo: "Active Tourism", praias: "Beaches", praia: "Beach",
+    bares_e_discotecas: "Bars & Nightclubs", museus_e_palacios: "Museums & Palaces",
+    eventos: "Events", campos: "Fields", arqueologia: "Archaeology",
+    espacos_verdes: "Green Spaces", marinas_e_portos: "Marinas & Ports",
+    termas: "Thermal Spas", parques_e_reservas: "Parks & Reserves",
+    parques_de_diversao: "Amusement Parks", zoos_e_aquarios: "Zoos & Aquariums",
+    ciencia_e_conhecimento: "Science & Knowledge", casinos: "Casinos",
+    talassoterapia: "Thalassotherapy", grutas: "Caves", academias: "Gyms",
+    barragens: "Dams",
+  };
+
+  // ── Estado global ────────────────────────────────────────────
+  let currentMapId = null;
+  let currentResult = null;
+  let currentRunId = null;
+  let currentSessionId = null;
+  let susBannerShown = false;
+  let isLoading = false;
+  // Ronda de clarificação: conta reenvios sucessivos de missing_fields/scope
+  // sem chegar a uma rota, para evitar loop infinito quando a extração LLM
+  // falha repetidamente a apanhar a resposta do utilizador.
+  let _clarificationAttempts = 0;
+  const MAX_CLARIFICATION_ATTEMPTS = 2;
+
+  // ── Placeholder da caixa de texto, consoante o estado da conversa ──
+  const PLACEHOLDER_INITIAL = 'Describe what you want to visit, where, how long and your budget...';
+  const PLACEHOLDER_REFINE  = 'Ask for an adjustment to the route or a new search...';
+  const PLACEHOLDER_LOADING = 'Processing...';
+
+  function updatePlaceholder() {
+    inputBox.placeholder = isLoading
+      ? PLACEHOLDER_LOADING
+      : (currentSessionId ? PLACEHOLDER_REFINE : PLACEHOLDER_INITIAL);
+  }
+
+  // ── Auto-resize textarea ─────────────────────────────────────
+  const inputBox = document.getElementById('inputBox');
+  inputBox.addEventListener('input', () => {
+    inputBox.style.height = 'auto';
+    inputBox.style.height = Math.min(inputBox.scrollHeight, 120) + 'px';
+  });
+  inputBox.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendQuery();
+    }
+  });
+
+  // ── Exemplo chips ────────────────────────────────────────────
+  function fillExample(el) {
+    inputBox.value = el.textContent;
+    inputBox.focus();
+  }
+
+  // O WebKit pre-calcula quais zonas do ecra sao "scrollaveis" (as chamadas
+  // non-fast scrollable regions) e por vezes nao recalcula isto para
+  // conteudo inserido dinamicamente depois do carregamento da pagina --
+  // sintoma exato: conteudo que ja estava na pagina faz scroll bem,
+  // conteudo adicionado a seguir (mensagens, formularios) nao. Forcar um
+  // reflow a seguir a cada insercao obriga o motor a recalcular.
+  function _refreshScrollableRegion() {
+    const msgs = document.getElementById('messages');
+    msgs.style.overflowY = 'hidden';
+    void msgs.offsetHeight;
+    msgs.style.overflowY = 'auto';
+  }
+
+  // Auto-scroll para o fundo removido de propósito: competia com o gesto
+  // manual de scroll do utilizador logo a seguir a cada mensagem nova.
+
+  // ── Remover empty state ──────────────────────────────────────
+  function removeEmptyState() {
+    const es = document.getElementById('emptyState');
+    if (es) es.remove();
+  }
+
+  // ── Adicionar mensagem do utilizador ─────────────────────────
+  function addUserMessage(text) {
+    removeEmptyState();
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `
+      <div class="avatar user">👤</div>
+      <div class="bubble user">${escapeHtml(text)}</div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+  }
+
+  // ── Mostrar typing + pipeline ─────────────────────────────────
+  function addTypingIndicator() {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.id = 'typingRow';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div>
+        <div class="typing-bubble">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+        <div id="pipelineSteps" style="margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
+      </div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+
+    // Animar passos do pipeline
+    const steps = [
+      { label: 'LLM extracting preferences...', delay: 600 },
+      { label: 'RAG retrieving POIs...', delay: 2500 },
+      { label: 'Algorithm optimizing route...', delay: 5000 },
+    ];
+    steps.forEach(({ label, delay }) => {
+      setTimeout(() => {
+        const pipeline = document.getElementById('pipelineSteps');
+        if (!pipeline) return;
+        const stepEl = document.createElement('div');
+        stepEl.className = 'step-row';
+        stepEl.innerHTML = `<div class="step-dot"></div><span class="step-label">${label}</span>`;
+        pipeline.appendChild(stepEl);
+      }, delay);
+    });
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById('typingRow');
+    if (el) el.remove();
+  }
+
+  // ── Adicionar resposta do bot ─────────────────────────────────
+  function addBotMessage(result) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+
+    const pois = result.route || [];
+    const opt = result.optimization || {};
+    const algo = result.algorithm_used || '—';
+    const mapId = result.map_id;
+
+    // POI list HTML — agrupado por dia se day_plan disponível
+    let poisHtml = '';
+    const dayPlan = result.day_plan;
+    if (dayPlan && dayPlan.days && dayPlan.days.length > 0) {
+      dayPlan.days.forEach(day => {
+        poisHtml += `
+          <div style="margin-top:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">
+              📅 Day ${day.day} &nbsp;·&nbsp; ${day.start_time}–${day.end_time} &nbsp;·&nbsp; €${day.total_cost.toFixed(0)}
+            </div>
+            <div class="poi-list">`;
+        const NOCTURNAL_CATS = ['bares_e_discotecas', 'casinos'];
+        let nightSepShown = false;
+        day.pois.forEach(p => {
+          if (!nightSepShown && NOCTURNAL_CATS.includes(p.category)) {
+            poisHtml += `<div style="font-size:11px;color:var(--text-muted);margin:6px 0 2px 0;padding-left:4px;">🌙 Night</div>`;
+            nightSepShown = true;
+          }
+          poisHtml += `
+              <div class="poi-item">
+                <div class="poi-num">${p.order}</div>
+                <div style="flex:1;min-width:0;">
+                  <div class="poi-name">${escapeHtml(p.name)}</div>
+                  <div class="poi-meta">${p.arrival_time}${p.is_accommodation ? '' : ' · ' + p.duration + 'min'} · €${p.cost.toFixed(2)}</div>
+                </div>
+              </div>`;
+        });
+        poisHtml += `</div></div>`;
+      });
+    } else if (pois.length > 0) {
+      poisHtml = '<div class="poi-list">';
+      pois.forEach((p, i) => {
+        poisHtml += `
+          <div class="poi-item">
+            <div class="poi-num">${i + 1}</div>
+            <div class="poi-name">${escapeHtml(p.name)}</div>
+            <div class="poi-meta">${p.duration}min · €${p.cost.toFixed(2)}</div>
+          </div>`;
+      });
+      poisHtml += '</div>';
+    }
+
+    // Métricas
+    const costPerPerson = result.cost_per_person ?? pois.reduce((s, p) => s + (p.cost || 0), 0);
+    const maxCost = result.preferences?.max_cost || 0;
+    const fitness = (opt.fitness || 0).toFixed(1);
+    const numPeople = result.preferences?.num_people || 1;
+    const costLabel = maxCost > 0
+      ? `€${costPerPerson.toFixed(0)}pp / €${maxCost.toFixed(0)}pp`
+      : `€${costPerPerson.toFixed(0)}pp`;
+
+    const metricsHtml = `
+      <div class="metrics-strip">
+        <span class="metric-tag green">${costLabel}</span>
+        <span class="metric-tag">${pois.length} POIs</span>
+      </div>`;
+
+    // Botão mapa
+    const visitMin = opt.visit_time_min || 0;
+    const mapBtnHtml = mapId ? `
+      <div class="map-btn-row">
+        <span class="map-hint">Interactive route available</span>
+        <button class="dl-pdf-btn" onclick="downloadPDF()">📄 PDF</button>
+        <button class="map-open-btn" onclick="openMap('${mapId}', '${escapeHtml(algo)}', ${pois.length}, ${visitMin}, ${costPerPerson.toFixed(0)})">
+          🗺️ View Map
+        </button>
+      </div>` : '';
+
+    // Explicação
+    const explanation = result.explanation
+      ? `<p style="margin-top:10px;font-size:13px;color:var(--text-muted);line-height:1.6;">${escapeHtml(result.explanation)}</p>`
+      : '';
+
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        ${poisHtml}
+        ${metricsHtml}
+        ${explanation}
+        ${mapBtnHtml}
+      </div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+
+    // Guardar referência para download
+    currentMapId = mapId;
+    currentResult = result;
+
+    // Mostrar banner SUS uma vez após a primeira rota
+    if (!susBannerShown) {
+      setTimeout(showFeedbackBanner, 2000);
+      susBannerShown = true;
+    }
+  }
+
+  // ── Resposta conversacional (pergunta informativa) ────────────
+  function addChatResponseMessage(text) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <p style="margin:0;font-size:14px;line-height:1.6;">${escapeHtml(text).replace(/\n\n/g, '</p><p style="margin:8px 0 0;font-size:14px;line-height:1.6;">').replace(/\n/g, '<br>')}</p>
+      </div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+  }
+
+  // ── Mensagem de erro ──────────────────────────────────────────
+  function addErrorMessage(text) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <span style="color:var(--danger);">⚠ ${escapeHtml(text)}</span>
+      </div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+  }
+
+  // ── Falha ao clarificar após várias rondas: parar o loop ───────
+  function addClarificationFailedMessage() {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <p style="font-size:13px;">I still couldn't automatically pick up some of those details. Could you write the whole request in a single sentence, including location, duration, budget and mode of transport? For example: "3 days in Porto, 150 euros per person, on foot, museums and gastronomy".</p>
+      </div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+    _clarificationAttempts = 0;
+  }
+
+  // ── Enviar query ──────────────────────────────────────────────
+  async function sendQuery() {
+    if (isLoading) return;
+    const query = inputBox.value.trim();
+    if (!query) return;
+
+    _clarificationAttempts = 0;
+    isLoading = true;
+    updatePlaceholder();
+    inputBox.value = '';
+    inputBox.style.height = 'auto';
+    inputBox.disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    addUserMessage(query);
+    addTypingIndicator();
+
+    try {
+      const res = await fetch('/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, session_id: currentSessionId, language: 'en' })
+      });
+
+      removeTypingIndicator();
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        addErrorMessage(err.detail || 'An error occurred while processing your query.');
+      } else {
+        const result = await res.json();
+        if (result.status === 'needs_clarification') {
+          addClarificationForm(result);
+        } else if (result.status === 'needs_scope_clarification') {
+          addScopeForm(result);
+        } else if (result.status === 'chat_response') {
+          currentSessionId = result.session_id || currentSessionId;
+          addChatResponseMessage(result.message);
+        } else {
+          currentRunId = result.run_id || null;
+          currentSessionId = result.session_id || null;
+          addBotMessage(result);
+          if (currentSessionId) {
+            showRefinementHint();
+          }
+        }
+      }
+    } catch (e) {
+      removeTypingIndicator();
+      addErrorMessage('Could not connect to the server. Please try again.');
+    } finally {
+      isLoading = false;
+      updatePlaceholder();
+      inputBox.disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      inputBox.focus();
+    }
+  }
+
+  // ── Mapa modal ────────────────────────────────────────────────
+  function openMap(mapId, algo, nPois, visitMin, cost) {
+    currentMapId = mapId;
+    document.getElementById('modalTitle').textContent = 'Generated Route';
+    document.getElementById('modalSubtitle').textContent =
+      `${nPois} POIs · algorithm ${algo}`;
+    document.getElementById('modalFooterInfo').innerHTML = `
+      <span>📍 ${nPois} stops</span>
+      <span>🚶 ${formatMin(visitMin)}</span>
+      <span>💰 €${cost}</span>
+    `;
+    document.getElementById('mapIframe').src = `/map/${mapId}`;
+    document.getElementById('mapModal').classList.add('open');
+  }
+
+  function closeMap() {
+    document.getElementById('mapModal').classList.remove('open');
+    document.getElementById('mapIframe').src = 'about:blank';
+  }
+
+  async function downloadMap() {
+    if (!currentMapId) return;
+    try {
+      const res = await fetch(`/map/${currentMapId}`);
+      const html = await res.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `route_${currentMapId}.html`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch {
+      window.open(`/map/${currentMapId}`, '_blank');
+    }
+  }
+
+  function downloadPDF() {
+    if (!currentResult) return;
+    const result = currentResult;
+    const pois = result.route || [];
+    const opt = result.optimization || {};
+    const algo = result.algorithm_used || '—';
+    const dayPlan = result.day_plan;
+    const explanation = result.explanation || '';
+    const totalCost = pois.reduce((s, p) => s + (p.cost || 0), 0);
+    const prefs = result.preferences || {};
+
+    // ── Resumo do Pedido (S1) ──────────────────────────────────────
+    const _maxTimeH = prefs.max_time ? (prefs.max_time / 60).toFixed(1) : null;
+    const _summaryRows = [
+      ['Location', prefs.location || '—'],
+      ['Duration', _maxTimeH ? `${_maxTimeH}h (${Math.ceil(prefs.max_time / 480)} day(s))` : '—'],
+      ['Budget', prefs.max_cost ? `€${prefs.max_cost}/person` : '—'],
+      ['People', prefs.num_people || 1],
+      ['Transport', TRANSPORT_LABELS[prefs.transport_mode] || prefs.transport_mode || '—'],
+      ['Categories', (prefs.categories || []).join(', ') || '—'],
+      ['Interests', (prefs.interests || []).join(', ') || '—'],
+      ['Accommodation included', prefs.include_accommodation === false ? 'No' : 'Yes'],
+      ['Meals included', prefs.include_meals === false ? 'No' : 'Yes'],
+    ];
+    const summaryHtml = `
+      <h2>Request Summary</h2>
+      <div class="print-query">"${escapeHtml(result.query || '')}"</div>
+      <table class="print-summary-table">
+        ${_summaryRows.map(([k, v]) => `<tr><td>${k}</td><td>${escapeHtml(String(v))}</td></tr>`).join('')}
+      </table>`;
+
+    let html = `
+      <h1>Tourism Route Assistant — Itinerary</h1>
+      <div class="print-meta">
+        Algorithm: ${algo} &nbsp;·&nbsp;
+        ${pois.length} POIs &nbsp;·&nbsp;
+        €${totalCost.toFixed(2)} &nbsp;·&nbsp;
+        fitness ${(opt.fitness || 0).toFixed(2)} &nbsp;·&nbsp;
+        ${prefs.location || ''} &nbsp;·&nbsp;
+        Generated on ${new Date().toLocaleDateString('en-GB')}
+      </div>
+      ${summaryHtml}`;
+
+    const NOCTURNAL_CATS = ['bares_e_discotecas', 'casinos'];
+    if (dayPlan && dayPlan.days && dayPlan.days.length > 0) {
+      dayPlan.days.forEach(day => {
+        html += `<h2>Day ${day.day} &nbsp; ${day.start_time}–${day.end_time} &nbsp; €${day.total_cost.toFixed(2)}</h2>`;
+        let nightShown = false;
+        day.pois.forEach(p => {
+          if (!nightShown && NOCTURNAL_CATS.includes(p.category)) {
+            html += `<div class="print-night">🌙 Night</div>`;
+            nightShown = true;
+          }
+          if (p.travel_mode && p.travel_km != null) {
+            html += `<div class="print-poi-meta" style="padding-left:32px;">${TRANSPORT_LABELS[p.travel_mode] || p.travel_mode} · ${p.travel_km.toFixed(1)} km</div>`;
+          }
+          html += `
+            <div class="print-poi">
+              <div class="print-poi-num">${p.order}.</div>
+              <div style="flex:1">
+                <div class="print-poi-name">${p.name}</div>
+                <div class="print-poi-meta">${p.arrival_time}${p.is_accommodation ? '' : '–' + p.departure_time + ' · ' + p.duration + ' min'} · €${p.cost.toFixed(2)} · ${CATEGORY_LABELS_EN[p.category] || p.category}</div>
+              </div>
+            </div>`;
+        });
+      });
+    } else {
+      html += `<h2>Route</h2>`;
+      pois.forEach((p, i) => {
+        html += `
+          <div class="print-poi">
+            <div class="print-poi-num">${i + 1}.</div>
+            <div style="flex:1">
+              <div class="print-poi-name">${p.name}</div>
+              <div class="print-poi-meta">${p.duration} min · €${p.cost.toFixed(2)} · ${CATEGORY_LABELS_EN[p.category] || p.category}</div>
+            </div>
+          </div>`;
+      });
+    }
+
+    if (explanation) {
+      html += `<h2>Route Explanation</h2><div class="print-explanation">${explanation}</div>`;
+    }
+
+    const container = document.createElement('div');
+    container.style.cssText = 'width:190mm;padding:15mm 20mm;font-family:Arial,sans-serif;font-size:12px;color:#000;background:#fff;';
+    container.innerHTML = `
+      <style>
+        h1{font-size:18px;margin-bottom:4px;}
+        h2{font-size:14px;color:#444;margin:16px 0 8px;border-bottom:1px solid #ccc;padding-bottom:4px;}
+        .print-meta{font-size:11px;color:#666;margin-bottom:16px;}
+        .print-poi{display:flex;gap:12px;margin-bottom:6px;padding:6px 0;border-bottom:1px solid #eee;}
+        .print-poi-num{font-weight:700;width:20px;flex-shrink:0;}
+        .print-poi-name{font-weight:600;}
+        .print-poi-meta{color:#666;font-size:11px;}
+        .print-explanation{font-size:12px;color:#333;line-height:1.7;margin-top:8px;}
+        .print-night{font-size:11px;color:#555;font-style:italic;margin:8px 0 4px;}
+        .print-query{font-size:12px;font-style:italic;color:#333;background:#f5f5f5;padding:8px 12px;border-left:3px solid #3388ff;margin-bottom:10px;}
+        .print-summary-table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:10px;}
+        .print-summary-table td{padding:3px 8px;border-bottom:1px solid #eee;}
+        .print-summary-table td:first-child{font-weight:600;color:#444;width:40%;}
+      </style>
+      ${html}`;
+    document.body.appendChild(container);
+    const pdfWorker = html2pdf().set({
+      margin: 0,
+      filename: 'tourist_itinerary.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(container);
+
+    // iOS Safari ignora o atributo "download" em blobs — .save() acaba por
+    // navegar o próprio separador para o PDF, perdendo a app. Em iOS abrimos
+    // antes num separador novo (o utilizador guarda depois via Partilhar).
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      pdfWorker.outputPdf('bloburl').then(url => {
+        document.body.removeChild(container);
+        window.open(url, '_blank');
+      });
+    } else {
+      pdfWorker.save().then(() => document.body.removeChild(container));
+    }
+  }
+
+  // ── Feedback banner ───────────────────────────────────────────
+  // Mostra dica de refinamento após receber uma rota
+  function showRefinementHint() {
+    const existing = document.getElementById('refinementHint');
+    if (existing) existing.remove();
+    const hint = document.createElement('div');
+    hint.id = 'refinementHint';
+    hint.style.cssText = 'font-size:0.82rem;color:#888;text-align:center;margin:6px 0 2px;';
+    hint.textContent = '💬 You can refine this route — e.g.: "remove the museum", "no restaurants", "replace with something outdoors"';
+    document.getElementById('messages').appendChild(hint);
+  }
+
+  function showFeedbackBanner() {
+    document.getElementById('feedbackBanner').classList.add('show');
+  }
+
+  function dismissFeedback() {
+    document.getElementById('feedbackBanner').classList.remove('show');
+  }
+
+  function openFeedback() {
+    window.open('/feedback_en', '_blank');
+    dismissFeedback();
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function selectOptionPill(btn) {
+    const inputId = btn.dataset.input;
+    const value   = btn.dataset.value;
+    btn.closest('.option-pills').querySelectorAll('.option-pill').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    const inp = document.getElementById(inputId);
+    if (inp) inp.value = value;
+    if (inputId && inputId.startsWith('scope_missing_')) checkScopeReady();
+  }
+
+  function formatMin(min) {
+    min = Math.round(min);
+    if (min < 60) return `${min}min`;
+    const h = Math.floor(min / 60);
+    const m = min % 60;
+    return m > 0 ? `${h}h${m}min` : `${h}h`;
+  }
+
+  // ── Formulário de clarificação ────────────────────────────────
+  const FIELD_LABELS = {
+    location:        { label: 'Location', placeholder: 'E.g.: Lisbon, Porto, Algarve...', type: 'text' },
+    max_time:        { label: 'Duration', placeholder: 'E.g.: 3 days, 5 hours, 1 week...', type: 'text' },
+    max_cost:        { label: 'Budget (amount, in euros)', placeholder: 'E.g.: 50, 200, 1000...', type: 'text' },
+    budget_type:     { label: 'The budget is...', type: 'select', options: ['Per person (whole trip)', 'Per person per day', 'Per day (whole group)', 'Total for the group'] },
+    num_people:      { label: 'Number of people', placeholder: 'E.g.: 1, 2, 5...', type: 'text' },
+    transport_mode:  { label: 'Mode of transport', type: 'select', options: ['On foot', 'Car', 'Public transport'] },
+    has_children:    { label: 'Traveling with children?', type: 'select', options: ['No', 'Yes'] },
+    mobility_issues: { label: 'Reduced mobility?', type: 'select', options: ['No', 'Yes'] },
+  };
+
+  function addClarificationForm(result) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.id = 'clarifRow';
+
+    const fields = result.missing_fields || [];
+    let fieldsHtml = '';
+    fields.forEach(f => {
+      const cfg = FIELD_LABELS[f] || { label: f, placeholder: '', type: 'text' };
+      if (cfg.type === 'select') {
+        fieldsHtml += `
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <label style="font-size:12px;color:var(--text-muted);">${cfg.label}</label>
+            <input type="hidden" id="clarif_${f}" value="">
+            <div class="option-pills">
+              ${cfg.options.map(o => `<button class="option-pill" data-input="clarif_${f}" data-value="${escapeHtml(o)}" onclick="selectOptionPill(this)" type="button">${o}</button>`).join('')}
+            </div>
+          </div>`;
+      } else {
+        fieldsHtml += `
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <label style="font-size:12px;color:var(--text-muted);">${cfg.label}</label>
+            <input id="clarif_${f}" type="text" placeholder="${cfg.placeholder}"
+              style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;" />
+          </div>`;
+      }
+    });
+
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <p style="font-size:13px;margin-bottom:12px;">To generate the best possible route, I need a few more details:</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${fieldsHtml}
+        </div>
+        <div style="margin-top:14px;display:flex;justify-content:flex-end;">
+          <button onclick="submitClarification('${escapeHtml(result.query)}', ${JSON.stringify(fields).replace(/"/g, '&quot;')})"
+            style="padding:8px 16px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">
+            Continue →
+          </button>
+        </div>
+      </div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+  }
+
+  const FIELD_PHRASES = {
+    location:        v => `the trip is in ${v}`,
+    max_time:        v => `the duration is ${v}`,
+    max_cost:        v => `the budget is ${v} euros`,
+    budget_type:     v => ({
+        'Per person (whole trip)': 'the budget is per person',
+        'Per person per day':      'the budget is per person per day',
+        'Per day (whole group)':   'the budget is per day for the group',
+        'Total for the group':     'the budget is the total for the group',
+    })[v] || `budget type: ${v}`,
+    num_people:      v => `we are ${v} people`,
+    transport_mode:  v => ({
+        'On foot': 'we are going on foot',
+        'Car': 'we are going by car',
+        'Public transport': 'we are going by public transport'
+    })[v] || `transport: ${v}`,
+    has_children:    v => v === 'Yes' ? 'we are traveling with children' : 'we are traveling without children',
+    mobility_issues: v => v === 'Yes' ? 'we have people with reduced mobility' : 'no mobility issues',
+};
+
+  // ── Formulário de scope (alojamento / refeições + missing fields) ──
+  let _scopeMissingFields = [];
+  // Guardados após scope form para passar em chamadas subsequentes (clarification)
+  let _savedInclAccom = null;
+  let _savedInclMeals = null;
+  let _savedNumRooms  = null;
+
+  function addScopeForm(result) {
+    const msgs = document.getElementById('messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row';
+    row.id = 'scopeRow';
+
+    const qs = result.scope_questions || [];
+    _scopeMissingFields = result.missing_fields || [];
+    const prefs = result.preferences_so_far || {};
+    // Só forçar max_cost se o backend não o extraiu (null/0)
+    if (!_scopeMissingFields.includes('max_cost') && !(prefs.max_cost > 0)) {
+      _scopeMissingFields = [..._scopeMissingFields, 'max_cost'];
+    }
+    // budget_type acompanha sempre max_cost no mesmo passo
+    if (_scopeMissingFields.includes('max_cost') && !_scopeMissingFields.includes('budget_type')) {
+      _scopeMissingFields = [..._scopeMissingFields, 'budget_type'];
+    }
+    const days = Math.max(1, Math.round((prefs.max_time || 480) / 480));
+
+    let cardsHtml = '';
+    const numPeople = prefs.num_people || 1;
+    if (qs.includes('include_accommodation')) {
+      const roomsHtml = numPeople > 1 ? `
+        <div id="accom_rooms_row" style="display:none;margin-top:8px;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">How many rooms do you need?</label>
+          <select id="accom_rooms" class="clarif-input" onchange="checkScopeReady()" style="width:100%;">
+            ${[1,2,3,4,5,6].filter(n => n <= numPeople).map(n =>
+              `<option value="${n}" ${n === Math.ceil(numPeople/2) ? 'selected' : ''}>${n} room${n>1?'s':''}</option>`
+            ).join('')}
+          </select>
+        </div>` : '';
+      cardsHtml += `
+        <div class="scope-card">
+          <div class="scope-card-title">🏨 Accommodation</div>
+          <div class="scope-card-sub">
+            Your trip is <strong>${days} day${days > 1 ? 's' : ''}</strong> long.
+            Would you like to include accommodation suggestions in the route,
+            or would you rather choose via Booking / Airbnb?
+          </div>
+          <div class="scope-toggle">
+            <button class="scope-btn" id="accom_yes" onclick="toggleScope('accom','yes')">✓ Include in route</button>
+            <button class="scope-btn" id="accom_no"  onclick="toggleScope('accom','no')">✗ I'll handle it myself</button>
+          </div>
+          ${roomsHtml}
+        </div>`;
+    }
+    if (qs.includes('include_meals')) {
+      cardsHtml += `
+        <div class="scope-card">
+          <div class="scope-card-title">🍽️ Meals</div>
+          <div class="scope-card-sub">
+            The route includes meal times.
+            Would you like restaurant and café suggestions included,
+            or would you rather choose via Google Maps / TripAdvisor?
+          </div>
+          <div class="scope-toggle">
+            <button class="scope-btn" id="meals_yes" onclick="toggleScope('meals','yes')">✓ Include in route</button>
+            <button class="scope-btn" id="meals_no"  onclick="toggleScope('meals','no')">✗ I'll handle it myself</button>
+          </div>
+        </div>`;
+    }
+
+    // Missing fields abaixo das scope cards
+    let missingHtml = '';
+    if (_scopeMissingFields.length > 0) {
+      missingHtml = `<div style="margin-top:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px;">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">I also need a few more details:</p>`;
+      _scopeMissingFields.forEach(f => {
+        const cfg = FIELD_LABELS[f] || { label: f, placeholder: 'Answer...', type: 'text' };
+        missingHtml += `<div style="margin-bottom:8px;">
+          <label style="font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px;">${cfg.label}</label>`;
+        if (cfg.type === 'select') {
+          missingHtml += `<input type="hidden" id="scope_missing_${f}" value="">
+          <div class="option-pills">
+            ${(cfg.options||[]).map(o=>`<button class="option-pill" data-input="scope_missing_${f}" data-value="${escapeHtml(o)}" onclick="selectOptionPill(this)" type="button">${o}</button>`).join('')}
+          </div>`;
+        } else {
+          missingHtml += `<input class="clarif-input" type="text" id="scope_missing_${f}"
+            placeholder="${cfg.placeholder}" oninput="checkScopeReady()">`;
+        }
+        missingHtml += `</div>`;
+      });
+      missingHtml += `</div>`;
+    }
+
+    row.innerHTML = `
+      <div class="avatar bot">🤖</div>
+      <div class="bubble bot">
+        <div class="bubble-meta">Tourism Route Assistant</div>
+        <p style="font-size:13px;margin-bottom:12px;">To generate the best possible route, I need a few more details:</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${cardsHtml}
+        </div>
+        ${missingHtml}
+        <div style="margin-top:14px;display:flex;justify-content:flex-end;">
+          <button id="scopeSubmitBtn" onclick="submitScopeAnswers('${escapeHtml(result.query)}', ${JSON.stringify(qs).replace(/"/g, '&quot;')})"
+            style="padding:8px 18px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;opacity:.45;" disabled>
+            Continue →
+          </button>
+        </div>
+      </div>
+    `;
+    msgs.appendChild(row);
+    _refreshScrollableRegion();
+  }
+
+  const _scopeAnswers = {};
+
+  function checkScopeReady() {
+    const btn = document.getElementById('scopeSubmitBtn');
+    if (!btn) return;
+    const neededScope = document.querySelectorAll('.scope-card').length;
+    const answeredScope = Object.keys(_scopeAnswers).length;
+    const answeredMissing = _scopeMissingFields.filter(f => {
+      const el = document.getElementById(`scope_missing_${f}`);
+      return el && el.value.trim().length > 0;
+    }).length;
+    const allDone = answeredScope >= neededScope && answeredMissing >= _scopeMissingFields.length;
+    btn.disabled = !allDone;
+    btn.style.opacity = allDone ? '1' : '.45';
+  }
+
+  function toggleScope(key, val) {
+    _scopeAnswers[key] = val;
+    const yes = document.getElementById(`${key}_yes`);
+    const no  = document.getElementById(`${key}_no`);
+    if (yes && no) {
+      yes.className = 'scope-btn' + (val === 'yes' ? ' selected-yes' : '');
+      no.className  = 'scope-btn' + (val === 'no'  ? ' selected-no'  : '');
+    }
+    // Mostrar selector de quartos quando alojamento é incluído
+    if (key === 'accom') {
+      const roomsRow = document.getElementById('accom_rooms_row');
+      if (roomsRow) roomsRow.style.display = val === 'yes' ? 'block' : 'none';
+    }
+    checkScopeReady();
+  }
+
+  async function submitScopeAnswers(originalQuery, scopeQuestions) {
+    const inclAccom = scopeQuestions.includes('include_accommodation')
+      ? _scopeAnswers['accom'] === 'yes'
+      : true;
+    const inclMeals = scopeQuestions.includes('include_meals')
+      ? _scopeAnswers['meals'] === 'yes'
+      : true;
+
+    // Construir query extendida com valores dos missing fields
+    let extendedQuery = originalQuery;
+    const parts = [];
+    if (scopeQuestions.includes('include_accommodation'))
+      parts.push(inclAccom ? 'accommodation included' : "accommodation: I'll handle it myself");
+    if (scopeQuestions.includes('include_meals'))
+      parts.push(inclMeals ? 'meals included' : "meals: I'll handle it myself");
+
+    _scopeMissingFields.forEach(f => {
+      const el = document.getElementById(`scope_missing_${f}`);
+      if (el && el.value.trim()) {
+        const summarizer = FIELD_PHRASES[f];
+        const phrase = summarizer ? summarizer(el.value.trim()) : el.value.trim();
+        parts.push(phrase);
+        extendedQuery += `. ${phrase}`;
+      }
+    });
+    _scopeMissingFields = [];
+    // Guardar para reutilizar em chamadas de clarification seguintes
+    _savedInclAccom = inclAccom;
+    _savedInclMeals = inclMeals;
+    _savedNumRooms  = inclAccom ? (parseInt(document.getElementById('accom_rooms')?.value) || null) : null;
+
+    // Remover o card de scope
+    const scopeRow = document.getElementById('scopeRow');
+    if (scopeRow) scopeRow.remove();
+
+    addUserMessage(parts.join(' · '));
+    addTypingIndicator();
+
+    isLoading = true;
+    updatePlaceholder();
+    inputBox.disabled = true;
+    document.getElementById('sendBtn').disabled = true;
+
+    try {
+      const res = await fetch('/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: extendedQuery,
+          session_id: currentSessionId,
+          include_accommodation: inclAccom,
+          include_meals: inclMeals,
+          num_rooms: inclAccom ? (parseInt(document.getElementById('accom_rooms')?.value) || null) : null,
+          language: 'en',
+        })
+      });
+
+      removeTypingIndicator();
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+        addErrorMessage(err.detail || 'An error occurred.');
+      } else {
+        const result = await res.json();
+        if (result.status === 'needs_clarification') {
+          _clarificationAttempts++;
+          if (_clarificationAttempts >= MAX_CLARIFICATION_ATTEMPTS) {
+            addClarificationFailedMessage();
+          } else {
+            addClarificationForm(result);
+          }
+        } else {
+          currentRunId = result.run_id || null;
+          currentSessionId = result.session_id || null;
+          addBotMessage(result);
+          if (currentSessionId) showRefinementHint();
+        }
+      }
+    } catch (e) {
+      removeTypingIndicator();
+      addErrorMessage('Could not connect to the server. Please try again.');
+    } finally {
+      isLoading = false;
+      updatePlaceholder();
+      inputBox.disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      inputBox.focus();
+    }
+  }
+
+  async function submitClarification(originalQuery, fields) {
+      let extras = [];
+      fields.forEach(f => {
+          const el = document.getElementById(`clarif_${f}`);
+          if (el && el.value.trim()) {
+              const phrase = FIELD_PHRASES[f];
+              extras.push(phrase ? phrase(el.value.trim()) : el.value.trim());
+          }
+      });
+      const newQuery = originalQuery + (extras.length > 0 ? '. ' + extras.join('. ') + '.' : '');
+      const clarifRow = document.getElementById('clarifRow');
+      if (clarifRow) clarifRow.remove();
+      addUserMessage(extras.join(' · '));
+      addTypingIndicator();
+      isLoading = true;
+      updatePlaceholder();
+      inputBox.disabled = true;
+      document.getElementById('sendBtn').disabled = true;
+      try {
+          const res = await fetch('/query', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  query: newQuery,
+                  session_id: currentSessionId,
+                  include_accommodation: _savedInclAccom,
+                  include_meals: _savedInclMeals,
+                  num_rooms: _savedNumRooms,
+                  language: 'en',
+              })
+          });
+          removeTypingIndicator();
+          if (!res.ok) {
+              const err = await res.json().catch(() => ({ detail: 'Unknown error' }));
+              addErrorMessage(err.detail || 'An error occurred.');
+          } else {
+              const result = await res.json();
+              if (result.status === 'needs_clarification' || result.status === 'needs_scope_clarification') {
+                  _clarificationAttempts++;
+                  if (_clarificationAttempts >= MAX_CLARIFICATION_ATTEMPTS) {
+                      addClarificationFailedMessage();
+                  } else if (result.status === 'needs_clarification') {
+                      addClarificationForm(result);
+                  } else {
+                      addScopeForm(result);
+                  }
+              } else {
+                  currentRunId = result.run_id || null;
+                  currentSessionId = result.session_id || null;
+                  addBotMessage(result);
+                  if (currentSessionId) showRefinementHint();
+              }
+          }
+      } catch (e) {
+          removeTypingIndicator();
+          addErrorMessage('Could not connect to the server. Please try again.');
+      } finally {
+          isLoading = false;
+          updatePlaceholder();
+          inputBox.disabled = false;
+          document.getElementById('sendBtn').disabled = false;
+      }
+  }
+</script>
+</body>
+</html>

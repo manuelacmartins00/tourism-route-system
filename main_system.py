@@ -253,7 +253,8 @@ class TourismRouteSystem:
                compact_extraction: bool = False,
                fixture_capture_path: str = None,
                direct_preferences: Dict = None,
-               disable_algo_fallback: bool = False) -> Dict:
+               disable_algo_fallback: bool = False,
+               language: str = "pt") -> Dict:
         """
         Pipeline completo: LLM -> RAG -> Otimizacao -> SHAP -> Explicacao LLM -> Mapa -> Day Planning
 
@@ -1266,6 +1267,7 @@ class TourismRouteSystem:
                 has_children=has_children,
                 is_elderly=is_elderly,
                 num_people=getattr(preferences, 'num_people', 1),
+                language=language,
             )
         else:
             explanation = ""
@@ -1571,10 +1573,16 @@ class TourismRouteSystem:
                 ]
                 if foot_fallback_kms:
                     kms_str = ", ".join(f"{km:.1f} km" for km in foot_fallback_kms)
-                    result['explanation'] += (
-                        f"\n\nAlguns troços deste plano são longos para fazer a pé ({kms_str})"
-                        " — para esses, considera apanhar um táxi/Uber."
-                    )
+                    if (language or "pt").lower().startswith("en"):
+                        result['explanation'] += (
+                            f"\n\nSome legs of this plan are too long to walk ({kms_str})"
+                            " — for those, consider taking a taxi/Uber."
+                        )
+                    else:
+                        result['explanation'] += (
+                            f"\n\nAlguns troços deste plano são longos para fazer a pé ({kms_str})"
+                            " — para esses, considera apanhar um táxi/Uber."
+                        )
 
             if verbose:
                 planner.print_itinerary(day_plan)
@@ -1600,6 +1608,7 @@ class TourismRouteSystem:
                     transport_mode=preferences.transport_mode,
                     day_plan=day_plan,
                     transit_service=self.transit_service,
+                    language=language,
                 )
                 if map_path:
                     result['map_file'] = map_path

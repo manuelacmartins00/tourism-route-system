@@ -84,9 +84,22 @@ class RouteMapGenerator:
             except (FuturesTimeout, Exception):
                 return None
 
+    CATEGORY_LABELS_EN = {
+        "restaurantes_e_cafes": "Restaurants & Cafés", "monumentos": "Monuments",
+        "turismo_activo": "Active Tourism", "praias": "Beaches", "praia": "Beach",
+        "bares_e_discotecas": "Bars & Nightclubs", "museus_e_palacios": "Museums & Palaces",
+        "eventos": "Events", "campos": "Fields", "arqueologia": "Archaeology",
+        "espacos_verdes": "Green Spaces", "marinas_e_portos": "Marinas & Ports",
+        "termas": "Thermal Spas", "parques_e_reservas": "Parks & Reserves",
+        "parques_de_diversao": "Amusement Parks", "zoos_e_aquarios": "Zoos & Aquariums",
+        "ciencia_e_conhecimento": "Science & Knowledge", "casinos": "Casinos",
+        "talassoterapia": "Thalassotherapy", "grutas": "Caves", "academias": "Gyms",
+        "barragens": "Dams",
+    }
+
     def generate_map(self, route: List[Dict], output_file: str = None, algorithm: str = "",
                      transport_mode: str = "foot", day_plan: dict = None,
-                     transit_service=None) -> str:
+                     transit_service=None, language: str = "pt") -> str:
         """
         Gera mapa interativo com rota REAL via OSRM
         
@@ -103,21 +116,27 @@ class RouteMapGenerator:
             print("AVISO: Rota vazia, nao e possivel gerar mapa")
             return None
 
+        is_en = (language or "pt").lower().startswith("en")
+
         # Gerar nome de ficheiro com timestamp se nao especificado
         if output_file is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             algo_suffix = f"_{algorithm}" if algorithm else ""
             output_file = f"outputs/route_map{algo_suffix}_{timestamp}.html"
-        
+
         print(f"\nGerando mapa com OSRM...")
 
         MODE_LABELS = {
-            "foot":             ("Pedonal",              "foot"),
-            "car":              ("Carro",                "car"),
-            "public_transport": ("Transportes Publicos", "foot"),
-            "fastest":          ("Mais Rapido",           "car"),
+            "foot":             ("On foot" if is_en else "Pedonal",              "foot"),
+            "car":              ("Car" if is_en else "Carro",                   "car"),
+            "public_transport": ("Public Transport" if is_en else "Transportes Publicos", "foot"),
+            "fastest":          ("Fastest" if is_en else "Mais Rapido",         "car"),
         }
-        mode_label, osrm_profile = MODE_LABELS.get(transport_mode, ("Pedonal", "foot"))
+        mode_label, osrm_profile = MODE_LABELS.get(
+            transport_mode, ("On foot" if is_en else "Pedonal", "foot"))
+        _day_word = "Day" if is_en else "Dia"
+        _other_word = "Other" if is_en else "Outros"
+        _route_word = "Route" if is_en else "Rota"
         
         # Criar mapa centrado em Lisboa
         m = folium.Map(
@@ -163,7 +182,7 @@ class RouteMapGenerator:
         day_groups: dict = {}
         def _get_day_group(day_num: int):
             if day_num not in day_groups:
-                label = f"Dia {day_num}" if day_num > 0 else "Outros"
+                label = f"{_day_word} {day_num}" if day_num > 0 else _other_word
                 day_groups[day_num] = folium.FeatureGroup(name=label, show=True)
             return day_groups[day_num]
 
@@ -189,7 +208,7 @@ class RouteMapGenerator:
                         color=css_color,
                         weight=4,
                         opacity=0.75,
-                        tooltip=f"Dia {d} · {day_osrm['distance']:.1f} km · {day_osrm['duration']:.0f} min"
+                        tooltip=f"{_day_word} {d} · {day_osrm['distance']:.1f} km · {day_osrm['duration']:.0f} min"
                     ).add_to(day_group)
                     all_day_geometries.extend(day_osrm['geometry'])
                     total_distance_km += day_osrm['distance']
@@ -204,11 +223,11 @@ class RouteMapGenerator:
         else:
             # Sem day_plan: rota única
             osrm_single = self.get_real_route(_route_coords, profile=osrm_profile)
-            route_group = folium.FeatureGroup(name="Rota", show=True)
+            route_group = folium.FeatureGroup(name=_route_word, show=True)
             if osrm_single and 'geometry' in osrm_single:
                 folium.PolyLine(
                     osrm_single['geometry'], color='#3388ff', weight=5, opacity=0.8,
-                    tooltip=f"Rota {mode_label}"
+                    tooltip=f"{_route_word} {mode_label}"
                 ).add_to(route_group)
                 all_day_geometries = osrm_single['geometry']
                 total_distance_km = osrm_single['distance']
@@ -251,17 +270,19 @@ class RouteMapGenerator:
                             weight=3,
                             opacity=0.7,
                             dash_array='4',
-                            tooltip="A pé (transferência)"
+                            tooltip=("On foot (transfer)" if is_en else "A pé (transferência)")
                         ).add_to(seg_group)
                     else:
-                        line_label = seg["route_id"] or seg["operator"] or "Transportes Públicos"
+                        _public_transport_word = "Public Transport" if is_en else "Transportes Públicos"
+                        line_label = seg["route_id"] or seg["operator"] or _public_transport_word
+                        _line_word = "Line" if is_en else "Linha"
                         folium.PolyLine(
                             geom,
                             color='#ff6600',
                             weight=4,
                             opacity=0.9,
                             dash_array=None,
-                            tooltip=f"Linha {line_label}"
+                            tooltip=f"{_line_word} {line_label}"
                         ).add_to(seg_group)
                         n_legs += 1
                     # Marcadores de paragem (círculos pequenos), excl. extremos
@@ -273,7 +294,7 @@ class RouteMapGenerator:
                             fill=True,
                             fill_color='white',
                             fill_opacity=1.0,
-                            tooltip="Paragem / Estação"
+                            tooltip=("Stop / Station" if is_en else "Paragem / Estação")
                         ).add_to(seg_group)
                 n_transit += 1
             if n_transit:
@@ -300,6 +321,12 @@ class RouteMapGenerator:
             badge = f"{chr(64+day_num)}{poi_day_label[name][1]}" if name in poi_day_label else str(i)
             poi_group = _get_day_group(day_num)
 
+            category_display = (self.CATEGORY_LABELS_EN.get(category, category.replace('_', ' ').title())
+                                 if is_en else category.replace('_', ' ').title())
+            _cat_word = "Category" if is_en else "Categoria"
+            _dur_word = "Duration" if is_en else "Duracao"
+            _cost_word = "Cost" if is_en else "Custo"
+
             # Marcador colorido
             folium.Marker(
                 location=[lat, lon],
@@ -309,9 +336,9 @@ class RouteMapGenerator:
                             {badge}. {name}
                         </h4>
                         <p style="margin: 5px 0;">
-                            <b>Categoria:</b> {category.replace('_', ' ').title()}<br>
-                            <b>Duracao:</b> {duration} min<br>
-                            <b>Custo:</b> EUR{cost:.2f}
+                            <b>{_cat_word}:</b> {category_display}<br>
+                            <b>{_dur_word}:</b> {duration} min<br>
+                            <b>{_cost_word}:</b> EUR{cost:.2f}
                         </p>
                     </div>
                 """, max_width=300),
@@ -371,17 +398,17 @@ class RouteMapGenerator:
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         ">
         <h4 style="margin-top: 0; border-bottom: 2px solid #ddd; padding-bottom: 5px;">
-            Legenda
+            {"Legend" if is_en else "Legenda"}
         </h4>
-        <p style="margin: 5px 0;"><b>Total POIs:</b> {len(route)}</p>
+        <p style="margin: 5px 0;"><b>{"Total POIs" if is_en else "Total POIs"}:</b> {len(route)}</p>
         '''
-        
+
         if total_distance_km > 0:
             legend_html += f'''
-            <p style="margin: 5px 0;"><b>Distancia:</b> {total_distance_km:.1f} km</p>
-            <p style="margin: 5px 0;"><b>Deslocacao:</b> {total_duration_min:.0f} min</p>
+            <p style="margin: 5px 0;"><b>{"Distance" if is_en else "Distancia"}:</b> {total_distance_km:.1f} km</p>
+            <p style="margin: 5px 0;"><b>{"Travel time" if is_en else "Deslocacao"}:</b> {total_duration_min:.0f} min</p>
             '''
-        
+
         legend_html += '<hr style="margin: 10px 0;">'
 
         # Dias presentes na rota
@@ -389,6 +416,8 @@ class RouteMapGenerator:
             for day in day_plan["days"]:
                 d = day["day"]
                 css_color = DAY_CSS[(d - 1) % len(DAY_CSS)]
+                _stops_word = "stops" if is_en else "paragens"
+                _letter_word = "letter" if is_en else "letra"
                 legend_html += f'''
                 <p style="margin: 3px 0;">
                     <span style="
@@ -400,18 +429,28 @@ class RouteMapGenerator:
                         margin-right: 5px;
                         vertical-align: middle;
                     "></span>
-                    <b>Dia {d}</b> ({len(day["pois"])} paragens) — letra "{chr(64 + d)}"
+                    <b>{_day_word} {d}</b> ({len(day["pois"])} {_stops_word}) — {_letter_word} "{chr(64 + d)}"
                 </p>
                 '''
-            legend_html += '''
-            <p style="margin: 8px 0 0; font-size: 11px; color: #666;">
-                Cada marcador mostra <b>Letra do dia + número da ordem</b> de visita
-                (ex: B2 = Dia 2, 2ª paragem)
-            </p>
-            '''
+            if is_en:
+                legend_html += '''
+                <p style="margin: 8px 0 0; font-size: 11px; color: #666;">
+                    Each marker shows the <b>day letter + visit order number</b>
+                    (e.g. B2 = Day 2, 2nd stop)
+                </p>
+                '''
+            else:
+                legend_html += '''
+                <p style="margin: 8px 0 0; font-size: 11px; color: #666;">
+                    Cada marcador mostra <b>Letra do dia + número da ordem</b> de visita
+                    (ex: B2 = Dia 2, 2ª paragem)
+                </p>
+                '''
         else:
             route_categories = set(poi['category'] for poi in route)
             for cat in sorted(route_categories):
+                cat_display = (self.CATEGORY_LABELS_EN.get(cat, cat.replace('_', ' ').title())
+                                if is_en else cat.replace('_', ' ').title())
                 legend_html += f'''
                 <p style="margin: 3px 0;">
                     <span style="
@@ -422,7 +461,7 @@ class RouteMapGenerator:
                         border-radius: 50%;
                         margin-right: 5px;
                     "></span>
-                    {cat.replace('_', ' ').title()}
+                    {cat_display}
                 </p>
                 '''
 
@@ -446,11 +485,11 @@ class RouteMapGenerator:
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         ">
         <h3 style="margin: 0 0 10px 0; color: #3388ff;">
-            Rota Turistica
+            {"Tourist Route" if is_en else "Rota Turistica"}
         </h3>
         <p style="margin: 5px 0;">
             <b>Powered by:</b> OpenStreetMap + OSRM<br>
-            <b>Modo:</b> {mode_label}
+            <b>{"Mode" if is_en else "Modo"}:</b> {mode_label}
         </p>
         </div>
         '''
