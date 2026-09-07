@@ -71,6 +71,7 @@ class QueryRequest(BaseModel):
     include_accommodation: Optional[bool] = None
     include_meals: Optional[bool] = None
     num_rooms: Optional[int] = None
+    language: Optional[str] = "pt"
 
 class FeedbackRequest(BaseModel):
     p1: int; p2: int; p3: int; p4: int; p5: int
@@ -85,6 +86,7 @@ class FeedbackRequest(BaseModel):
     p22_travel: Optional[str] = ""
     p23: Optional[str] = ""
     run_id: Optional[str] = None
+    language: Optional[str] = "pt"
 
 # -- ENDPOINT 1: GET / - serve index.html -----------------------------
 @app.get("/", response_class=HTMLResponse)
@@ -93,6 +95,18 @@ async def root():
     if not html_path.exists():
         raise HTTPException(status_code=404, detail="index.html nao encontrado")
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+
+# -- ENDPOINT 1b: GET /en - serve index_en.html (versao inglesa) ------
+@app.get("/en", response_class=HTMLResponse)
+async def root_en():
+    html_path = Path("index_en.html")
+    if not html_path.exists():
+        raise HTTPException(status_code=404, detail="index_en.html not found")
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+
+# -- Mensagens de erro bilingues (PT/EN) -------------------------------
+def _msg(pt: str, en: str, language: Optional[str]) -> str:
+    return en if (language or "pt").lower().startswith("en") else pt
 
 # -- Aplica operacao de refinamento sobre a rota existente ------------
 def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any]) -> Dict[str, Any]:
@@ -122,9 +136,11 @@ def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any]) -> 
 @app.post("/query")
 async def query_route(req: QueryRequest, request: Request):
     if not system:
-        raise HTTPException(status_code=503, detail="Sistema nao inicializado")
+        raise HTTPException(status_code=503, detail=_msg(
+            "Sistema nao inicializado", "System not initialized", req.language))
     if not req.query.strip():
-        raise HTTPException(status_code=400, detail="Query vazia")
+        raise HTTPException(status_code=400, detail=_msg(
+            "Query vazia", "Empty query", req.language))
 
     import time
     t_start = time.time()
@@ -165,7 +181,7 @@ async def query_route(req: QueryRequest, request: Request):
                     f"{days} dia(s), modo de transporte: {mode}. "
                     f"Categorias: {', '.join(cats[:6])}."
                 )
-                answer = system.llm.answer_question(req.query, route_context)
+                answer = system.llm.answer_question(req.query, route_context, language=req.language)
                 print(f"   Resposta informativa gerada ({len(answer)} chars)")
                 return JSONResponse(content={
                     "status": "chat_response",
@@ -209,6 +225,7 @@ async def query_route(req: QueryRequest, request: Request):
                 include_accommodation=_inc_accom,
                 include_meals=_inc_meals,
                 num_rooms=req.num_rooms,
+                language=req.language,
             )
         except Exception as e:
             import traceback
@@ -302,7 +319,8 @@ async def save_feedback(fb: FeedbackRequest):
                 "p11","p12","p13","p14","p15",
                 "p16_loc","p17_time",
                 "p18_open","p19_open",
-                "p20_age","p21_ai","p22_travel","p23_planeamento"
+                "p20_age","p21_ai","p22_travel","p23_planeamento",
+                "language",
             ])
         writer.writerow([
             datetime.utcnow().isoformat(),
@@ -312,7 +330,8 @@ async def save_feedback(fb: FeedbackRequest):
             fb.p11, fb.p12, fb.p13, fb.p14, fb.p15,
             fb.p16_loc, fb.p17_time,
             fb.p18, fb.p19,
-            fb.p20_age, fb.p21_ai, fb.p22_travel, fb.p23
+            fb.p20_age, fb.p21_ai, fb.p22_travel, fb.p23,
+            fb.language,
         ])
 
     # Registo permanente: um ficheiro UNICO por resposta directo no HF Dataset
@@ -333,6 +352,7 @@ async def save_feedback(fb: FeedbackRequest):
                 "p18": fb.p18, "p19": fb.p19,
                 "p20_age": fb.p20_age, "p21_ai": fb.p21_ai,
                 "p22_travel": fb.p22_travel, "p23": fb.p23,
+                "language": fb.language,
             },
             sus_score=sus_score
         )
@@ -383,4 +403,12 @@ async def feedback_page():
     html_path = Path("feedback.html")
     if not html_path.exists():
         raise HTTPException(status_code=404, detail="feedback.html nao encontrado")
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
+
+# -- ENDPOINT extra: GET /feedback_en - serve feedback_en.html --------
+@app.get("/feedback_en", response_class=HTMLResponse)
+async def feedback_page_en():
+    html_path = Path("feedback_en.html")
+    if not html_path.exists():
+        raise HTTPException(status_code=404, detail="feedback_en.html not found")
     return HTMLResponse(content=html_path.read_text(encoding="utf-8"))

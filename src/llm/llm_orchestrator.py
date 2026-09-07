@@ -247,11 +247,15 @@ FORMATO EXACTO (JSON valido, sem // comentarios, sem texto antes ou depois):
                 _inferred_duration_min = _d
                 break
 
-        # Pre-processar: detetar intervalos de dias da semana implicitos
+        # Pre-processar: detetar intervalos de dias da semana implicitos (PT + EN)
         _DAY_NUM = {
             'segunda': 1, 'terca': 2, 'quarta': 3, 'quinta': 4,
             'sexta': 5, 'sabado': 6, 'domingo': 7,
+            'monday': 1, 'tuesday': 2, 'wednesday': 3, 'thursday': 4,
+            'friday': 5, 'saturday': 6, 'sunday': 7,
         }
+        _DAY_NAMES_RE = (r'(segunda|terca|quarta|quinta|sexta|sabado|domingo'
+                          r'|monday|tuesday|wednesday|thursday|friday|saturday|sunday)')
         def _norm(s):
             return ''.join(c for c in _ud.normalize('NFKD', s.lower()) if not _ud.combining(c))
         def _day_n(name):
@@ -265,23 +269,23 @@ FORMATO EXACTO (JSON valido, sem // comentarios, sem texto antes ou depois):
             _has_sexta = bool(_pre.search(r'\bsexta\b', _norm(user_query)))
             _implicit_days = 3 if _has_sexta else 2
         else:
-            # Dia unico isolado: "sabado", "domingo", "segunda-feira", etc.
+            # Dia unico isolado: "sabado", "domingo", "segunda-feira", "monday", etc.
             _single_day_m = _pre.search(
-                r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                r'\b' + _DAY_NAMES_RE + r'(?:-feira)?\b',
                 _norm(user_query), _pre.IGNORECASE
             )
             if _single_day_m:
                 # Verificar que nao ha mais dias (range) ja tratado
                 all_days = _pre.findall(
-                    r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                    r'\b' + _DAY_NAMES_RE + r'(?:-feira)?\b',
                     _norm(user_query), _pre.IGNORECASE
                 )
                 if len({_day_n(d) for d in all_days if _day_n(d)}) == 1:
                     _implicit_days = 1
-            # Padrao: de [dia1] ... (a|ate) ... [dia2]
+            # Padrao: de/from [dia1] ... (a|ate|to) ... [dia2]
             _range_m = _pre.search(
-                r'\bde\s+(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b'
-                r'.{0,30}?\b(?:a|ate)\b.{0,15}?\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                r'\b(?:de|from)\s+' + _DAY_NAMES_RE + r'(?:-feira)?\b'
+                r'.{0,30}?\b(?:a|ate|to)\b.{0,15}?\b' + _DAY_NAMES_RE + r'(?:-feira)?\b',
                 _norm(user_query), _pre.IGNORECASE
             )
             if _range_m:
@@ -289,10 +293,10 @@ FORMATO EXACTO (JSON valido, sem // comentarios, sem texto antes ou depois):
                 if d1 and d2:
                     diff = (d2 - d1) % 7
                     _implicit_days = max(1, diff + 1)
-            # Padrao: [dia1] e [dia2] (ex: "sexta e sabado")
+            # Padrao: [dia1] e/and [dia2] (ex: "sexta e sabado", "friday and saturday")
             if _implicit_days is None:
                 _enum = _pre.findall(
-                    r'\b(segunda|terca|quarta|quinta|sexta|sabado|domingo)(?:-feira)?\b',
+                    r'\b' + _DAY_NAMES_RE + r'(?:-feira)?\b',
                     _norm(user_query), _pre.IGNORECASE
                 )
                 if len(_enum) >= 2:
@@ -529,13 +533,13 @@ Responde APENAS com o JSON, sem explicacoes."""
             # Garantir categorias obvias que o LLM as vezes nao extrai
             _q = user_query.lower()
             _keyword_cats = {
-                "bares_e_discotecas": ["vida noturna", "noturno", "bar ", "bares", "discoteca", "night", "beber copos", "sair a noite"],
-                "restaurantes_e_cafes": ["comer", "jantar", "restaurante", "gastronomia", "almoco"],
-                "museus_e_palacios": ["museu", "museus", "palacio", "palacios"],
-                "praias": ["praia", "praias", "beach", "surf", "mergulho", "litoral", "areias", "mar ", "costeira"],
-                "parques_e_reservas": ["parque natural", "reserva natural", "parque nacional"],
-                "zoos_e_aquarios": ["zoo", "zoologico", "aquario", "animais"],
-                "parques_de_diversao": ["parque tematico", "parque de diversao", "diversoes"],
+                "bares_e_discotecas": ["vida noturna", "noturno", "bar ", "bares", "discoteca", "night", "beber copos", "sair a noite", "nightlife", "bars", "club", "clubbing"],
+                "restaurantes_e_cafes": ["comer", "jantar", "restaurante", "gastronomia", "almoco", "eat", "dinner", "restaurant", "restaurants", "gastronomy", "lunch", "food"],
+                "museus_e_palacios": ["museu", "museus", "palacio", "palacios", "museum", "museums", "palace", "palaces"],
+                "praias": ["praia", "praias", "beach", "beaches", "surf", "mergulho", "litoral", "areias", "mar ", "costeira", "diving", "seaside"],
+                "parques_e_reservas": ["parque natural", "reserva natural", "parque nacional", "natural park", "nature reserve", "national park"],
+                "zoos_e_aquarios": ["zoo", "zoologico", "aquario", "animais", "aquarium", "animals"],
+                "parques_de_diversao": ["parque tematico", "parque de diversao", "diversoes", "theme park", "amusement park"],
             }
             for cat, hints in _keyword_cats.items():
                 if any(h in _q for h in hints) and cat not in main_categories:
@@ -841,7 +845,9 @@ Responde APENAS com o JSON, sem explicacoes."""
             _AMOUNT_KEYWORDS = ["€", "eur", "euro", "euros",
                                  "orcamento", "orçamento",
                                  "budget baixo", "budget medio", "budget alto",
-                                 "barato", "economico", "acessivel"]
+                                 "barato", "economico", "acessivel",
+                                 "budget", "cheap", "affordable",
+                                 "low budget", "medium budget", "high budget"]
             _budget_amount_explicit = (
                 any(h in _q for h in _AMOUNT_KEYWORDS)
                 or bool(_bre.search(r'\d+\s*(?:€|eur|euro)', _q))
@@ -872,7 +878,7 @@ Responde APENAS com o JSON, sem explicacoes."""
             _WORD_TO_NUM = {"um": 1, "uma": 1, "dois": 2, "duas": 2, "tres": 3,
                             "quatro": 4, "cinco": 5, "seis": 6, "sete": 7,
                             "oito": 8, "nove": 9, "dez": 10, "meio": 0.5}
-            _DUR_PATTERN = r'\b(\d+|um|uma|dois|duas|tr[ee]s|quatro|cinco|seis|sete|oito|nove|dez|meio)\s*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin\s+de\s+semana|weekend)\b'
+            _DUR_PATTERN = r'\b(\d+|um|uma|dois|duas|tr[ee]s|quatro|cinco|seis|sete|oito|nove|dez|meio)[\s-]*(dias?|horas?|semanas?|days?|hours?|weeks?|noites?|nights?|fin\s+de\s+semana|weekend)\b'
             _dur_match = _re.search(_DUR_PATTERN, user_query.lower())
             _has_explicit_duration = bool(_dur_match)
 
@@ -949,16 +955,43 @@ Responde APENAS com o JSON, sem explicacoes."""
                 'maio': 5, 'junho': 6, 'julho': 7, 'agosto': 8, 'setembro': 9,
                 'outubro': 10, 'novembro': 11, 'dezembro': 12,
             }
+            _EN_MONTHS = {
+                'january': 1, 'february': 2, 'march': 3, 'april': 4,
+                'may': 5, 'june': 6, 'july': 7, 'august': 8, 'september': 9,
+                'october': 10, 'november': 11, 'december': 12,
+            }
+            _ALL_MONTHS = {**_PT_MONTHS, **_EN_MONTHS}
             _start_date = None
+            _q_dates = user_query.lower()
+            # PT: "4 [a 10] de junho"
             _date_m = _pre.search(
                 r'\b(\d{1,2})\s+(?:a\s+(\d{1,2})\s+)?de\s+(' + '|'.join(_PT_MONTHS.keys()) + r')\b',
-                user_query.lower()
+                _q_dates
             )
+            _date_groups = None
             if _date_m:
+                _date_groups = (_date_m.group(1), _date_m.group(2), _date_m.group(3))
+            else:
+                # EN, day-first: "15 [to 20] January"
+                _date_m_en1 = _pre.search(
+                    r'\b(\d{1,2})(?:st|nd|rd|th)?\s+(?:to\s+(\d{1,2})(?:st|nd|rd|th)?\s+)?(' + '|'.join(_EN_MONTHS.keys()) + r')\b',
+                    _q_dates
+                )
+                if _date_m_en1:
+                    _date_groups = (_date_m_en1.group(1), _date_m_en1.group(2), _date_m_en1.group(3))
+                else:
+                    # EN, month-first: "January 15[-20]"
+                    _date_m_en2 = _pre.search(
+                        r'\b(' + '|'.join(_EN_MONTHS.keys()) + r')\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s*-\s*(\d{1,2})(?:st|nd|rd|th)?)?\b',
+                        _q_dates
+                    )
+                    if _date_m_en2:
+                        _date_groups = (_date_m_en2.group(2), _date_m_en2.group(3), _date_m_en2.group(1))
+            if _date_groups:
                 try:
-                    _sd_day      = int(_date_m.group(1))
-                    _end_day_raw = _date_m.group(2)   # None se não houver intervalo
-                    _sd_month    = _PT_MONTHS[_date_m.group(3)]
+                    _sd_day      = int(_date_groups[0])
+                    _end_day_raw = _date_groups[1]   # None se não houver intervalo
+                    _sd_month    = _ALL_MONTHS[_date_groups[2]]
                     _today       = _date.today()
                     _sd_year     = _today.year if (_sd_month > _today.month or
                                                    (_sd_month == _today.month and _sd_day >= _today.day)) \
@@ -982,8 +1015,8 @@ Responde APENAS com o JSON, sem explicacoes."""
                 _start_date = (_today + _td(days=_days_to_fri)).isoformat()
                 print(f"   [Calendar] fim de semana → start_date: {_start_date}")
             else:
-                # Fallback: LLM — só aceitar se a query menciona explicitamente um mês
-                _has_month_in_query = any(m in user_query.lower() for m in _PT_MONTHS)
+                # Fallback: LLM — só aceitar se a query menciona explicitamente um mês (PT ou EN)
+                _has_month_in_query = any(m in _q_dates for m in _ALL_MONTHS)
                 _llm_sd = data.get("start_date")
                 if (_has_month_in_query and isinstance(_llm_sd, str)
                         and _pre.match(r'^\d{4}-\d{2}-\d{2}$', _llm_sd)):
@@ -1091,8 +1124,10 @@ Responde APENAS com o JSON, sem explicacoes."""
                      algorithm_used: str, optimization_metadata: Dict,
                      fitness_components: Dict = None, shap_values: Dict = None,
                      mobility_issues: bool = False, has_children: bool = False,
-                     is_elderly: bool = False, num_people: int = 1) -> str:
-        """Gera explicacao em portugues fundamentada nos componentes AHP, SHAP e contexto do utilizador."""
+                     is_elderly: bool = False, num_people: int = 1,
+                     language: str = "pt") -> str:
+        """Gera explicacao (PT ou EN) fundamentada nos componentes AHP, SHAP e contexto do utilizador."""
+        is_en = (language or "pt").lower().startswith("en")
 
         total_cost = sum(p['cost'] for p in route)
         total_duration = sum(p['duration'] for p in route)
@@ -1144,7 +1179,40 @@ COMPONENTES DO FITNESS (pesos AHP):
                 shap_lines.append(line)
             shap_str = "\nPOIs mais determinantes (SHAP):\n" + "\n".join(shap_lines)
 
-        prompt = f"""Gera uma explicacao CURTA e FUNDAMENTADA em portugues de Portugal sobre esta rota turistica.
+        if is_en:
+            prompt = f"""Write a SHORT and WELL-GROUNDED explanation (in English) of this tourist route.
+
+GENERATED ROUTE:
+{route_str}
+
+ROUTE DETAILS:
+- Fitness score: {optimization_metadata.get('fitness', 0):.2f}/100
+- Selected POIs: {len(route)}
+- Total visit duration: {total_duration} minutes
+- Total cost: EUR{total_cost:.2f}
+- User preferences: {', '.join(preferences.interests)}
+{contexto_str}
+{componentes_str}
+{shap_str}
+{cobertura_str}
+
+TASK:
+Write 3-4 sentences explaining:
+1. Why this route matches the user's preferences
+2. If there is special context (children, reduced mobility), mention EXPLICITLY how the route was adapted
+3. Highlight 1-2 of the most important POIs (ONLY ones on the list above, NEVER invent names)
+4. If DATA COVERAGE indicates missing categories, briefly mention that this offering is limited in the area
+
+STRICT RULES:
+- NEVER mention POIs that are not on the GENERATED ROUTE list above
+- NEVER invent hotel, restaurant, or attraction names
+- Use ONLY the exact names from the list
+TONE: Friendly, informative, in English. Do NOT use technical jargon (do not mention SHAP, AHP, fitness).
+LENGTH: Maximum 4 sentences.
+
+Reply with ONLY the explanation text."""
+        else:
+            prompt = f"""Gera uma explicacao CURTA e FUNDAMENTADA em portugues de Portugal sobre esta rota turistica.
 
 ROTA GERADA:
 {route_str}
@@ -1185,6 +1253,8 @@ Responde APENAS com o texto da explicacao."""
 
         except Exception as e:
             print(f"AVISO: Erro ao gerar explicacao: {e}")
+            if is_en:
+                return f"This route was optimized using the {algorithm_used} algorithm to include {len(route)} POIs matching your interests in {', '.join(preferences.interests)}. The route has a total duration of {total_duration} minutes and costs EUR{total_cost:.2f}."
             return f"Esta rota foi otimizada com o algoritmo {algorithm_used} para incluir {len(route)} POIs que correspondem aos teus interesses em {', '.join(preferences.interests)}. O percurso tem uma duracao total de {total_duration} minutos e custa EUR{total_cost:.2f}."
 
     def interpret_refinement(self, instruction: str, current_route: List[Dict]) -> Dict:
@@ -1234,9 +1304,19 @@ Responde APENAS com o JSON."""
             print(f"AVISO: Erro ao interpretar refinamento: {e}")
             return {"type": "fresh_query"}
 
-    def answer_question(self, question: str, route_context: str) -> str:
-        """Responde a uma pergunta informativa no contexto da rota turistica planeada."""
-        prompt = f"""És um assistente de turismo especializado em Portugal. O utilizador tem a seguinte rota turistica planeada:
+    def answer_question(self, question: str, route_context: str, language: str = "pt") -> str:
+        """Responde a uma pergunta informativa no contexto da rota turistica planeada (PT ou EN)."""
+        is_en = (language or "pt").lower().startswith("en")
+        if is_en:
+            prompt = f"""You are a tourism assistant specialized in Portugal. The user has the following planned tourist route:
+
+{route_context}
+
+The user asks: "{question}"
+
+Answer helpfully, concisely and in a friendly manner, in English. If it's a question about transport, give practical information (CP, Rede Expressos, FlixBus, etc). If you don't know something for certain, say so and suggest where to find more information. Maximum 3 short paragraphs."""
+        else:
+            prompt = f"""És um assistente de turismo especializado em Portugal. O utilizador tem a seguinte rota turistica planeada:
 
 {route_context}
 
@@ -1247,6 +1327,8 @@ Responde de forma útil, concisa e amigável em português europeu. Se for uma p
         try:
             return self._call_llm(prompt, max_tokens=500, temperature=0.5)
         except Exception as e:
+            if is_en:
+                return "I couldn't answer your question right now. Please try again."
             return f"Não foi possível responder à tua pergunta neste momento. Por favor tenta novamente."
 
 
