@@ -780,6 +780,8 @@ class DayPlanner:
                 if not _has_restaurant:
                     # Full-day: praia/parque preenche o dia; utilizador come in situ
                     actual_dur = max(30, min(360, DINNER_START - t_start))
+                    if not self._within_opening_hours(poi, t_start, t_start + actual_dur):
+                        continue
                     current = t_start
                     _sched(poi, actual_dur)
                     morning_immersive.add(cat)
@@ -791,6 +793,8 @@ class DayPlanner:
                     actual_dur = min(LUNCH_START - t_start, poi['duration'])
                     if actual_dur < 30:
                         continue
+                    if not self._within_opening_hours(poi, t_start, t_start + actual_dur):
+                        continue
                     current = t_start
                     _sched(poi, actual_dur)
                     morning_immersive.add(cat)
@@ -798,6 +802,8 @@ class DayPlanner:
                 t_end = t_start + poi['duration']
                 if t_end > LUNCH_START:
                     continue  # não cabe antes do almoço; bloco da tarde trata isto
+                if not self._within_opening_hours(poi, t_start, t_end):
+                    continue  # TW: fora do horario de abertura
                 current = t_start
                 _sched(poi)
 
@@ -834,6 +840,8 @@ class DayPlanner:
                 actual_dur = min(poi['duration'], DINNER_START - t_start)
                 if actual_dur < 30:
                     continue
+                if not self._within_opening_hours(poi, t_start, t_start + actual_dur):
+                    continue
                 current = t_start
                 _sched(poi, actual_dur)
                 afternoon_immersive.add(cat)
@@ -841,6 +849,8 @@ class DayPlanner:
                 t_end = t_start + poi['duration']
                 if t_end > DINNER_START:
                     continue
+                if not self._within_opening_hours(poi, t_start, t_end):
+                    continue  # TW: fora do horario de abertura
                 current = t_start
                 _sched(poi)
 
@@ -921,6 +931,25 @@ class DayPlanner:
     def _parse_time(self, time_str: str) -> int:
         h, m = map(int, time_str.split(':'))
         return h * 60 + m
+
+    def _within_opening_hours(self, poi: Dict, arr_min: int, dep_min: int) -> bool:
+        """TW (time windows): verifica se [arr_min, dep_min) cabe no horario de
+        abertura do POI. Sem dados de horario (ou nao parseaveis) -> assume
+        aberto, para nao rejeitar POIs por falta de informacao."""
+        opening = poi.get('opening_time')
+        closing = poi.get('closing_time')
+        if not opening or not closing:
+            return True
+        try:
+            open_min  = self._parse_time(opening)
+            close_min = self._parse_time(closing)
+        except (ValueError, AttributeError):
+            return True
+        if close_min <= open_min:
+            close_min += 24 * 60  # fecha depois da meia-noite
+        day_arr = arr_min % (24 * 60)
+        day_dep = day_arr + (dep_min - arr_min)
+        return day_arr >= open_min and day_dep <= close_min
 
     def _fmt(self, minutes: int) -> str:
         rounded = int(math.ceil(minutes / 10) * 10)  # arredondar para cima ao múltiplo de 10
