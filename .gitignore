@@ -61,3 +61,10 @@ evals/prompts_quick35.txt
 .DS_Store
 Thumbs.db
 data/dataset_report.md
+
+# Documentação interna da tese (completa, com detalhe de dados e decisões) — só local
+# Versão pública: docs/ARCHITECTURE.md
+docs/system.md
+docs/architecture_rationale.md
+docs/architecture_rationale.docx
+exemplo entrada pre tratamento.json

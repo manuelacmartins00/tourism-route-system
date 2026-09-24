@@ -18,12 +18,14 @@ Intelligent route recommendation system for Portugal. Takes a natural language q
 
 ```
 User query (natural language)
-  └─> LLM Layer (Groq / Llama-3.1-8b)    — extract preferences: time, budget, categories, transport, ...
+  └─> LLM Layer (Groq / gpt-oss-20b)     — extract preferences: time, budget, categories, transport, ...
   └─> RAG Layer (ChromaDB)                — retrieve matching Points of Interest
   └─> Route Optimisation                  — ACO / GA / PSO / Greedy
   └─> Explanation Layer (LLM)             — generate human-readable itinerary
   └─> Map Output (Folium / Leaflet)       — interactive HTML map
 ```
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for an overview of the architecture and the main design decisions.
 
 ---
 
