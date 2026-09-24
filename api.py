@@ -3,6 +3,7 @@
 import os
 import csv
 import uuid
+import secrets
 from pathlib import Path
 from datetime import datetime
 from typing import Optional
@@ -373,8 +374,10 @@ async def save_feedback(fb: FeedbackRequest):
 # -- ENDPOINT 5: GET /admin - descarregar CSV (password protegido) -----
 @app.get("/admin")
 async def download_csv(x_admin_password: Optional[str] = Header(None)):
-    admin_pw = os.getenv("ADMIN_PASSWORD", "***REMOVED***")
-    if x_admin_password != admin_pw:
+    admin_pw = os.getenv("ADMIN_PASSWORD")
+    if not admin_pw:
+        raise HTTPException(status_code=503, detail="Admin desativado: ADMIN_PASSWORD nao definida")
+    if x_admin_password is None or not secrets.compare_digest(x_admin_password, admin_pw):
         raise HTTPException(status_code=401, detail="Password incorrecta")
 
     # Reconstroi sempre a partir dos ficheiros individuais feedback/*.json no
