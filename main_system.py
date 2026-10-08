@@ -101,6 +101,27 @@ THEMATIC_GROUPS = [
 ]
 
 
+def foot_fallback_note(day_plan: Optional[Dict], language: str = "pt") -> str:
+    """Aviso de troços longos a pé (B5), acrescentado à explicação de forma
+    determinística (sem LLM). Devolve "" se não houver troços nessas condições."""
+    if not day_plan or not day_plan.get('days'):
+        return ""
+    foot_fallback_kms = [
+        p['travel_km']
+        for day in day_plan['days']
+        for p in day['pois']
+        if p.get('travel_mode') == 'car' and p.get('travel_km') is not None
+    ]
+    if not foot_fallback_kms:
+        return ""
+    kms_str = ", ".join(f"{km:.1f} km" for km in foot_fallback_kms)
+    if (language or "pt").lower().startswith("en"):
+        return (f"\n\nSome legs of this plan are too long to walk ({kms_str})"
+                " — for those, consider taking a taxi/Uber.")
+    return (f"\n\nAlguns troços deste plano são longos para fazer a pé ({kms_str})"
+            " — para esses, considera apanhar um táxi/Uber.")
+
+
 def _thematic_siblings(categories: list) -> list:
     """Devolve categorias do mesmo grupo tematico que `categories`, excluindo
     as proprias `categories` (B1 fallback de Fill-D)."""
@@ -269,6 +290,9 @@ class TourismRouteSystem:
         Returns:
             Dict com rota, metricas, explicacoes SHAP, LLM, mapa e planeamento por dias
         """
+        # Contexto de avaliação da última rota (em memória, não serializável):
+        # usado pela API para recalcular métricas e explicação em refinamentos
+        self.last_eval_ctx = None
 
         if verbose:
             print(f"\n{'=' * 70}")
@@ -1323,6 +1347,18 @@ class TourismRouteSystem:
             "shap_explanation": shap_explanation,
             "explanation": explanation
         }
+        self.last_eval_ctx = {
+            "evaluator": evaluator,
+            "pois": optimizer_pois,
+            "route": list(optimization_result['route']),
+            "preferences": preferences,
+            "algorithm": selected_algo,
+            "mobility_issues": mobility_issues,
+            "has_children": has_children,
+            "is_elderly": is_elderly,
+            "use_shap": use_shap,
+            "language": language,
+        }
 
         # ========== PASSO 8: PLANEAR DIAS ==========
         if verbose:
@@ -1528,6 +1564,10 @@ class TourismRouteSystem:
                         if verbose:
                             print(f"   [Fill-D] Dia {day['day']}: +{len(added)} POI(s)\n")
 
+            # Ponto de partida guardado para refinamentos (api.apply_refinement
+            # reformata os dias sem voltar a correr o pipeline)
+            if day_plan is not None:
+                day_plan['start_geo'] = [start_geo[0], start_geo[1]] if start_geo else None
             result['day_plan'] = day_plan
 
             # Dedup final por nome: apanha duplicados introduzidos pelo Fill-D
@@ -1563,26 +1603,8 @@ class TourismRouteSystem:
 
             # Notas de transporte (B5): aviso de troços longos a pé -
             # adicionado de forma deterministica (sem LLM) ao final da explicacao
-            if (day_plan and day_plan.get('days') and result.get('explanation')
-                    and preferences.transport_mode == "foot"):
-                foot_fallback_kms = [
-                    p['travel_km']
-                    for day in day_plan['days']
-                    for p in day['pois']
-                    if p.get('travel_mode') == 'car' and p.get('travel_km') is not None
-                ]
-                if foot_fallback_kms:
-                    kms_str = ", ".join(f"{km:.1f} km" for km in foot_fallback_kms)
-                    if (language or "pt").lower().startswith("en"):
-                        result['explanation'] += (
-                            f"\n\nSome legs of this plan are too long to walk ({kms_str})"
-                            " — for those, consider taking a taxi/Uber."
-                        )
-                    else:
-                        result['explanation'] += (
-                            f"\n\nAlguns troços deste plano são longos para fazer a pé ({kms_str})"
-                            " — para esses, considera apanhar um táxi/Uber."
-                        )
+            if result.get('explanation') and preferences.transport_mode == "foot":
+                result['explanation'] += foot_fallback_note(day_plan, language)
 
             if verbose:
                 planner.print_itinerary(day_plan)

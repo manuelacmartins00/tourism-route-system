@@ -110,27 +110,169 @@ def _msg(pt: str, en: str, language: Optional[str]) -> str:
     return en if (language or "pt").lower().startswith("en") else pt
 
 # -- Aplica operacao de refinamento sobre a rota existente ------------
-def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any]) -> Dict[str, Any]:
+def apply_refinement(operation: Dict[str, Any], last_result: Dict[str, Any],
+                     language: Optional[str] = None,
+                     eval_ctx: Optional[Dict[str, Any]] = None):
     """
     Modifica a rota existente com base na operacao devolvida pelo LLM.
     Suporta: remove (POI especifico) e filter_category (categoria inteira).
-    Devolve novo resultado com a rota modificada.
+    Devolve (resultado com a rota modificada, contexto de avaliacao atualizado).
     """
-    route = list(last_result.get("route", []))
     op_type = operation.get("type", "fresh_query")
 
     if op_type == "remove":
         nomes = [n.lower() for n in operation.get("poi_names", [])]
-        route = [p for p in route if p.get("name", "").lower() not in nomes]
-
+        keep = lambda p: p.get("name", "").lower() not in nomes
     elif op_type == "filter_category":
         excluir = [c.lower() for c in operation.get("exclude_categories", [])]
-        route = [p for p in route if p.get("category", "").lower() not in excluir]
+        keep = lambda p: p.get("category", "").lower() not in excluir
+    else:
+        keep = lambda p: True
 
     modified = dict(last_result)
-    modified["route"] = route
+    modified["route"] = [p for p in last_result.get("route", []) if keep(p)]
     modified["refinement_applied"] = op_type
-    return modified
+
+    prefs = last_result.get("preferences", {}) or {}
+    day_plan = last_result.get("day_plan")
+    if day_plan and day_plan.get("days"):
+        modified["day_plan"] = _rebuild_day_plan(day_plan, keep, prefs)
+        # Sincronizar route com o day_plan (a reformatação pode deixar POIs
+        # de fora, ex.: horário de abertura com a nova hora de chegada)
+        scheduled = {p["name"] for d in modified["day_plan"]["days"] for p in d["pois"]}
+        modified["route"] = [p for p in modified["route"] if p["name"] in scheduled]
+
+    from main_system import ACCOMMODATION_BUNDLES
+    people_per_room = (prefs.get("num_people") or 1) / (prefs.get("num_rooms") or 1)
+    modified["cost_per_person"] = round(sum(
+        p["cost"] / people_per_room if p.get("category") in ACCOMMODATION_BUNDLES else p["cost"]
+        for p in modified["route"]
+    ), 2)
+
+    # Métricas e explicação recalculadas para a rota alterada
+    new_ctx = None
+    if eval_ctx:
+        new_ctx = _refresh_metrics_and_explanation(modified, eval_ctx, keep, language)
+
+    # Mapa novo com a rota alterada (o mapa anterior mostrava os POIs removidos)
+    modified["map_id"] = None
+    try:
+        from src.utils.map_generator import RouteMapGenerator
+        modified["map_file"] = RouteMapGenerator().generate_map(
+            modified["route"],
+            output_file=None,
+            algorithm=last_result.get("algorithm_used"),
+            transport_mode=prefs.get("transport_mode"),
+            day_plan=modified.get("day_plan"),
+            transit_service=system.transit_service,
+            language=language or "pt",
+        )
+    except Exception as e:
+        print(f"AVISO: Erro ao regenerar mapa no refinamento: {e}")
+        modified["map_file"] = None
+    return modified, new_ctx
+
+
+def _refresh_metrics_and_explanation(modified: Dict[str, Any], ctx: Dict[str, Any],
+                                     keep, language: Optional[str]) -> Dict[str, Any]:
+    """Recalcula fitness, componentes AHP, tempos e explicação LLM com o mesmo
+    avaliador e o mesmo método do plan_route, sobre a rota alterada.
+    Devolve o contexto de avaliação com a nova rota (para refinamentos seguintes)."""
+    from main_system import foot_fallback_note
+    from src.utils.shap_explainer import RouteExplainer
+
+    evaluator, pois = ctx["evaluator"], ctx["pois"]
+    lang = language or ctx.get("language") or "pt"
+    shown = {p["name"] for p in modified["route"]}
+    route_idx = [i for i in ctx["route"]
+                 if keep({"name": pois[i].name, "category": pois[i].category})
+                 and pois[i].name in shown]
+
+    fitness = evaluator.calculate_fitness(route_idx) if route_idx else 0.0
+    components = {}
+    if route_idx:
+        try:
+            components = evaluator.calculate_fitness_components(route_idx)
+        except Exception:
+            pass
+    visit_time = sum(pois[i].duration for i in route_idx)
+    total_time = evaluator._calculate_time(route_idx) if route_idx else 0
+
+    optimization = dict(modified.get("optimization") or {})
+    optimization.update({
+        "fitness": fitness,
+        "n_selected": len(route_idx),
+        "visit_time_min": visit_time,
+        "travel_time_min": total_time - visit_time,
+        "total_time_min": total_time,
+        "fitness_components": components,
+    })
+    modified["optimization"] = optimization
+
+    shap_values = None
+    if ctx.get("use_shap") and route_idx:
+        try:
+            shap_values = RouteExplainer(pois, evaluator).explain_route(route_idx).get("shap_values")
+        except Exception as e:
+            print(f"AVISO: Erro SHAP no refinamento: {e}")
+
+    prefs = ctx["preferences"]
+    explanation = system.llm.explain_route(
+        route=[{"name": pois[i].name, "category": pois[i].category,
+                "cost": pois[i].cost, "duration": pois[i].duration} for i in route_idx],
+        preferences=prefs,
+        algorithm_used=ctx["algorithm"],
+        optimization_metadata={"fitness": fitness},
+        fitness_components=components,
+        shap_values=shap_values,
+        mobility_issues=ctx["mobility_issues"],
+        has_children=ctx["has_children"],
+        is_elderly=ctx["is_elderly"],
+        num_people=getattr(prefs, "num_people", 1),
+        language=lang,
+    )
+    if explanation and prefs.transport_mode == "foot":
+        explanation += foot_fallback_note(modified.get("day_plan"), lang)
+    modified["explanation"] = explanation
+
+    return {**ctx, "route": route_idx}
+
+
+def _rebuild_day_plan(day_plan: Dict[str, Any], keep, prefs: Dict[str, Any]) -> Dict[str, Any]:
+    """Retira de cada dia os POIs que não passam em `keep` e reformata o dia
+    (horas, ordem, deslocações) com o DayPlanner, mantendo a atribuição a dias
+    e os hotéis. Não volta a correr a otimização."""
+    from src.utils.day_planner import DayPlanner
+
+    planner = DayPlanner(
+        hours_per_day=8,
+        start_time="09:00",
+        lunch_break=60,
+        transport_mode=prefs.get("transport_mode") or "car",
+        transit_service=system.transit_service,
+    )
+    start_geo = day_plan.get("start_geo")
+    if start_geo:
+        planner.start_lat, planner.start_lon = start_geo[0], start_geo[1]
+
+    days = []
+    for day in day_plan["days"]:
+        pois = [p for p in day["pois"] if keep(p)]
+        hotel = next((p for p in pois if p.get("is_accommodation")), None)
+        nocturnal = [p for p in pois if not p.get("is_accommodation")
+                     and p.get("category") in DayPlanner.NOCTURNO_CATEGORIES]
+        diurnal = [p for p in pois if not p.get("is_accommodation")
+                   and p.get("category") not in DayPlanner.NOCTURNO_CATEGORIES]
+        if diurnal or nocturnal or hotel:
+            days.append(planner._format_day(day["day"], diurnal, nocturnal,
+                                            day_start_time=day.get("start_time"), hotel=hotel))
+
+    rebuilt = dict(day_plan)
+    rebuilt["days"] = days
+    rebuilt["total_days"] = len(days)
+    rebuilt["total_pois"] = sum(d["n_pois"] for d in days)
+    rebuilt["summary"] = planner._generate_summary(days)
+    return rebuilt
 
 
 # -- ENDPOINT 2: POST /query - processa query e devolve rota ----------
@@ -155,6 +297,7 @@ async def query_route(req: QueryRequest, request: Request):
     # Carregar histórico da sessão (deduplicado)
     _prev_session = sessions.get(session_id, {})
     update_history: list = list(_prev_session.get("update_history", []))
+    eval_ctx = None  # contexto de avaliacao (em memoria) da rota que fica na sessao
 
     # Valores de accommodation/meals: preferir o que vem no request; fallback na sessão
     _inc_accom = req.include_accommodation if req.include_accommodation is not None \
@@ -210,7 +353,9 @@ async def query_route(req: QueryRequest, request: Request):
                 print(f"   Contexto preservado - query combinada")
                 is_refinement = False
             else:
-                result = apply_refinement(operation, last_result)
+                result, eval_ctx = apply_refinement(
+                    operation, last_result, language=req.language,
+                    eval_ctx=sessions[session_id].get("eval_ctx"))
                 result["is_refinement"] = True
         except Exception as e:
             print(f"AVISO: Erro no refinamento: {e} - a processar como query nova")
@@ -228,6 +373,7 @@ async def query_route(req: QueryRequest, request: Request):
                 num_rooms=req.num_rooms,
                 language=req.language,
             )
+            eval_ctx = system.last_eval_ctx
         except Exception as e:
             import traceback
             traceback.print_exc()
@@ -240,8 +386,8 @@ async def query_route(req: QueryRequest, request: Request):
         result["session_id"] = session_id or str(uuid.uuid4())[:8]
         return JSONResponse(content=result)
 
-    # Gerar ID unico para o mapa (apenas em rotas novas)
-    if not is_refinement:
+    # Gerar ID unico para o mapa (rotas novas e refinamentos que regeneram o mapa)
+    if not is_refinement or result.get("map_file"):
         map_id = str(uuid.uuid4())[:8]
         map_path = Path(f"outputs/maps/{map_id}.html")
         if result.get("map_file"):
@@ -287,6 +433,9 @@ async def query_route(req: QueryRequest, request: Request):
         # Preservar para evitar re-perguntar em fresh_query subsequentes
         "include_accommodation": _inc_accom,
         "include_meals": _inc_meals,
+        # Avaliador + POIs da otimizacao (nao serializavel, so em memoria):
+        # permite recalcular metricas e explicacao em refinamentos
+        "eval_ctx": eval_ctx,
     }
     result["session_id"] = session_id
 
